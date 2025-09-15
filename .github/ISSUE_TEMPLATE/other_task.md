@@ -1,6 +1,6 @@
 ---
 name: "Other Task / POC / Documentation"
-description: "Template for uncategorized tasks, POCs, documentation, and miscellaneous issues."
+about: "Template for uncategorized tasks, POCs, documentation, and miscellaneous issues."
 title: "[Other] <short description>"
 labels: ["other", "task"]
 assignees: []
