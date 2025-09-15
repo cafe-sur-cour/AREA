@@ -2,11 +2,12 @@
 
 ## Project Overview
 
-...
+The AREA (Action - REAction) is a platform designed to create automations between different services.
+The users can create an automation by selecting an Action from a service (e.g. the music changed in Spotify) and a reaction to that (e.g. send a message on Discord).
 
 ### Context and Objectives
 
-The goal of this web platform is to:
+The goal of this platform is to:
 
 - 
 
