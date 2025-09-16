@@ -83,36 +83,44 @@ jobs:
     name: Deploy application
     needs: [backend-linter, web-linter]
     runs-on: ubuntu-latest
+    environment: AREA
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Temporary job
-        run: echo "Temporary job to fix needs issue"
+      - name: Generate .env from secrets
+        env:
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+        run: |
+          echo "DB_USER=$DB_USER" > ./deployment/.env
+          echo "DB_PASSWORD=$DB_PASSWORD" >> ./deployment/.env
+          echo "DB_NAME=$DB_NAME" >> ./deployment/.env
 
-      # - name: Clean all containers
-      #   run: docker compose -f ./deployment/docker-compose.yml down -v
+      - name: Clean all containers
+        run: docker compose -f ./deployment/docker-compose.yml down -v
 
-      # - name: Deploy application
-      #   run: docker compose -f ./deployment/docker-compose.yml up -d --build
+      - name: Deploy application
+        run: docker compose -f ./deployment/docker-compose.yml up -d --build
 
-      # - name: Waiting for postgreSQL database
-      #   run: timeout 60 bash -c "until docker exec postgres_db pg_isready -U $DB_USER -d $DB_NAME; do sleep 2; done"
+      - name: Waiting for postgreSQL database
+        run: timeout 60 bash -c "until docker exec postgres_db pg_isready -U $DB_USER -d $DB_NAME; do sleep 2; done"
 
-      # - name: Waiting for backend service
-      #   run: timeout 60 bash -c 'until nc -z localhost ${{ secrets.BACK_PORT }}; do sleep 2; done'
+      - name: Waiting for backend service
+        run: timeout 60 bash -c 'until nc -z localhost $BACKEND_PORT; do sleep 2; done'
 
-      # - name: Waiting for web service
-      #   run: timeout 60 bash -c 'until nc -z localhost ${{ secrets.WEB_PORT }}; do sleep 2; done'
+      - name: Waiting for web service
+        run: timeout 60 bash -c 'until nc -z localhost $FRONTEND_PORT; do sleep 2; done'
 
-      # - name: List running containers
-      #   run: docker ps
+      - name: List running containers
+        run: docker ps
 
   push-to-mirror:
     name: Push to Mirror Repository
     needs: deploy-app
     if: ${{ github.event_name == 'pull_request' && github.event.pull_request.merged == true }}
-    environment: AREA
+    environment: PIPELINE
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Source Repository

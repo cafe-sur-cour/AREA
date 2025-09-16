@@ -3,7 +3,7 @@ services:
   backend-nodejs:
     build:
       context: ..
-      dockerfile: ../deployement/Dockerfile.back
+      dockerfile: ./deployment/Dockerfile.back
     container_name: backend
     ports:
       - "${NODE_PORT}:4000"
@@ -17,7 +17,7 @@ services:
   frontend-nextjs:
     build:
       context: ..
-      dockerfile: ../deployement/Dockerfile.web
+      dockerfile: ./deployment/Dockerfile.web
     container_name: frontend
     ports:
       - "${NEXT_PORT}:3000"
@@ -33,7 +33,7 @@ services:
   frontend-flutter:
     build:
       context: ..
-      dockerfile: Dockerfile.mob
+      dockerfile: ./deployment/Dockerfile.mob
     container_name: mobile
     volumes:
       - ./mobile:/app
