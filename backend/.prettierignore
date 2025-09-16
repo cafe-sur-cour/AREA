@@ -1,0 +1,17 @@
+node_modules/
+build/
+dist/
+coverage/
+.nyc_output/
+*.min.js
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+.env*
+.DS_Store
+*.log
+.git/
+.vscode/
+.idea/
+uploads/
+temp/
