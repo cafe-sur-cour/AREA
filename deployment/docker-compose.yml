@@ -1,0 +1,64 @@
+version: "3.9"
+services:
+  backend-nodejs:
+    build:
+      context: ..
+      dockerfile: ../deployement/Dockerfile.back
+    container_name: backend
+    ports:
+      - "${NODE_PORT}:4000"
+    environment:
+      - NODE_ENV=${NODE_ENV}
+    networks:
+      - app-network
+    depends_on:
+      - db-postgresql
+
+  frontend-nextjs:
+    build:
+      context: ..
+      dockerfile: ../deployement/Dockerfile.web
+    container_name: frontend
+    ports:
+      - "${NEXT_PORT}:3000"
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+    networks:
+      - app-network
+    depends_on:
+      - backend-nodejs
+      - db-postgresql
+
+  frontend-flutter:
+    build:
+      context: ..
+      dockerfile: Dockerfile.mob
+    container_name: mobile
+    volumes:
+      - ./mobile:/app
+    command: flutter build apk --release
+    depends_on:
+      - backend-nodejs
+      - db-postgresql
+
+  db-postgresql:
+    image: postgres:14
+    container_name: db
+    ports:
+      - "${DB_PORT}:5432"
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    networks:
+      - app-network
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  pgdata:
