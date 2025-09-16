@@ -29,6 +29,7 @@ jobs:
 
   backend-linter:
     name: Backend linter
+    needs: check_repository
     if: ${{ needs.check_repository.outputs.target == 0 }}
     runs-on: ubuntu-latest
     steps:
@@ -54,6 +55,7 @@ jobs:
 
   web-linter:
     name: Web frontend linter
+    needs: check_repository
     if: ${{ needs.check_repository.outputs.target == 0 }}
     runs-on: ubuntu-latest
     steps:
