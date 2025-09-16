@@ -1,0 +1,124 @@
+name: CI/CD Pipeline
+
+on:
+  push: {}
+  pull_request: {}
+
+
+jobs:
+  check_repository:
+    name: Check repository to start jobs
+    runs-on: ubuntu-latest
+    outputs:
+      target: ${{ steps.new_output.outputs.value }}
+    steps:
+      - name: checkout@v4
+        uses: actions/checkout@v4
+
+      - name: Check target repository
+        id: new_output
+        run: |
+          temp=$(echo $MIRROR_URL | cut -d ':' -f 2 | sed "s/\.git//")
+          if [ $temp = ${{ github.repository }} ]; then
+            echo "::notice title=The target repository is also the current one::$temp"
+            echo "value=1" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "value=0" >> "$GITHUB_OUTPUT"
+          exit 0
+
+  backend-linter:
+    name: Backend linter
+    if: ${{ needs.check_repository.outputs.target == 0 }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up NodeJs
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install backend dependencies
+        working-directory: ./backend
+        run: npm install
+
+      - name: Run backend ESLint
+        working-directory: ./backend
+        run: npm run lint:check
+
+      - name: Run Prettier check
+        working-directory: ./backend
+        run: npm run format:check
+
+  web-linter:
+    name: Web frontend linter
+    if: ${{ needs.check_repository.outputs.target == 0 }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up NodeJs
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install frontend dependencies
+        working-directory: ./frontend/web
+        run: npm install
+
+      - name: Run frontend ESLint
+        working-directory: ./frontend/web
+        run: npm run lint:check
+
+      - name: Run Prettier check
+        working-directory: ./frontend/web
+        run: npm run format:check
+
+  deploy-app:
+    name: Deploy application
+    needs: [backend-linter, web-linter]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Temporary job
+        run: echo "Temporary job to fix needs issue"
+
+      # - name: Clean all containers
+      #   run: docker compose -f ./deployment/docker-compose.yml down -v
+
+      # - name: Deploy application
+      #   run: docker compose -f ./deployment/docker-compose.yml up -d --build
+
+      # - name: Waiting for postgreSQL database
+      #   run: timeout 60 bash -c "until docker exec postgres_db pg_isready -U $DB_USER -d $DB_NAME; do sleep 2; done"
+
+      # - name: Waiting for backend service
+      #   run: timeout 60 bash -c 'until nc -z localhost ${{ secrets.BACK_PORT }}; do sleep 2; done'
+
+      # - name: Waiting for web service
+      #   run: timeout 60 bash -c 'until nc -z localhost ${{ secrets.WEB_PORT }}; do sleep 2; done'
+
+      # - name: List running containers
+      #   run: docker ps
+
+  push-to-mirror:
+    name: Push to Mirror Repository
+    needs: deploy-app
+    if: ${{ github.event_name == 'pull_request' && github.event.pull_request.merged == true }}
+    environment: AREA
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Push to Mirror Repository
+        uses: pixtal/github-repo-mirror-action@v2
+        with:
+          target_repo: ${{ secrets.MIRROR_REPO }}
+          ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
