@@ -1,0 +1,17 @@
+#!/bin/sh
+
+commit_msg_file="$1"
+first_line=$(sed -n '1p' "$commit_msg_file")
+
+pattern='^(feat|test|remove|refactor|docs|style) \([^)]+\): .+'
+
+if ! printf '%s\n' "$first_line" | grep -Eq "$pattern"; then
+  cat <<'EOF'
+❌ Invalid commit message!
+Expected format: <type> (<scope>): <description>
+Allowed types: feat, test, remove, refactor, docs, style
+EOF
+  exit 1
+fi
+
+exit 0
