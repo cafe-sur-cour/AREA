@@ -1,14 +1,14 @@
 ---
-name: "Hub Issue"
-about: "Template for hub issues that serve as a central point for tracking multiple sub-issues."
-title: "[Hub] <short description>"
-labels: ["hub", "epic"]
+name: "Module Issue"
+about: "Template for module issues that serve as a central point for tracking multiple sub-issues."
+title: "[Module] <short description>"
+labels: ["module", "epic"]
 assignees: []
 ---
 
 ## Description
 
-<!-- Provide a high-level description of the hub issue and its purpose. -->
+<!-- Provide a high-level description of the module issue and its purpose. -->
 
 ## Sub-Issues
 
@@ -24,11 +24,11 @@ assignees: []
 
 ## Expected Outcome
 
-<!-- What is the overall goal or deliverable for this hub? -->
+<!-- What is the overall goal or deliverable for this module? -->
 
 ## Progress Tracking
 
-<!-- Track the overall progress of the hub. -->
+<!-- Track the overall progress of the module. -->
 
 - Total Sub-Issues:
 - Completed:
