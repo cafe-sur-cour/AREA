@@ -55,6 +55,25 @@ def parse_sub_issues(body):
     matches = re.findall(pattern, body)
     return [int(num) for num in matches]
 
+def update_checkboxes(body, issues_dict):
+    """Update checkboxes in Related Sub-Issues based on issue status."""
+    lines = body.split('\n')
+    updated_lines = []
+    in_related_section = False
+    for line in lines:
+        if line.strip().startswith('## Related Sub-Issues'):
+            in_related_section = True
+        elif line.strip().startswith('##') and in_related_section:
+            in_related_section = False
+        if in_related_section and '- [ ] #' in line:
+            match = re.search(r'#(\d+)', line)
+            if match:
+                num = int(match.group(1))
+                if num in issues_dict and issues_dict[num]['state'] == 'closed':
+                    line = line.replace('- [ ]', '- [x]')
+        updated_lines.append(line)
+    return '\n'.join(updated_lines)
+
 def calculate_progress(sub_issue_numbers, issues_dict):
     """Calculate progress based on sub-issue statuses and GitHub relations."""
     total = len(sub_issue_numbers)
@@ -85,7 +104,7 @@ def calculate_progress(sub_issue_numbers, issues_dict):
                 in_progress += 1
     return total, completed, in_progress, blocked
 
-def update_progress_tracking(issue_number, body, total, completed, in_progress, blocked):
+def update_progress_tracking(issue_number, body, total, completed, in_progress, blocked, issues_dict):
     """Update the Progress Tracking section in the body."""
     progress_section = f"""## Progress Tracking
 
@@ -122,7 +141,8 @@ def update_progress_tracking(issue_number, body, total, completed, in_progress, 
     else:
         new_body = body + "\n\n" + progress_section
 
-    # Update the issue via API
+    new_body = update_checkboxes(new_body, issues_dict)
+
     update_url = f"https://api.github.com/repos/{REPO}/issues/{issue_number}"
     data = {"body": new_body}
     response = requests.patch(update_url, headers=HEADERS, json=data)
@@ -141,6 +161,6 @@ if __name__ == "__main__":
         sub_issue_numbers = parse_sub_issues(body)
         if sub_issue_numbers:
             total, completed, in_progress, blocked = calculate_progress(sub_issue_numbers, issues_dict)
-            update_progress_tracking(module_issue['number'], body, total, completed, in_progress, blocked)
+            update_progress_tracking(module_issue['number'], body, total, completed, in_progress, blocked, issues_dict)
         else:
             pass
