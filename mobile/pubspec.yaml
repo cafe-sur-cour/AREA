@@ -60,10 +60,10 @@ flutter:
   fonts:
     - family: Montserrat
       fonts:
-        - asset: fonts/Montserrat-Regular.ttf
+        - asset: fonts/Montserrat/Montserrat-Regular.ttf
     - family: OpenSans
       fonts:
-        - asset: fonts/OpenSans-Regular.ttf
+        - asset: fonts/OpenSans/OpenSans-Regular.ttf
 
   # To add assets to your application, add an assets section, like this:
   # assets:
