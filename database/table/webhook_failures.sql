@@ -9,7 +9,6 @@ CREATE TABLE webhook_failures (
     "payload" JSONB,
     "error_message" TEXT NOT NULL,
     "error_code" VARCHAR(100),
-    "ip_address" INET,
     "user_agent" TEXT,
     "retry_count" INTEGER DEFAULT 0,
     "last_retry_at" TIMESTAMP,

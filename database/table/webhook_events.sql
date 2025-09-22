@@ -12,7 +12,6 @@ CREATE TABLE webhook_events (
     "processed_payload" JSONB,
     "status" VARCHAR(50) DEFAULT 'received',
     "processing_time_ms" INTEGER,
-    "ip_address" INET,
     "user_agent" TEXT,
     "signature_verified" BOOLEAN DEFAULT FALSE,
     "error_message" TEXT,

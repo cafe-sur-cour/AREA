@@ -4,7 +4,6 @@ CREATE TABLE user_sessions (
     "user_id" INTEGER NOT NULL,
     "session_token" VARCHAR(255) UNIQUE NOT NULL,
     "refresh_token" VARCHAR(255) UNIQUE,
-    "device_info" JSONB,
     "user_agent" TEXT,
     "expires_at" TIMESTAMP NOT NULL,
     "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
