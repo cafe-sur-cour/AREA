@@ -5,7 +5,7 @@
 -- Executed reactions table
 CREATE TABLE webhook_reactions (
     "id" SERIAL PRIMARY KEY,
-    "webhook_event_id" INTEGER REFERENCES webhook_events(id) ON DELETE CASCADE,
+    "webhook_event_id" INTEGER NOT NULL,
     "reaction_name" VARCHAR(100) NOT NULL,
     "status" VARCHAR(50) DEFAULT 'pending',
     "execution_time_ms" INTEGER,

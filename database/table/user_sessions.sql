@@ -1,7 +1,7 @@
 -- User sessions/tokens table
 CREATE TABLE user_sessions (
     "id" SERIAL PRIMARY KEY,
-    "user_id" INTEGER REFERENCES users("id") ON DELETE CASCADE,
+    "user_id" INTEGER NOT NULL,
     "session_token" VARCHAR(255) UNIQUE NOT NULL,
     "refresh_token" VARCHAR(255) UNIQUE,
     "device_info" JSONB,

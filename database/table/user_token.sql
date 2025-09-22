@@ -1,7 +1,7 @@
 -- Authentication tokens table (OAuth, API keys, etc.)
 CREATE TABLE user_tokens (
     "id" SERIAL PRIMARY KEY,
-    "user_id" INTEGER REFERENCES users("id") ON DELETE CASCADE,
+    "user_id" INTEGER NOT NULL,
     "token_type" VARCHAR(50) NOT NULL,
     "token_value" VARCHAR(500) UNIQUE NOT NULL,
     "expires_at" TIMESTAMP,

@@ -1,7 +1,7 @@
 -- Activity logs table
 CREATE TABLE user_activity_logs (
     "id" SERIAL PRIMARY KEY,
-    "user_id" INTEGER REFERENCES users("id") ON DELETE CASCADE,
+    "user_id" INTEGER NOT NULL,
     "action" VARCHAR(100) NOT NULL,
     "ip_address" INET,
     "user_agent" TEXT,

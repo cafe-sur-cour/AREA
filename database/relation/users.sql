@@ -1,4 +1,14 @@
 -- ===========================================
+-- FOREIGN KEY CONSTRAINTS
+-- ===========================================
+
+-- User-related foreign keys
+ALTER TABLE user_sessions ADD CONSTRAINT fk_user_sessions_user FOREIGN KEY ("user_id") REFERENCES users("id") ON DELETE CASCADE;
+ALTER TABLE user_tokens ADD CONSTRAINT fk_user_tokens_user FOREIGN KEY ("user_id") REFERENCES users("id") ON DELETE CASCADE;
+ALTER TABLE user_activity_logs ADD CONSTRAINT fk_user_activity_logs_user FOREIGN KEY ("user_id") REFERENCES users("id") ON DELETE CASCADE;
+ALTER TABLE external_webhooks ADD CONSTRAINT fk_external_webhooks_user FOREIGN KEY ("user_id") REFERENCES users("id") ON DELETE CASCADE;
+
+-- ===========================================
 -- INDEXES FOR PERFORMANCE
 -- ===========================================
 

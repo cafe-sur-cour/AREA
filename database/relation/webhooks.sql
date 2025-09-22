@@ -1,4 +1,12 @@
 -- ===========================================
+-- FOREIGN KEY CONSTRAINTS
+-- ===========================================
+
+-- Webhook foreign keys
+ALTER TABLE webhook_configs ADD CONSTRAINT fk_webhook_configs_created_by FOREIGN KEY ("created_by") REFERENCES users("id") ON DELETE SET NULL;
+ALTER TABLE webhook_reactions ADD CONSTRAINT fk_webhook_reactions_event FOREIGN KEY ("webhook_event_id") REFERENCES webhook_events("id") ON DELETE CASCADE;
+
+-- ===========================================
 -- INDEXES FOR PERFORMANCE
 -- ===========================================
 

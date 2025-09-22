@@ -5,7 +5,7 @@
 -- External webhooks table (GitHub, etc.)
 CREATE TABLE external_webhooks (
     "id" SERIAL PRIMARY KEY,
-    "user_id" INTEGER REFERENCES users("id") ON DELETE CASCADE,
+    "user_id" INTEGER NOT NULL,
     "service" VARCHAR(100) NOT NULL,
     "external_id" VARCHAR(255),
     "repository" VARCHAR(255),

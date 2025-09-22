@@ -10,7 +10,7 @@ CREATE TABLE webhook_configs (
     "reactions" TEXT[] NOT NULL,
     "is_active" BOOLEAN DEFAULT TRUE,
     "description" TEXT,
-    "created_by" INTEGER REFERENCES users(id),
+    "created_by" INTEGER,
     "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
