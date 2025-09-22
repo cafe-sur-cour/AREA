@@ -1,0 +1,43 @@
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from "typeorm";
+
+@Entity("webhook_events")
+export class WebhookEvents {
+    @PrimaryGeneratedColumn()
+    id!: number;
+
+    @Column({ type: "varchar", length: 100 })
+    action_type!: string;
+
+    @Column({ type: "varchar", length: 100, nullable: true })
+    source?: string | null;
+
+    @Column({ type: "varchar", length: 255, nullable: true })
+    external_id?: string | null;
+
+    @Column({ type: "jsonb" })
+    payload!: Record<string, any>;
+
+    @Column({ type: "jsonb", nullable: true })
+    processed_payload?: Record<string, any> | null;
+
+    @Column({ type: "varchar", length: 50, default: 'received' })
+    status!: string;
+
+    @Column({ type: "int", nullable: true })
+    processing_time_ms?: number | null;
+
+    @Column({ type: "text", nullable: true })
+    user_agent?: string | null;
+
+    @Column({ type: "boolean", default: false })
+    signature_verified!: boolean;
+
+    @Column({ type: "text", nullable: true })
+    error_message?: string | null;
+
+    @CreateDateColumn({ type: "timestamp" })
+    created_at!: Date;
+
+    @Column({ type: "timestamp", nullable: true })
+    processed_at?: Date | null;
+}
