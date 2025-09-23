@@ -22,11 +22,18 @@ export function RegisterForm({
     setIsLoading(true);
 
     const formData = new FormData(e.currentTarget);
+    const username = formData.get('username') as string;
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
+    const confirmPassword = formData.get('confirm-password') as string;
+    if (password !== confirmPassword) {
+      alert('Passwords do not match');
+      setIsLoading(false);
+      return;
+    }
 
     try {
-      const response = await api.post('/auth/register', { email, password });
+      const response = await api.post('/auth/register', { email, username, password });
       //TODO: handle token and user data here (e.g., save to context or state)
       if (response.data) {
         router.push('/dashboard');
@@ -53,27 +60,25 @@ export function RegisterForm({
                   Register an Area account
                 </p>
               </div>
-              <div className='grid grid-cols-1 md:grid-cols-2 gap-2'>
-                <div className='grid gap-3'>
-                  <Label htmlFor='username'>Username</Label>
-                  <Input
-                    id='username'
-                    name='username'
-                    type='text'
-                    placeholder='Your username'
-                    required
-                  />
-                </div>
-                <div className='grid gap-3'>
-                  <Label htmlFor='email'>Email</Label>
-                  <Input
-                    id='email'
-                    name='email'
-                    type='email'
-                    placeholder='m@example.com'
-                    required
-                  />
-                </div>
+              <div className='grid gap-3'>
+                <Label htmlFor='username'>Username</Label>
+                <Input
+                  id='username'
+                  name='username'
+                  type='text'
+                  placeholder='Your username'
+                  required
+                />
+              </div>
+              <div className='grid gap-3'>
+                <Label htmlFor='email'>Email</Label>
+                <Input
+                  id='email'
+                  name='email'
+                  type='email'
+                  placeholder='m@example.com'
+                  required
+                />
               </div>
               <div className='grid gap-3'>
                 <Label htmlFor='password'>Password</Label>
@@ -86,12 +91,12 @@ export function RegisterForm({
                 />
               </div>
               <div className='grid gap-3'>
-                <Label htmlFor='retype-password'>Retype your password</Label>
+                <Label htmlFor='confirm-password'>Confirm password</Label>
                 <Input
-                  id='retype-password'
-                  name='retype-password'
+                  id='confirm-password'
+                  name='confirm-password'
                   type='password'
-                  placeholder='Password'
+                  placeholder='Confirm password'
                   required
                 />
               </div>
