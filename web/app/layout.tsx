@@ -17,14 +17,6 @@ const openSans = Open_Sans({
 export const metadata: Metadata = {
   title: "Area",
   description: "Area web application TEK3 project",
-  manifest: '/manifest.json',
-  icons: {
-    icon: '/favicon.ico',
-    apple: '/apple-icon.png',
-  },
-  other: [
-    { name: 'apple-mobile-web-app-title', content: 'Area' },
-  ],
 };
 
 export default function RootLayout({
@@ -34,6 +26,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <meta name="apple-mobile-web-app-title" content="Area" />
+      <link rel="icon" href="/favicon.ico" sizes="any" />
       <body
         className={`${montserrat.variable} ${openSans.variable} antialiased font-sans`}
       >
