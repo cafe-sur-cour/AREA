@@ -82,6 +82,7 @@ jobs:
   deploy-app:
     name: Deploy application
     needs: [backend-linter, web-linter]
+    environment: AREA
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -90,6 +91,13 @@ jobs:
       - name: Temporary job
         run: echo "Temporary job to fix needs issue"
 
+      - name: Generate .env from secrets
+        env:
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_PORT: ${{ secrets.DB_PORT }}
       - name: Clean all containers
         run: docker compose -f ./deployment/docker-compose.yml down -v
 
