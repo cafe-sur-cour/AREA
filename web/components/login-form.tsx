@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import api from "@/lib/api"
+import Image from "next/image"
 
 export function LoginForm({
   className,
@@ -120,7 +121,9 @@ export function LoginForm({
             </div>
           </form>
           <div className="bg-muted relative hidden md:block">
-            <img
+            <Image
+              width={500}
+              height={500}
               src="/base-logo-inversed.png"
               alt="Image"
               className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
