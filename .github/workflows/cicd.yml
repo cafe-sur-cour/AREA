@@ -47,7 +47,7 @@ jobs:
 
       - name: Run backend ESLint
         working-directory: ./backend
-        run: npm run lint:check
+        run: npm run lint
 
       - name: Run Prettier check
         working-directory: ./backend
