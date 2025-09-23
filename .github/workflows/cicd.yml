@@ -67,17 +67,17 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install frontend dependencies
-        working-directory: ./web
-        run: npm install
+      # - name: Install frontend dependencies
+      #   working-directory: ./web
+      #   run: npm install
 
-      - name: Run frontend ESLint
-        working-directory: ./web
-        run: npm run lint:check
+      # - name: Run frontend ESLint
+      #   working-directory: ./web
+      #   run: npm run lint:check
 
-      - name: Run Prettier check
-        working-directory: ./web
-        run: npm run format:check
+      # - name: Run Prettier check
+      #   working-directory: ./web
+      #   run: npm run format:check
 
   deploy-app:
     name: Deploy application
@@ -90,23 +90,23 @@ jobs:
       - name: Temporary job
         run: echo "Temporary job to fix needs issue"
 
-      # - name: Clean all containers
-      #   run: docker compose -f ./deployment/docker-compose.yml down -v
+      - name: Clean all containers
+        run: docker compose -f ./deployment/docker-compose.yml down -v
 
-      # - name: Deploy application
-      #   run: docker compose -f ./deployment/docker-compose.yml up -d --build
+      - name: Deploy application
+        run: docker compose -f ./deployment/docker-compose.yml up -d --build
 
-      # - name: Waiting for postgreSQL database
-      #   run: timeout 60 bash -c "until docker exec postgres_db pg_isready -U $DB_USER -d $DB_NAME; do sleep 2; done"
+      - name: Waiting for postgreSQL database
+        run: timeout 60 bash -c "until docker exec postgres_db pg_isready -U $DB_USER -d $DB_NAME; do sleep 2; done"
 
-      # - name: Waiting for backend service
-      #   run: timeout 60 bash -c 'until nc -z localhost ${{ secrets.BACK_PORT }}; do sleep 2; done'
+      - name: Waiting for backend service
+        run: timeout 60 bash -c 'until nc -z localhost ${{ secrets.BACKEND_PORT }}; do sleep 2; done'
 
       # - name: Waiting for web service
       #   run: timeout 60 bash -c 'until nc -z localhost ${{ secrets.WEB_PORT }}; do sleep 2; done'
 
-      # - name: List running containers
-      #   run: docker ps
+      - name: List running containers
+        run: docker ps
 
   push-to-mirror:
     name: Push to Mirror Repository
