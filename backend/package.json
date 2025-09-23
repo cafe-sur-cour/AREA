@@ -7,7 +7,10 @@
     "dev": "tsx index.ts",
     "start": "node index.js",
     "build": "tsc",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint \"src/**/*.{ts,tsx}\"",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "repository": {
     "type": "git",
@@ -23,6 +26,10 @@
   "homepage": "https://github.com/cafe-sur-cour/AREA#readme",
   "devDependencies": {
     "@types/node": "^24.5.2",
+    "@typescript-eslint/eslint-plugin": "^8.44.1",
+    "@typescript-eslint/parser": "^8.44.1",
+    "eslint": "^9.36.0",
+    "prettier": "^3.6.2",
     "ts-node": "^10.9.2",
     "tsx": "^4.20.5",
     "typescript": "^5.9.2"
@@ -31,7 +38,6 @@
     "dotenv": "^17.2.2",
     "express": "^5.1.0",
     "pg": "^8.16.3",
-    "prettier": "^3.6.2",
     "process": "^0.11.10",
     "reflect-metadata": "^0.2.2",
     "typeorm": "^0.3.27"

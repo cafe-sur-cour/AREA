@@ -29,6 +29,14 @@ The platform targets:
 - **Database:**
 - **Other tools:** Docker, Github Actions CI/CD
 
+## Linter
+To make sure our code is up to standard we use a linter and prettier, in the folder scripts you can find different script to run those command on either the backend or the web part of the project.
+
+```
+./scripts/backend-linter.sh
+./scripts/frontend-linter.sh
+```
+
 ## Commit Guidelines
 
 This project follows the **Conventional Commit Message Guidelines**, which help maintain a clear and consistent Git history. The format is:
