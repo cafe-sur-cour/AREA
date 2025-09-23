@@ -5,6 +5,8 @@
 The AREA (Action - REAction) is a platform designed to create automations between different services.
 The users can create an automation by selecting an Action from a service (e.g. the music changed in Spotify) and a reaction to that (e.g. send a message on Discord).
 
+If you want more information about the project about dependecies to start the project or architectural questions please refer to the README.md in the Documentation folder, if you want to learn how to contribute to the project please refer to the HOWTOCONTRIBUTE.md in the documentation folder.
+
 ### Context and Objectives
 
 The goal of this platform is to:
@@ -23,11 +25,19 @@ The platform targets:
 
 ## Technologies
 
-- **Web Frontend:**
-- **Mobile Frontend:**
-- **Backend:**
-- **Database:**
+- **Web Frontend:** Tailwind, NextJS
+- **Mobile Frontend:** Flutter
+- **Backend:** TypeScript Express
+- **Database:** Postgres
 - **Other tools:** Docker, Github Actions CI/CD
+
+## Linter
+To make sure our code is up to standard we use a linter and prettier, in the folder scripts you can find different script to run those command on either the backend or the web part of the project.
+
+```
+./scripts/backend-linter.sh
+./scripts/frontend-linter.sh
+```
 
 ## Commit Guidelines
 
@@ -45,8 +55,9 @@ This project follows the **Conventional Commit Message Guidelines**, which help 
 - style: Changes that do not affect the meaning of the code (white-space, formatting, etc.)
 - refactor: Code changes that neither fix a bug nor add a feature
 - test: Adding or correcting tests
-- upt
-
+- upt: Updating an element that is not a refactor
+- rm: Remove a line of code or a file from the repo
+- memo: Add a new documentation element
 
 ## 🛠️ Git Commands Reference
 
