@@ -11,26 +11,73 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       target: ${{ steps.new_output.outputs.value }}
+      backend_changed: ${{ steps.new_output.outputs.backend_changed }}
+      web_changed: ${{ steps.new_output.outputs.web_changed }}
     steps:
       - name: checkout@v4
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Check target repository
         id: new_output
         run: |
-          temp=$(echo $MIRROR_URL | cut -d ':' -f 2 | sed "s/\.git//")
-          if [ $temp = ${{ github.repository }} ]; then
+          temp=$(echo "$MIRROR_URL" | cut -d ':' -f 2 | sed "s/\.git//")
+          if [ "$temp" = "${{ github.repository }}" ]; then
             echo "::notice title=The target repository is also the current one::$temp"
             echo "value=1" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=0" >> "$GITHUB_OUTPUT"
+          fi
+
+          # Detect changed paths for push events; for pull requests, run all jobs
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "backend_changed=true" >> "$GITHUB_OUTPUT"
+            echo "web_changed=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          echo "value=0" >> "$GITHUB_OUTPUT"
-          exit 0
+
+          BEFORE='${{ github.event.before }}'
+          AFTER='${{ github.sha }}'
+
+          # Ensure we have the refs available
+          git fetch --no-tags --prune --depth=1 origin || true
+
+          # If this push is a merge commit created by merging a PR, its commit
+          # message usually contains "Merge pull request" (or similar). Treat
+          # that as a PR-merge and run all jobs.
+          commit_message=$(git log -1 --pretty=%B "${{ github.sha }}" 2>/dev/null || true)
+          if echo "$commit_message" | grep -qE 'Merge pull request|Merged in|Merge branch'; then
+            echo "Detected merge commit: $commit_message" >&2
+            echo "backend_changed=true" >> "$GITHUB_OUTPUT"
+            echo "web_changed=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if [ -z "$BEFORE" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+            changed_files=$(git ls-tree -r --name-only "$AFTER")
+          else
+            changed_files=$(git diff --name-only "$BEFORE" "$AFTER")
+          fi
+
+          echo "Changed files: $changed_files"
+
+          if echo "$changed_files" | grep -qE '(^backend/)|(/backend/)'; then
+            echo "backend_changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "backend_changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+          if echo "$changed_files" | grep -qE '(^web/)|(/web/)'; then
+            echo "web_changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "web_changed=false" >> "$GITHUB_OUTPUT"
+          fi
 
   backend-linter:
     name: Backend linter
     needs: check_repository
-    if: ${{ needs.check_repository.outputs.target == 0 }}
+    if: ${{ needs.check_repository.outputs.target == 0 && needs.check_repository.outputs.backend_changed == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -47,7 +94,7 @@ jobs:
 
       - name: Run backend ESLint
         working-directory: ./backend
-        run: npm run lint:check
+        run: npm run lint
 
       - name: Run Prettier check
         working-directory: ./backend
@@ -56,7 +103,7 @@ jobs:
   web-linter:
     name: Web frontend linter
     needs: check_repository
-    if: ${{ needs.check_repository.outputs.target == 0 }}
+    if: ${{ needs.check_repository.outputs.target == 0 && needs.check_repository.outputs.web_changed == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -73,7 +120,7 @@ jobs:
 
       - name: Run frontend ESLint
         working-directory: ./web
-        run: npm run lint:check
+        run: npm run lint
 
       - name: Run Prettier check
         working-directory: ./web
@@ -81,8 +128,10 @@ jobs:
 
   deploy-app:
     name: Deploy application
-    needs: [backend-linter, web-linter]
+    needs: [check_repository]
+    if: ${{ needs.check_repository.outputs.target == 0 && (needs.check_repository.outputs.backend_changed == 'true' || needs.check_repository.outputs.web_changed == 'true') }}
     runs-on: ubuntu-latest
+    environment: AREA
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -90,37 +139,70 @@ jobs:
       - name: Temporary job
         run: echo "Temporary job to fix needs issue"
 
-      # - name: Clean all containers
-      #   run: docker compose -f ./deployment/docker-compose.yml down -v
+      - name: Generate .env from secrets
+        env:
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+          BACKEND_PORT: ${{ secrets.BACKEND_PORT }}
+        run: |
+          echo "DB_USER=$DB_USER" > ./deployment/.env
+          echo "DB_PASSWORD=$DB_PASSWORD" >> ./deployment/.env
+          echo "DB_NAME=$DB_NAME" >> ./deployment/.env
+          echo "DB_PORT=$DB_PORT" >> ./deployment/.env
+          echo "BACK_PORT=$BACKEND_PORT" >> ./deployment/.env
 
-      # - name: Deploy application
-      #   run: docker compose -f ./deployment/docker-compose.yml up -d --build
+      - name: Clean all containers
+        run: docker compose -f ./deployment/docker-compose.yml down -v
 
-      # - name: Waiting for postgreSQL database
-      #   run: timeout 60 bash -c "until docker exec postgres_db pg_isready -U $DB_USER -d $DB_NAME; do sleep 2; done"
+      - name: Deploy application
+        run: docker compose -f ./deployment/docker-compose.yml up -d --build
 
-      # - name: Waiting for backend service
-      #   run: timeout 60 bash -c 'until nc -z localhost ${{ secrets.BACK_PORT }}; do sleep 2; done'
+      - name: Waiting for postgreSQL database
+        run: timeout 60 bash -c "until docker exec postgres_area_db pg_isready -U $DB_USER -d $DB_NAME; do sleep 2; done"
+
+      - name: Waiting for backend service
+        run: timeout 60 bash -c 'until nc -z localhost ${{ secrets.BACKEND_PORT }}; do sleep 2; done'
 
       # - name: Waiting for web service
       #   run: timeout 60 bash -c 'until nc -z localhost ${{ secrets.WEB_PORT }}; do sleep 2; done'
 
-      # - name: List running containers
-      #   run: docker ps
+      - name: List running containers
+        run: docker ps
 
   push-to-mirror:
     name: Push to Mirror Repository
     needs: deploy-app
-    if: ${{ github.event_name == 'pull_request' && github.event.pull_request.merged == true }}
-    environment: AREA
+    if: ${{ (github.event_name == 'pull_request' && github.event.pull_request.merged == true) || (github.event_name == 'push' && contains(github.event.head_commit.message, 'Merge pull request')) }}
+    environment: PIPELINE
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Source Repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Validate mirror repo secret
+        run: |
+          echo "Checking MIRROR_REPO secret..."
+          if [ -z "${MIRROR_REPO}" ]; then
+            echo "::error::secrets.MIRROR_REPO is empty"
+            exit 1
+          fi
+          # Basic SSH URL sanity check (git@host:owner/repo.git)
+          if ! echo "${MIRROR_REPO}" | grep -Eq '^[^@]+@[^:]+:[^/]+/.+(\.git)?$'; then
+            echo "::warning::secrets.MIRROR_REPO does not look like an SSH URL (expected git@host:owner/repo.git)."
+          fi
+          if [ -z "${SSH_PRIVATE_KEY}" ]; then
+            echo "::error::secrets.SSH_PRIVATE_KEY is empty"
+            exit 1
+          fi
+        env:
+          MIRROR_REPO: ${{ secrets.MIRROR_REPO }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       - name: Push to Mirror Repository
-        uses: pixtal/github-repo-mirror-action@v2
+        uses: pixta-dev/repository-mirroring-action@v1
         with:
-          target_repo: ${{ secrets.MIRROR_REPO }}
+          target_repo_url: ${{ secrets.MIRROR_REPO }}
           ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
+          ssh_username: git
