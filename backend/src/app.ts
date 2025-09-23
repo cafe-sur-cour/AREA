@@ -2,7 +2,7 @@ import { AppDataSource } from "./config/db";
 import { User } from "./config/entity/User";
 
 
-/* Example de comment remplir une Table */
+/* Example of saving elem in table */
 export const saveData = async () => {
     const user = new User();
     user.name = "Alice";

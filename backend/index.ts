@@ -12,7 +12,7 @@ dotenv.config();
         console.log("Waiting for Postgres to be ready...");
         await waitForPostgres({ retries: 12, delayMs: 2000 });
 
-        await AppDataSource.initialize(); /* Example initialization d'une row dans une table */
+        await AppDataSource.initialize(); /* Example initilization of elem in table */
 
         app.listen(3000, () => { // Temp not define in .env
             console.log("Server is running on port 3000");
