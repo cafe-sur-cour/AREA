@@ -1,3 +1,5 @@
 *.DS_Store
 *.json.lock
 .env
+node_modules
+.next
