@@ -163,8 +163,8 @@ jobs:
   push-to-mirror:
     name: Push to Mirror Repository
     needs: deploy-app
-    if: ${{ github.event_name == 'pull_request' && github.event.pull_request.merged == true }}
-    environment: AREA
+    if: ${{ (github.event_name == 'pull_request' && github.event.pull_request.merged == true) || (github.event_name == 'push' && contains(github.event.head_commit.message, 'Merge pull request')) }}
+    environment: PIPELINE
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Source Repository
