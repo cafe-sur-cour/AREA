@@ -96,6 +96,14 @@ jobs:
           DB_USER: ${{ secrets.DB_USER }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           DB_NAME: ${{ secrets.DB_NAME }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+          BACKEND_PORT: ${{ secrets.BACKEND_PORT }}
+        run: |
+          echo "DB_USER=$DB_USER" > ./deployment/.env
+          echo "DB_PASSWORD=$DB_PASSWORD" >> ./deployment/.env
+          echo "DB_NAME=$DB_NAME" >> ./deployment/.env
+          echo "DB_PORT=$DB_PORT" >> ./deployment/.env
+          echo "BACK_PORT=$BACKEND_PORT" >> ./deployment/.env
 
       - name: Clean all containers
         run: docker compose -f ./deployment/docker-compose.yml down -v
