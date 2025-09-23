@@ -82,8 +82,8 @@ jobs:
   deploy-app:
     name: Deploy application
     needs: [backend-linter, web-linter]
-    environment: AREA
     runs-on: ubuntu-latest
+    environment: AREA
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
