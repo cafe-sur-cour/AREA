@@ -67,17 +67,17 @@ jobs:
         with:
           node-version: '20'
 
-      # - name: Install frontend dependencies
-      #   working-directory: ./web
-      #   run: npm install
+      - name: Install frontend dependencies
+        working-directory: ./web
+        run: npm install
 
-      # - name: Run frontend ESLint
-      #   working-directory: ./web
-      #   run: npm run lint:check
+      - name: Run frontend ESLint
+        working-directory: ./web
+        run: npm run lint
 
-      # - name: Run Prettier check
-      #   working-directory: ./web
-      #   run: npm run format:check
+      - name: Run Prettier check
+        working-directory: ./web
+        run: npm run format:check
 
   deploy-app:
     name: Deploy application
