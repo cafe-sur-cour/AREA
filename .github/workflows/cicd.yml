@@ -97,7 +97,7 @@ jobs:
         run: docker compose -f ./deployment/docker-compose.yml up -d --build
 
       - name: Waiting for postgreSQL database
-        run: timeout 60 bash -c "until docker exec postgres_db pg_isready -U $DB_USER -d $DB_NAME; do sleep 2; done"
+        run: timeout 60 bash -c "until docker exec postgres_area_db pg_isready -U $DB_USER -d $DB_NAME; do sleep 2; done"
 
       - name: Waiting for backend service
         run: timeout 60 bash -c 'until nc -z localhost ${{ secrets.BACKEND_PORT }}; do sleep 2; done'
