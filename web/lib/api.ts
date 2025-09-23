@@ -1,14 +1,13 @@
-import { getAPIUrl } from "./config";
-
+import { getAPIUrl } from './config';
 
 export const getToken = (): string | null => {
-  if (typeof window !== "undefined") {
-    const cookies = document.cookie.split(";");
-    const tokenCookie = cookies.find((cookie) =>
-      cookie.trim().startsWith("authToken=")
+  if (typeof window !== 'undefined') {
+    const cookies = document.cookie.split(';');
+    const tokenCookie = cookies.find(cookie =>
+      cookie.trim().startsWith('authToken=')
     );
     if (tokenCookie) {
-      return tokenCookie.split("=")[1].trim();
+      return tokenCookie.split('=')[1].trim();
     }
     return null;
   }
@@ -20,10 +19,10 @@ const getAuthHeaders = (authToken?: string): HeadersInit => {
   if (authToken) token = authToken;
   else token = getToken();
   const headers: HeadersInit = {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
   };
   if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
+    headers['Authorization'] = `Bearer ${token}`;
   }
 
   return headers;
@@ -35,7 +34,7 @@ export const authenticatedFetch = async (
   token?: string
 ): Promise<Response> => {
   const apiUrl = getAPIUrl();
-  const url = endpoint.startsWith("http") ? endpoint : `${apiUrl}${endpoint}`;
+  const url = endpoint.startsWith('http') ? endpoint : `${apiUrl}${endpoint}`;
 
   const authHeaders = getAuthHeaders(token);
 
@@ -56,7 +55,7 @@ export const apiGet = async (
 ): Promise<Response> => {
   return authenticatedFetch(
     endpoint,
-    { method: "GET", body: data ? JSON.stringify(data) : undefined },
+    { method: 'GET', body: data ? JSON.stringify(data) : undefined },
     token
   );
 };
@@ -66,7 +65,7 @@ export const apiPost = async (
   data?: unknown
 ): Promise<Response> => {
   return authenticatedFetch(endpoint, {
-    method: "POST",
+    method: 'POST',
     body: data ? JSON.stringify(data) : undefined,
   });
 };
@@ -76,7 +75,7 @@ export const apiPut = async (
   data?: unknown
 ): Promise<Response> => {
   return authenticatedFetch(endpoint, {
-    method: "PUT",
+    method: 'PUT',
     body: data ? JSON.stringify(data) : undefined,
   });
 };
@@ -86,20 +85,20 @@ export const apiPatch = async (
   data?: unknown
 ): Promise<Response> => {
   return authenticatedFetch(endpoint, {
-    method: "PATCH",
+    method: 'PATCH',
     body: data ? JSON.stringify(data) : undefined,
   });
 };
 
 export const apiDelete = async (endpoint: string): Promise<Response> => {
-  return authenticatedFetch(endpoint, { method: "DELETE" });
+  return authenticatedFetch(endpoint, { method: 'DELETE' });
 };
 
 export const api = {
   get: async <T = unknown>({
     endpoint,
     data,
-    token
+    token,
   }: {
     endpoint: string;
     data?: unknown;
@@ -191,18 +190,20 @@ export const api = {
   ): Promise<T> => {
     try {
       const apiUrl = getAPIUrl();
-      const url = endpoint.startsWith("http") ? endpoint : `${apiUrl}${endpoint}`;
+      const url = endpoint.startsWith('http')
+        ? endpoint
+        : `${apiUrl}${endpoint}`;
       const token = getToken();
 
       const headers: HeadersInit = {};
       if (token) {
-        headers["Authorization"] = `Bearer ${token}`;
+        headers['Authorization'] = `Bearer ${token}`;
       }
 
       const response = await fetch(url, {
-        method: "POST",
+        method: 'POST',
         headers,
-        body: formData
+        body: formData,
       });
 
       if (!response.ok) {
@@ -212,7 +213,7 @@ export const api = {
       const responseData = await response.json();
       return responseData;
     } catch (error) {
-      console.error("Error uploading file:", error);
+      console.error('Error uploading file:', error);
       throw error;
     }
   },
