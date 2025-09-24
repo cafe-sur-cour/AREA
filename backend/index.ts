@@ -4,6 +4,7 @@ import { saveData } from './src/app';
 import express from 'express';
 import { waitForPostgres } from './src/utils/waitForDb';
 import { executionService } from './src/services/ExecutionService';
+import { serviceLoader } from './src/services/ServiceLoader';
 
 const app = express();
 dotenv.config();
@@ -26,6 +27,10 @@ process.on('SIGTERM', async () => {
     await waitForPostgres({ retries: 12, delayMs: 2000 });
 
     await AppDataSource.initialize(); /* Example initilization of elem in table */
+
+    console.log('Loading services...');
+    await serviceLoader.loadAllServices();
+
     await executionService.start();
 
     app.listen(3000, () => {
