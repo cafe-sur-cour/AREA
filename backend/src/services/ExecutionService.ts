@@ -4,6 +4,9 @@ import { WebhookEvents } from '../config/entity/WebhookEvents';
 import { WebhookReactions } from '../config/entity/WebhookReactions';
 import { WebhookFailures } from '../config/entity/WebhookFailures';
 import type { Action, Reaction } from '../types/mapping';
+import { serviceRegistry } from './ServiceRegistry';
+import { reactionExecutorRegistry } from './ReactionExecutorRegistry';
+import type { ReactionExecutionContext } from '../types/service';
 
 export class ExecutionService {
   private isRunning = false;
@@ -68,6 +71,20 @@ export class ExecutionService {
     const startTime = Date.now();
 
     try {
+      const actionDefinition = serviceRegistry.getActionByType(
+        event.action_type
+      );
+      if (!actionDefinition) {
+        console.warn(`Unknown action type: ${event.action_type}`);
+        await this.markEventProcessed(
+          event,
+          'failed',
+          startTime,
+          `Unknown action type: ${event.action_type}`
+        );
+        return;
+      }
+
       const mappings = await this.loadMappingsForAction(
         event.action_type,
         event.user_id
@@ -76,6 +93,19 @@ export class ExecutionService {
       if (mappings.length === 0) {
         await this.markEventProcessed(event, 'completed', startTime);
         return;
+      }
+
+      for (const mapping of mappings) {
+        for (const reaction of mapping.reactions) {
+          const reactionDefinition = serviceRegistry.getReactionByType(
+            reaction.type
+          );
+          if (!reactionDefinition) {
+            console.warn(
+              `Unknown reaction type in mapping ${mapping.id}: ${reaction.type}`
+            );
+          }
+        }
       }
 
       const reactionPromises = mappings.map(mapping =>
@@ -157,7 +187,7 @@ export class ExecutionService {
     event: WebhookEvents,
     mapping: WebhookConfigs,
     reaction: Reaction
-  ): Promise<void> {
+  ): Promise<Record<string, unknown>> {
     const reactionStartTime = Date.now();
 
     const reactionRecord = await this.createReactionRecord(
@@ -166,18 +196,45 @@ export class ExecutionService {
     );
 
     try {
-      // TODO: Replace placeholder with actual reaction execution logic
-      const result = await this.executeReactionPlaceholder(
+      const context: ReactionExecutionContext = {
         reaction,
-        event.payload
+        event: {
+          id: event.id,
+          action_type: event.action_type,
+          user_id: event.user_id,
+          payload: event.payload,
+          created_at: event.created_at,
+        },
+        mapping: {
+          id: mapping.id,
+          name: mapping.name,
+          created_by: mapping.created_by || event.user_id,
+        },
+        serviceConfig: {
+          // TODO: Load actual service config for the user
+          credentials: {},
+          settings: {},
+          env: process.env,
+        },
+      };
+
+      const result = await reactionExecutorRegistry.executeReaction(
+        reaction.type,
+        context
       );
+
+      if (!result.success) {
+        throw new Error(result.error || 'Reaction execution failed');
+      }
 
       await this.updateReactionRecord(
         reactionRecord,
         'completed',
-        result,
+        result.output,
         reactionStartTime
       );
+
+      return result.output || {};
     } catch (error) {
       await this.updateReactionRecord(
         reactionRecord,
@@ -188,27 +245,6 @@ export class ExecutionService {
       );
       throw error;
     }
-  }
-
-  /**
-   * PLACEHOLDER: This is a temporary implementation for reaction execution.
-   * Replace this method with actual service integrations (Discord, GitHub, etc.)
-   */
-  private async executeReactionPlaceholder(
-    reaction: Reaction,
-    eventPayload: Record<string, unknown> // eslint-disable-line @typescript-eslint/no-unused-vars
-  ): Promise<Record<string, unknown>> {
-    // PLACEHOLDER: Simulate random failures for testing (10% failure rate)
-    if (Math.random() < 0.1) {
-      throw new Error(`Simulated failure for reaction: ${reaction.type}`);
-    }
-
-    // PLACEHOLDER: Return mock success response
-    return {
-      status: 'success',
-      executed_at: new Date().toISOString(),
-      reaction_type: reaction.type,
-    };
   }
 
   private async createReactionRecord(
