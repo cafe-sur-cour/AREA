@@ -6,6 +6,7 @@
 CREATE TABLE webhook_events (
     "id" SERIAL PRIMARY KEY,
     "action_type" VARCHAR(100) NOT NULL,
+    "user_id" INTEGER NOT NULL,
     "source" VARCHAR(100),
     "external_id" VARCHAR(255),
     "payload" JSONB NOT NULL,
