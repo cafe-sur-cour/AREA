@@ -4,10 +4,27 @@ import { saveData } from './src/app';
 import express from 'express';
 import { waitForPostgres } from './src/utils/waitForDb';
 import { executionService } from './src/services/ExecutionService';
+import { serviceLoader } from './src/services/ServiceLoader';
 
 const app = express();
 dotenv.config();
 
+// Middleware
+app.use(express.json());
+
+// Health check endpoint
+app.get('/health', (req: express.Request, res: express.Response) => {
+  res.json({
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    services: {
+      database: AppDataSource.isInitialized,
+      executionService: executionService ? 'running' : 'stopped',
+    },
+  });
+});
+
+// Graceful shutdown handlers
 process.on('SIGINT', async () => {
   console.log('Received SIGINT, shutting down gracefully...');
   await executionService.stop();
@@ -25,12 +42,17 @@ process.on('SIGTERM', async () => {
     console.log('Waiting for Postgres to be ready...');
     await waitForPostgres({ retries: 12, delayMs: 2000 });
 
-    await AppDataSource.initialize(); /* Example initilization of elem in table */
+    await AppDataSource.initialize();
+    console.log('Database connection established');
+
+    console.log('Loading services...');
+    await serviceLoader.loadAllServices();
+
     await executionService.start();
 
     app.listen(3000, () => {
-      // Temp not define in .env
-      console.log('Server is running on port 3000');
+      console.log('AREA backend server is running on port 3000');
+      console.log('Health check available at: http://localhost:3000/health');
     });
 
     await saveData();
