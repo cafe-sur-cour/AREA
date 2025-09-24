@@ -41,6 +41,24 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+
+  /* Custom  */
+  --color-area-primary: var(--color-area-eight);
+  --color-area-hover: var(--color-area-nine);
+  --color-area-light: var(--color-area-five);
+
+  --color-area-gradient-from: var(--color-app-white);
+  --color-area-gradient-to: var(--color-area-five);
+
+  --color-area-one: var(--area-one);
+  --color-area-two: var(--area-two);
+  --color-area-three: var(--area-three);
+  --color-area-four: var(--area-four);
+  --color-area-five: var(--area-five);
+  --color-area-six: var(--area-six);
+  --color-area-seven: var(--area-seven);
+  --color-area-eight: var(--area-eight);
+  --color-area-nine: var(--area-nine);
 }
 
 :root {
@@ -76,6 +94,17 @@
   --sidebar-accent-foreground: oklch(0.4729 0.0488 230.09);
   --sidebar-border: oklch(0.929 0.013 255.508);
   --sidebar-ring: oklch(0.704 0.04 256.788);
+
+  /* Custom area colors */
+  --area-one: #f18585; /* set as default area */
+  --area-two: #f49c9c; /* set as default area */
+  --area-three: #f6aeae; /* set as default area */
+  --area-four: #f8cacf; /* set as default area */
+  --area-five: #eed5fb; /* set as default area */
+  --area-six: #e4bef8; /* set as default area */
+  --area-seven: #d5a8f2; /* set as default area */
+  --area-eight: #57798b;
+  --area-nine: #3e6172;
 }
 
 .dark {
@@ -110,6 +139,17 @@
   --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.551 0.027 264.364);
+
+  /* Custom area colors */
+  --area-one: #f18585;
+  --area-two: #f49c9c;
+  --area-three: #f6aeae;
+  --area-four: #f8cacf;
+  --area-five: #eed5fb;
+  --area-six: #e4bef8;
+  --area-seven: #d5a8f2;
+  --area-eight: #cb90f1;
+  --area-nine: #c174f2;
 }
 
 @layer base {

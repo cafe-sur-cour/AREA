@@ -4,6 +4,7 @@
 
 -- Webhook foreign keys
 ALTER TABLE webhook_configs ADD CONSTRAINT fk_webhook_configs_created_by FOREIGN KEY ("created_by") REFERENCES users("id") ON DELETE SET NULL;
+ALTER TABLE webhook_events ADD CONSTRAINT fk_webhook_events_user FOREIGN KEY ("user_id") REFERENCES users("id") ON DELETE CASCADE;
 ALTER TABLE webhook_reactions ADD CONSTRAINT fk_webhook_reactions_event FOREIGN KEY ("webhook_event_id") REFERENCES webhook_events("id") ON DELETE CASCADE;
 
 -- ===========================================
@@ -12,6 +13,7 @@ ALTER TABLE webhook_reactions ADD CONSTRAINT fk_webhook_reactions_event FOREIGN 
 
 -- Webhooks indexes
 CREATE INDEX "idx_webhook_events_action" ON webhook_events("action_type");
+CREATE INDEX "idx_webhook_events_user" ON webhook_events("user_id");
 CREATE INDEX "idx_webhook_events_status" ON webhook_events("status");
 CREATE INDEX "idx_webhook_events_created" ON webhook_events("created_at");
 CREATE INDEX "idx_webhook_reactions_webhook" ON webhook_reactions("webhook_event_id");
