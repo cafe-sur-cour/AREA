@@ -23,7 +23,7 @@ export interface ActionReactionMapping {
 
   created_by: number;
   created_at: Date;
-  updated_at: Date;
+  updated_at?: Date;
 }
 
 /* Validation rules for ActionReactionMapping */
@@ -36,7 +36,7 @@ export const MAPPING_VALIDATION_RULES = {
   action: {
     type: {
       required: true,
-      pattern: /^[a-zA-Z0-9_]+\.[a-zA-Z0-9_]+$/, // service.action format
+      pattern: /^[a-zA-Z0-9_]+\.[a-zA-Z0-9_]+$/, /* service.action format */
     },
     config: {
       type: 'object',
@@ -51,7 +51,7 @@ export const MAPPING_VALIDATION_RULES = {
       properties: {
         type: {
           required: true,
-          pattern: /^[a-zA-Z0-9_]+\.[a-zA-Z0-9_]+$/, // service.reaction format
+          pattern: /^[a-zA-Z0-9_]+\.[a-zA-Z0-9_]+$/, /* service.reaction format */
         },
         config: {
           type: 'object',
