@@ -51,14 +51,19 @@ export class TimerScheduler {
       const currentDay = now.getDay();
 
       await this.checkEveryHourAtIntervalsTimers(currentMinute);
-      await this.checkEveryDayAtXHourTimers(currentHour, currentMinute, currentDay);
-
+      await this.checkEveryDayAtXHourTimers(
+        currentHour,
+        currentMinute,
+        currentDay
+      );
     } catch (error) {
       console.error('Error checking timer events:', error);
     }
   }
 
-  private async checkEveryHourAtIntervalsTimers(currentMinute: number): Promise<void> {
+  private async checkEveryHourAtIntervalsTimers(
+    currentMinute: number
+  ): Promise<void> {
     const mappingRepository = AppDataSource.getRepository(WebhookConfigs);
 
     const mappings = await mappingRepository.find({
@@ -102,7 +107,15 @@ export class TimerScheduler {
       },
     });
 
-    const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+    const dayNames = [
+      'sunday',
+      'monday',
+      'tuesday',
+      'wednesday',
+      'thursday',
+      'friday',
+      'saturday',
+    ];
 
     for (const mapping of mappings) {
       try {
@@ -114,7 +127,8 @@ export class TimerScheduler {
         if (
           config.hour === currentHour &&
           currentMinute === 0 &&
-          config.days && config.days.includes(dayNames[currentDay]!)
+          config.days &&
+          config.days.includes(dayNames[currentDay]!)
         ) {
           await this.triggerTimerEvent(mapping, {
             timestamp: new Date().toISOString(),
@@ -144,6 +158,8 @@ export class TimerScheduler {
 
     await eventRepository.save(event);
 
-    console.log(`Timer event triggered for mapping ${mapping.id}: ${mapping.action.type}`);
+    console.log(
+      `Timer event triggered for mapping ${mapping.id}: ${mapping.action.type}`
+    );
   }
 }

@@ -88,7 +88,8 @@ const timerService: Service = {
     {
       id: 'every_hour_at_intervals',
       name: 'Every Hour at X Minute',
-      description: 'Triggers every hour at a specific minute (00, 15, 30, or 45)',
+      description:
+        'Triggers every hour at a specific minute (00, 15, 30, or 45)',
       configSchema: everyHourAtIntervalsSchema,
       inputSchema: {
         type: 'object',
@@ -110,7 +111,7 @@ const timerService: Service = {
       },
     },
   ],
-  reactions: [], /* No reactions provided by the Timer service */
+  reactions: [] /* No reactions provided by the Timer service */,
 };
 
 export default timerService;
