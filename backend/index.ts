@@ -5,6 +5,7 @@ import express from 'express';
 import crypto from "crypto";
 import cookieParser from "cookie-parser";
 import { waitForPostgres } from './src/utils/waitForDb';
+import { setupSwagger } from './src/routes/docs/swagger';
 
 import authRoutes from './src/routes/auth/auth';
 import userRoutes from './src/routes/user/user';
@@ -24,6 +25,9 @@ app.use(cookieParser());
 /* Route definition with API as prefix */
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
+
+setupSwagger(app);
+
 
 (async function start() {
   try {

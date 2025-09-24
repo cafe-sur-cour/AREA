@@ -12,7 +12,42 @@ const router = express.Router();
 /* Auth PUT Routes */
 
 
-/* Auth POST Routes */
+/**
+ * @swagger
+ * /api/auth/login:
+ *   post:
+ *     summary: Login a user
+ *     tags:
+ *       - Auth
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *             properties:
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Successful login
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 token:
+ *                   type: string
+ *       400:
+ *         description: Missing required fields
+ *       401:
+ *         description: Unauthorized
+ */
 router.post("/login", async (req: Request, res: Response): Promise<Response | void> => {
     const {email, password} = req.body;
     try {
@@ -35,6 +70,40 @@ router.post("/login", async (req: Request, res: Response): Promise<Response | vo
     }
 });
 
+/**
+ * @swagger
+ * /api/auth/register:
+ *   post:
+ *     summary: Register a new user
+ *     tags:
+ *       - Auth
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - name
+ *               - password
+ *             properties:
+ *               email:
+ *                 type: string
+ *               name:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: User registered successfully
+ *       400:
+ *         description: Missing required fields
+ *       409:
+ *         description: Email already exists
+ *       500:
+ *         description: Internal Server Error
+ */
 router.post("/register", async (req: Request, res: Response): Promise<Response | void> => {
     try {
         const body = req.body || {};
@@ -57,7 +126,8 @@ router.post("/register", async (req: Request, res: Response): Promise<Response |
             res.status(409).json({ error: result.message });
             return;
         }
-        return res.status(201).json({ message: "User registered successfully" });
+        res.status(201).json({ message: "User registered successfully" });
+        return;
     } catch (err) {
         console.error(err);
         return res.status(500).json({ error: "Internal Server Error" });
