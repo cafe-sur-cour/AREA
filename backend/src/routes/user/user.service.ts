@@ -1,6 +1,6 @@
 import { User } from '../../config/entity/User';
 import { AppDataSource } from '../../config/db';
-import { Repository } from "typeorm";
+import { Repository } from 'typeorm';
 
 /* Thos function returns a user from data */
 export const getAllUsers = async (): Promise<User[]> => {
@@ -19,7 +19,6 @@ export const getUserByName = async (name: string): Promise<User | null> => {
   return AppDataSource.manager.findOneBy(User, { name });
 };
 
-
 /* Those function update or delete info from a user */
 
 interface UpdateUserDTO {
@@ -35,7 +34,10 @@ export const deleteUserById = async (id: number): Promise<boolean> => {
   return true;
 };
 
-export async function updateUser(id: number, userData: UpdateUserDTO): Promise<User | null> {
+export async function updateUser(
+  id: number,
+  userData: UpdateUserDTO
+): Promise<User | null> {
   const userRepository: Repository<User> = AppDataSource.getRepository(User);
 
   const updateResult = await userRepository.update(id, userData);

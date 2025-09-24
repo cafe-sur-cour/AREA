@@ -138,48 +138,47 @@ router.get(
   token,
   async (req: Request, res: Response): Promise<Response | void> => {
     try {
-        if (!req.auth) {
-          return res.status(403).json({ msg: "Forbidden" });
-        }
-
-        const { is_admin, id, email } = req.auth;
-        const { data } = req.params;
-        let user = null;
-
-        const isNumeric = /^\d+$/.test(data);
-
-        if (is_admin) {
-          // Admin: can access any user
-          if (isNumeric) {
-            user = await userService.getUserByID(Number(data));
-          } else {
-            user = await userService.getUserByEmail(data);
-          }
-        } else {
-          // Non-admin: can access only their own data
-          if (isNumeric) {
-            if (Number(data) !== id) {
-              return res.status(403).json({ msg: "Forbidden" });
-            }
-            user = await userService.getUserByID(id);
-          } else {
-            if (data !== email) {
-              return res.status(403).json({ msg: "Forbidden" });
-            }
-            user = await userService.getUserByEmail(email);
-          }
-        }
-
-        if (!user) {
-          return res.status(404).json({ msg: "User not found" });
-        }
-
-        return res.status(200).json(user);
-
-      } catch (err: any) {
-        console.error(err);
-        return res.status(500).json({ msg: "Internal server error" });
+      if (!req.auth) {
+        return res.status(403).json({ msg: 'Forbidden' });
       }
+
+      const { is_admin, id, email } = req.auth;
+      const { data } = req.params;
+      let user = null;
+
+      const isNumeric = /^\d+$/.test(data);
+
+      if (is_admin) {
+        // Admin: can access any user
+        if (isNumeric) {
+          user = await userService.getUserByID(Number(data));
+        } else {
+          user = await userService.getUserByEmail(data);
+        }
+      } else {
+        // Non-admin: can access only their own data
+        if (isNumeric) {
+          if (Number(data) !== id) {
+            return res.status(403).json({ msg: 'Forbidden' });
+          }
+          user = await userService.getUserByID(id);
+        } else {
+          if (data !== email) {
+            return res.status(403).json({ msg: 'Forbidden' });
+          }
+          user = await userService.getUserByEmail(email);
+        }
+      }
+
+      if (!user) {
+        return res.status(404).json({ msg: 'User not found' });
+      }
+
+      return res.status(200).json(user);
+    } catch (err: unknown) {
+      console.error(err);
+      return res.status(500).json({ msg: 'Internal server error' });
+    }
   }
 );
 
@@ -227,48 +226,53 @@ router.put(
   token,
   async (req: Request, res: Response): Promise<Response | void> => {
     try {
-        const { name, bio, image_url } = req.body;
+      const { name, bio, image_url } = req.body;
 
-        // Require at least one field
-        if (!name && !bio && !image_url) {
-          return res.status(400).json({
-            error: "Bad Request",
-            message: "At least one field is required: name, bio, or image_url",
-          });
-        }
-
-        // Ensure auth exists
-        if (!req.auth) {
-          return res.status(403).json({ error: "Forbidden", message: "Authentication required" });
-        }
-
-        const userId = Number(req.auth.id);
-        if (isNaN(userId)) {
-          return res.status(400).json({
-            error: "Bad Request",
-            message: "Invalid user ID in authentication token",
-          });
-        }
-
-        const updatedUser = await userService.updateUser(userId, { name, bio, image_url });
-
-        if (!updatedUser) {
-          console.log("updateUser returned null");
-          return res.status(400).json({
-            error: "Bad Request",
-            message: "Failed to update user - invalid data provided",
-          });
-        }
-
-        return res.status(200).json(updatedUser);
-
-      } catch (err: any) {
-        console.error(err);
-        return res.status(500).json({
-          error: "Internal Server Error",
-          message: "An unexpected error occurred while updating user",
+      // Require at least one field
+      if (!name && !bio && !image_url) {
+        return res.status(400).json({
+          error: 'Bad Request',
+          message: 'At least one field is required: name, bio, or image_url',
         });
       }
+
+      // Ensure auth exists
+      if (!req.auth) {
+        return res
+          .status(403)
+          .json({ error: 'Forbidden', message: 'Authentication required' });
+      }
+
+      const userId = Number(req.auth.id);
+      if (isNaN(userId)) {
+        return res.status(400).json({
+          error: 'Bad Request',
+          message: 'Invalid user ID in authentication token',
+        });
+      }
+
+      const updatedUser = await userService.updateUser(userId, {
+        name,
+        bio,
+        image_url,
+      });
+
+      if (!updatedUser) {
+        console.log('updateUser returned null');
+        return res.status(400).json({
+          error: 'Bad Request',
+          message: 'Failed to update user - invalid data provided',
+        });
+      }
+
+      return res.status(200).json(updatedUser);
+    } catch (err: unknown) {
+      console.error(err);
+      return res.status(500).json({
+        error: 'Internal Server Error',
+        message: 'An unexpected error occurred while updating user',
+      });
+    }
   }
 );
 
@@ -324,20 +328,20 @@ router.delete(
       }
 
       if (!userToDelete) {
-        return res.status(404).json({ error: "User not found" });
+        return res.status(404).json({ error: 'User not found' });
       }
 
       await userRepository.delete(userToDelete.id);
 
-      return res.status(200).json({ message: "User deleted successfully" });
-
-    } catch (err: any) {
+      return res.status(200).json({ message: 'User deleted successfully' });
+    } catch (err: unknown) {
       console.error(err);
       return res.status(500).json({
-        error: "Internal Server Error",
-        message: "An unexpected error occurred while deleting the user",
+        error: 'Internal Server Error',
+        message: 'An unexpected error occurred while deleting the user',
       });
     }
-  });
+  }
+);
 
 export default router;
