@@ -10,7 +10,6 @@ import { setupSignal } from './src/utils/signal';
 import cors from 'cors';
 import process from 'process';
 
-
 import authRoutes from './src/routes/auth/auth';
 import userRoutes from './src/routes/user/user';
 import apiRoutes from './src/routes/api/api';
