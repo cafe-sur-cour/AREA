@@ -40,8 +40,22 @@ const router = express.Router();
  *                   type: string
  *       400:
  *         description: Missing required fields
+ *         content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *               error:
+ *                  type: string
  *       401:
  *         description: Unauthorized
+ *         content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *               error:
+ *                  type: string
  */
 router.post(
   '/login',
@@ -99,12 +113,40 @@ router.post(
  *     responses:
  *       201:
  *         description: User registered successfully
+ *         content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *               message:
+ *                  type: string
  *       400:
  *         description: Missing required fields
+ *         content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *               error:
+ *                  type: string
  *       409:
  *         description: Email already exists
+ *         content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *               error:
+ *                  type: string
  *       500:
  *         description: Internal Server Error
+ *         content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *               error:
+ *                  type: string
  */
 router.post(
   '/register',
