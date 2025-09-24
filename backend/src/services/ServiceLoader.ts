@@ -1,8 +1,11 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import type { Service, ServiceConfig } from '../types/service';
+import { fileURLToPath } from 'url';
+import type { Service, ServiceModule, ServiceConfig } from '../types/service';
 import { serviceRegistry } from './ServiceRegistry';
 import { reactionExecutorRegistry } from './ReactionExecutorRegistry';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export class ServiceLoader {
   private servicesPath: string;
@@ -34,10 +37,13 @@ export class ServiceLoader {
     }
 
     const indexPath = path.join(servicePath, 'index.ts');
+    const indexJsPath = path.join(servicePath, 'index.js');
 
     let modulePath: string;
     if (fs.existsSync(indexPath)) {
       modulePath = indexPath;
+    } else if (fs.existsSync(indexJsPath)) {
+      modulePath = indexJsPath;
     } else {
       throw new Error(`Service index file not found in: ${servicePath}`);
     }
@@ -46,17 +52,13 @@ export class ServiceLoader {
       const module = await import(`${modulePath}?t=${Date.now()}`);
 
       if (!module.default) {
-        throw new Error(
-          `Service module must export a default Service instance: ${serviceName}`
-        );
+        throw new Error(`Service module must export a default Service instance: ${serviceName}`);
       }
 
       const service: Service = module.default;
 
       if (service.id !== serviceName) {
-        throw new Error(
-          `Service id '${service.id}' does not match directory name '${serviceName}'`
-        );
+        throw new Error(`Service id '${service.id}' does not match directory name '${serviceName}'`);
       }
 
       if (module.initialize) {
@@ -69,6 +71,7 @@ export class ServiceLoader {
       if (module.executor) {
         reactionExecutorRegistry.register(service.id, module.executor);
       }
+
     } catch (error) {
       console.error(`Failed to load service '${serviceName}':`, error);
       throw error;
@@ -120,8 +123,7 @@ export class ServiceLoader {
       return [];
     }
 
-    return fs
-      .readdirSync(this.servicesPath, { withFileTypes: true })
+    return fs.readdirSync(this.servicesPath, { withFileTypes: true })
       .filter(entry => entry.isDirectory())
       .map(entry => entry.name);
   }
