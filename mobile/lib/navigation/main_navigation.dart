@@ -1,3 +1,5 @@
+import 'package:area/core/constants/app_colors.dart';
+import 'package:area/core/constants/app_constants.dart';
 import 'package:flutter/material.dart';
 import '../screens/home_screen.dart';
 import '../screens/catalogue_screen.dart';
@@ -29,8 +31,13 @@ class _MainNavigationState extends State<MainNavigation> {
                 currentIndex: _currentIndex,
                 onTap: (index) => setState(() => _currentIndex = index),
                 type: BottomNavigationBarType.fixed,
-                selectedIconTheme: const IconThemeData(
-                    size: 28,
+                selectedIconTheme: IconThemeData(
+                    color: AppColors.primary,
+                    size: AppDimensions.iconSizeLG,
+                ),
+                unselectedIconTheme: IconThemeData(
+                    color: AppColors.textSecondary,
+                    size: AppDimensions.iconSizeMD,
                 ),
                 selectedLabelStyle: const TextStyle(
                     fontSize: 12,
