@@ -123,7 +123,7 @@ export const api = {
   ): Promise<{ data: T | null }> => {
     const response = await apiPost(endpoint, data);
     if (!response.ok) {
-      throw new Error(`API request failed: ${response.statusText}`);
+      throw new Error(`${response.json()}`);
     }
     try {
       const responseData = await response.json();
@@ -140,7 +140,7 @@ export const api = {
   ): Promise<{ data: T | null }> => {
     const response = await apiPut(endpoint, data);
     if (!response.ok) {
-      throw new Error(`API request failed: ${response.statusText}`);
+      throw new Error(`${response.json()}`);
     }
     try {
       const responseData = await response.json();

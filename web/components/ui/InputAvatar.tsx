@@ -29,7 +29,7 @@ export function IDAvatar(props: IDAvatarProps) {
     const fetchUser = async () => {
       try {
         const res = await api.get<{ name: string; userImage: string }>({
-          endpoint: `/users/chat_img_name/${props.id}`,
+          endpoint: `/users/img_name/${props.id}`,
         });
         if (res.data && res.data.userImage) {
           setImg(res.data.userImage);
