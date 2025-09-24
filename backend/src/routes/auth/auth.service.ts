@@ -11,7 +11,7 @@ export async function login(email: string, password_hash: string) {
   const match = await bcrypt.compare(password_hash, foundUser.password_hash);
   if (!match) return new Error('Incorrect Password');
   const token = jwt.sign(
-    { email: foundUser.email, id: foundUser.id },
+    { email: foundUser.email, id: foundUser.id, is_admin: foundUser.is_admin },
     JWT_SECRET as string,
     { expiresIn: '1h' }
   );

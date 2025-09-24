@@ -146,7 +146,6 @@ router.post(
     try {
       const body = req.body || {};
       const { email, name, password } = body;
-      console.log('Parsed body: ', { email, name, password });
 
       const missingFields = Object.entries({ email, name, password })
         .filter(([, value]) => value == null || value === '')
