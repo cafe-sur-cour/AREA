@@ -19,8 +19,8 @@ app.get('/health', (req: express.Request, res: express.Response) => {
     timestamp: new Date().toISOString(),
     services: {
       database: AppDataSource.isInitialized,
-      executionService: executionService ? 'running' : 'stopped'
-    }
+      executionService: executionService ? 'running' : 'stopped',
+    },
   });
 });
 
