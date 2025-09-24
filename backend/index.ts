@@ -12,7 +12,6 @@ import userRoutes from './src/routes/user/user';
 import { executionService } from './src/services/ExecutionService';
 import { serviceLoader } from './src/services/ServiceLoader';
 
-
 const app = express();
 export const JWT_SECRET = crypto.randomBytes(64).toString('hex');
 dotenv.config();

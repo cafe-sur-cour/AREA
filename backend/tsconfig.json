@@ -1,32 +1,27 @@
 {
   "compilerOptions": {
-    // File Layout
     "rootDir": "./",
     "outDir": "./dist",
-    "baseUrl": "./", // reset baseUrl to project root
+    "baseUrl": "./",
     "paths": {
-      "@/*": ["src/*"] // optional: alias for imports like "@/utils"
+      "@/*": ["src/*"]
     },
 
-    // Environment Settings
     "module": "esnext",
     "target": "esnext",
     "moduleResolution": "node",
-    "lib": ["esnext", "dom"], // good for frontend projects
-    "types": ["node"], // keeps node types, but see below
+    "lib": ["esnext", "dom"],
+    "types": ["node"],
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
 
-    // Other Outputs
     "sourceMap": true,
     "declaration": true,
     "declarationMap": true,
 
-    // Stricter Typechecking Options
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
 
-    // Recommended Options
     "strict": true,
     "jsx": "react-jsx",
     "isolatedModules": true,
