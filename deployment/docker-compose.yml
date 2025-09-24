@@ -7,7 +7,7 @@ services:
       dockerfile: deployment/Dockerfile.frontend
     container_name: area_web
     ports:
-      - "${FRONT_PORT}:3000"
+      - "${NEXT_PORT}:3000"
     environment:
       - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
     depends_on:
@@ -20,13 +20,14 @@ services:
       dockerfile: deployment/Dockerfile.backend
     container_name: area_app
     ports:
-      - "${BACK_PORT}:3000"
+      - "${NODE_PORT}:3000"
     environment:
       - DB_HOST=${DB_HOST}
       - DB_PORT=${DB_PORT}
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_NAME=${DB_NAME}
+      - FRONTEND_URL=${FRONTEND_URL}
     depends_on:
       - db
 
