@@ -6,9 +6,12 @@ import crypto from 'crypto';
 import cookieParser from 'cookie-parser';
 import { waitForPostgres } from './src/utils/waitForDb';
 import { setupSwagger } from './src/routes/docs/swagger';
+import { setupSignal } from './src/utils/signal';
 
 import authRoutes from './src/routes/auth/auth';
 import userRoutes from './src/routes/user/user';
+import apiRoutes from './src/routes/api/api';
+
 import { executionService } from './src/services/ExecutionService';
 import { serviceLoader } from './src/services/ServiceLoader';
 
@@ -25,35 +28,10 @@ app.use(cookieParser());
 /* Route definition with API as prefix */
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
+app.use('/api/info', apiRoutes);
 
 setupSwagger(app);
-// Middleware
-app.use(express.json());
-
-// Health check endpoint
-app.get('/health', (req: express.Request, res: express.Response) => {
-  res.json({
-    status: 'ok',
-    timestamp: new Date().toISOString(),
-    services: {
-      database: AppDataSource.isInitialized,
-      executionService: executionService ? 'running' : 'stopped',
-    },
-  });
-});
-
-// Graceful shutdown handlers
-process.on('SIGINT', async () => {
-  console.log('Received SIGINT, shutting down gracefully...');
-  await executionService.stop();
-  process.exit(0);
-});
-
-process.on('SIGTERM', async () => {
-  console.log('Received SIGTERM, shutting down gracefully...');
-  await executionService.stop();
-  process.exit(0);
-});
+setupSignal();
 
 (async function start() {
   try {
@@ -65,14 +43,9 @@ process.on('SIGTERM', async () => {
 
     console.log('Loading services...');
     await serviceLoader.loadAllServices();
-
     await executionService.start();
 
-    app.listen(3000, () => {
-      console.log('Server is running on port 3000');
-      console.log('AREA backend server is running on port 3000');
-      console.log('Health check available at: http://localhost:3000/health');
-    });
+    app.listen(3000, () => {});
 
     await saveData();
   } catch (err) {

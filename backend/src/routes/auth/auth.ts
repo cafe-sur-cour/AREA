@@ -5,6 +5,40 @@ const router = express.Router();
 
 /* Auth GET Routes */
 
+/**
+ * @swagger
+ * /api/auth/login/status:
+ *   get:
+ *     summary: Check the login status of the current user
+ *     tags:
+ *       - Health
+ *     responses:
+ *       200:
+ *         description: User is authenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *       401:
+ *         description: User is not authenticated
+ *       500:
+ *         description: Internal Server Error
+ */
+router.get(
+  '/login/status',
+  async (req: Request, res: Response): Promise<Response | void> => {
+    try {
+      if (req.auth) {
+        return res.status(200).json({ authenticated: true, user: req.auth });
+      } else {
+        return res.status(401).json({ authenticated: false });
+      }
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ error: 'Internal Server Error' });
+    }
+  }
+);
 /* Auth PUT Routes */
 
 /**
@@ -139,6 +173,23 @@ router.post(
   }
 );
 
+/**
+ * @swagger
+ * /api/auth/logout:
+ *   post:
+ *     summary: Logout a user
+ *     tags:
+ *       - Auth
+ *     responses:
+ *       200:
+ *         description: User is logout
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *       500:
+ *         description: Internal Server Error
+ */
 router.post('/logout', async (req: Request, res: Response): Promise<void> => {
   try {
     res.clearCookie('auth_token');
