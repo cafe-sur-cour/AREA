@@ -56,6 +56,11 @@ reactions definitions.
 Actions define triggers with input schemas, reactions define responses with
 output schemas. Both include configuration schemas and metadata.
 
+For better modularity, consider separating schema definitions into a dedicated
+file (e.g., `schemas.ts`) and actions/reactions into their own files (e.g.,
+`actions.ts`, `reactions.ts`) within the service directory. This keeps
+configuration data and definitions separate from the main service logic.
+
 ### 4. Implement Reaction Execution Logic
 
 Each service that provides reactions must also provide an executor that
@@ -80,11 +85,13 @@ The architecture enforces type validation:
 ## Best Practices
 
 1. **Modularity**: Keep each service in its own directory
-2. **Validation**: Always validate input/output schemas
-3. **Error Handling**: Implement proper error handling in execution logic
-4. **Documentation**: Document all fields and their purposes
-5. **Testing**: Test services independently before integration
-6. **Security**: Never log sensitive configuration data
+2. **Schema Separation**: Separate action/reaction schemas into dedicated files (e.g., `schemas.ts`) for better organization
+3. **Action/Reaction Separation**: For complex services, separate actions and reactions into `actions.ts` and `reactions.ts` files
+4. **Validation**: Always validate input/output schemas
+5. **Error Handling**: Implement proper error handling in execution logic
+6. **Documentation**: Document all fields and their purposes
+7. **Testing**: Test services independently before integration
+8. **Security**: Never log sensitive configuration data
 
 ## Integration with Execution Service
 
