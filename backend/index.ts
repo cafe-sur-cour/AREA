@@ -7,8 +7,7 @@ import cookieParser from 'cookie-parser';
 import { waitForPostgres } from './src/utils/waitForDb';
 import { setupSwagger } from './src/routes/docs/swagger';
 import cors from 'cors';
-import process from "process";
-
+import process from 'process';
 
 import authRoutes from './src/routes/auth/auth';
 import userRoutes from './src/routes/user/user';
@@ -19,20 +18,22 @@ const app = express();
 export const JWT_SECRET = crypto.randomBytes(64).toString('hex');
 dotenv.config();
 
-const FRONTEND_ORIGIN = process.env.FRONTEND_URL || '' ;
+const FRONTEND_ORIGIN = process.env.FRONTEND_URL || '';
 
 /* Declare  the cors and allowed routes */
-app.use(cors({
-  origin: FRONTEND_ORIGIN,
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: FRONTEND_ORIGIN,
+    credentials: true,
+  })
+);
 
 app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", FRONTEND_ORIGIN);
-  res.setHeader("Access-Control-Allow-Credentials", "true");
-  res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization");
-  if (req.method === "OPTIONS") return res.sendStatus(204);
+  res.setHeader('Access-Control-Allow-Origin', FRONTEND_ORIGIN);
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+  if (req.method === 'OPTIONS') return res.sendStatus(204);
   next();
 });
 
