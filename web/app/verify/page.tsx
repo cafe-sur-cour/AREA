@@ -17,7 +17,7 @@ export default function VerifyPage() {
       setLoading(true);
 
       const response = (
-        await api.post<{ status: number }>('/verify', { token })
+        await api.post<{ status: number }>('/api/verify', { token })
       ).data;
 
       if (!response || response.status !== 200) {
