@@ -6,8 +6,8 @@
 CREATE TABLE webhook_configs (
     "id" SERIAL PRIMARY KEY,
     "name" VARCHAR(100) UNIQUE NOT NULL,
-    "action_type" VARCHAR(100) NOT NULL,
-    "reactions" TEXT[] NOT NULL,
+    "action" JSONB NOT NULL,
+    "reactions" JSONB[] NOT NULL,
     "is_active" BOOLEAN DEFAULT TRUE,
     "description" TEXT,
     "created_by" INTEGER,
