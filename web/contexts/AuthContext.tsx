@@ -14,8 +14,6 @@ interface AuthContextType {
   refreshUserInfo: () => Promise<User | null>;
 }
 
-const MAX_STARTUP_INFO_RETRIES = 3;
-const RETRY_DELAY = 2000;
 const USER_STORAGE_KEY = 'userDataEnriched';
 const CACHE_VALIDITY_PERIOD = 60 * 60 * 1000;
 
@@ -26,36 +24,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_startupInfoRetries, _setStartupInfoRetries] = useState(0);
-
-  const getUserStartupInfo = async (
-    currentUser: User,
-    retryCount = 0
-  ): Promise<User> => {
-    try {
-      throw new Error('Invalid response format or missing founderId');
-    } catch (error) {
-      console.error('getUserStartupInfo: Error fetching startup info', error);
-
-      if (retryCount < MAX_STARTUP_INFO_RETRIES - 1) {
-        console.log(`getUserStartupInfo: Retrying in ${RETRY_DELAY}ms...`);
-        await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
-        return getUserStartupInfo(currentUser, retryCount + 1);
-      }
-
-      console.warn(
-        'getUserStartupInfo: Maximum retries reached, using fallback startupId (1)'
-      );
-
-      const storageData = {
-        user: currentUser,
-        timestamp: Date.now(),
-        isFallback: true,
-      };
-      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(storageData));
-
-      return currentUser;
-    }
-  };
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -153,7 +121,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         throw new Error('Invalid user data');
       }
 
-      let enrichedUser = response.data;
+      const enrichedUser = response.data;
 
       setUser(enrichedUser);
       console.log(

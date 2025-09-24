@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
-import { AuthProvider } from "@/contexts/AuthContext";
-import { Toaster } from "@/components/ui/sonner"
+import { AuthProvider } from '@/contexts/AuthContext';
+import { Toaster } from '@/components/ui/sonner';
 import { Montserrat, Open_Sans } from 'next/font/google';
 import './globals.css';
 
@@ -31,8 +31,8 @@ export default function RootLayout({
       <body
         className={`${montserrat.variable} ${openSans.variable} antialiased font-sans`}
       >
-          <AuthProvider>{children}</AuthProvider>
-          <Toaster />
+        <AuthProvider>{children}</AuthProvider>
+        <Toaster />
       </body>
     </html>
   );

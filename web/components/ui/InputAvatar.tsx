@@ -1,35 +1,36 @@
-"use client"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
-import api from "@/lib/api"
-import { useState, useRef, useEffect } from "react"
-import { getBackendUrl } from "@/lib/config"
+'use client';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import api from '@/lib/api';
+import { useState, useRef, useEffect } from 'react';
+import { getBackendUrl } from '@/lib/config';
 import { Pencil } from 'lucide-react';
 
 interface InputAvatar {
-  url?: string
-  defaultChar: string
-  size?: number
-  variente?: "normal" | "modifiable"
-  onChange?: (url: string) => void
+  url?: string;
+  defaultChar: string;
+  size?: number;
+  variente?: 'normal' | 'modifiable';
+  onChange?: (url: string) => void;
 }
 
 interface IDAvatarProps {
-  id : number
-  size?: number
-  className?: string
+  id: number;
+  size?: number;
+  className?: string;
 }
 
-export function IDAvatar(props: IDAvatarProps)
-{
-  const [img, setImg] = useState<string>("");
-  const [name, setName] = useState<string>("");
+export function IDAvatar(props: IDAvatarProps) {
+  const [img, setImg] = useState<string>('');
+  const [name, setName] = useState<string>('');
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await api.get<{name : string, userImage : string}>({endpoint: `/users/chat_img_name/${props.id}`});
+        const res = await api.get<{ name: string; userImage: string }>({
+          endpoint: `/users/chat_img_name/${props.id}`,
+        });
         if (res.data && res.data.userImage) {
           setImg(res.data.userImage);
         }
@@ -37,7 +38,7 @@ export function IDAvatar(props: IDAvatarProps)
           setName(res.data.name);
         }
       } catch (error) {
-        console.error("Error fetching user:", error);
+        console.error('Error fetching user:', error);
       }
     };
     fetchUser();
@@ -52,11 +53,11 @@ export function IDAvatar(props: IDAvatarProps)
 }
 
 export function InputAvatar(props: InputAvatar) {
-  const [img, setImgUrl] = useState<string>(props.url ?? "");
+  const [img, setImgUrl] = useState<string>(props.url ?? '');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (props.url !== undefined && props.url !== null && props.url !== "NONE") {
+    if (props.url !== undefined && props.url !== null && props.url !== 'NONE') {
       setImgUrl(props.url);
     }
   }, [props.url]);
@@ -68,7 +69,9 @@ export function InputAvatar(props: InputAvatar) {
         const reader = new FileReader();
         reader.onloadend = async () => {
           const base64String = reader.result as string;
-          const res = await api.post<{ url: string }>("/media/upload/", { url: base64String });
+          const res = await api.post<{ url: string }>('/media/upload/', {
+            url: base64String,
+          });
           if (res.data && res.data.url) {
             setImgUrl(res.data.url);
             props.onChange?.(res.data.url);
@@ -78,34 +81,34 @@ export function InputAvatar(props: InputAvatar) {
         };
         reader.readAsDataURL(file);
       } catch (error) {
-        console.error("Error uploading image:", error);
+        console.error('Error uploading image:', error);
       }
     }
   };
 
-  if (props.variente === "modifiable") {
+  if (props.variente === 'modifiable') {
     return (
-      <div className="relative inline-block">
+      <div className='relative inline-block'>
         <Input
-          type="file"
-          className="hidden"
+          type='file'
+          className='hidden'
           ref={fileInputRef}
-          accept="image/*"
+          accept='image/*'
           onChange={handleFileChange}
         />
         <Button
-          type="button"
+          type='button'
           onClick={() => fileInputRef.current?.click()}
           className={`h-${props.size} w-${props.size} cursor-pointer p-0 rounded-full border border-gray-300 relative`}
-          variant="ghost"
+          variant='ghost'
         >
           <Avatar className={`h-${props.size} w-${props.size}`}>
-        <AvatarImage src={img ? `${getBackendUrl()}${img}` : undefined} />
-        <AvatarFallback>{props.defaultChar.toUpperCase()}</AvatarFallback>
+            <AvatarImage src={img ? `${getBackendUrl()}${img}` : undefined} />
+            <AvatarFallback>{props.defaultChar.toUpperCase()}</AvatarFallback>
           </Avatar>
           {/* Overlay with Pencil icon in the left bottom corner */}
-          <span className="absolute bottom-1 right-1 p-1 bg-gray-200 rounded-full flex items-center justify-center">
-        <Pencil className="h-4 w-4 text-gray-700" />
+          <span className='absolute bottom-1 right-1 p-1 bg-gray-200 rounded-full flex items-center justify-center'>
+            <Pencil className='h-4 w-4 text-gray-700' />
           </span>
         </Button>
       </div>

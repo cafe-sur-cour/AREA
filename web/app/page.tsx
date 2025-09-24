@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import Navigation from "@/components/header";
+import Navigation from '@/components/header';
 
 export default function Home() {
   return (

@@ -42,23 +42,23 @@
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
 
-    /* Custom  */
-  --color-jeb-primary: var(--color-jeb-eight);
-  --color-jeb-hover: var(--color-jeb-nine);
-  --color-jeb-light: var(--color-jeb-five);
+  /* Custom  */
+  --color-area-primary: var(--color-area-eight);
+  --color-area-hover: var(--color-area-nine);
+  --color-area-light: var(--color-area-five);
 
-  --color-jeb-gradient-from: var(--color-app-white);
-  --color-jeb-gradient-to: var(--color-jeb-five);
+  --color-area-gradient-from: var(--color-app-white);
+  --color-area-gradient-to: var(--color-area-five);
 
-  --color-jeb-one: var(--jeb-one);
-  --color-jeb-two: var(--jeb-two);
-  --color-jeb-three: var(--jeb-three);
-  --color-jeb-four: var(--jeb-four);
-  --color-jeb-five: var(--jeb-five);
-  --color-jeb-six: var(--jeb-six);
-  --color-jeb-seven: var(--jeb-seven);
-  --color-jeb-eight: var(--jeb-eight);
-  --color-jeb-nine: var(--jeb-nine);
+  --color-area-one: var(--area-one);
+  --color-area-two: var(--area-two);
+  --color-area-three: var(--area-three);
+  --color-area-four: var(--area-four);
+  --color-area-five: var(--area-five);
+  --color-area-six: var(--area-six);
+  --color-area-seven: var(--area-seven);
+  --color-area-eight: var(--area-eight);
+  --color-area-nine: var(--area-nine);
 }
 
 :root {
@@ -95,16 +95,16 @@
   --sidebar-border: oklch(0.929 0.013 255.508);
   --sidebar-ring: oklch(0.704 0.04 256.788);
 
-  /* Custom JEB colors */
-  --jeb-one: #f18585; /* set as default surviror */
-  --jeb-two: #f49c9c; /* set as default surviror */
-  --jeb-three: #f6aeae; /* set as default surviror */
-  --jeb-four: #f8cacf; /* set as default surviror */
-  --jeb-five: #eed5fb; /* set as default surviror */
-  --jeb-six: #e4bef8; /* set as default surviror */
-  --jeb-seven: #d5a8f2; /* set as default surviror */
-  --jeb-eight: #57798B;
-  --jeb-nine: #3E6172;
+  /* Custom area colors */
+  --area-one: #f18585; /* set as default surviror */
+  --area-two: #f49c9c; /* set as default surviror */
+  --area-three: #f6aeae; /* set as default surviror */
+  --area-four: #f8cacf; /* set as default surviror */
+  --area-five: #eed5fb; /* set as default surviror */
+  --area-six: #e4bef8; /* set as default surviror */
+  --area-seven: #d5a8f2; /* set as default surviror */
+  --area-eight: #57798b;
+  --area-nine: #3e6172;
 }
 
 .dark {
@@ -140,16 +140,16 @@
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.551 0.027 264.364);
 
-  /* Custom JEB colors */
-  --jeb-one: #f18585;
-  --jeb-two: #f49c9c;
-  --jeb-three: #f6aeae;
-  --jeb-four: #f8cacf;
-  --jeb-five: #eed5fb;
-  --jeb-six: #e4bef8;
-  --jeb-seven: #d5a8f2;
-  --jeb-eight: #cb90f1;
-  --jeb-nine: #c174f2;
+  /* Custom area colors */
+  --area-one: #f18585;
+  --area-two: #f49c9c;
+  --area-three: #f6aeae;
+  --area-four: #f8cacf;
+  --area-five: #eed5fb;
+  --area-six: #e4bef8;
+  --area-seven: #d5a8f2;
+  --area-eight: #cb90f1;
+  --area-nine: #c174f2;
 }
 
 @layer base {
