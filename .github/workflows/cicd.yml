@@ -146,12 +146,14 @@ jobs:
           DB_NAME: ${{ secrets.DB_NAME }}
           DB_PORT: ${{ secrets.DB_PORT }}
           NODE_PORT: ${{ secrets.NODE_PORT }}
+          NEXT_PORT: ${{ secrets.NEXT_PORT }}
         run: |
           echo "DB_USER=$DB_USER" > ./deployment/.env
           echo "DB_PASSWORD=$DB_PASSWORD" >> ./deployment/.env
           echo "DB_NAME=$DB_NAME" >> ./deployment/.env
           echo "DB_PORT=$DB_PORT" >> ./deployment/.env
           echo "NODE_PORT=$NODE_PORT" >> ./deployment/.env
+          echo "NEXT_PORT=$NEXT_PORT" >> ./deployment/.env
 
       - name: Clean all containers
         run: docker compose -f ./deployment/docker-compose.yml down -v
@@ -165,8 +167,8 @@ jobs:
       - name: Waiting for backend service
         run: timeout 60 bash -c 'until nc -z localhost ${{ secrets.NODE_PORT }}; do sleep 2; done'
 
-      # - name: Waiting for web service
-      #   run: timeout 60 bash -c 'until nc -z localhost ${{ secrets.WEB_PORT }}; do sleep 2; done'
+      - name: Waiting for web service
+        run: timeout 60 bash -c 'until nc -z localhost ${{ secrets.NEXT_PORT }}; do sleep 2; done'
 
       - name: List running containers
         run: docker ps
