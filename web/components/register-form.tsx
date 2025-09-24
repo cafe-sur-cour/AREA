@@ -11,6 +11,7 @@ import { FaGithub, FaGoogle } from 'react-icons/fa';
 import { FaMeta } from 'react-icons/fa6';
 import api from '@/lib/api';
 import Image from 'next/image';
+import { toast } from 'sonner';
 
 export function RegisterForm({
   className,
@@ -24,7 +25,7 @@ export function RegisterForm({
     setIsLoading(true);
 
     const formData = new FormData(e.currentTarget);
-    const username = formData.get('username') as string;
+    const name = formData.get('username') as string;
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
     const confirmPassword = formData.get('confirm-password') as string;
@@ -35,20 +36,18 @@ export function RegisterForm({
     }
 
     try {
-      const response = await api.post('/auth/register', {
+      await api.post<{ message?: string; error?: string }>('/auth/register', {
         email,
-        username,
+        name,
         password,
       });
-      //TODO: handle token and user data here (e.g., save to context or state)
-      if (response.data) {
-        router.push('/dashboard');
-      } else {
-        alert('Registration failed');
-      }
+      toast.success(
+        'Registration successful! Please check your email to verify your account.'
+      );
+      setTimeout(() => router.push('/login'), 2000);
     } catch (error) {
       console.error('Registration error:', error);
-      alert('Registration failed');
+      toast.error('Registration failed: ' + error);
     } finally {
       setIsLoading(false);
     }

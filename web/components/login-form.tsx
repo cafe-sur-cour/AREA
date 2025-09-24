@@ -11,6 +11,7 @@ import api from '@/lib/api';
 import Image from 'next/image';
 import { FaMeta } from 'react-icons/fa6';
 import { FaGithub, FaGoogle } from 'react-icons/fa';
+import Cookies from 'js-cookie';
 
 export function LoginForm({
   className,
@@ -28,10 +29,19 @@ export function LoginForm({
     const password = formData.get('password') as string;
 
     try {
-      const response = await api.post('/auth/login', { email, password });
-      //TODO: handle token and user data here (e.g., save to context or state)
-      if (response.data) {
-        router.push('/dashboard');
+      const response = await api.post<{ token: string }>('/auth/login', {
+        email,
+        password,
+      });
+
+      if (response && response.data) {
+        const token = response.data.token;
+        Cookies.set('authToken', token, {
+          path: '/',
+          secure: true,
+          sameSite: 'strict',
+        });
+        // router.push('/dashboard');
       } else {
         alert('Login failed');
       }
