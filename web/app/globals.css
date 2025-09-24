@@ -96,13 +96,13 @@
   --sidebar-ring: oklch(0.704 0.04 256.788);
 
   /* Custom area colors */
-  --area-one: #f18585; /* set as default surviror */
-  --area-two: #f49c9c; /* set as default surviror */
-  --area-three: #f6aeae; /* set as default surviror */
-  --area-four: #f8cacf; /* set as default surviror */
-  --area-five: #eed5fb; /* set as default surviror */
-  --area-six: #e4bef8; /* set as default surviror */
-  --area-seven: #d5a8f2; /* set as default surviror */
+  --area-one: #f18585; /* set as default area */
+  --area-two: #f49c9c; /* set as default area */
+  --area-three: #f6aeae; /* set as default area */
+  --area-four: #f8cacf; /* set as default area */
+  --area-five: #eed5fb; /* set as default area */
+  --area-six: #e4bef8; /* set as default area */
+  --area-seven: #d5a8f2; /* set as default area */
   --area-eight: #57798b;
   --area-nine: #3e6172;
 }
