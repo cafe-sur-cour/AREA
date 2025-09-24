@@ -1,19 +1,16 @@
-import { Request, Response, NextFunction } from "express";
-import { User } from '../config/entity/User';
+import { Request, Response, NextFunction } from 'express';
 
-declare global {
-  namespace Express {
-    interface Request {
-      auth?: {
-        role?: number;
-      };
-    }
+declare module 'express-serve-static-core' {
+  interface Request {
+    auth?: {
+      role?: number;
+    };
   }
 }
 
 const adminMiddleware = (req: Request, res: Response, next: NextFunction) => {
   if (!req.auth || req.auth.role !== 2) {
-    return res.status(403).json({ msg: "Forbidden" });
+    return res.status(403).json({ msg: 'Forbidden' });
   }
   next();
 };

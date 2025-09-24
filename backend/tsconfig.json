@@ -3,17 +3,17 @@
     // File Layout
     "rootDir": "./",
     "outDir": "./dist",
-    "baseUrl": "./",                        // reset baseUrl to project root
+    "baseUrl": "./", // reset baseUrl to project root
     "paths": {
-      "@/*": ["src/*"]                      // optional: alias for imports like "@/utils"
+      "@/*": ["src/*"] // optional: alias for imports like "@/utils"
     },
 
     // Environment Settings
     "module": "esnext",
     "target": "esnext",
     "moduleResolution": "node",
-    "lib": ["esnext", "dom"],               // good for frontend projects
-    "types": ["node"],                      // keeps node types, but see below
+    "lib": ["esnext", "dom"], // good for frontend projects
+    "types": ["node"], // keeps node types, but see below
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
 
