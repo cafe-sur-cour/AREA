@@ -64,3 +64,10 @@ In the project's root, run
 ```
 It will automatically create the apk and move it to the `builds/` directory.
 
+### Run the tests
+
+In the `mobile/` directory, run
+```bash
+flutter test
+```
+This will run every tests in the AREA mobile project.
