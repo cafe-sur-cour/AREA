@@ -34,13 +34,10 @@ export class ServiceLoader {
     }
 
     const indexPath = path.join(servicePath, 'index.ts');
-    const indexJsPath = path.join(servicePath, 'index.js');
 
     let modulePath: string;
     if (fs.existsSync(indexPath)) {
       modulePath = indexPath;
-    } else if (fs.existsSync(indexJsPath)) {
-      modulePath = indexJsPath;
     } else {
       throw new Error(`Service index file not found in: ${servicePath}`);
     }
