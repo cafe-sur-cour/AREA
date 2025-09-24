@@ -7,12 +7,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { FaGithub, FaGoogle } from 'react-icons/fa';
+import { FaMeta } from 'react-icons/fa6';
 import api from '@/lib/api';
 import Image from 'next/image';
-import { FaMeta } from 'react-icons/fa6';
-import { FaGithub, FaGoogle } from 'react-icons/fa';
 
-export function LoginForm({
+export function RegisterForm({
   className,
   ...props
 }: React.ComponentProps<'div'>) {
@@ -24,20 +24,31 @@ export function LoginForm({
     setIsLoading(true);
 
     const formData = new FormData(e.currentTarget);
+    const username = formData.get('username') as string;
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
+    const confirmPassword = formData.get('confirm-password') as string;
+    if (password !== confirmPassword) {
+      alert('Passwords do not match');
+      setIsLoading(false);
+      return;
+    }
 
     try {
-      const response = await api.post('/auth/login', { email, password });
+      const response = await api.post('/auth/register', {
+        email,
+        username,
+        password,
+      });
       //TODO: handle token and user data here (e.g., save to context or state)
       if (response.data) {
         router.push('/dashboard');
       } else {
-        alert('Login failed');
+        alert('Registration failed');
       }
     } catch (error) {
-      console.error('Login error:', error);
-      alert('Login failed');
+      console.error('Registration error:', error);
+      alert('Registration failed');
     } finally {
       setIsLoading(false);
     }
@@ -50,10 +61,20 @@ export function LoginForm({
           <form onSubmit={handleSubmit} className='p-6 md:p-8'>
             <div className='flex flex-col gap-6'>
               <div className='flex flex-col items-center text-center'>
-                <h1 className='text-2xl font-bold'>Welcome back</h1>
+                <h1 className='text-2xl font-bold'>Welcome</h1>
                 <p className='text-muted-foreground text-balance'>
-                  Login to your Area account
+                  Register an Area account
                 </p>
+              </div>
+              <div className='grid gap-3'>
+                <Label htmlFor='username'>Username</Label>
+                <Input
+                  id='username'
+                  name='username'
+                  type='text'
+                  placeholder='Your username'
+                  required
+                />
               </div>
               <div className='grid gap-3'>
                 <Label htmlFor='email'>Email</Label>
@@ -66,25 +87,27 @@ export function LoginForm({
                 />
               </div>
               <div className='grid gap-3'>
-                <div className='flex items-center'>
-                  <Label htmlFor='password'>Password</Label>
-                  <a
-                    href='#'
-                    className='ml-auto text-sm underline-offset-2 hover:underline'
-                  >
-                    Forgot your password?
-                  </a>
-                </div>
+                <Label htmlFor='password'>Password</Label>
                 <Input
                   id='password'
                   name='password'
                   type='password'
-                  placeholder='password'
+                  placeholder='Password'
+                  required
+                />
+              </div>
+              <div className='grid gap-3'>
+                <Label htmlFor='confirm-password'>Confirm password</Label>
+                <Input
+                  id='confirm-password'
+                  name='confirm-password'
+                  type='password'
+                  placeholder='Confirm password'
                   required
                 />
               </div>
               <Button type='submit' className='w-full' disabled={isLoading}>
-                {isLoading ? 'Logging in...' : 'Login'}
+                {isLoading ? 'Registering...' : 'Register'}
               </Button>
               <div className='after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t'>
                 <span className='bg-card text-muted-foreground relative z-10 px-2'>
@@ -104,12 +127,6 @@ export function LoginForm({
                   <FaMeta />
                   <span className='sr-only'>Login with Meta</span>
                 </Button>
-              </div>
-              <div className='text-center text-sm'>
-                Don&apos;t have an account?{' '}
-                <a href='#' className='underline underline-offset-4'>
-                  Sign up
-                </a>
               </div>
             </div>
           </form>
