@@ -27,9 +27,9 @@ export class GitHubOAuth {
   private redirectUri: string;
 
   constructor() {
-    this.clientId = process.env.GITHUB_CLIENT_ID || '';
-    this.clientSecret = process.env.GITHUB_CLIENT_SECRET || '';
-    this.redirectUri = process.env.GITHUB_REDIRECT_URI || '';
+    this.clientId = process.env.SERVICE_GITHUB_CLIENT_ID || '';
+    this.clientSecret = process.env.SERVICE_GITHUB_CLIENT_SECRET || '';
+    this.redirectUri = process.env.SERVICE_GITHUB_REDIRECT_URI || '';
 
     if (!this.clientId || !this.clientSecret || !this.redirectUri) {
       throw new Error('GitHub OAuth configuration missing');
