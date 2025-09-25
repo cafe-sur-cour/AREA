@@ -350,4 +350,162 @@ router.post('/verify', (req: Request, res: Response) => {
   );
 });
 
+/**
+ * @swagger
+ * /api/auth/forgot-password:
+ *   post:
+ *     summary: Request a password reset link
+ *     tags:
+ *       - Auth
+ *     description: |
+ *       Initiates the password reset process by sending a reset link to the user's email address.
+ *       For security reasons, the endpoint always returns a success message whether the email
+ *       exists in the system or not, preventing email enumeration attacks.
+ *
+ *       **Process:**
+ *       1. Validates the provided email address
+ *       2. If email exists in database, generates a secure reset token
+ *       3. Sends password reset email with reset link
+ *       4. Returns success message (always, regardless of email existence)
+ *
+ *       **Security Features:**
+ *       - No information disclosure about email existence
+ *       - Secure token generation with expiration
+ *       - Rate limiting recommended (implement in middleware)
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 description: Email address of the user requesting password reset
+ *                 example: "user@example.com"
+ *                 pattern: "^[\\w\\.-]+@[\\w\\.-]+\\.[a-zA-Z]{2,}$"
+ *     responses:
+ *       200:
+ *         description: Password reset request processed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Generic success message for security
+ *                   example: "If that email is registered, you will receive a password reset link."
+ *       400:
+ *         description: Bad Request - Missing or invalid email
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Email is required"
+ *       500:
+ *         description: Internal Server Error - Email service or database error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Internal Server Error"
+ *     examples:
+ *       successful_request:
+ *         summary: Successful password reset request
+ *         value:
+ *           email: "john.doe@example.com"
+ *       invalid_email_format:
+ *         summary: Invalid email format
+ *         value:
+ *           email: "invalid-email"
+ */
+router.post(
+  '/forgot-password',
+  async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required' });
+    }
+
+    const token = await auth.requestReset(email);
+    if (!token) {
+      return res.status(200).json({ message: 'If that email is registered, you will receive a password reset link.' });
+    }
+
+    const transporter = nodemailer.createTransport({
+        service: 'SMTP',
+        host: process.env.SMTP_HOST || '',
+        port: parseInt(process.env.SMTP_PORT || '587'),
+        secure: process.env.SMTP_SECURE === 'true',
+        auth: {
+          user: process.env.SMTP_USER || '',
+          pass: process.env.SMTP_PASSWORD || '',
+        },
+      });
+
+      transporter
+        .verify()
+        .then(() => console.log('SMTP prêt !'))
+        .catch(err => console.error('Erreur SMTP :', err));
+
+      const mailOptions = {
+        from: '"Your App" <no-reply@yourapp.com>',
+        to: email,
+        subject: '🔐 Reset Your Password',
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #648BA0; border-radius: 10px; background-color: #e4e2dd;">
+          <style>
+          @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Open+Sans&display=swap');
+          </style>
+          <h2 style="color: #000000ff; text-align: center; font-family: 'Montserrat', Arial, sans-serif;">🔐 Reset Your Password</h2>
+          <p style="font-size: 16px; font-family: 'Open Sans', Arial, sans-serif; color: #000000ff;">
+          Hello,
+          </p>
+          <p style="font-size: 16px; font-family: 'Open Sans', Arial, sans-serif; color: #000000ff;">
+          We received a request to reset your password. Click the button below to create a new password.
+          </p>
+
+          <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin: 30px auto;">
+          <tr>
+          <td align="center" bgcolor="#57798B" style="border-radius: 5px;">
+          <a href="${process.env.FRONTEND_URL}/reset-password?token=${token}"
+          target="_blank"
+          style="font-size: 16px; font-family: 'Open Sans', Arial, sans-serif; color: #FFFFFF; text-decoration: none; padding: 12px 24px; display: inline-block;">
+          Reset Password
+          </a>
+          </td>
+          </tr>
+          </table>
+
+          <p style="font-size: 14px; font-family: 'Open Sans', Arial, sans-serif, color: #000000ff;">
+          If you did not request a password reset, please ignore this email or contact support if you have concerns.
+          </p>
+          <hr style="margin: 20px 0; border-color: #000000ff;">
+          <p style="font-size: 12px; font-family: 'Open Sans', Arial, sans-serif; color: #000000ff; text-align: center;">
+          © ${new Date().getFullYear()} Café sur Cour - AREA - All rights reserved
+          </p>
+          </div>
+          `,
+      };
+
+      await transporter.sendMail(mailOptions);
+      res.status(201).json({ message: 'If that email is registered, you will receive a password reset link.' });
+      return;
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 export default router;
