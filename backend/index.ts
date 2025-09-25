@@ -13,6 +13,7 @@ import process from 'process';
 import authRoutes from './src/routes/auth/auth';
 import userRoutes from './src/routes/user/user';
 import apiRoutes from './src/routes/api/api';
+import aboutRoutes from './src/routes/about/about';
 
 import { executionService } from './src/services/ExecutionService';
 import { serviceLoader } from './src/services/ServiceLoader';
@@ -48,6 +49,7 @@ app.use(cookieParser());
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/info', apiRoutes);
+app.use('/about.json', aboutRoutes);
 
 setupSwagger(app);
 setupSignal();
