@@ -5,6 +5,10 @@ import process from 'process';
 import jwt from 'jsonwebtoken';
 import { JWT_SECRET } from 'index';
 
+interface TokenPayload extends jwt.JwtPayload {
+  email: string;
+}
+
 const router = express.Router();
 
 /* Auth GET Routes */
@@ -169,25 +173,26 @@ router.post(
       }
 
       const transporter = nodemailer.createTransport({
-          service: 'SMTP',
-          host: process.env.SMTP_HOST || '',
-          port: parseInt(process.env.SMTP_PORT || '587'),
-          secure: process.env.SMTP_SECURE === "true",
-          auth: {
-              user: process.env.SMTP_USER || '',
-              pass: process.env.SMTP_PASSWORD || '',
-          },
+        service: 'SMTP',
+        host: process.env.SMTP_HOST || '',
+        port: parseInt(process.env.SMTP_PORT || '587'),
+        secure: process.env.SMTP_SECURE === 'true',
+        auth: {
+          user: process.env.SMTP_USER || '',
+          pass: process.env.SMTP_PASSWORD || '',
+        },
       });
 
-      transporter.verify()
-      .then(() => console.log('SMTP prêt !'))
-      .catch(err => console.error('Erreur SMTP :', err));
+      transporter
+        .verify()
+        .then(() => console.log('SMTP prêt !'))
+        .catch(err => console.error('Erreur SMTP :', err));
 
       const mailOptions = {
-          from: '"Your App" <no-reply@yourapp.com>',
-          to: email,
-          subject: "🔐 Account Verification",
-          html: `
+        from: '"Your App" <no-reply@yourapp.com>',
+        to: email,
+        subject: '🔐 Account Verification',
+        html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #648BA0; border-radius: 10px; background-color: #e4e2dd;">
           <style>
           @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Open+Sans&display=swap');
@@ -220,7 +225,7 @@ router.post(
           © ${new Date().getFullYear()} Café sur Cour - AREA - All rights reserved
           </p>
           </div>
-          `
+          `,
       };
 
       await transporter.sendMail(mailOptions);
@@ -301,17 +306,25 @@ router.post('/verify', (req: Request, res: Response) => {
     return res.status(400).json({ error: 'Token is required' });
   }
 
-  jwt.verify(token, JWT_SECRET as string, async (err: jwt.VerifyErrors | null, decoded: any) => {
-    if (err) {
-      return res.status(401).json({ error: 'Invalid token' });
-    }
-    var result = await auth.verify(decoded.email);
-    if (result instanceof Error) {
+  jwt.verify(
+    token,
+    JWT_SECRET as string,
+    async (
+      err: jwt.VerifyErrors | null,
+      decoded: string | jwt.JwtPayload | undefined
+    ) => {
+      if (err || !decoded || typeof decoded === 'string') {
+        return res.status(401).json({ error: 'Invalid token' });
+      }
+      const payload = decoded as TokenPayload;
+      var result = await auth.verify(payload.email);
+      if (result instanceof Error) {
         res.status(409).json({ error: result.message });
         return;
       }
-    res.status(200).json({ message: 'Account verified successfully' });
-  });
+      res.status(200).json({ message: 'Account verified successfully' });
+    }
+  );
 });
 
 export default router;

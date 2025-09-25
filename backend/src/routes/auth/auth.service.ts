@@ -27,11 +27,9 @@ export async function register(email: string, name: string, password: string) {
   newUser.name = name;
   newUser.email = email;
   newUser.password_hash = hashed_password;
-  const token = jwt.sign(
-    { email: newUser.email },
-    JWT_SECRET as string,
-    { expiresIn: '1h' }
-  );
+  const token = jwt.sign({ email: newUser.email }, JWT_SECRET as string, {
+    expiresIn: '1h',
+  });
   await AppDataSource.manager.save(newUser);
   return token;
 }
@@ -42,4 +40,3 @@ export async function verify(email: string) {
   user.email_verified = true;
   await AppDataSource.manager.save(user);
 }
-
