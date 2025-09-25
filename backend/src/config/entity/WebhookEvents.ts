@@ -13,6 +13,9 @@ export class WebhookEvents {
   @Column({ type: 'varchar', length: 100 })
   action_type!: string;
 
+  @Column({ type: 'int' })
+  user_id!: number;
+
   @Column({ type: 'varchar', length: 100, nullable: true })
   source?: string | null;
 

@@ -5,6 +5,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import type { Action, Reaction } from '../../types/mapping';
 
 @Entity('webhook_configs')
 export class WebhookConfigs {
@@ -14,11 +15,11 @@ export class WebhookConfigs {
   @Column({ type: 'varchar', length: 100, unique: true })
   name!: string;
 
-  @Column({ type: 'varchar', length: 100 })
-  action_type!: string;
+  @Column({ type: 'jsonb' })
+  action!: Action;
 
-  @Column({ type: 'text', array: true })
-  reactions!: string[];
+  @Column({ type: 'jsonb', array: true })
+  reactions!: Reaction[];
 
   @Column({ type: 'boolean', default: true })
   is_active!: boolean;
