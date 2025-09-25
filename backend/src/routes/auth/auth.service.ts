@@ -4,6 +4,7 @@ import { getUserByEmail } from '../user/user.service';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { JWT_SECRET } from '../../../index';
+import { get } from 'http';
 
 export async function login(email: string, password_hash: string) {
   const foundUser = await getUserByEmail(email);
@@ -49,4 +50,21 @@ export async function requestReset(email: string) {
     expiresIn: '1h',
   });
   return token;
+}
+
+export async function resetPassword(token: string, newPassword: string) {
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET as string);
+        const user = await getUserByEmail((decoded as any).email);
+        if (!user) {
+            return new Error('User not found');
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        user.password_hash = hashedPassword;
+        await AppDataSource.manager.save(user);
+        return true;
+    } catch (error) {
+        return new Error('Invalid or expired token');
+    }
 }

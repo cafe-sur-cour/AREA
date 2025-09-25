@@ -4,6 +4,7 @@ import nodemailer from 'nodemailer';
 import process from 'process';
 import jwt from 'jsonwebtoken';
 import { JWT_SECRET } from 'index';
+import mail from "../../middleware/mail";
 
 interface TokenPayload extends jwt.JwtPayload {
   email: string;
@@ -101,6 +102,11 @@ router.post(
         return;
       }
       const token = await auth.login(email, password);
+      if (token instanceof Error) {
+        res.status(401).json({ error: token.message });
+        return;
+      }
+
       res.cookie('auth_token', token, {
         maxAge: 86400000,
         httpOnly: true,
@@ -323,14 +329,13 @@ router.post('/logout', async (req: Request, res: Response): Promise<void> => {
  *       500:
  *         description: Internal Server Error
  */
-router.post('/verify', (req: Request, res: Response) => {
-  const { token } = req.body;
-  if (!token) {
-    return res.status(400).json({ error: 'Token is required' });
+router.post('/verify', mail, (req: Request, res: Response) => {
+  if (!req.token) {
+    return res.status(401).json({ error: 'Authentication required' });
   }
 
   jwt.verify(
-    token,
+    req.token,
     JWT_SECRET as string,
     async (
       err: jwt.VerifyErrors | null,
@@ -507,5 +512,135 @@ router.post(
     return res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
+/**
+ * @swagger
+ * /api/auth/reset-password:
+ *   post:
+ *     summary: Reset user password with a valid reset token
+ *     tags:
+ *       - Auth
+ *     description: |
+ *       Completes the password reset process by setting a new password for the user.
+ *       This endpoint requires a valid reset token that was sent to the user's email
+ *       via the forgot-password endpoint.
+ *
+ *       **Process:**
+ *       1. Validates the reset token from Authorization header
+ *       2. Verifies the token hasn't expired
+ *       3. Updates the user's password with the new one
+ *       4. Invalidates the reset token
+ *
+ *       **Security Features:**
+ *       - Token-based authentication (single-use)
+ *       - Password hashing before storage
+ *       - Token expiration validation
+ *       - Secure token transmission via headers
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - newPassword
+ *             properties:
+ *               newPassword:
+ *                 type: string
+ *                 format: password
+ *                 description: New password for the user account
+ *                 minLength: 8
+ *                 example: "NewSecurePassword123!"
+ *                 pattern: "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$"
+ *     responses:
+ *       200:
+ *         description: Password reset completed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Success confirmation message
+ *                   example: "Password has been reset successfully"
+ *       400:
+ *         description: Bad Request - Missing token or password, or invalid/expired token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   enum:
+ *                     - "Token is required"
+ *                     - "New password is required"
+ *                     - "Invalid or expired token"
+ *                   examples:
+ *                     missing_token:
+ *                       value: "Token is required"
+ *                     missing_password:
+ *                       value: "New password is required"
+ *                     invalid_token:
+ *                       value: "Invalid or expired token"
+ *       401:
+ *         description: Unauthorized - Invalid or missing Authorization header
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 msg:
+ *                   type: string
+ *                   example: "Unauthorized"
+ *       500:
+ *         description: Internal Server Error - Database or system error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Internal Server Error"
+ *     examples:
+ *       successful_reset:
+ *         summary: Successful password reset
+ *         value:
+ *           newPassword: "MyNewSecurePassword123!"
+ *       weak_password:
+ *         summary: Weak password example
+ *         value:
+ *           newPassword: "123"
+ */
+router.post(
+  '/reset-password',
+  mail,
+  async (req: Request, res: Response) => {
+    try {
+      if (!req.token) {
+        return res.status(400).json({ error: 'Token is required' });
+      }
+
+      const { newPassword } = req.body;
+      if (!newPassword) {
+        return res.status(400).json({ error: 'New password is required' });
+      }
+
+      const result = await auth.resetPassword(req.token, newPassword);
+      if (!result) {
+        return res.status(400).json({ error: 'Invalid or expired token' });
+      }
+
+      return res.status(200).json({ message: 'Password has been reset successfully' });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ error: 'Internal Server Error' });
+    }
+  }
+);
 
 export default router;
