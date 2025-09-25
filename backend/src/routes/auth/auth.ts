@@ -4,7 +4,7 @@ import nodemailer from 'nodemailer';
 import process from 'process';
 import jwt from 'jsonwebtoken';
 import { JWT_SECRET } from 'index';
-import mail from "../../middleware/mail";
+import mail from '../../middleware/mail';
 
 interface TokenPayload extends jwt.JwtPayload {
   email: string;
@@ -434,9 +434,7 @@ router.post('/verify', mail, (req: Request, res: Response) => {
  *         value:
  *           email: "invalid-email"
  */
-router.post(
-  '/forgot-password',
-  async (req: Request, res: Response) => {
+router.post('/forgot-password', async (req: Request, res: Response) => {
   try {
     const { email } = req.body;
     if (!email) {
@@ -445,30 +443,33 @@ router.post(
 
     const token = await auth.requestReset(email);
     if (!token) {
-      return res.status(200).json({ message: 'If that email is registered, you will receive a password reset link.' });
+      return res.status(200).json({
+        message:
+          'If that email is registered, you will receive a password reset link.',
+      });
     }
 
     const transporter = nodemailer.createTransport({
-        service: 'SMTP',
-        host: process.env.SMTP_HOST || '',
-        port: parseInt(process.env.SMTP_PORT || '587'),
-        secure: process.env.SMTP_SECURE === 'true',
-        auth: {
-          user: process.env.SMTP_USER || '',
-          pass: process.env.SMTP_PASSWORD || '',
-        },
-      });
+      service: 'SMTP',
+      host: process.env.SMTP_HOST || '',
+      port: parseInt(process.env.SMTP_PORT || '587'),
+      secure: process.env.SMTP_SECURE === 'true',
+      auth: {
+        user: process.env.SMTP_USER || '',
+        pass: process.env.SMTP_PASSWORD || '',
+      },
+    });
 
-      transporter
-        .verify()
-        .then(() => console.log('SMTP prêt !'))
-        .catch(err => console.error('Erreur SMTP :', err));
+    transporter
+      .verify()
+      .then(() => console.log('SMTP prêt !'))
+      .catch(err => console.error('Erreur SMTP :', err));
 
-      const mailOptions = {
-        from: '"Your App" <no-reply@yourapp.com>',
-        to: email,
-        subject: '🔐 Reset Your Password',
-        html: `
+    const mailOptions = {
+      from: '"Your App" <no-reply@yourapp.com>',
+      to: email,
+      subject: '🔐 Reset Your Password',
+      html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #648BA0; border-radius: 10px; background-color: #e4e2dd;">
           <style>
           @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Open+Sans&display=swap');
@@ -502,11 +503,14 @@ router.post(
           </p>
           </div>
           `,
-      };
+    };
 
-      await transporter.sendMail(mailOptions);
-      res.status(201).json({ message: 'If that email is registered, you will receive a password reset link.' });
-      return;
+    await transporter.sendMail(mailOptions);
+    res.status(201).json({
+      message:
+        'If that email is registered, you will receive a password reset link.',
+    });
+    return;
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: 'Internal Server Error' });
@@ -616,31 +620,29 @@ router.post(
  *         value:
  *           newPassword: "123"
  */
-router.post(
-  '/reset-password',
-  mail,
-  async (req: Request, res: Response) => {
-    try {
-      if (!req.token) {
-        return res.status(400).json({ error: 'Token is required' });
-      }
-
-      const { newPassword } = req.body;
-      if (!newPassword) {
-        return res.status(400).json({ error: 'New password is required' });
-      }
-
-      const result = await auth.resetPassword(req.token, newPassword);
-      if (!result) {
-        return res.status(400).json({ error: 'Invalid or expired token' });
-      }
-
-      return res.status(200).json({ message: 'Password has been reset successfully' });
-    } catch (error) {
-      console.error(error);
-      return res.status(500).json({ error: 'Internal Server Error' });
+router.post('/reset-password', mail, async (req: Request, res: Response) => {
+  try {
+    if (!req.token) {
+      return res.status(400).json({ error: 'Token is required' });
     }
+
+    const { newPassword } = req.body;
+    if (!newPassword) {
+      return res.status(400).json({ error: 'New password is required' });
+    }
+
+    const result = await auth.resetPassword(req.token, newPassword);
+    if (!result) {
+      return res.status(400).json({ error: 'Invalid or expired token' });
+    }
+
+    return res
+      .status(200)
+      .json({ message: 'Password has been reset successfully' });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: 'Internal Server Error' });
   }
-);
+});
 
 export default router;
