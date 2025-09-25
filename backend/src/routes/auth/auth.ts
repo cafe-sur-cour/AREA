@@ -53,9 +53,18 @@ router.get(
  * @swagger
  * /api/auth/login:
  *   post:
- *     summary: Login a user
+ *     summary: Authenticate a user and return a JWT token
  *     tags:
  *       - Auth
+ *     description: |
+ *       Authenticates a user with email and password credentials.
+ *       Returns a JWT token that can be used for accessing protected endpoints.
+ *       The token is also set as an HTTP-only cookie for enhanced security.
+ *
+ *       **Requirements:**
+ *       - User must be registered
+ *       - Email must be verified
+ *       - Credentials must be valid
  *     requestBody:
  *       required: true
  *       content:
@@ -68,11 +77,24 @@ router.get(
  *             properties:
  *               email:
  *                 type: string
+ *                 format: email
+ *                 description: User's registered email address
+ *                 example: "user@example.com"
  *               password:
  *                 type: string
+ *                 format: password
+ *                 description: User's password
+ *                 minLength: 1
+ *                 example: "mySecurePassword123"
  *     responses:
  *       200:
- *         description: Successful login
+ *         description: Login successful - JWT token returned
+ *         headers:
+ *           Set-Cookie:
+ *             description: HTTP-only authentication cookie
+ *             schema:
+ *               type: string
+ *               example: "auth_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...; HttpOnly; SameSite=Strict; Max-Age=86400"
  *         content:
  *           application/json:
  *             schema:
@@ -80,10 +102,44 @@ router.get(
  *               properties:
  *                 token:
  *                   type: string
+ *                   description: JWT token for authentication (expires in 1 hour)
+ *                   example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InVzZXJAZXhhbXBsZS5jb20iLCJpZCI6MSwiaXNfYWRtaW4iOmZhbHNlLCJpYXQiOjE2OTU2NDg4MDAsImV4cCI6MTY5NTY1MjQwMH0.signature"
  *       400:
- *         description: Missing required fields
+ *         description: Bad Request - Missing or invalid input fields
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Bad Request"
+ *                 message:
+ *                   type: string
+ *                   example: "Missing required fields: email, password"
  *       401:
- *         description: Unauthorized
+ *         description: Unauthorized - Authentication failed
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   enum: ["Unauthorized"]
+ *                   example: "Unauthorized"
+ *               oneOf:
+ *                 - description: "User not found, email not verified, or incorrect password"
+ *       500:
+ *         description: Internal Server Error - Unexpected server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Internal Server Error"
  */
 router.post(
   '/login',

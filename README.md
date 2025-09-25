@@ -92,6 +92,32 @@ git commit -m "New commit message (without the file)"
 
 ## 🚀 Docker
 
+### Overall
+
+**Description**
+
+`docker-compose.yml` is stored in the subfolder `deployment/`. It describes every docker services of our project :
+
+- **server**: to launch the application server on port *8080*
+- **client_mobile**: to build the mobile client
+- **client_web**: to launch the web client on port *8081*
+
+The *client_web* depends on *client_mobile* **and** *server* .
+
+**Up**
+
+Validation of the integrity of our images will be done when launching the `docker-compose up` command.
+
+Upping services will follow these points:
+
+- The services **client_mobile** and **client_web** will share a common volume
+- The **client_mobile** service will edit the associated binary and put it on the common volume with the **client_web**
+- The **server** service will run by exposing the port **8080**
+- The **server** service will respond to the request `http://localhost:8080/about.json`
+- The **client_web** service will run by exposing the port **8081**
+- The **client_web** service will respond to one of the following queries:
+- `http://localhost:8081/client.apk` to provide the Android version of mobile client
+
 ### 🧪 Docker commands
 
 **First contenerization, launch this command:**
@@ -104,5 +130,5 @@ docker compose -f deployment/docker-compose.yml up --build -d # Build image usin
 docker compose -f deployment/docker-compose.yml up -d # Up services without building image
 docker compose -f deployment/docker-compose.yml down # Down services
 docker compose -f deployment/docker-compose.yml down -v # Down services and remove all volumes
-docker exec -it postgres_db psql -U postgres -d mydb
+docker exec -it postgres_db psql -U postgres -d mydb # Access our db
 ```
