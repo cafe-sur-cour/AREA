@@ -32,8 +32,10 @@ export class GitHubOAuth {
     this.clientId = process.env.SERVICE_GITHUB_CLIENT_ID || '';
     this.clientSecret = process.env.SERVICE_GITHUB_CLIENT_SECRET || '';
     this.redirectUri = process.env.SERVICE_GITHUB_REDIRECT_URI || '';
-    this.githubApiBaseUrl = process.env.SERVICE_GITHUB_API_BASE_URL || 'https://api.github.com';
-    this.githubAuthBaseUrl = process.env.SERVICE_GITHUB_AUTH_BASE_URL || 'https://github.com';
+    this.githubApiBaseUrl =
+      process.env.SERVICE_GITHUB_API_BASE_URL || 'https://api.github.com';
+    this.githubAuthBaseUrl =
+      process.env.SERVICE_GITHUB_AUTH_BASE_URL || 'https://github.com';
 
     if (!this.clientId || !this.clientSecret || !this.redirectUri) {
       throw new Error('GitHub OAuth configuration missing');
