@@ -112,3 +112,10 @@ dart fix --apply
 ```
 This will fix analysis issues identified by dart analyze that have associated automated fixes
 (sometimes called quick-fixes or code actions).
+
+### Generate the code for translations
+In the `mobile/` directory, run
+```bash
+flutter gen-l10n
+```
+This will update the code that handles the translations written in `lib/`.
