@@ -7,5 +7,6 @@ declare module 'express-serve-static-core' {
       email: string;
       is_admin: boolean;
     };
+    token?: string;
   }
 }
