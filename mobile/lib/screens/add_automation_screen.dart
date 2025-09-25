@@ -9,82 +9,104 @@ class AddAutomationScreen extends StatefulWidget {
 }
 
 class AddAutomationScreenState extends State<AddAutomationScreen> {
+  bool _actionSelected = false;
+
+  void _setSelected() {
+    setState(() {
+      _actionSelected = !_actionSelected;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Create your automation'),
-        backgroundColor: AppColors.areaBlue1,
-        foregroundColor: AppColors.areaLightGray,
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          spacing: 32,
-          children: [
-            Text(
-              "Select the Action and REAction.",
-              style: TextStyle(fontWeight: FontWeight.w500, color: AppColors.areaDarkGray),
-            ),
-            Wrap(
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        spacing: 100,
+        children: [
+          SizedBox(
+            height: 250,
+            child: Wrap(
               direction: Axis.vertical,
-              spacing: 8,
-              children: [
-                ElevatedButton(
-                  onPressed: () => print("added action"),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.areaBlue1,
-                    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 32),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
-                  ),
-                  child: RichText(
-                    text: TextSpan(
-                      style: TextStyle(
-                        color: AppColors.areaLightGray,
-                        fontSize: 32,
-                        fontFamily: 'Montserrat',
-                        fontWeight: FontWeight.w400,
-                      ),
-                      children: <TextSpan>[
-                        TextSpan(
-                          text: 'A',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 64),
-                        ),
-                        TextSpan(text: 'CTION'),
-                      ],
-                    ),
-                  ),
-                ),
-                ElevatedButton(
-                  onPressed: () => print("added reaction"),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.areaBlue3,
-                    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 32),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
-                  ),
-                  child: RichText(
-                    text: TextSpan(
-                      style: TextStyle(
-                        color: AppColors.areaLightGray,
-                        fontSize: 32,
-                        fontFamily: 'Montserrat',
-                        fontWeight: FontWeight.w400,
-                      ),
-                      children: <TextSpan>[
-                        TextSpan(
-                          text: 'REA',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 64),
-                        ),
-                        TextSpan(text: 'CTION'),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
+              alignment: WrapAlignment.end,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [Image(image: AssetImage('assets/web-app-manifest-192x192.png'))],
             ),
-          ],
-        ),
+          ),
+          Wrap(
+            direction: Axis.vertical,
+            spacing: 32,
+            children: [
+              ElevatedButton(
+                onPressed: () => _setSelected(),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.areaBlue3,
+                  padding: EdgeInsets.symmetric(vertical: 16, horizontal: 40),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
+                ),
+                child: SizedBox(
+                  width: 250,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Action",
+                        style: TextStyle(
+                          fontFamily: 'Montserrat',
+                          color: AppColors.areaLightGray,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 32.0,
+                        ),
+                      ),
+                      Icon(
+                        Icons.add,
+                        color: AppColors.areaLightGray,
+                        size: 40,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              ElevatedButton(
+                onPressed: _actionSelected ? () => print("Reaction pressed") : null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.areaBlue3,
+                  padding: EdgeInsets.symmetric(vertical: 16, horizontal: 40),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
+                ),
+                child: SizedBox(
+                  width: 250,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "REAction",
+                        style: TextStyle(
+                          fontFamily: 'Montserrat',
+                          color: AppColors.areaLightGray,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 32.0,
+                        ),
+                      ),
+                      Icon(
+                        Icons.add,
+                        color: AppColors.areaLightGray,
+                        size: _actionSelected ? 40 : 0,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
