@@ -1,0 +1,7 @@
+FROM alpine:latest
+RUN apk add --no-cache bash curl
+RUN mkdir -p /app/build
+WORKDIR /app/build
+RUN echo "This is a placeholder APK file" > client.apk
+RUN chmod 644 client.apk
+CMD ["sh", "-c", "echo 'Mobile build container ready. APK placeholder created.' && tail -f /dev/null"]
