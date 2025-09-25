@@ -188,37 +188,37 @@ router.post(
           to: email,
           subject: "🔐 Account Verification",
           html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #D5A8F2; border-radius: 10px; background-color: #EED5FB;">
-              <style>
-                  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Open+Sans&display=swap');
-              </style>
-              <h2 style="color: #000000ff; text-align: center; font-family: 'Montserrat', Arial, sans-serif;">🔐 Password Reset</h2>
-              <p style="font-size: 16px; font-family: 'Open Sans', Arial, sans-serif; color: #000000ff;">
-                  Hello,
-              </p>
-              <p style="font-size: 16px; font-family: 'Open Sans', Arial, sans-serif; color: #000000ff;">
-                  You just gotta ignite, the light, and let it shine. Just own the night like the 4th of July! 🇺🇸
-              </p>
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #648BA0; border-radius: 10px; background-color: #e4e2dd;">
+          <style>
+          @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Open+Sans&display=swap');
+          </style>
+          <h2 style="color: #000000ff; text-align: center; font-family: 'Montserrat', Arial, sans-serif;">🔐 Verify Your Account</h2>
+          <p style="font-size: 16px; font-family: 'Open Sans', Arial, sans-serif; color: #000000ff;">
+          Hello ${name},
+          </p>
+          <p style="font-size: 16px; font-family: 'Open Sans', Arial, sans-serif; color: #000000ff;">
+          Thank you for registering! Please verify your email address to complete your registration and access all features.
+          </p>
 
-              <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin: 30px auto;">
-                  <tr>
-                      <td align="center" bgcolor="#C174F2" style="border-radius: 5px;">
-                          <a href="${process.env.FRONTEND_URL}/verify?token=${token}"
-                          target="_blank"
-                          style="font-size: 16px; font-family: 'Open Sans', Arial, sans-serif; color: #FFFFFF; text-decoration: none; padding: 12px 24px; display: inline-block;">
-                          🔑 Yes it's my account!
-                          </a>
-                      </td>
-                  </tr>
-              </table>
+          <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin: 30px auto;">
+          <tr>
+              <td align="center" bgcolor="#57798B" style="border-radius: 5px;">
+              <a href="${process.env.FRONTEND_URL}/verify?token=${token}"
+              target="_blank"
+              style="font-size: 16px; font-family: 'Open Sans', Arial, sans-serif; color: #FFFFFF; text-decoration: none; padding: 12px 24px; display: inline-block;">
+              ✓ Verify My Account
+              </a>
+              </td>
+          </tr>
+          </table>
 
-              <p style="font-size: 14px; font-family: 'Open Sans', Arial, sans-serif, color: #000000ff;">
-                  If you did not request this, please ignore this email.
-              </p>
-              <hr style="margin: 20px 0; border-color: #000000ff;">
-              <p style="font-size: 12px; font-family: 'Open Sans', Arial, sans-serif; color: #000000ff; text-align: center;">
-                  © ${new Date().getFullYear()} JEB Incubator - All rights reserved
-              </p>
+          <p style="font-size: 14px; font-family: 'Open Sans', Arial, sans-serif, color: #000000ff;">
+          If you did not create an account, please ignore this email.
+          </p>
+          <hr style="margin: 20px 0; border-color: #000000ff;">
+          <p style="font-size: 12px; font-family: 'Open Sans', Arial, sans-serif; color: #000000ff; text-align: center;">
+          © ${new Date().getFullYear()} Café sur Cour - AREA - All rights reserved
+          </p>
           </div>
           `
       };
