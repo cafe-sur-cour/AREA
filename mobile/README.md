@@ -27,7 +27,9 @@ flutter emulators
 ```
 And follow the displayed commands to `launch` a device or `create` one.
 
-## Starting the app - via CLI
+## Starting the app
+
+### Via CLI
 
 In the `mobile/` directory, run
 ```bash
@@ -36,7 +38,7 @@ flutter run
 This is the `debug` version, allowing hot reload by pressing `r` in the CLI.
 Add `--release` to run the app in its release version.
 
-## Starting the app - via scripts
+### Via scripts
 
 In the project's root, run
 ```bash
@@ -48,7 +50,9 @@ For the release verion, run
 ./scripts/runMobileRelease.sh
 ```
 
-## Build the apk - via CLI
+## Build the apk
+
+### Via CLI
 
 In the `mobile/` directory, run
 ```bash
@@ -56,7 +60,7 @@ flutter build apk --release
 ```
 This will build the APK but you will have to move it by hand to the `builds/` directory that's in the root of the project.
 
-## Build the apk - via scripts
+### Via scripts
 
 In the project's root, run
 ```bash
@@ -64,3 +68,47 @@ In the project's root, run
 ```
 It will automatically create the apk and move it to the `builds/` directory.
 
+## Useful commands
+
+### Run the tests
+
+In the `mobile/` directory, run
+```bash
+flutter test
+```
+This will run every tests in the AREA mobile project.
+
+### Format the files
+
+In the `mobile/` directory, run
+```bash
+dart format .
+```
+This will format every file in the AREA mobile project.
+
+### Analyze code conformity
+
+In the `mobile/` directory, run
+```bash
+dart analyze
+```
+This will output every code errors/warnings.
+Static analysis allows you to find problems before executing a single line of code.
+It's a powerful tool used to prevent bugs and ensure that code conforms to style guidelines.
+
+With the help of the analyzer, you can find simple typos.
+For example, perhaps an accidental semicolon made its way into an if statement.
+
+### Auto fix issues found by analysis
+
+To preview the proposed changes, go to the `mobile/` directory and run
+```bash
+dart fix --dry-run
+```
+
+To apply the proposed changes, go to the `mobile/` directory and run
+```bash
+dart fix --apply
+```
+This will fix analysis issues identified by dart analyze that have associated automated fixes
+(sometimes called quick-fixes or code actions).

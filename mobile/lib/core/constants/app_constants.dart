@@ -1,5 +1,4 @@
-class AppRoutes {
-}
+class AppRoutes {}
 
 class AppDimensions {
   // Padding & Margins

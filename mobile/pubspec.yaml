@@ -58,6 +58,15 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
 
+  flutter_launcher_icons: ^0.13.1
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icon_foreground.png"
+  adaptive_icon_background: "#e4e2dd"
+  adaptive_icon_foreground: "assets/icon_foreground.png"
+
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
@@ -92,6 +101,21 @@ flutter:
         - asset: fonts/Montserrat/Montserrat-SemiBoldItalic.ttf
           weight: 600
           style: italic
+        - asset: fonts/Montserrat/Montserrat-Bold.ttf
+          weight: 700
+        - asset: fonts/Montserrat/Montserrat-BoldItalic.ttf
+          weight: 700
+          style: italic
+        - asset: fonts/Montserrat/Montserrat-ExtraBold.ttf
+          weight: 800
+        - asset: fonts/Montserrat/Montserrat-ExtraBoldItalic.ttf
+          weight: 800
+          style: italic
+        - asset: fonts/Montserrat/Montserrat-Black.ttf
+          weight: 900
+        - asset: fonts/Montserrat/Montserrat-BlackItalic.ttf
+          weight: 900
+          style: italic
     - family: OpenSans
       fonts:
         - asset: fonts/OpenSans/OpenSans-Light.ttf
@@ -114,14 +138,16 @@ flutter:
         - asset: fonts/OpenSans/OpenSans-SemiBoldItalic.ttf
           weight: 600
           style: italic
+        - asset: fonts/OpenSans/OpenSans-Bold.ttf
+          weight: 700
+        - asset: fonts/OpenSans/OpenSans-BoldItalic.ttf
+          weight: 700
+          style: italic
+        - asset: fonts/OpenSans/OpenSans-ExtraBold.ttf
+          weight: 800
+        - asset: fonts/OpenSans/OpenSans-ExtraBoldItalic.ttf
+          weight: 800
+          style: italic
 
-  # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
-
-  # An image asset can refer to one or more resolution-specific "variants", see
-  # https://flutter.dev/to/resolution-aware-images
-
-  # For details regarding adding assets from package dependencies, see
-  # https://flutter.dev/to/asset-from-package
+  assets:
+    - assets/
