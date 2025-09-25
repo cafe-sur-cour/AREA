@@ -8,6 +8,7 @@ import { JWT_SECRET } from '../../../index';
 export async function login(email: string, password_hash: string) {
   const foundUser = await getUserByEmail(email);
   if (!foundUser) return new Error('User not found');
+  if (!foundUser.email_verified) return new Error('Email not verified');
   const match = await bcrypt.compare(password_hash, foundUser.password_hash);
   if (!match) return new Error('Incorrect Password');
   const token = jwt.sign(
