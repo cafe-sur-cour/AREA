@@ -272,6 +272,17 @@ router.post('/logout', async (req: Request, res: Response): Promise<void> => {
  *     summary: Verify an user's email
  *     tags:
  *       - Auth
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - token
+ *             properties:
+ *               token:
+ *                 type: string
  *     responses:
  *       200:
  *         description: User is verified
@@ -279,24 +290,36 @@ router.post('/logout', async (req: Request, res: Response): Promise<void> => {
  *           application/json:
  *             schema:
  *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
  *       400:
  *         description: Bad Request
  *         content:
  *           application/json:
  *             schema:
  *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
  *       401:
  *         description: Unauthorized
  *         content:
  *           application/json:
  *             schema:
  *               type: object
- *      409:
+ *               properties:
+ *                 error:
+ *                   type: string
+ *       409:
  *         description: Conflict
  *         content:
  *           application/json:
  *             schema:
  *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
  *       500:
  *         description: Internal Server Error
  */
