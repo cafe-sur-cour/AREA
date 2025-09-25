@@ -25,11 +25,15 @@ export class GitHubOAuth {
   private clientId: string;
   private clientSecret: string;
   private redirectUri: string;
+  private githubApiBaseUrl: string;
+  private githubAuthBaseUrl: string;
 
   constructor() {
     this.clientId = process.env.SERVICE_GITHUB_CLIENT_ID || '';
     this.clientSecret = process.env.SERVICE_GITHUB_CLIENT_SECRET || '';
     this.redirectUri = process.env.SERVICE_GITHUB_REDIRECT_URI || '';
+    this.githubApiBaseUrl = process.env.SERVICE_GITHUB_API_BASE_URL || 'https://api.github.com';
+    this.githubAuthBaseUrl = process.env.SERVICE_GITHUB_AUTH_BASE_URL || 'https://github.com';
 
     if (!this.clientId || !this.clientSecret || !this.redirectUri) {
       throw new Error('GitHub OAuth configuration missing');
@@ -43,13 +47,12 @@ export class GitHubOAuth {
       scope: 'repo,user',
       state: state,
     });
-
-    return `https://github.com/login/oauth/authorize?${params.toString()}`;
+    return `${this.githubAuthBaseUrl}/login/oauth/authorize?${params.toString()}`;
   }
 
   async exchangeCodeForToken(code: string): Promise<GitHubTokenResponse> {
     const response = await fetch(
-      'https://github.com/login/oauth/access_token',
+      `${this.githubAuthBaseUrl}/login/oauth/access_token`,
       {
         method: 'POST',
         headers: {
@@ -83,7 +86,7 @@ export class GitHubOAuth {
   }
 
   async getUserInfo(accessToken: string): Promise<GitHubUser> {
-    const response = await fetch('https://api.github.com/user', {
+    const response = await fetch(`${this.githubApiBaseUrl}/user`, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
         Accept: 'application/vnd.github.v3+json',
