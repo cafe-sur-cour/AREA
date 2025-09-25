@@ -4,6 +4,9 @@ import nodemailer from 'nodemailer';
 import process from 'process';
 import jwt from 'jsonwebtoken';
 import { JWT_SECRET } from 'index';
+import { githubOAuth } from '../../services/services/github/oauth';
+import crypto from 'crypto';
+import token from '../../middleware/token';
 import mail from '../../middleware/mail';
 
 interface TokenPayload extends jwt.JwtPayload {
@@ -410,6 +413,116 @@ router.post('/verify', mail, (req: Request, res: Response) => {
     }
   );
 });
+
+/**
+ * @swagger
+ * /api/auth/github:
+ *   get:
+ *     summary: Initiate GitHub OAuth authorization
+ *     tags:
+ *       - OAuth
+ *     description: Redirects user to GitHub for OAuth authorization
+ *     responses:
+ *       302:
+ *         description: Redirect to GitHub authorization page
+ *       401:
+ *         description: User not authenticated
+ *       500:
+ *         description: Internal Server Error
+ */
+router.get(
+  '/github',
+  token,
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const state = crypto.randomBytes(32).toString('hex');
+      const authUrl = githubOAuth.getAuthorizationUrl(state);
+      res.redirect(authUrl);
+    } catch (err) {
+      console.error('GitHub OAuth initiation error:', err);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  }
+);
+
+/**
+ * @swagger
+ * /api/auth/github/callback:
+ *   get:
+ *     summary: Handle GitHub OAuth callback
+ *     tags:
+ *       - OAuth
+ *     description: Exchanges authorization code for access token and stores it
+ *     parameters:
+ *       - name: code
+ *         in: query
+ *         required: true
+ *         description: Authorization code from GitHub
+ *         schema:
+ *           type: string
+ *       - name: state
+ *         in: query
+ *         required: true
+ *         description: State parameter for CSRF protection
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: OAuth successful, token stored
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 user:
+ *                   type: object
+ *       400:
+ *         description: Bad Request - Missing parameters
+ *       401:
+ *         description: User not authenticated
+ *       500:
+ *         description: Internal Server Error
+ */
+router.get(
+  '/github/callback',
+  token,
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { code, state } = req.query;
+
+      if (!code || typeof code !== 'string') {
+        res.status(400).json({ error: 'Authorization code is required' });
+        return;
+      }
+
+      if (!state || typeof state !== 'string') {
+        res.status(400).json({ error: 'State parameter is required' });
+        return;
+      }
+
+      const tokenData = await githubOAuth.exchangeCodeForToken(code);
+
+      const githubUser = await githubOAuth.getUserInfo(tokenData.access_token);
+
+      const userId = (req.auth as { id: number }).id;
+      await githubOAuth.storeUserToken(userId, tokenData);
+
+      res.status(200).json({
+        message: 'GitHub account connected successfully',
+        user: {
+          github_id: githubUser.id,
+          github_login: githubUser.login,
+          github_name: githubUser.name,
+        },
+      });
+    } catch (err) {
+      console.error('GitHub OAuth callback error:', err);
+      res.status(500).json({ error: 'Failed to connect GitHub account' });
+    }
+  }
+);
 
 /**
  * @swagger

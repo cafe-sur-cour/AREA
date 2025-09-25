@@ -147,6 +147,9 @@ jobs:
           DB_PORT: ${{ secrets.DB_PORT }}
           NODE_PORT: ${{ secrets.NODE_PORT }}
           NEXT_PORT: ${{ secrets.NEXT_PORT }}
+          SERVICE_GITHUB_CLIENT_ID: ${{ secrets.SERVICE_GITHUB_CLIENT_ID }}
+          SERVICE_GITHUB_CLIENT_SECRET: ${{ secrets.SERVICE_GITHUB_CLIENT_SECRET }}
+          SERVICE_GITHUB_REDIRECT_URI: ${{ secrets.SERVICE_GITHUB_REDIRECT_URI }}
         run: |
           echo "DB_USER=$DB_USER" > ./deployment/.env
           echo "DB_PASSWORD=$DB_PASSWORD" >> ./deployment/.env
@@ -154,6 +157,9 @@ jobs:
           echo "DB_PORT=$DB_PORT" >> ./deployment/.env
           echo "NODE_PORT=$NODE_PORT" >> ./deployment/.env
           echo "NEXT_PORT=$NEXT_PORT" >> ./deployment/.env
+          echo "SERVICE_GITHUB_CLIENT_ID=$SERVICE_GITHUB_CLIENT_ID" >> ./deployment/.env
+          echo "SERVICE_GITHUB_CLIENT_SECRET=$SERVICE_GITHUB_CLIENT_SECRET" >> ./deployment/.env
+          echo "SERVICE_GITHUB_REDIRECT_URI=$SERVICE_GITHUB_REDIRECT_URI" >> ./deployment/.env
 
       - name: Clean all containers
         run: docker compose -f ./deployment/docker-compose.yml down -v
