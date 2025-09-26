@@ -1,5 +1,7 @@
 import express, { Request, Response } from 'express';
 import { serviceRegistry } from '../../services/ServiceRegistry';
+import { translateService } from '../../utils/translation';
+import i18next from 'i18next';
 
 const router = express.Router();
 
@@ -69,17 +71,20 @@ router.get('/', async (req: Request, res: Response): Promise<void> => {
 
     const currentTime = Math.floor(Date.now() / 1000);
 
-    const services = serviceRegistry.getAllServices().map(service => ({
-      name: service.name,
-      actions: service.actions.map(action => ({
-        name: action.name,
-        description: action.description,
-      })),
-      reactions: service.reactions.map(reaction => ({
-        name: reaction.name,
-        description: reaction.description,
-      })),
-    }));
+    const services = serviceRegistry.getAllServices().map(service => {
+      const translatedService = translateService(service, i18next.t);
+      return {
+        name: translatedService.name,
+        actions: (translatedService.actions as unknown[]).map((action: unknown) => ({
+          name: (action as Record<string, unknown>).name as string,
+          description: (action as Record<string, unknown>).description as string,
+        })),
+        reactions: (translatedService.reactions as unknown[]).map((reaction: unknown) => ({
+          name: (reaction as Record<string, unknown>).name as string,
+          description: (reaction as Record<string, unknown>).description as string,
+        })),
+      };
+    });
 
     const response = {
       client: {
@@ -92,10 +97,10 @@ router.get('/', async (req: Request, res: Response): Promise<void> => {
     };
 
     res.status(200).json(response);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
+      } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
 });
 
 export default router;

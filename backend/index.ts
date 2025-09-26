@@ -9,6 +9,9 @@ import { setupSwagger } from './src/routes/docs/swagger';
 import { setupSignal } from './src/utils/signal';
 import cors from 'cors';
 import process from 'process';
+import { initI18n } from './src/config/i18n';
+import i18next from 'i18next';
+import * as i18nextMiddleware from 'i18next-http-middleware';
 
 import authRoutes from './src/routes/auth/auth';
 import userRoutes from './src/routes/user/user';
@@ -63,6 +66,11 @@ setupSignal();
 
 (async function start() {
   try {
+    console.log('Initializing i18n...');
+    await initI18n();
+    app.use(i18nextMiddleware.handle(i18next));
+    console.log('i18n initialized');
+
     console.log('Waiting for Postgres to be ready...');
     await waitForPostgres({ retries: 12, delayMs: 2000 });
 
