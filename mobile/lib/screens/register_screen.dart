@@ -62,6 +62,9 @@ class RegisterScreenState extends State<RegisterScreen> {
                   }
                   return null;
                 },
+                onTapOutside: (event) {
+                  FocusScope.of(context).unfocus();
+                },
               ),
 
               const SizedBox(height: 16),
@@ -81,6 +84,9 @@ class RegisterScreenState extends State<RegisterScreen> {
                     return 'Please enter a valid email';
                   }
                   return null;
+                },
+                onTapOutside: (event) {
+                  FocusScope.of(context).unfocus();
                 },
               ),
 
@@ -102,6 +108,9 @@ class RegisterScreenState extends State<RegisterScreen> {
                   }
                   return null;
                 },
+                onTapOutside: (event) {
+                  FocusScope.of(context).unfocus();
+                },
               ),
 
               const SizedBox(height: 16),
@@ -121,6 +130,9 @@ class RegisterScreenState extends State<RegisterScreen> {
                     return 'Passwords differ';
                   }
                   return null;
+                },
+                onTapOutside: (event) {
+                  FocusScope.of(context).unfocus();
                 },
               ),
 

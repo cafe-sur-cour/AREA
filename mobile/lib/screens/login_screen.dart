@@ -61,6 +61,9 @@ class LoginScreenState extends State<LoginScreen> {
                   }
                   return null;
                 },
+                onTapOutside: (event) {
+                  FocusScope.of(context).unfocus();
+                },
               ),
 
               const SizedBox(height: 16),
@@ -80,6 +83,9 @@ class LoginScreenState extends State<LoginScreen> {
                     return 'Password must be at least 6 characters';
                   }
                   return null;
+                },
+                onTapOutside: (event) {
+                  FocusScope.of(context).unfocus();
                 },
               ),
 
