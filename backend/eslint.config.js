@@ -17,7 +17,7 @@ export default [
       '@typescript-eslint': eslintPluginTs,
     },
     rules: {
-      ...eslintPlugints.configs.recommended.rules,
+      ...eslintPluginTs.configs.recommended.rules,
     },
   },
 ];
