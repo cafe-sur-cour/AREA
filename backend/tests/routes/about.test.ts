@@ -3,7 +3,6 @@ import express from 'express';
 import { serviceRegistry } from '../../src/services/ServiceRegistry';
 import type { Service } from '../../src/types/service';
 
-// Mock the service registry
 jest.mock('../../src/services/ServiceRegistry', () => ({
   serviceRegistry: {
     getAllServices: jest.fn(),
@@ -12,7 +11,6 @@ jest.mock('../../src/services/ServiceRegistry', () => ({
 
 const mockServiceRegistry = serviceRegistry as jest.Mocked<typeof serviceRegistry>;
 
-// Mock the about router
 const createMockAboutRouter = () => {
   const router = express.Router();
 
@@ -69,10 +67,8 @@ describe('About Routes Integration Tests', () => {
   beforeEach(() => {
     app = express();
     app.use(express.json());
-    
-    // Mock Date.now() pour des tests déterministes
-    mockDateNow = jest.spyOn(Date, 'now').mockReturnValue(1640995200000); // 1er janvier 2022, 00:00:00 UTC
-    
+
+    mockDateNow = jest.spyOn(Date, 'now').mockReturnValue(1640995200000);
     app.use('/api/about.json', createMockAboutRouter());
   });
 
@@ -93,7 +89,7 @@ describe('About Routes Integration Tests', () => {
           host: expect.any(String),
         },
         server: {
-          current_time: 1640995200, // 1640995200000 / 1000
+          current_time: 1640995200,
           services: [],
         },
       });
@@ -230,7 +226,7 @@ describe('About Routes Integration Tests', () => {
           ],
         },
       });
-      
+
       expect(mockServiceRegistry.getAllServices).toHaveBeenCalledTimes(1);
     });
 
@@ -247,30 +243,23 @@ describe('About Routes Integration Tests', () => {
     });
 
     it('should handle IPv6-mapped IPv4 addresses correctly', async () => {
-      // Mock the service registry for this test
       mockServiceRegistry.getAllServices.mockReturnValue([]);
-      
-      // Don't recreate the app, just test the IP extraction logic
+
       const response = await request(app)
         .get('/api/about.json')
         .set('x-forwarded-for', '::ffff:192.168.1.100');
 
       expect(response.status).toBe(200);
-      // Since we can't easily test the exact IP extraction from the mock,
-      // we just verify the response structure is correct
       expect(response.body.client).toHaveProperty('host');
       expect(typeof response.body.client.host).toBe('string');
     });
 
     it('should handle unknown IP addresses', async () => {
-      // Mock the service registry for this test  
       mockServiceRegistry.getAllServices.mockReturnValue([]);
 
-      // Test with a request that should have basic IP handling
       const response = await request(app).get('/api/about.json');
 
       expect(response.status).toBe(200);
-      // Verify the response structure is correct even with unknown IP
       expect(response.body.client).toHaveProperty('host');
       expect(typeof response.body.client.host).toBe('string');
       expect(response.body.client.host).toBeDefined();
@@ -289,13 +278,13 @@ describe('About Routes Integration Tests', () => {
 
     it('should return current timestamp in seconds', async () => {
       mockServiceRegistry.getAllServices.mockReturnValue([]);
-      const mockTime = 1234567890000; // Milliseconds
+      const mockTime = 1234567890000;
       mockDateNow.mockReturnValue(mockTime);
 
       const response = await request(app).get('/api/about.json');
 
       expect(response.status).toBe(200);
-      expect(response.body.server.current_time).toBe(1234567890); // Seconds
+      expect(response.body.server.current_time).toBe(1234567890);
     });
 
     it('should handle services with complex action/reaction structures', async () => {
@@ -479,8 +468,6 @@ describe('About Routes Integration Tests', () => {
 
       expect(response.status).toBe(200);
       expect(response.body.server.services).toHaveLength(5);
-      
-      // Vérifier que tous les services sont présents avec la structure correcte
       response.body.server.services.forEach((service: any, index: number) => {
         expect(service).toEqual({
           name: `Service ${index + 1}`,
@@ -502,7 +489,6 @@ describe('About Routes Integration Tests', () => {
 
     it('should handle console.error gracefully during errors', async () => {
       const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-      
       mockServiceRegistry.getAllServices.mockImplementation(() => {
         throw new Error('Critical service error');
       });
@@ -512,26 +498,21 @@ describe('About Routes Integration Tests', () => {
       expect(response.status).toBe(500);
       expect(response.body).toEqual({ error: 'Internal Server Error' });
       expect(consoleSpy).toHaveBeenCalledWith(expect.any(Error));
-      
       consoleSpy.mockRestore();
     });
 
     it('should handle request with different HTTP methods', async () => {
       mockServiceRegistry.getAllServices.mockReturnValue([]);
 
-      // Test POST (should not be handled by the route)
       const postResponse = await request(app).post('/api/about.json');
       expect(postResponse.status).toBe(404);
 
-      // Test PUT (should not be handled by the route)
       const putResponse = await request(app).put('/api/about.json');
       expect(putResponse.status).toBe(404);
 
-      // Test DELETE (should not be handled by the route)
       const deleteResponse = await request(app).delete('/api/about.json');
       expect(deleteResponse.status).toBe(404);
 
-      // Test GET (should work)
       const getResponse = await request(app).get('/api/about.json');
       expect(getResponse.status).toBe(200);
     });
@@ -563,13 +544,11 @@ describe('About Routes Integration Tests', () => {
     it('should handle localhost addresses', async () => {
       mockServiceRegistry.getAllServices.mockReturnValue([]);
 
-      // Test with localhost-like headers
       const response = await request(app)
         .get('/api/about.json')
         .set('x-forwarded-for', '127.0.0.1');
 
       expect(response.status).toBe(200);
-      // Verify response structure is valid for localhost
       expect(response.body.client).toHaveProperty('host');
       expect(typeof response.body.client.host).toBe('string');
     });

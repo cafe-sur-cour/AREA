@@ -1,8 +1,5 @@
-// Test unitaires pour les fonctions utilitaires de about.ts
-
 describe('About Route Utilities', () => {
   describe('getClientIP function', () => {
-    // Recréer la fonction getClientIP pour les tests unitaires
     const getClientIP = (req: any): string => {
       const ip =
         req.ip || (req.socket ? req.socket.remoteAddress : undefined) || 'unknown';
@@ -162,7 +159,6 @@ describe('About Route Utilities', () => {
         },
       };
 
-      // Simulate the mapping logic from the route
       const mappedAction = {
         name: mockAction.name,
         description: mockAction.description,
@@ -194,7 +190,6 @@ describe('About Route Utilities', () => {
         },
       };
 
-      // Simulate the mapping logic from the route
       const mappedReaction = {
         name: mockReaction.name,
         description: mockReaction.description,
@@ -213,8 +208,8 @@ describe('About Route Utilities', () => {
         { milliseconds: 1640995200000, expected: 1640995200 },
         { milliseconds: 0, expected: 0 },
         { milliseconds: 1234567890123, expected: 1234567890 },
-        { milliseconds: 999, expected: 0 }, // Should floor to 0
-        { milliseconds: 1500, expected: 1 }, // Should floor to 1
+        { milliseconds: 999, expected: 0 },
+        { milliseconds: 1500, expected: 1 },
       ];
 
       testCases.forEach(({ milliseconds, expected }) => {
@@ -232,10 +227,7 @@ describe('About Route Utilities', () => {
 
   describe('Error handling scenarios', () => {
     it('should handle null service objects gracefully', () => {
-      // Simulate what happens if serviceRegistry returns null services
       const services: any[] = [null, undefined];
-      
-      // This would cause an error in the real code, but we test the handling
       expect(() => {
         services.forEach(service => {
           if (service) {
@@ -260,10 +252,8 @@ describe('About Route Utilities', () => {
       const incompleteService = {
         id: 'incomplete',
         name: 'Incomplete Service',
-        // Missing description, version, actions, reactions
       };
 
-      // Simulate safe mapping
       const mapped = {
         name: incompleteService.name,
         actions: (incompleteService as any).actions?.map((action: any) => ({
