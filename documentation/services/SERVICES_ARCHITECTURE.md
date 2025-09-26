@@ -93,6 +93,50 @@ The architecture enforces type validation:
 7. **Testing**: Test services independently before integration
 8. **Security**: Never log sensitive configuration data
 
+## Internationalization and Translation
+
+The AREA platform supports multiple languages for service descriptions and user interfaces.
+
+### Translation Files
+
+Service names, descriptions, action names, and descriptions are stored in JSON files:
+- `backend/locales/en.json` - English translations (default)
+- `backend/locales/fr.json` - French translations
+
+### Language Detection
+
+The system automatically detects language from:
+- `Accept-Language` HTTP header
+- `?lang=` query parameter
+- Falls back to English if translation missing
+
+### Adding Translations
+
+Add your service translations to both language files:
+
+```json
+{
+  "services": {
+    "your-service": {
+      "name": "Your Service",
+      "description": "Service description",
+      "actions": {
+        "your-service.action1": {
+          "name": "Action Name",
+          "description": "Action description"
+        }
+      },
+      "reactions": {
+        "your-service.reaction1": {
+          "name": "Reaction Name",
+          "description": "Reaction description"
+        }
+      }
+    }
+  }
+}
+```
+
 ## Integration with Execution Service
 
 The `ExecutionService` automatically validates action and reaction types against
