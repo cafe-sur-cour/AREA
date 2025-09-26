@@ -7,6 +7,7 @@ import { User } from './entity/User';
 import { UserToken } from './entity/UserToken';
 import { UserSessions } from './entity/UserSessions';
 import { UserActivityLogs } from './entity/UserActivityLogs';
+import { UserServiceConfigs } from './entity/UserServiceConfigs';
 import { ExternalWebhooks } from './entity/ExternalWebhooks';
 import { WebhookConfigs } from './entity/WebhookConfigs';
 import { WebhookEvents } from './entity/WebhookEvents';
@@ -41,6 +42,7 @@ export const AppDataSource = new DataSource({
     UserToken,
     UserSessions,
     UserActivityLogs,
+    UserServiceConfigs,
     ExternalWebhooks,
     WebhookConfigs,
     WebhookEvents,

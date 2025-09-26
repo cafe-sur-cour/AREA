@@ -17,3 +17,20 @@ CREATE TABLE external_webhooks (
     "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- ===========================================
+-- USER SERVICE CONFIGURATIONS
+-- ===========================================
+
+-- User service configurations (credentials, settings per service)
+CREATE TABLE user_service_configs (
+    "id" SERIAL PRIMARY KEY,
+    "user_id" INTEGER NOT NULL,
+    "service" VARCHAR(100) NOT NULL,
+    "credentials" JSONB, -- Encrypted credentials (tokens, API keys, etc.)
+    "settings" JSONB DEFAULT '{}', -- User-specific settings
+    "is_active" BOOLEAN DEFAULT TRUE,
+    "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE("user_id", "service") -- One config per user per service
+);
