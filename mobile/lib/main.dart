@@ -4,20 +4,19 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'navigation/main_navigation.dart';
 import 'core/themes/app_theme.dart';
-
-class LocaleNotifier extends ChangeNotifier {
-  Locale _locale = const Locale('en');
-  Locale get locale => _locale;
-
-  void setLocale(Locale newLocale) {
-    if (_locale == newLocale) return;
-    _locale = newLocale;
-    notifyListeners();
-  }
-}
+import 'core/notifiers/backend_address_notifier.dart';
+import 'core/notifiers/locale_notifier.dart';
 
 void main() {
-  runApp(ChangeNotifierProvider(create: (context) => LocaleNotifier(), child: const MyApp()));
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => LocaleNotifier()),
+        ChangeNotifierProvider(create: (context) => BackendAddressNotifier()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {

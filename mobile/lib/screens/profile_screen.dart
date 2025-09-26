@@ -1,6 +1,6 @@
-import 'package:area/main.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:area/core/notifiers/locale_notifier.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
