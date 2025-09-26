@@ -227,7 +227,10 @@ export class ExecutionService {
           name: mapping.name,
           created_by: mapping.created_by || event.user_id,
         },
-        serviceConfig: await this.loadServiceConfig(reaction.type, event.user_id),
+        serviceConfig: await this.loadServiceConfig(
+          reaction.type,
+          event.user_id
+        ),
       };
 
       const result = await reactionExecutorRegistry.executeReaction(
@@ -339,7 +342,14 @@ export class ExecutionService {
     await eventRepository.save(event);
   }
 
-  private async loadServiceConfig(reactionType: string, userId: number): Promise<{ credentials: Record<string, string>; settings: Record<string, unknown>; env: NodeJS.ProcessEnv }> {
+  private async loadServiceConfig(
+    reactionType: string,
+    userId: number
+  ): Promise<{
+    credentials: Record<string, string>;
+    settings: Record<string, unknown>;
+    env: NodeJS.ProcessEnv;
+  }> {
     const serviceName = reactionType.split('.')[0];
 
     if (!serviceName) {
@@ -351,7 +361,11 @@ export class ExecutionService {
     }
 
     try {
-      const userConfig = await this.userServiceConfigService.getUserServiceConfig(userId, serviceName);
+      const userConfig =
+        await this.userServiceConfigService.getUserServiceConfig(
+          userId,
+          serviceName
+        );
 
       if (userConfig) {
         return {

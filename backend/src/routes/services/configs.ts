@@ -26,7 +26,8 @@ router.get(
   async (req: Request, res: Response): Promise<Response> => {
     try {
       const userId = (req.auth as { id: number }).id;
-      const configs = await userServiceConfigService.getUserServiceConfigs(userId);
+      const configs =
+        await userServiceConfigService.getUserServiceConfigs(userId);
 
       return res.status(200).json({
         configs: configs.map(config => ({
@@ -35,8 +36,8 @@ router.get(
           settings: config.settings,
           is_active: config.is_active,
           created_at: config.created_at,
-          updated_at: config.updated_at
-        }))
+          updated_at: config.updated_at,
+        })),
       });
     } catch (err) {
       console.error('Error fetching service configs:', err);
@@ -80,11 +81,14 @@ router.get(
         return res.status(400).json({ error: 'Service parameter is required' });
       }
 
-      const config = await userServiceConfigService.getUserServiceConfig(userId, service);
+      const config = await userServiceConfigService.getUserServiceConfig(
+        userId,
+        service
+      );
 
       if (!config) {
         return res.status(404).json({
-          error: 'Service configuration not found'
+          error: 'Service configuration not found',
         });
       }
 
@@ -95,8 +99,8 @@ router.get(
           settings: config.settings,
           is_active: config.is_active,
           created_at: config.created_at,
-          updated_at: config.updated_at
-        }
+          updated_at: config.updated_at,
+        },
       });
     } catch (err) {
       console.error('Error fetching service config:', err);
@@ -148,15 +152,18 @@ router.post(
 
       if (!service || !credentials) {
         return res.status(400).json({
-          error: 'Service and credentials are required'
+          error: 'Service and credentials are required',
         });
       }
 
-      const config = await userServiceConfigService.upsertUserServiceConfig(userId, {
-        service,
-        credentials,
-        settings
-      });
+      const config = await userServiceConfigService.upsertUserServiceConfig(
+        userId,
+        {
+          service,
+          credentials,
+          settings,
+        }
+      );
 
       return res.status(201).json({
         config: {
@@ -165,8 +172,8 @@ router.post(
           settings: config.settings,
           is_active: config.is_active,
           created_at: config.created_at,
-          updated_at: config.updated_at
-        }
+          updated_at: config.updated_at,
+        },
       });
     } catch (err) {
       console.error('Error creating/updating service config:', err);
@@ -224,15 +231,19 @@ router.put(
 
       const { credentials, settings, is_active } = req.body;
 
-      const config = await userServiceConfigService.updateUserServiceConfig(userId, service, {
-        credentials,
-        settings,
-        is_active
-      });
+      const config = await userServiceConfigService.updateUserServiceConfig(
+        userId,
+        service,
+        {
+          credentials,
+          settings,
+          is_active,
+        }
+      );
 
       if (!config) {
         return res.status(404).json({
-          error: 'Service configuration not found'
+          error: 'Service configuration not found',
         });
       }
 
@@ -243,8 +254,8 @@ router.put(
           settings: config.settings,
           is_active: config.is_active,
           created_at: config.created_at,
-          updated_at: config.updated_at
-        }
+          updated_at: config.updated_at,
+        },
       });
     } catch (err) {
       console.error('Error updating service config:', err);
@@ -288,16 +299,19 @@ router.delete(
         return res.status(400).json({ error: 'Service parameter is required' });
       }
 
-      const deleted = await userServiceConfigService.deleteUserServiceConfig(userId, service);
+      const deleted = await userServiceConfigService.deleteUserServiceConfig(
+        userId,
+        service
+      );
 
       if (!deleted) {
         return res.status(404).json({
-          error: 'Service configuration not found'
+          error: 'Service configuration not found',
         });
       }
 
       return res.status(200).json({
-        message: 'Service configuration deleted successfully'
+        message: 'Service configuration deleted successfully',
       });
     } catch (err) {
       console.error('Error deleting service config:', err);

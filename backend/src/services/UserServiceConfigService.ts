@@ -3,7 +3,7 @@ import { UserServiceConfigs } from '../config/entity/UserServiceConfigs';
 import type {
   UserServiceConfig,
   CreateUserServiceConfigRequest,
-  UpdateUserServiceConfigRequest
+  UpdateUserServiceConfigRequest,
 } from '../models/UserServiceConfig';
 
 export class UserServiceConfigService {
@@ -12,7 +12,7 @@ export class UserServiceConfigService {
   async getUserServiceConfigs(userId: number): Promise<UserServiceConfig[]> {
     const configs = await this.repository.find({
       where: { user_id: userId, is_active: true },
-      order: { created_at: 'DESC' }
+      order: { created_at: 'DESC' },
     });
 
     return configs.map(config => ({
@@ -23,13 +23,16 @@ export class UserServiceConfigService {
       settings: config.settings,
       is_active: config.is_active,
       created_at: config.created_at,
-      updated_at: config.updated_at
+      updated_at: config.updated_at,
     }));
   }
 
-  async getUserServiceConfig(userId: number, service: string): Promise<UserServiceConfig | null> {
+  async getUserServiceConfig(
+    userId: number,
+    service: string
+  ): Promise<UserServiceConfig | null> {
     const config = await this.repository.findOne({
-      where: { user_id: userId, service, is_active: true }
+      where: { user_id: userId, service, is_active: true },
     });
 
     if (!config) return null;
@@ -42,7 +45,7 @@ export class UserServiceConfigService {
       settings: config.settings,
       is_active: config.is_active,
       created_at: config.created_at,
-      updated_at: config.updated_at
+      updated_at: config.updated_at,
     };
   }
 
@@ -51,7 +54,7 @@ export class UserServiceConfigService {
     request: CreateUserServiceConfigRequest
   ): Promise<UserServiceConfig> {
     const existingConfig = await this.repository.findOne({
-      where: { user_id: userId, service: request.service }
+      where: { user_id: userId, service: request.service },
     });
 
     if (existingConfig) {
@@ -72,7 +75,7 @@ export class UserServiceConfigService {
         settings: existingConfig.settings,
         is_active: existingConfig.is_active,
         created_at: existingConfig.created_at,
-        updated_at: existingConfig.updated_at
+        updated_at: existingConfig.updated_at,
       };
     } else {
       const newConfig = this.repository.create({
@@ -80,7 +83,7 @@ export class UserServiceConfigService {
         service: request.service,
         credentials: request.credentials,
         settings: request.settings || {},
-        is_active: true
+        is_active: true,
       });
 
       const savedConfig = await this.repository.save(newConfig);
@@ -93,7 +96,7 @@ export class UserServiceConfigService {
         settings: savedConfig.settings,
         is_active: savedConfig.is_active,
         created_at: savedConfig.created_at,
-        updated_at: savedConfig.updated_at
+        updated_at: savedConfig.updated_at,
       };
     }
   }
@@ -104,7 +107,7 @@ export class UserServiceConfigService {
     request: UpdateUserServiceConfigRequest
   ): Promise<UserServiceConfig | null> {
     const config = await this.repository.findOne({
-      where: { user_id: userId, service, is_active: true }
+      where: { user_id: userId, service, is_active: true },
     });
 
     if (!config) return null;
@@ -130,13 +133,16 @@ export class UserServiceConfigService {
       settings: config.settings,
       is_active: config.is_active,
       created_at: config.created_at,
-      updated_at: config.updated_at
+      updated_at: config.updated_at,
     };
   }
 
-  async deleteUserServiceConfig(userId: number, service: string): Promise<boolean> {
+  async deleteUserServiceConfig(
+    userId: number,
+    service: string
+  ): Promise<boolean> {
     const config = await this.repository.findOne({
-      where: { user_id: userId, service, is_active: true }
+      where: { user_id: userId, service, is_active: true },
     });
 
     if (!config) return false;
@@ -150,7 +156,7 @@ export class UserServiceConfigService {
 
   async hasServiceConfig(userId: number, service: string): Promise<boolean> {
     const count = await this.repository.count({
-      where: { user_id: userId, service, is_active: true }
+      where: { user_id: userId, service, is_active: true },
     });
     return count > 0;
   }
