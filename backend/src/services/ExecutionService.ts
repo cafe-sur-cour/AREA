@@ -6,11 +6,13 @@ import { WebhookFailures } from '../config/entity/WebhookFailures';
 import type { Action, Reaction } from '../types/mapping';
 import { serviceRegistry } from './ServiceRegistry';
 import { reactionExecutorRegistry } from './ReactionExecutorRegistry';
+import { UserServiceConfigService } from './UserServiceConfigService';
 import type { ReactionExecutionContext } from '../types/service';
 
 export class ExecutionService {
   private isRunning = false;
   private processingInterval: NodeJS.Timeout | undefined;
+  private userServiceConfigService = new UserServiceConfigService();
 
   async start(): Promise<void> {
     if (this.isRunning) {
@@ -71,11 +73,17 @@ export class ExecutionService {
     const startTime = Date.now();
 
     try {
+      console.log(
+        `🔄 [ExecutionService] Processing event ${event.id} - Action: ${event.action_type}`
+      );
+
       const actionDefinition = serviceRegistry.getActionByType(
         event.action_type
       );
       if (!actionDefinition) {
-        console.warn(`Unknown action type: ${event.action_type}`);
+        console.warn(
+          `⚠️  [ExecutionService] Unknown action type: ${event.action_type}`
+        );
         await this.markEventProcessed(
           event,
           'failed',
@@ -84,13 +92,19 @@ export class ExecutionService {
         );
         return;
       }
-
       const mappings = await this.loadMappingsForAction(
         event.action_type,
         event.user_id
       );
 
+      console.log(
+        `📋 [ExecutionService] Found ${mappings.length} active mapping(s) for user ${event.user_id}`
+      );
+
       if (mappings.length === 0) {
+        console.log(
+          `ℹ️  [ExecutionService] No active mappings found, marking event as completed`
+        );
         await this.markEventProcessed(event, 'completed', startTime);
         return;
       }
@@ -114,6 +128,9 @@ export class ExecutionService {
 
       await Promise.allSettled(reactionPromises);
 
+      console.log(
+        `✅ [ExecutionService] Event ${event.id} processed successfully`
+      );
       await this.markEventProcessed(event, 'completed', startTime);
     } catch (error) {
       console.error(`Error processing event ${event.id}:`, error);
@@ -210,12 +227,7 @@ export class ExecutionService {
           name: mapping.name,
           created_by: mapping.created_by || event.user_id,
         },
-        serviceConfig: {
-          // TODO: Load actual service config for the user
-          credentials: {},
-          settings: {},
-          env: process.env,
-        },
+        serviceConfig: await this.loadServiceConfig(reaction.type, event.user_id),
       };
 
       const result = await reactionExecutorRegistry.executeReaction(
@@ -232,6 +244,10 @@ export class ExecutionService {
         'completed',
         result.output,
         reactionStartTime
+      );
+
+      console.log(
+        `🎯 [ExecutionService] Reaction "${reaction.type}" executed successfully (${Date.now() - reactionStartTime}ms)`
       );
 
       return result.output || {};
@@ -321,6 +337,38 @@ export class ExecutionService {
     }
 
     await eventRepository.save(event);
+  }
+
+  private async loadServiceConfig(reactionType: string, userId: number): Promise<{ credentials: Record<string, string>; settings: Record<string, unknown>; env: NodeJS.ProcessEnv }> {
+    const serviceName = reactionType.split('.')[0];
+
+    if (!serviceName) {
+      return {
+        credentials: {},
+        settings: {},
+        env: process.env,
+      };
+    }
+
+    try {
+      const userConfig = await this.userServiceConfigService.getUserServiceConfig(userId, serviceName);
+
+      if (userConfig) {
+        return {
+          credentials: userConfig.credentials,
+          settings: userConfig.settings,
+          env: process.env,
+        };
+      }
+    } catch (error) {
+      console.warn(`Failed to load service config for ${serviceName}:`, error);
+    }
+
+    return {
+      credentials: {},
+      settings: {},
+      env: process.env,
+    };
   }
 }
 

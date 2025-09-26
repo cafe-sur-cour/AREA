@@ -5,8 +5,6 @@ import admin from '../../middleware/admin';
 import { AppDataSource } from '../../config/db';
 import { User } from '../../config/entity/User';
 
-import * as userService from './user.service';
-
 const router = express.Router();
 
 /* User Route GET */
