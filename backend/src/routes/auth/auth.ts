@@ -225,7 +225,6 @@ router.post(
         .map(([key]) => key);
 
       if (missingFields.length > 0) {
-        console.log('Length : ', missingFields.length);
         return res.status(400).json({
           error: 'Bad Request',
           message: `Missing required fields: ${missingFields.join(', ')}`,
