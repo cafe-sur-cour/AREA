@@ -1,4 +1,5 @@
 import 'package:area/core/constants/app_colors.dart';
+import 'package:area/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -37,7 +38,7 @@ class LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Login')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.login)),
       body: Padding(
         padding: const EdgeInsets.all(32.0),
         child: Form(
@@ -47,17 +48,17 @@ class LoginScreenState extends State<LoginScreen> {
             children: <Widget>[
               TextFormField(
                 controller: _emailController,
-                decoration: const InputDecoration(
-                  labelText: "Email",
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.email,
                   border: OutlineInputBorder(),
                 ),
                 keyboardType: TextInputType.emailAddress,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter your email';
+                    return AppLocalizations.of(context)!.empty_email;
                   }
                   if (!value.contains('@')) {
-                    return 'Please enter a valid email';
+                    return AppLocalizations.of(context)!.invalid_email;
                   }
                   return null;
                 },
@@ -70,17 +71,17 @@ class LoginScreenState extends State<LoginScreen> {
 
               TextFormField(
                 controller: _passwordController,
-                decoration: const InputDecoration(
-                  labelText: "Password",
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.password,
                   border: OutlineInputBorder(),
                 ),
                 obscureText: true,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter your password';
+                    return AppLocalizations.of(context)!.empty_password;
                   }
                   if (value.length < 6) {
-                    return 'Password must be at least 6 characters';
+                    return AppLocalizations.of(context)!.invalid_password;
                   }
                   return null;
                 },
@@ -101,7 +102,7 @@ class LoginScreenState extends State<LoginScreen> {
                     style: ElevatedButton.styleFrom(
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     ),
-                    child: const Text('Forgot your password ?'),
+                    child: Text(AppLocalizations.of(context)!.forgot_password_question),
                   ),
                   ElevatedButton(
                     onPressed: _submitForm,
@@ -109,8 +110,8 @@ class LoginScreenState extends State<LoginScreen> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                       backgroundColor: AppColors.primary,
                     ),
-                    child: const Text(
-                      'Login',
+                    child: Text(
+                      AppLocalizations.of(context)!.login,
                       style: TextStyle(color: AppColors.areaLightGray),
                     ),
                   ),

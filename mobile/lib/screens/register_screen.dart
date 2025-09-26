@@ -1,4 +1,5 @@
 import 'package:area/core/constants/app_colors.dart';
+import 'package:area/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -39,7 +40,7 @@ class RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Register')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.register)),
       body: Padding(
         padding: const EdgeInsets.all(32.0),
         child: Form(
@@ -49,16 +50,16 @@ class RegisterScreenState extends State<RegisterScreen> {
             children: <Widget>[
               TextFormField(
                 controller: _nameController,
-                decoration: const InputDecoration(
-                  labelText: "Name",
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.name,
                   border: OutlineInputBorder(),
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter your name';
+                    return AppLocalizations.of(context)!.empty_name;
                   }
-                  if (value.length > 20) {
-                    return 'Name must be less than 10 characters';
+                  if (value.length > 38) {
+                    return AppLocalizations.of(context)!.invalid_name;
                   }
                   return null;
                 },
@@ -71,17 +72,17 @@ class RegisterScreenState extends State<RegisterScreen> {
 
               TextFormField(
                 controller: _emailController,
-                decoration: const InputDecoration(
-                  labelText: "Email",
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.email,
                   border: OutlineInputBorder(),
                 ),
                 keyboardType: TextInputType.emailAddress,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter your email';
+                    return AppLocalizations.of(context)!.empty_email;
                   }
                   if (!value.contains('@')) {
-                    return 'Please enter a valid email';
+                    return AppLocalizations.of(context)!.invalid_email;
                   }
                   return null;
                 },
@@ -94,17 +95,17 @@ class RegisterScreenState extends State<RegisterScreen> {
 
               TextFormField(
                 controller: _passwordController,
-                decoration: const InputDecoration(
-                  labelText: "Password",
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.password,
                   border: OutlineInputBorder(),
                 ),
                 obscureText: true,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter your password';
+                    return AppLocalizations.of(context)!.empty_password;
                   }
                   if (value.length < 6) {
-                    return 'Password must be at least 6 characters';
+                    return AppLocalizations.of(context)!.invalid_password;
                   }
                   return null;
                 },
@@ -117,17 +118,17 @@ class RegisterScreenState extends State<RegisterScreen> {
 
               TextFormField(
                 controller: _confirmPasswordController,
-                decoration: const InputDecoration(
-                  labelText: "Confirm Password",
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.confirm_password,
                   border: OutlineInputBorder(),
                 ),
                 obscureText: true,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter your password';
+                    return AppLocalizations.of(context)!.empty_password;
                   }
                   if (value != _passwordController.text) {
-                    return 'Passwords differ';
+                    return AppLocalizations.of(context)!.confirm_password_differs;
                   }
                   return null;
                 },
@@ -144,8 +145,8 @@ class RegisterScreenState extends State<RegisterScreen> {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   backgroundColor: AppColors.primary,
                 ),
-                child: const Text(
-                  'Register',
+                child: Text(
+                  AppLocalizations.of(context)!.register,
                   style: TextStyle(color: AppColors.areaLightGray),
                 ),
               ),

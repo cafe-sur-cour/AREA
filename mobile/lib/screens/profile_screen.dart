@@ -1,3 +1,4 @@
+import 'package:area/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:area/core/notifiers/locale_notifier.dart';
@@ -66,7 +67,7 @@ class ProfileScreenState extends State<ProfileScreen> {
                       });
                     },
                     child: Text(
-                      "Logout",
+                      AppLocalizations.of(context)!.logout,
                       style: TextStyle(fontSize: 18, color: Theme.of(context).primaryColor),
                     ),
                   ),
@@ -90,7 +91,7 @@ class ProfileScreenState extends State<ProfileScreen> {
                           });
                         },
                         child: Text(
-                          "Login",
+                          AppLocalizations.of(context)!.login,
                           style: TextStyle(
                             fontSize: 18,
                             color: Theme.of(context).primaryColor,
@@ -102,7 +103,7 @@ class ProfileScreenState extends State<ProfileScreen> {
                           Navigator.pushNamed(context, '/register');
                         },
                         child: Text(
-                          "Register",
+                          AppLocalizations.of(context)!.register,
                           style: TextStyle(
                             fontSize: 18,
                             color: Theme.of(context).primaryColor,
@@ -137,7 +138,7 @@ class ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(width: 16),
                     Flexible(
                       child: Text(
-                        "Not connected",
+                        AppLocalizations.of(context)!.not_connected,
                         style: Theme.of(context).textTheme.headlineMedium,
                         overflow: TextOverflow.visible,
                         softWrap: true,
@@ -152,8 +153,8 @@ class ProfileScreenState extends State<ProfileScreen> {
 
             TextFormField(
               controller: _backendServerController,
-              decoration: const InputDecoration(
-                labelText: "Backend Server Address",
+              decoration: InputDecoration(
+                labelText: AppLocalizations.of(context)!.backend_server_address,
                 border: OutlineInputBorder(),
               ),
               keyboardType: TextInputType.url,

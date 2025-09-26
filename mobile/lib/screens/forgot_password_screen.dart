@@ -1,4 +1,5 @@
 import 'package:area/core/constants/app_colors.dart';
+import 'package:area/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
@@ -33,7 +34,7 @@ class ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Forgot Password')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.forgot_password)),
       body: Padding(
         padding: const EdgeInsets.all(32.0),
         child: Form(
@@ -43,17 +44,17 @@ class ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             children: <Widget>[
               TextFormField(
                 controller: _emailController,
-                decoration: const InputDecoration(
-                  labelText: "Email",
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.email,
                   border: OutlineInputBorder(),
                 ),
                 keyboardType: TextInputType.emailAddress,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter your email';
+                    return AppLocalizations.of(context)!.empty_email;
                   }
                   if (!value.contains('@')) {
-                    return 'Please enter a valid email';
+                    return AppLocalizations.of(context)!.invalid_email;
                   }
                   return null;
                 },
@@ -66,20 +67,20 @@ class ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
               TextFormField(
                 controller: _confirmEmailController,
-                decoration: const InputDecoration(
-                  labelText: "Confirm Email",
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.confirm_email,
                   border: OutlineInputBorder(),
                 ),
                 keyboardType: TextInputType.emailAddress,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter your email';
+                    return AppLocalizations.of(context)!.empty_email;
                   }
                   if (!value.contains('@')) {
-                    return 'Please enter a valid email';
+                    return AppLocalizations.of(context)!.invalid_email;
                   }
                   if (value != _emailController.text) {
-                    return 'Emails differ';
+                    return AppLocalizations.of(context)!.confirm_email_differs;
                   }
                   return null;
                 },
@@ -96,7 +97,10 @@ class ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   backgroundColor: AppColors.primary,
                 ),
-                child: const Text('Send', style: TextStyle(color: AppColors.areaLightGray)),
+                child: Text(
+                  AppLocalizations.of(context)!.send,
+                  style: TextStyle(color: AppColors.areaLightGray),
+                ),
               ),
             ],
           ),
