@@ -41,7 +41,9 @@ router.post(
     const handler = webhookLoader.getHandler(service);
 
     if (!handler) {
-      return res.status(404).json({ error: `Webhook handler for service '${service}' not found` });
+      return res
+        .status(404)
+        .json({ error: `Webhook handler for service '${service}' not found` });
     }
 
     try {

@@ -75,14 +75,20 @@ router.get('/', async (req: Request, res: Response): Promise<void> => {
       const translatedService = translateService(service, i18next.t);
       return {
         name: translatedService.name,
-        actions: (translatedService.actions as unknown[]).map((action: unknown) => ({
-          name: (action as Record<string, unknown>).name as string,
-          description: (action as Record<string, unknown>).description as string,
-        })),
-        reactions: (translatedService.reactions as unknown[]).map((reaction: unknown) => ({
-          name: (reaction as Record<string, unknown>).name as string,
-          description: (reaction as Record<string, unknown>).description as string,
-        })),
+        actions: (translatedService.actions as unknown[]).map(
+          (action: unknown) => ({
+            name: (action as Record<string, unknown>).name as string,
+            description: (action as Record<string, unknown>)
+              .description as string,
+          })
+        ),
+        reactions: (translatedService.reactions as unknown[]).map(
+          (reaction: unknown) => ({
+            name: (reaction as Record<string, unknown>).name as string,
+            description: (reaction as Record<string, unknown>)
+              .description as string,
+          })
+        ),
       };
     });
 
@@ -97,10 +103,10 @@ router.get('/', async (req: Request, res: Response): Promise<void> => {
     };
 
     res.status(200).json(response);
-      } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: 'Internal Server Error' });
-    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
 });
 
 export default router;
