@@ -27,10 +27,10 @@ CREATE TABLE user_service_configs (
     "id" SERIAL PRIMARY KEY,
     "user_id" INTEGER NOT NULL,
     "service" VARCHAR(100) NOT NULL,
-    "credentials" JSONB, -- Encrypted credentials (tokens, API keys, etc.)
-    "settings" JSONB DEFAULT '{}', -- User-specific settings
+    "credentials" JSONB,
+    "settings" JSONB DEFAULT '{}',
     "is_active" BOOLEAN DEFAULT TRUE,
     "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE("user_id", "service") -- One config per user per service
+    UNIQUE("user_id", "service")
 );

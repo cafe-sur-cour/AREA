@@ -2,8 +2,8 @@ export interface UserServiceConfig {
   id: number;
   user_id: number;
   service: string;
-  credentials: Record<string, string>; // Encrypted credentials
-  settings: Record<string, unknown>; // User-specific settings
+  credentials: Record<string, string>;
+  settings: Record<string, unknown>;
   is_active: boolean;
   created_at: Date;
   updated_at: Date;
