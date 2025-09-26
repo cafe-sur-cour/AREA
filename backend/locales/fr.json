@@ -124,13 +124,13 @@
             "description": "État de la pull request"
           },
           "merged": {
-            "description": "Si la PR est fusionnée"
+            "description": "Si la pull request est fusionnée"
           },
           "merged_at": {
-            "description": "Quand la PR a été fusionnée"
+            "description": "Quand la pull request a été fusionnée"
           },
           "user": {
-            "description": "Utilisateur qui a créé la PR",
+            "description": "Utilisateur qui a créé la pull request",
             "login": {
               "description": "Nom d'utilisateur"
             },

@@ -124,13 +124,13 @@
             "description": "Pull request state"
           },
           "merged": {
-            "description": "Whether PR is merged"
+            "description": "Whether pull request is merged"
           },
           "merged_at": {
-            "description": "When PR was merged"
+            "description": "When pull request was merged"
           },
           "user": {
-            "description": "User who created the PR",
+            "description": "User who created the pull request",
             "login": {
               "description": "Username"
             },
