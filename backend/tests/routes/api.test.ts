@@ -149,7 +149,10 @@ describe('API Health Routes Integration Tests', () => {
         error: 'Connection refused',
       });
       expect(mockAppDataSource.query).toHaveBeenCalledWith('SELECT 1');
-      expect(consoleSpy).toHaveBeenCalledWith('Database connection error:', dbError);
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Database connection error:',
+        dbError
+      );
     });
 
     it('should handle database timeout errors', async () => {
@@ -164,7 +167,10 @@ describe('API Health Routes Integration Tests', () => {
         database: 'Error',
         error: 'Query timeout',
       });
-      expect(consoleSpy).toHaveBeenCalledWith('Database connection error:', timeoutError);
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Database connection error:',
+        timeoutError
+      );
     });
 
     it('should handle database connection pool exhaustion', async () => {
@@ -345,7 +351,10 @@ describe('API Health Routes Integration Tests', () => {
 
     it('should handle very long query response times', async () => {
       mockAppDataSource.query.mockImplementation(
-        () => new Promise(resolve => setTimeout(() => resolve([{ '?column?': 1 }]), 100))
+        () =>
+          new Promise(resolve =>
+            setTimeout(() => resolve([{ '?column?': 1 }]), 100)
+          )
       );
 
       const response = await request(app).get('/api/info/health-db');
@@ -380,7 +389,10 @@ describe('API Health Routes Integration Tests', () => {
 
       await request(app).get('/api/info/health-db');
 
-      expect(consoleSpy).toHaveBeenCalledWith('Database connection error:', dbError);
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Database connection error:',
+        dbError
+      );
       expect(consoleSpy).toHaveBeenCalledTimes(1);
     });
 
@@ -413,7 +425,10 @@ describe('API Health Routes Integration Tests', () => {
         database: 'Error',
         error: 'Complex database error',
       });
-      expect(consoleSpy).toHaveBeenCalledWith('Database connection error:', complexError);
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Database connection error:',
+        complexError
+      );
     });
   });
 });

@@ -2,7 +2,9 @@ describe('About Route Utilities', () => {
   describe('getClientIP function', () => {
     const getClientIP = (req: any): string => {
       const ip =
-        req.ip || (req.socket ? req.socket.remoteAddress : undefined) || 'unknown';
+        req.ip ||
+        (req.socket ? req.socket.remoteAddress : undefined) ||
+        'unknown';
       if (ip.startsWith('::ffff:')) {
         return ip.substring(7);
       }
@@ -233,14 +235,16 @@ describe('About Route Utilities', () => {
           if (service) {
             const mapped = {
               name: service.name,
-              actions: service.actions?.map((action: any) => ({
-                name: action.name,
-                description: action.description,
-              })) || [],
-              reactions: service.reactions?.map((reaction: any) => ({
-                name: reaction.name,
-                description: reaction.description,
-              })) || [],
+              actions:
+                service.actions?.map((action: any) => ({
+                  name: action.name,
+                  description: action.description,
+                })) || [],
+              reactions:
+                service.reactions?.map((reaction: any) => ({
+                  name: reaction.name,
+                  description: reaction.description,
+                })) || [],
             };
             return mapped;
           }
@@ -256,14 +260,16 @@ describe('About Route Utilities', () => {
 
       const mapped = {
         name: incompleteService.name,
-        actions: (incompleteService as any).actions?.map((action: any) => ({
-          name: action.name,
-          description: action.description,
-        })) || [],
-        reactions: (incompleteService as any).reactions?.map((reaction: any) => ({
-          name: reaction.name,
-          description: reaction.description,
-        })) || [],
+        actions:
+          (incompleteService as any).actions?.map((action: any) => ({
+            name: action.name,
+            description: action.description,
+          })) || [],
+        reactions:
+          (incompleteService as any).reactions?.map((reaction: any) => ({
+            name: reaction.name,
+            description: reaction.description,
+          })) || [],
       };
 
       expect(mapped).toEqual({

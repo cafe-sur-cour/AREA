@@ -3,9 +3,9 @@ const mockSave = jest.fn();
 jest.mock('../../src/config/db', () => ({
   AppDataSource: {
     manager: {
-      save: mockSave
-    }
-  }
+      save: mockSave,
+    },
+  },
 }));
 jest.mock('../../src/routes/user/user.service');
 jest.mock('../../src/config/entity/User');
@@ -13,7 +13,7 @@ jest.mock('bcryptjs');
 jest.mock('jsonwebtoken');
 
 jest.mock('../../index', () => ({
-  JWT_SECRET: 'test-jwt-secret'
+  JWT_SECRET: 'test-jwt-secret',
 }));
 
 import * as authService from '../../src/routes/auth/auth.service';
@@ -23,7 +23,9 @@ import { User } from '../../src/config/entity/User';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
-const mockGetUserByEmail = getUserByEmail as jest.MockedFunction<typeof getUserByEmail>;
+const mockGetUserByEmail = getUserByEmail as jest.MockedFunction<
+  typeof getUserByEmail
+>;
 const mockBcrypt = bcrypt as jest.Mocked<typeof bcrypt>;
 const mockJwt = jwt as jest.Mocked<typeof jwt>;
 const mockUser = User as jest.MockedClass<typeof User>;
@@ -31,16 +33,19 @@ const mockUser = User as jest.MockedClass<typeof User>;
 describe('Auth Service', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockUser.mockImplementation(() => ({
-      id: undefined,
-      name: '',
-      email: '',
-      password_hash: '',
-      email_verified: false,
-      is_admin: false,
-      created_at: new Date(),
-      updated_at: new Date(),
-    } as any));
+    mockUser.mockImplementation(
+      () =>
+        ({
+          id: undefined,
+          name: '',
+          email: '',
+          password_hash: '',
+          email_verified: false,
+          is_admin: false,
+          created_at: new Date(),
+          updated_at: new Date(),
+        }) as any
+    );
     mockSave.mockClear();
     mockSave.mockResolvedValue(undefined);
   });
@@ -64,12 +69,15 @@ describe('Auth Service', () => {
 
       expect(result).toBe('mock-jwt-token');
       expect(mockGetUserByEmail).toHaveBeenCalledWith('test@test.com');
-      expect(mockBcrypt.compare).toHaveBeenCalledWith('password123', 'hashedpassword');
+      expect(mockBcrypt.compare).toHaveBeenCalledWith(
+        'password123',
+        'hashedpassword'
+      );
       expect(mockJwt.sign).toHaveBeenCalledWith(
         {
           email: 'test@test.com',
           id: 1,
-          is_admin: false
+          is_admin: false,
         },
         'test-jwt-secret',
         { expiresIn: '1h' }
@@ -79,7 +87,10 @@ describe('Auth Service', () => {
     it('should return error when user not found', async () => {
       mockGetUserByEmail.mockResolvedValue(null);
 
-      const result = await authService.login('nonexistent@test.com', 'password123');
+      const result = await authService.login(
+        'nonexistent@test.com',
+        'password123'
+      );
 
       expect(result).toBeInstanceOf(Error);
       expect((result as Error).message).toBe('User not found');
@@ -107,7 +118,10 @@ describe('Auth Service', () => {
 
       expect(result).toBeInstanceOf(Error);
       expect((result as Error).message).toBe('Incorrect Password');
-      expect(mockBcrypt.compare).toHaveBeenCalledWith('wrongpassword', 'hashedpassword');
+      expect(mockBcrypt.compare).toHaveBeenCalledWith(
+        'wrongpassword',
+        'hashedpassword'
+      );
       expect(mockJwt.sign).not.toHaveBeenCalled();
     });
   });
@@ -118,7 +132,11 @@ describe('Auth Service', () => {
       (mockBcrypt.hash as jest.Mock).mockResolvedValue('hashedpassword');
       mockJwt.sign.mockReturnValue('verification-token' as never);
 
-      const result = await authService.register('newuser@test.com', 'New User', 'password123');
+      const result = await authService.register(
+        'newuser@test.com',
+        'New User',
+        'password123'
+      );
 
       expect(result).toBe('verification-token');
       expect(mockGetUserByEmail).toHaveBeenCalledWith('newuser@test.com');
@@ -126,7 +144,7 @@ describe('Auth Service', () => {
       expect(mockJwt.sign).toHaveBeenCalledWith(
         {
           name: 'New User',
-          email: 'newuser@test.com'
+          email: 'newuser@test.com',
         },
         'test-jwt-secret',
         { expiresIn: '1h' }
@@ -138,11 +156,15 @@ describe('Auth Service', () => {
       const existingUser = {
         id: 1,
         email: 'existing@test.com',
-        name: 'Existing User'
+        name: 'Existing User',
       } as User;
       mockGetUserByEmail.mockResolvedValue(existingUser);
 
-      const result = await authService.register('existing@test.com', 'New User', 'password123');
+      const result = await authService.register(
+        'existing@test.com',
+        'New User',
+        'password123'
+      );
 
       expect(result).toBeInstanceOf(Error);
       expect((result as Error).message).toBe('Account already exists');
@@ -271,10 +293,16 @@ describe('Auth Service', () => {
       mockGetUserByEmail.mockResolvedValue(user);
       (mockBcrypt.hash as jest.Mock).mockResolvedValue('newhashed');
 
-      const result = await authService.resetPassword('valid-token', 'newpassword123');
+      const result = await authService.resetPassword(
+        'valid-token',
+        'newpassword123'
+      );
 
       expect(result).toBe(true);
-      expect(mockJwt.verify).toHaveBeenCalledWith('valid-token', 'test-jwt-secret');
+      expect(mockJwt.verify).toHaveBeenCalledWith(
+        'valid-token',
+        'test-jwt-secret'
+      );
       expect(mockGetUserByEmail).toHaveBeenCalledWith('test@test.com');
       expect(mockBcrypt.hash).toHaveBeenCalledWith('newpassword123', 10);
       expect(user.password_hash).toBe('newhashed');
@@ -286,7 +314,10 @@ describe('Auth Service', () => {
       mockJwt.verify.mockReturnValue(decodedToken as never);
       mockGetUserByEmail.mockResolvedValue(null);
 
-      const result = await authService.resetPassword('valid-token', 'newpassword123');
+      const result = await authService.resetPassword(
+        'valid-token',
+        'newpassword123'
+      );
 
       expect(result).toBeInstanceOf(Error);
       expect((result as Error).message).toBe('User not found');
@@ -299,7 +330,10 @@ describe('Auth Service', () => {
         throw new Error('Invalid token');
       });
 
-      const result = await authService.resetPassword('invalid-token', 'newpassword123');
+      const result = await authService.resetPassword(
+        'invalid-token',
+        'newpassword123'
+      );
 
       expect(result).toBeInstanceOf(Error);
       expect((result as Error).message).toBe('Invalid or expired token');
@@ -313,7 +347,10 @@ describe('Auth Service', () => {
         throw new Error('Token expired');
       });
 
-      const result = await authService.resetPassword('expired-token', 'newpassword123');
+      const result = await authService.resetPassword(
+        'expired-token',
+        'newpassword123'
+      );
 
       expect(result).toBeInstanceOf(Error);
       expect((result as Error).message).toBe('Invalid or expired token');
@@ -337,14 +374,20 @@ describe('Auth Service', () => {
     it('should handle database errors in login', async () => {
       mockGetUserByEmail.mockRejectedValue(new Error('Database error'));
 
-      await expect(authService.login('test@test.com', 'password123')).rejects.toThrow('Database error');
+      await expect(
+        authService.login('test@test.com', 'password123')
+      ).rejects.toThrow('Database error');
     });
 
     it('should handle bcrypt errors in register', async () => {
       mockGetUserByEmail.mockResolvedValue(null);
-      (mockBcrypt.hash as jest.Mock).mockRejectedValue(new Error('Bcrypt error'));
+      (mockBcrypt.hash as jest.Mock).mockRejectedValue(
+        new Error('Bcrypt error')
+      );
 
-      await expect(authService.register('test@test.com', 'Test User', 'password123')).rejects.toThrow('Bcrypt error');
+      await expect(
+        authService.register('test@test.com', 'Test User', 'password123')
+      ).rejects.toThrow('Bcrypt error');
     });
 
     it('should handle save errors in verify', async () => {
@@ -352,7 +395,9 @@ describe('Auth Service', () => {
       mockGetUserByEmail.mockResolvedValue(user);
       mockSave.mockRejectedValue(new Error('Save error'));
 
-      await expect(authService.verify('test@test.com')).rejects.toThrow('Save error');
+      await expect(authService.verify('test@test.com')).rejects.toThrow(
+        'Save error'
+      );
     });
 
     it('should handle JWT sign errors in requestReset', async () => {
@@ -362,7 +407,9 @@ describe('Auth Service', () => {
         throw new Error('JWT error');
       });
 
-      await expect(authService.requestReset('test@test.com')).rejects.toThrow('JWT error');
+      await expect(authService.requestReset('test@test.com')).rejects.toThrow(
+        'JWT error'
+      );
     });
   });
 

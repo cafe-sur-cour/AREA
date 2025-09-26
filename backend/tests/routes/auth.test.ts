@@ -74,7 +74,8 @@ const createMockAuthRouter = () => {
     }
 
     return res.status(200).json({
-      message: 'If that email is registered, you will receive a password reset link.',
+      message:
+        'If that email is registered, you will receive a password reset link.',
     });
   });
 
@@ -89,7 +90,9 @@ const createMockAuthRouter = () => {
     }
 
     if (req.token === 'valid-reset-token' || req.token === 'valid-token') {
-      return res.status(200).json({ message: 'Password has been reset successfully' });
+      return res
+        .status(200)
+        .json({ message: 'Password has been reset successfully' });
     }
 
     return res.status(400).json({ error: 'Invalid or expired token' });
@@ -121,65 +124,56 @@ describe('Auth Routes Integration Tests', () => {
 
   describe('GET /login/status', () => {
     it('should return authenticated status when user is authenticated', async () => {
-      const response = await request(app)
-        .get('/api/auth/login/status');
+      const response = await request(app).get('/api/auth/login/status');
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual({
         authenticated: true,
-        user: { id: 1, email: 'test@test.com', is_admin: false }
+        user: { id: 1, email: 'test@test.com', is_admin: false },
       });
     });
   });
 
   describe('POST /login', () => {
     it('should login successfully with valid credentials', async () => {
-      const response = await request(app)
-        .post('/api/auth/login')
-        .send({
-          email: 'test@test.com',
-          password: 'password123'
-        });
+      const response = await request(app).post('/api/auth/login').send({
+        email: 'test@test.com',
+        password: 'password123',
+      });
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual({ token: 'mock-token' });
     });
 
     it('should return 400 when email is missing', async () => {
-      const response = await request(app)
-        .post('/api/auth/login')
-        .send({
-          password: 'password123'
-        });
+      const response = await request(app).post('/api/auth/login').send({
+        password: 'password123',
+      });
 
       expect(response.status).toBe(400);
       expect(response.body).toEqual({
         error: 'Bad Request',
-        message: 'Missing required fields: email'
+        message: 'Missing required fields: email',
       });
     });
 
     it('should return 400 when password is missing', async () => {
-      const response = await request(app)
-        .post('/api/auth/login')
-        .send({
-          email: 'test@test.com'
-        });
+      const response = await request(app).post('/api/auth/login').send({
+        email: 'test@test.com',
+      });
 
       expect(response.status).toBe(400);
       expect(response.body).toEqual({
         error: 'Bad Request',
-        message: 'Missing required fields: password'
+        message: 'Missing required fields: password',
       });
     });
 
     it('should return 401 for invalid credentials', async () => {
-      const response = await request(app)
-        .post('/api/auth/login')
-        .send({
-          email: 'test@test.com',
-          password: 'wrongpassword'
-        });
+      const response = await request(app).post('/api/auth/login').send({
+        email: 'test@test.com',
+        password: 'wrongpassword',
+      });
 
       expect(response.status).toBe(401);
       expect(response.body).toEqual({ error: 'Unauthorized' });
@@ -188,41 +182,37 @@ describe('Auth Routes Integration Tests', () => {
 
   describe('POST /register', () => {
     it('should register successfully with valid data', async () => {
-      const response = await request(app)
-        .post('/api/auth/register')
-        .send({
-          email: 'newuser@test.com',
-          name: 'New User',
-          password: 'password123'
-        });
+      const response = await request(app).post('/api/auth/register').send({
+        email: 'newuser@test.com',
+        name: 'New User',
+        password: 'password123',
+      });
 
       expect(response.status).toBe(201);
-      expect(response.body).toEqual({ message: 'User registered successfully' });
+      expect(response.body).toEqual({
+        message: 'User registered successfully',
+      });
     });
 
     it('should return 400 when email is missing', async () => {
-      const response = await request(app)
-        .post('/api/auth/register')
-        .send({
-          name: 'New User',
-          password: 'password123'
-        });
+      const response = await request(app).post('/api/auth/register').send({
+        name: 'New User',
+        password: 'password123',
+      });
 
       expect(response.status).toBe(400);
       expect(response.body).toEqual({
         error: 'Bad Request',
-        message: 'Missing required fields: email'
+        message: 'Missing required fields: email',
       });
     });
 
     it('should return 409 when email already exists', async () => {
-      const response = await request(app)
-        .post('/api/auth/register')
-        .send({
-          email: 'existing@test.com',
-          name: 'Test User',
-          password: 'password123'
-        });
+      const response = await request(app).post('/api/auth/register').send({
+        email: 'existing@test.com',
+        name: 'Test User',
+        password: 'password123',
+      });
 
       expect(response.status).toBe(409);
       expect(response.body).toEqual({ error: 'Account already exists' });
@@ -231,8 +221,7 @@ describe('Auth Routes Integration Tests', () => {
 
   describe('POST /logout', () => {
     it('should logout successfully', async () => {
-      const response = await request(app)
-        .post('/api/auth/logout');
+      const response = await request(app).post('/api/auth/logout');
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual({ message: 'Logged out successfully' });
@@ -246,7 +235,9 @@ describe('Auth Routes Integration Tests', () => {
         .send({ token: 'valid-token' });
 
       expect(response.status).toBe(200);
-      expect(response.body).toEqual({ message: 'Account verified successfully' });
+      expect(response.body).toEqual({
+        message: 'Account verified successfully',
+      });
     });
 
     it('should return 401 when token is invalid', async () => {
@@ -267,7 +258,8 @@ describe('Auth Routes Integration Tests', () => {
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual({
-        message: 'If that email is registered, you will receive a password reset link.',
+        message:
+          'If that email is registered, you will receive a password reset link.',
       });
     });
 
@@ -287,11 +279,13 @@ describe('Auth Routes Integration Tests', () => {
         .post('/api/auth/reset-password')
         .send({
           token: 'valid-token',
-          newPassword: 'newPassword123'
+          newPassword: 'newPassword123',
         });
 
       expect(response.status).toBe(200);
-      expect(response.body).toEqual({ message: 'Password has been reset successfully' });
+      expect(response.body).toEqual({
+        message: 'Password has been reset successfully',
+      });
     });
 
     it('should return 400 when new password is missing', async () => {
@@ -308,7 +302,7 @@ describe('Auth Routes Integration Tests', () => {
         .post('/api/auth/reset-password')
         .send({
           token: 'invalid-token',
-          newPassword: 'newPassword123'
+          newPassword: 'newPassword123',
         });
 
       expect(response.status).toBe(400);

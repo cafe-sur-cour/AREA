@@ -43,7 +43,7 @@ const createMockUserRouter = () => {
     if (!req.auth || !req.auth.is_admin) {
       return res.status(403).json({ error: 'Forbidden' });
     }
-    
+
     try {
       const users = await mockUserService.getAllUsers();
       return res.status(200).json(users);
@@ -119,7 +119,9 @@ const createMockUserRouter = () => {
   // PUT /user/me - Update current authenticated user
   router.put('/me', async (req: any, res) => {
     if (!req.auth) {
-      return res.status(403).json({ error: 'Forbidden', message: 'Authentication required' });
+      return res
+        .status(403)
+        .json({ error: 'Forbidden', message: 'Authentication required' });
     }
 
     try {
@@ -202,7 +204,7 @@ describe('User Routes Integration Tests', () => {
   beforeEach(() => {
     app = express();
     app.use(express.json());
-    
+
     // Mock middleware for authentication and admin
     app.use((req: any, res, next) => {
       // Default non-admin user
@@ -210,7 +212,10 @@ describe('User Routes Integration Tests', () => {
         req.auth = { id: 1, email: 'user@test.com', is_admin: false };
       }
       // Admin user for admin routes (GET / and DELETE)
-      else if ((req.path === '/api/user' && req.method === 'GET') || req.method === 'DELETE') {
+      else if (
+        (req.path === '/api/user' && req.method === 'GET') ||
+        req.method === 'DELETE'
+      ) {
         req.auth = { id: 1, email: 'admin@test.com', is_admin: true };
       }
       // Authenticated user for other routes
@@ -219,7 +224,7 @@ describe('User Routes Integration Tests', () => {
       }
       next();
     });
-    
+
     app.use('/api/user', createMockUserRouter());
   });
 
@@ -233,7 +238,9 @@ describe('User Routes Integration Tests', () => {
         { id: 1, name: 'User 1', email: 'user1@test.com' },
         { id: 2, name: 'User 2', email: 'user2@test.com' },
       ];
-      mockUserService.getAllUsers.mockResolvedValue(mockUsers as unknown as User[]);
+      mockUserService.getAllUsers.mockResolvedValue(
+        mockUsers as unknown as User[]
+      );
 
       const response = await request(app).get('/api/user');
 
@@ -258,7 +265,9 @@ describe('User Routes Integration Tests', () => {
     });
 
     it('should return 500 when service throws error', async () => {
-      mockUserService.getAllUsers.mockRejectedValue(new Error('Database error'));
+      mockUserService.getAllUsers.mockRejectedValue(
+        new Error('Database error')
+      );
 
       const response = await request(app).get('/api/user');
 
@@ -275,7 +284,9 @@ describe('User Routes Integration Tests', () => {
         email: 'user@test.com',
         password: 'hashedpassword',
       };
-      mockUserService.getUserByID.mockResolvedValue(mockUser as unknown as User);
+      mockUserService.getUserByID.mockResolvedValue(
+        mockUser as unknown as User
+      );
 
       const response = await request(app).get('/api/user/me');
 
@@ -308,7 +319,9 @@ describe('User Routes Integration Tests', () => {
     });
 
     it('should return 500 when service throws error', async () => {
-      mockUserService.getUserByID.mockRejectedValue(new Error('Database error'));
+      mockUserService.getUserByID.mockRejectedValue(
+        new Error('Database error')
+      );
 
       const response = await request(app).get('/api/user/me');
 
@@ -336,7 +349,9 @@ describe('User Routes Integration Tests', () => {
       });
 
       it('should allow admin to get user by numeric ID', async () => {
-        mockUserService.getUserByID.mockResolvedValue(mockUser as unknown as User);
+        mockUserService.getUserByID.mockResolvedValue(
+          mockUser as unknown as User
+        );
 
         const response = await request(app).get('/api/user/1');
 
@@ -346,13 +361,17 @@ describe('User Routes Integration Tests', () => {
       });
 
       it('should allow admin to get user by email', async () => {
-        mockUserService.getUserByEmail.mockResolvedValue(mockUser as unknown as User);
+        mockUserService.getUserByEmail.mockResolvedValue(
+          mockUser as unknown as User
+        );
 
         const response = await request(app).get('/api/user/user@test.com');
 
         expect(response.status).toBe(200);
         expect(response.body).toEqual(mockUser);
-        expect(mockUserService.getUserByEmail).toHaveBeenCalledWith('user@test.com');
+        expect(mockUserService.getUserByEmail).toHaveBeenCalledWith(
+          'user@test.com'
+        );
       });
     });
 
@@ -368,7 +387,9 @@ describe('User Routes Integration Tests', () => {
       });
 
       it('should allow user to access their own data by ID', async () => {
-        mockUserService.getUserByID.mockResolvedValue(mockUser as unknown as User);
+        mockUserService.getUserByID.mockResolvedValue(
+          mockUser as unknown as User
+        );
 
         const response = await request(app).get('/api/user/1');
 
@@ -385,13 +406,17 @@ describe('User Routes Integration Tests', () => {
       });
 
       it('should allow user to access their own data by email', async () => {
-        mockUserService.getUserByEmail.mockResolvedValue(mockUser as unknown as User);
+        mockUserService.getUserByEmail.mockResolvedValue(
+          mockUser as unknown as User
+        );
 
         const response = await request(app).get('/api/user/user@test.com');
 
         expect(response.status).toBe(200);
         expect(response.body).toEqual(mockUser);
-        expect(mockUserService.getUserByEmail).toHaveBeenCalledWith('user@test.com');
+        expect(mockUserService.getUserByEmail).toHaveBeenCalledWith(
+          'user@test.com'
+        );
       });
 
       it('should forbid user from accessing other user data by email', async () => {
@@ -420,7 +445,9 @@ describe('User Routes Integration Tests', () => {
     });
 
     it('should return 500 when service throws error', async () => {
-      mockUserService.getUserByID.mockRejectedValue(new Error('Database error'));
+      mockUserService.getUserByID.mockRejectedValue(
+        new Error('Database error')
+      );
 
       const response = await request(app).get('/api/user/1');
 
@@ -438,15 +465,15 @@ describe('User Routes Integration Tests', () => {
     };
 
     it('should update user successfully with all fields', async () => {
-      mockUserService.updateUser.mockResolvedValue(mockUpdatedUser as unknown as User);
+      mockUserService.updateUser.mockResolvedValue(
+        mockUpdatedUser as unknown as User
+      );
 
-      const response = await request(app)
-        .put('/api/user/me')
-        .send({
-          name: 'Updated Name',
-          bio: 'Updated bio',
-          image_url: 'http://example.com/image.jpg',
-        });
+      const response = await request(app).put('/api/user/me').send({
+        name: 'Updated Name',
+        bio: 'Updated bio',
+        image_url: 'http://example.com/image.jpg',
+      });
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual(mockUpdatedUser);
@@ -459,7 +486,9 @@ describe('User Routes Integration Tests', () => {
 
     it('should update user with only name', async () => {
       const partialUpdate = { id: 1, name: 'Updated Name' };
-      mockUserService.updateUser.mockResolvedValue(partialUpdate as unknown as User);
+      mockUserService.updateUser.mockResolvedValue(
+        partialUpdate as unknown as User
+      );
 
       const response = await request(app)
         .put('/api/user/me')
@@ -475,9 +504,7 @@ describe('User Routes Integration Tests', () => {
     });
 
     it('should return 400 when no fields provided', async () => {
-      const response = await request(app)
-        .put('/api/user/me')
-        .send({});
+      const response = await request(app).put('/api/user/me').send({});
 
       expect(response.status).toBe(400);
       expect(response.body).toEqual({
@@ -539,7 +566,9 @@ describe('User Routes Integration Tests', () => {
     };
 
     it('should delete user by ID as admin', async () => {
-      mockUserService.getUserByID.mockResolvedValue(mockUser as unknown as User);
+      mockUserService.getUserByID.mockResolvedValue(
+        mockUser as unknown as User
+      );
       mockUserService.deleteUserById.mockResolvedValue(true);
 
       const response = await request(app).delete('/api/user/1');
@@ -551,14 +580,18 @@ describe('User Routes Integration Tests', () => {
     });
 
     it('should delete user by email as admin', async () => {
-      mockUserService.getUserByEmail.mockResolvedValue(mockUser as unknown as User);
+      mockUserService.getUserByEmail.mockResolvedValue(
+        mockUser as unknown as User
+      );
       mockUserService.deleteUserById.mockResolvedValue(true);
 
       const response = await request(app).delete('/api/user/user@test.com');
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual({ message: 'User deleted successfully' });
-      expect(mockUserService.getUserByEmail).toHaveBeenCalledWith('user@test.com');
+      expect(mockUserService.getUserByEmail).toHaveBeenCalledWith(
+        'user@test.com'
+      );
       expect(mockUserService.deleteUserById).toHaveBeenCalledWith(1);
     });
 
@@ -587,7 +620,9 @@ describe('User Routes Integration Tests', () => {
     });
 
     it('should return 500 when service throws error', async () => {
-      mockUserService.getUserByID.mockRejectedValue(new Error('Database error'));
+      mockUserService.getUserByID.mockRejectedValue(
+        new Error('Database error')
+      );
 
       const response = await request(app).delete('/api/user/1');
 

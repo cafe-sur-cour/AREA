@@ -9,14 +9,18 @@ jest.mock('../../src/services/ServiceRegistry', () => ({
   },
 }));
 
-const mockServiceRegistry = serviceRegistry as jest.Mocked<typeof serviceRegistry>;
+const mockServiceRegistry = serviceRegistry as jest.Mocked<
+  typeof serviceRegistry
+>;
 
 const createMockAboutRouter = () => {
   const router = express.Router();
 
   const getClientIP = (req: any): string => {
     const ip =
-      req.ip || (req.socket ? req.socket.remoteAddress : undefined) || 'unknown';
+      req.ip ||
+      (req.socket ? req.socket.remoteAddress : undefined) ||
+      'unknown';
     if (ip.startsWith('::ffff:')) {
       return ip.substring(7);
     }
@@ -488,7 +492,9 @@ describe('About Routes Integration Tests', () => {
     });
 
     it('should handle console.error gracefully during errors', async () => {
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleSpy = jest
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
       mockServiceRegistry.getAllServices.mockImplementation(() => {
         throw new Error('Critical service error');
       });

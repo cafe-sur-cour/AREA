@@ -60,7 +60,9 @@ describe('User Service', () => {
       const error = new Error('Database connection failed');
       mockFind.mockRejectedValue(error);
 
-      await expect(userService.getAllUsers()).rejects.toThrow('Database connection failed');
+      await expect(userService.getAllUsers()).rejects.toThrow(
+        'Database connection failed'
+      );
       expect(mockFind).toHaveBeenCalledWith(User);
     });
   });
@@ -103,7 +105,9 @@ describe('User Service', () => {
       const result = await userService.getUserByEmail('test@test.com');
 
       expect(result).toEqual(mockUser);
-      expect(mockFindOneBy).toHaveBeenCalledWith(User, { email: 'test@test.com' });
+      expect(mockFindOneBy).toHaveBeenCalledWith(User, {
+        email: 'test@test.com',
+      });
     });
 
     it('should return null when user not found by email', async () => {
@@ -112,7 +116,9 @@ describe('User Service', () => {
       const result = await userService.getUserByEmail('nonexistent@test.com');
 
       expect(result).toBeNull();
-      expect(mockFindOneBy).toHaveBeenCalledWith(User, { email: 'nonexistent@test.com' });
+      expect(mockFindOneBy).toHaveBeenCalledWith(User, {
+        email: 'nonexistent@test.com',
+      });
     });
 
     it('should handle empty email', async () => {
@@ -131,7 +137,9 @@ describe('User Service', () => {
       const result = await userService.getUserByEmail('test+tag@test.com');
 
       expect(result).toEqual(mockUser);
-      expect(mockFindOneBy).toHaveBeenCalledWith(User, { email: 'test+tag@test.com' });
+      expect(mockFindOneBy).toHaveBeenCalledWith(User, {
+        email: 'test+tag@test.com',
+      });
     });
   });
 
@@ -152,7 +160,9 @@ describe('User Service', () => {
       const result = await userService.getUserByName('Nonexistent User');
 
       expect(result).toBeNull();
-      expect(mockFindOneBy).toHaveBeenCalledWith(User, { name: 'Nonexistent User' });
+      expect(mockFindOneBy).toHaveBeenCalledWith(User, {
+        name: 'Nonexistent User',
+      });
     });
 
     it('should handle empty name', async () => {
@@ -171,7 +181,9 @@ describe('User Service', () => {
       const result = await userService.getUserByName('Test-User_123');
 
       expect(result).toEqual(mockUser);
-      expect(mockFindOneBy).toHaveBeenCalledWith(User, { name: 'Test-User_123' });
+      expect(mockFindOneBy).toHaveBeenCalledWith(User, {
+        name: 'Test-User_123',
+      });
     });
   });
 
@@ -292,7 +304,11 @@ describe('User Service', () => {
       const result = await userService.updateUserPassword(1, 'newpassword');
 
       expect(result).toBe(true);
-      expect(mockUpdate).toHaveBeenCalledWith(User, { id: 1 }, { password_hash: 'newpassword' });
+      expect(mockUpdate).toHaveBeenCalledWith(
+        User,
+        { id: 1 },
+        { password_hash: 'newpassword' }
+      );
     });
 
     // Note: These tests reflect the current buggy implementation where getUserByID is not awaited
@@ -313,7 +329,11 @@ describe('User Service', () => {
       const result = await userService.updateUserPassword(1, '');
 
       expect(result).toBe(true);
-      expect(mockUpdate).toHaveBeenCalledWith(User, { id: 1 }, { password_hash: '' });
+      expect(mockUpdate).toHaveBeenCalledWith(
+        User,
+        { id: 1 },
+        { password_hash: '' }
+      );
     });
 
     it('should return true for invalid user ID (current bug)', async () => {
@@ -335,7 +355,11 @@ describe('User Service', () => {
       const result = await userService.updateUserName(1, 'New Name');
 
       expect(result).toBe(true);
-      expect(mockUpdate).toHaveBeenCalledWith(User, { id: 1 }, { name: 'New Name' });
+      expect(mockUpdate).toHaveBeenCalledWith(
+        User,
+        { id: 1 },
+        { name: 'New Name' }
+      );
     });
 
     // Note: These tests reflect the current buggy implementation where getUserByID is not awaited
@@ -367,7 +391,11 @@ describe('User Service', () => {
       const result = await userService.updateUserName(1, 'Test-User_123');
 
       expect(result).toBe(true);
-      expect(mockUpdate).toHaveBeenCalledWith(User, { id: 1 }, { name: 'Test-User_123' });
+      expect(mockUpdate).toHaveBeenCalledWith(
+        User,
+        { id: 1 },
+        { name: 'Test-User_123' }
+      );
     });
 
     it('should return true for invalid user ID (current bug)', async () => {
@@ -414,7 +442,7 @@ describe('User Service', () => {
 
       const results = await Promise.all(promises);
 
-      results.forEach((result) => {
+      results.forEach(result => {
         expect(result).toEqual(mockUser);
       });
 
