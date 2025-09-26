@@ -1,43 +1,39 @@
 import 'package:area/core/constants/app_colors.dart';
 import 'package:flutter/material.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class ForgotPasswordScreen extends StatefulWidget {
+  const ForgotPasswordScreen({super.key});
 
   @override
-  LoginScreenState createState() => LoginScreenState();
+  ForgotPasswordScreenState createState() => ForgotPasswordScreenState();
 }
 
-class LoginScreenState extends State<LoginScreen> {
+class ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
   final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
+  final _confirmEmailController = TextEditingController();
 
   @override
   void dispose() {
-    _nameController.dispose();
     _emailController.dispose();
-    _passwordController.dispose();
+    _confirmEmailController.dispose();
     super.dispose();
   }
 
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
-      String name = _nameController.text;
       String email = _emailController.text;
-      String password = _passwordController.text;
 
-      print('Name: $name, Email: $email, Password: $password');
+      print('Email: $email');
 
-      Navigator.pop(context, [true, name]);
+      Navigator.pop(context);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Login')),
+      appBar: AppBar(title: const Text('Forgot Password')),
       body: Padding(
         padding: const EdgeInsets.all(32.0),
         child: Form(
@@ -69,18 +65,21 @@ class LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 16),
 
               TextFormField(
-                controller: _passwordController,
+                controller: _confirmEmailController,
                 decoration: const InputDecoration(
-                  labelText: "Password",
+                  labelText: "Confirm Email",
                   border: OutlineInputBorder(),
                 ),
-                obscureText: true,
+                keyboardType: TextInputType.emailAddress,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter your password';
+                    return 'Please enter your email';
                   }
-                  if (value.length < 6) {
-                    return 'Password must be at least 6 characters';
+                  if (!value.contains('@')) {
+                    return 'Please enter a valid email';
+                  }
+                  if (value != _emailController.text) {
+                    return 'Emails differ';
                   }
                   return null;
                 },
@@ -91,30 +90,13 @@ class LoginScreenState extends State<LoginScreen> {
 
               const SizedBox(height: 32),
 
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/forgot-password');
-                    },
-                    style: ElevatedButton.styleFrom(
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                    ),
-                    child: const Text('Forgot your password ?'),
-                  ),
-                  ElevatedButton(
-                    onPressed: _submitForm,
-                    style: ElevatedButton.styleFrom(
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                      backgroundColor: AppColors.primary,
-                    ),
-                    child: const Text(
-                      'Login',
-                      style: TextStyle(color: AppColors.areaLightGray),
-                    ),
-                  ),
-                ],
+              ElevatedButton(
+                onPressed: _submitForm,
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  backgroundColor: AppColors.primary,
+                ),
+                child: const Text('Send', style: TextStyle(color: AppColors.areaLightGray)),
               ),
             ],
           ),

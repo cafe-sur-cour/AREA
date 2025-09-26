@@ -1,4 +1,5 @@
 import 'package:area/l10n/app_localizations.dart';
+import 'package:area/screens/forgot_password_screen.dart';
 import 'package:area/screens/register_screen.dart';
 import 'package:area/screens/login_screen.dart';
 import 'package:flutter/material.dart';
@@ -46,6 +47,7 @@ class MyApp extends StatelessWidget {
         '/': (context) => MainNavigation(),
         '/login': (context) => const LoginScreen(),
         '/register': (context) => const RegisterScreen(),
+        '/forgot-password': (context) => const ForgotPasswordScreen(),
       },
     );
   }
