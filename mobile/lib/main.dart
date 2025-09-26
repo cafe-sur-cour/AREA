@@ -1,4 +1,6 @@
 import 'package:area/l10n/app_localizations.dart';
+import 'package:area/screens/register_screen.dart';
+import 'package:area/screens/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
@@ -37,9 +39,14 @@ class MyApp extends StatelessWidget {
       locale: locale,
       title: 'AREA',
       theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
+      darkTheme: AppTheme.lightTheme,
       themeMode: ThemeMode.system,
-      home: MainNavigation(),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => MainNavigation(),
+        '/login': (context) => const LoginScreen(),
+        '/register': (context) => const RegisterScreen(),
+      },
     );
   }
 }
