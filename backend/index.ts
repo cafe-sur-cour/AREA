@@ -14,9 +14,13 @@ import authRoutes from './src/routes/auth/auth';
 import userRoutes from './src/routes/user/user';
 import apiRoutes from './src/routes/api/api';
 import aboutRoutes from './src/routes/about/about';
+import webhookRoutes from './src/webhooks';
+import githubRoutes from './src/routes/github/github';
+import serviceConfigRoutes from './src/routes/services/configs';
 
 import { executionService } from './src/services/ExecutionService';
 import { serviceLoader } from './src/services/ServiceLoader';
+import { webhookLoader } from './src/webhooks/WebhookLoader';
 
 const app = express();
 export const JWT_SECRET = crypto.randomBytes(64).toString('hex');
@@ -48,8 +52,11 @@ app.use(cookieParser());
 /* Route definition with API as prefix */
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
+app.use('/api/github', githubRoutes);
+app.use('/api/services', serviceConfigRoutes);
 app.use('/api/info', apiRoutes);
 app.use('/about.json', aboutRoutes);
+app.use('/webhooks', webhookRoutes);
 
 setupSwagger(app);
 setupSignal();
@@ -64,6 +71,8 @@ setupSignal();
 
     console.log('Loading services...');
     await serviceLoader.loadAllServices();
+    console.log('Loading webhooks...');
+    await webhookLoader.loadAllWebhooks();
     await executionService.start();
 
     app.listen(3000, () => {});

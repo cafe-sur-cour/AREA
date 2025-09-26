@@ -54,33 +54,23 @@ export class ServiceRegistryImpl implements ServiceRegistry {
   }
 
   getActionByType(type: string): ActionDefinition | undefined {
-    const [serviceId, actionId] = type.split('.');
-
-    if (!serviceId || !actionId) {
-      return undefined;
+    for (const service of this.services.values()) {
+      const action = service.actions.find(action => action.id === type);
+      if (action) {
+        return action;
+      }
     }
-
-    const service = this.services.get(serviceId);
-    if (!service) {
-      return undefined;
-    }
-
-    return service.actions.find(action => action.id === actionId);
+    return undefined;
   }
 
   getReactionByType(type: string): ReactionDefinition | undefined {
-    const [serviceId, reactionId] = type.split('.');
-
-    if (!serviceId || !reactionId) {
-      return undefined;
+    for (const service of this.services.values()) {
+      const reaction = service.reactions.find(reaction => reaction.id === type);
+      if (reaction) {
+        return reaction;
+      }
     }
-
-    const service = this.services.get(serviceId);
-    if (!service) {
-      return undefined;
-    }
-
-    return service.reactions.find(reaction => reaction.id === reactionId);
+    return undefined;
   }
 
   private validateService(service: Service): void {

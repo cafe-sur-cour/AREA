@@ -5,3 +5,7 @@ This file should serve as a practical guide for extending the project's function
 ## Adding Services, Actions, and Reactions
 
 For detailed information about the services architecture and how to implement new services with actions and reactions, see the [Services Architecture Documentation](./services/SERVICES_ARCHITECTURE.md).
+
+## Adding Webhook Support
+
+For information about implementing webhook-based actions for external services, see the "Webhook Integration" section in the [Services Architecture Documentation](./services/SERVICES_ARCHITECTURE.md).
