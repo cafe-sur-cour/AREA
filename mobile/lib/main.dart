@@ -1,23 +1,25 @@
 import 'package:area/l10n/app_localizations.dart';
+import 'package:area/screens/forgot_password_screen.dart';
+import 'package:area/screens/register_screen.dart';
+import 'package:area/screens/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'navigation/main_navigation.dart';
 import 'core/themes/app_theme.dart';
-
-class LocaleNotifier extends ChangeNotifier {
-  Locale _locale = const Locale('en');
-  Locale get locale => _locale;
-
-  void setLocale(Locale newLocale) {
-    if (_locale == newLocale) return;
-    _locale = newLocale;
-    notifyListeners();
-  }
-}
+import 'core/notifiers/backend_address_notifier.dart';
+import 'core/notifiers/locale_notifier.dart';
 
 void main() {
-  runApp(ChangeNotifierProvider(create: (context) => LocaleNotifier(), child: const MyApp()));
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => LocaleNotifier()),
+        ChangeNotifierProvider(create: (context) => BackendAddressNotifier()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -38,9 +40,15 @@ class MyApp extends StatelessWidget {
       locale: locale,
       title: 'AREA',
       theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
+      darkTheme: AppTheme.lightTheme,
       themeMode: ThemeMode.system,
-      home: MainNavigation(),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => MainNavigation(),
+        '/login': (context) => const LoginScreen(),
+        '/register': (context) => const RegisterScreen(),
+        '/forgot-password': (context) => const ForgotPasswordScreen(),
+      },
     );
   }
 }
