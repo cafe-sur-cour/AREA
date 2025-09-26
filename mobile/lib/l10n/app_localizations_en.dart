@@ -22,4 +22,67 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get label_profile => 'Profile';
+
+  @override
+  String get logout => 'Logout';
+
+  @override
+  String get login => 'Login';
+
+  @override
+  String get register => 'Register';
+
+  @override
+  String get not_connected => 'Not connected';
+
+  @override
+  String get backend_server_address => 'Backend Server Address';
+
+  @override
+  String get email => 'Email';
+
+  @override
+  String get empty_email => 'Please enter your email';
+
+  @override
+  String get invalid_email => 'Please enter a valid email';
+
+  @override
+  String get password => 'Password';
+
+  @override
+  String get empty_password => 'Please enter your password';
+
+  @override
+  String get invalid_password => 'Password must be at least 6 characters';
+
+  @override
+  String get forgot_password_question => 'Forgot your password ?';
+
+  @override
+  String get forgot_password => 'Forgot Password';
+
+  @override
+  String get confirm_email => 'Confirm Email';
+
+  @override
+  String get confirm_email_differs => 'Emails differ';
+
+  @override
+  String get send => 'Send';
+
+  @override
+  String get name => 'Name';
+
+  @override
+  String get empty_name => 'Please enter your name';
+
+  @override
+  String get invalid_name => 'Name must be less than 38 characters';
+
+  @override
+  String get confirm_password => 'Confirm Password';
+
+  @override
+  String get confirm_password_differs => 'Passwords differ';
 }

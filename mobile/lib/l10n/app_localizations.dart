@@ -127,6 +127,132 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Profile'**
   String get label_profile;
+
+  /// No description provided for @logout.
+  ///
+  /// In en, this message translates to:
+  /// **'Logout'**
+  String get logout;
+
+  /// No description provided for @login.
+  ///
+  /// In en, this message translates to:
+  /// **'Login'**
+  String get login;
+
+  /// No description provided for @register.
+  ///
+  /// In en, this message translates to:
+  /// **'Register'**
+  String get register;
+
+  /// No description provided for @not_connected.
+  ///
+  /// In en, this message translates to:
+  /// **'Not connected'**
+  String get not_connected;
+
+  /// No description provided for @backend_server_address.
+  ///
+  /// In en, this message translates to:
+  /// **'Backend Server Address'**
+  String get backend_server_address;
+
+  /// No description provided for @email.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get email;
+
+  /// No description provided for @empty_email.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your email'**
+  String get empty_email;
+
+  /// No description provided for @invalid_email.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid email'**
+  String get invalid_email;
+
+  /// No description provided for @password.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get password;
+
+  /// No description provided for @empty_password.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your password'**
+  String get empty_password;
+
+  /// No description provided for @invalid_password.
+  ///
+  /// In en, this message translates to:
+  /// **'Password must be at least 6 characters'**
+  String get invalid_password;
+
+  /// No description provided for @forgot_password_question.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot your password ?'**
+  String get forgot_password_question;
+
+  /// No description provided for @forgot_password.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot Password'**
+  String get forgot_password;
+
+  /// No description provided for @confirm_email.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Email'**
+  String get confirm_email;
+
+  /// No description provided for @confirm_email_differs.
+  ///
+  /// In en, this message translates to:
+  /// **'Emails differ'**
+  String get confirm_email_differs;
+
+  /// No description provided for @send.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get send;
+
+  /// No description provided for @name.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get name;
+
+  /// No description provided for @empty_name.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your name'**
+  String get empty_name;
+
+  /// No description provided for @invalid_name.
+  ///
+  /// In en, this message translates to:
+  /// **'Name must be less than 38 characters'**
+  String get invalid_name;
+
+  /// No description provided for @confirm_password.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Password'**
+  String get confirm_password;
+
+  /// No description provided for @confirm_password_differs.
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords differ'**
+  String get confirm_password_differs;
 }
 
 class _AppLocalizationsDelegate
