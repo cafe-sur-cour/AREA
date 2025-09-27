@@ -12,6 +12,7 @@ import Image from 'next/image';
 import { FaMeta } from 'react-icons/fa6';
 import { FaGithub, FaGoogle } from 'react-icons/fa';
 import Cookies from 'js-cookie';
+import { getAPIUrl } from '@/lib/config';
 
 export function LoginForm({
   className,
@@ -51,6 +52,18 @@ export function LoginForm({
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const signInWithGithub = async () => {
+    window.location.href = `${await getAPIUrl()}/auth/github`;
+  };
+
+  const signInWithGoogle = async () => {
+    window.location.href = `${await getAPIUrl()}/auth/google`;
+  };
+
+  const signInWithMeta = async () => {
+    window.location.href = `${await getAPIUrl()}/auth/meta`;
   };
 
   return (
@@ -102,15 +115,15 @@ export function LoginForm({
                 </span>
               </div>
               <div className='grid grid-cols-3 gap-4'>
-                <Button variant='outline' type='button' className='w-full'>
+                <Button variant='outline' onClick={async () => await signInWithGithub()} type='button' className='w-full'>
                   <FaGithub />
                   <span className='sr-only'>Login with Github</span>
                 </Button>
-                <Button variant='outline' type='button' className='w-full'>
+                <Button variant='outline' onClick={async () => await signInWithGoogle()} type='button' className='w-full'>
                   <FaGoogle />
                   <span className='sr-only'>Login with Google</span>
                 </Button>
-                <Button variant='outline' type='button' className='w-full'>
+                <Button variant='outline' onClick={async () => await signInWithMeta()} type='button' className='w-full'>
                   <FaMeta />
                   <span className='sr-only'>Login with Meta</span>
                 </Button>
