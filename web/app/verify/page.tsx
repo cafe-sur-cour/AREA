@@ -1,7 +1,7 @@
 'use client';
 
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { CheckCircle, XCircle, Loader2, Mail, ArrowRight } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -12,34 +12,35 @@ export default function VerifyPage() {
   const searchParams = useSearchParams();
   let token = searchParams.get('token');
 
-  const verifyToken = async () => {
+  const verifyToken = useCallback(async () => {
     try {
       setLoading(true);
 
       const response = (
-        await api.post<{ error?: string, msg?: string, message?: string }>('/auth/verify', {  }, token!)
+        await api.post<{ error?: string; msg?: string; message?: string }>(
+          '/auth/verify',
+          {},
+          token!
+        )
       ).data;
       if (response?.error || response?.msg) {
         throw new Error(response.error);
       }
       setVerified(true);
     } catch (error) {
-      if (error instanceof Error && error.message === 'Invalid token') {
-        token = null;
-      }
       console.error(error);
       setVerified(false);
     } finally {
       setLoading(false);
-      setTimeout(() => router.push("/login"), 5000);
+      setTimeout(() => router.push('/login'), 5000);
     }
-  };
+  }, [token]);
 
   useEffect(() => {
     if (token) {
       verifyToken();
     }
-  }, [token]);
+  }, [token, verifyToken]);
 
   if (!token) {
     return (

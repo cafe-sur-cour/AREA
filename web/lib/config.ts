@@ -1,9 +1,10 @@
 // lib/com-config.ts
-import {getEnv} from '@/lib/load-env'
+'use server';
+import { getEnv } from '@/lib/load-env';
 
 export const getSocketUrl = async () => {
-const {backendPort} = await getEnv();
-const {backendUrl} = await getEnv();
+  const { backendPort } = await getEnv();
+  const { backendUrl } = await getEnv();
   if (process.env.DOCKER_ENV === 'true') {
     return backendUrl;
   }
@@ -21,8 +22,9 @@ const {backendUrl} = await getEnv();
 };
 
 export const getAPIUrl = async () => {
-  const {backendPort} = await getEnv();
-  const {backendUrl} = await getEnv();
+  const { backendPort } = await getEnv();
+  const { backendUrl } = await getEnv();
+  console.log(backendPort, backendUrl);
   if (process.env.DOCKER_ENV === 'true') {
     return `${backendUrl}/api`;
   }
@@ -40,13 +42,13 @@ export const getAPIUrl = async () => {
 };
 
 export const getFrontendUrl = async () => {
-  const {frontendUrl} = await getEnv();
+  const { frontendUrl } = await getEnv();
   return frontendUrl || 'http://localhost:8081';
 };
 
 export const getBackendUrl = async () => {
-  const {backendPort} = await getEnv();
-  const {backendUrl} = await getEnv();
+  const { backendPort } = await getEnv();
+  const { backendUrl } = await getEnv();
   const isServer = typeof window === 'undefined';
   if (isServer) {
     return backendUrl;

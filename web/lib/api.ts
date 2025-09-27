@@ -45,6 +45,7 @@ export const authenticatedFetch = async (
       ...options.headers,
     },
   };
+  console.log(url, config);
   return fetch(url, config);
 };
 
@@ -65,10 +66,14 @@ export const apiPost = async (
   data?: unknown,
   token?: string
 ): Promise<Response> => {
-  return authenticatedFetch(endpoint, {
-    method: 'POST',
-    body: data ? JSON.stringify(data) : undefined,
-  }, token);
+  return authenticatedFetch(
+    endpoint,
+    {
+      method: 'POST',
+      body: data ? JSON.stringify(data) : undefined,
+    },
+    token
+  );
 };
 
 export const apiPut = async (
