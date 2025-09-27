@@ -41,7 +41,7 @@ export function LoginForm({
           secure: true,
           sameSite: 'strict',
         });
-        // router.push('/dashboard');
+        router.push('/dashboard');
       } else {
         alert('Login failed');
       }

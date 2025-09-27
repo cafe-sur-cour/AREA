@@ -37,7 +37,7 @@ export default function VerifyPage() {
     if (token) {
       verifyToken();
     }
-  }, [token]);
+  }, [token, verifyToken]);
 
   if (!token) {
     return (
