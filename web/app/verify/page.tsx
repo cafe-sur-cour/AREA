@@ -10,26 +10,28 @@ export default function VerifyPage() {
   const [verified, setVerified] = useState(false);
   const [loading, setLoading] = useState(true);
   const searchParams = useSearchParams();
-  const token = searchParams.get('token');
+  let token = searchParams.get('token');
 
   const verifyToken = async () => {
     try {
       setLoading(true);
 
       const response = (
-        await api.post<{ status: number }>('/api/verify', { token })
+        await api.post<{ error?: string, msg?: string, message?: string }>('/auth/verify', {  }, token!)
       ).data;
-
-      if (!response || response.status !== 200) {
-        throw new Error('Verification failed');
+      if (response?.error || response?.msg) {
+        throw new Error(response.error);
       }
       setVerified(true);
     } catch (error) {
+      if (error instanceof Error && error.message === 'Invalid token') {
+        token = null;
+      }
       console.error(error);
       setVerified(false);
     } finally {
       setLoading(false);
-      // setTimeout(() => router.push("/login"), 5000)
+      setTimeout(() => router.push("/login"), 5000);
     }
   };
 
@@ -37,7 +39,7 @@ export default function VerifyPage() {
     if (token) {
       verifyToken();
     }
-  }, [token, verifyToken]);
+  }, [token]);
 
   if (!token) {
     return (
@@ -99,9 +101,6 @@ export default function VerifyPage() {
                 <div className='w-20 h-20 mx-auto bg-chart-4/20 rounded-full flex items-center justify-center'>
                   <CheckCircle className='w-12 h-12 text-chart-4' />
                 </div>
-                <div className='absolute -top-2 -right-2 w-6 h-6 bg-chart-4 rounded-full flex items-center justify-center'>
-                  <span className='text-white text-xs font-bold'>✓</span>
-                </div>
               </div>
               <h1 className='text-2xl font-bold text-foreground mb-2'>
                 Email Verified!
@@ -128,9 +127,6 @@ export default function VerifyPage() {
               <div className='relative mb-6'>
                 <div className='w-20 h-20 mx-auto bg-destructive/20 rounded-full flex items-center justify-center'>
                   <XCircle className='w-12 h-12 text-destructive' />
-                </div>
-                <div className='absolute -top-2 -right-2 w-6 h-6 bg-destructive rounded-full flex items-center justify-center'>
-                  <span className='text-white text-xs font-bold'>!</span>
                 </div>
               </div>
               <h1 className='text-2xl font-bold text-foreground mb-2'>

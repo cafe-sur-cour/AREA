@@ -62,12 +62,13 @@ export const apiGet = async (
 
 export const apiPost = async (
   endpoint: string,
-  data?: unknown
+  data?: unknown,
+  token?: string
 ): Promise<Response> => {
   return authenticatedFetch(endpoint, {
     method: 'POST',
     body: data ? JSON.stringify(data) : undefined,
-  });
+  }, token);
 };
 
 export const apiPut = async (
@@ -119,9 +120,10 @@ export const api = {
 
   post: async <T = unknown>(
     endpoint: string,
-    data?: unknown
+    data?: unknown,
+    token?: string
   ): Promise<{ data: T | null }> => {
-    const response = await apiPost(endpoint, data);
+    const response = await apiPost(endpoint, data, token);
     if (!response.ok) {
       throw new Error(`${response.json()}`);
     }
