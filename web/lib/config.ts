@@ -17,14 +17,12 @@ export const getSocketUrl = async () => {
       return `http://${hostname}:${backendPort}`;
     }
   }
-  if (process.env.NODE_ENV !== 'development') return 'http://backend:8080';
   return `http://localhost:${backendPort}`;
 };
 
 export const getAPIUrl = async () => {
   const { backendPort } = await getEnv();
   const { backendUrl } = await getEnv();
-  console.log(backendPort, backendUrl);
   if (process.env.DOCKER_ENV === 'true') {
     return `${backendUrl}/api`;
   }
@@ -37,7 +35,6 @@ export const getAPIUrl = async () => {
       return `http://${hostname}:${backendPort}/api`;
     }
   }
-  if (process.env.NODE_ENV !== 'development') return 'http://backend:8080/api';
   return `http://localhost:${backendPort}/api`;
 };
 
@@ -60,6 +57,5 @@ export const getBackendUrl = async () => {
       return `http://${hostname}:${backendPort}`;
     }
   }
-  if (process.env.NODE_ENV !== 'development') return backendUrl;
   return `http://localhost:${backendPort}`;
 };
