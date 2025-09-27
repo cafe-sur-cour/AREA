@@ -8,10 +8,6 @@ import { Label } from '@/components/ui/label';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import api from '@/lib/api';
-import Image from 'next/image';
-import { FaMeta } from 'react-icons/fa6';
-import { FaGithub, FaGoogle } from 'react-icons/fa';
-import Cookies from 'js-cookie';
 import { toast } from 'sonner';
 
 export function PasswordEmailForm({
@@ -29,9 +25,12 @@ export function PasswordEmailForm({
     const email = formData.get('email') as string;
 
     try {
-      const response = await api.post<{ message?: string, error?: string }>('/auth/forgot-password', {
-        email,
-      });
+      const response = await api.post<{ message?: string; error?: string }>(
+        '/auth/forgot-password',
+        {
+          email,
+        }
+      );
 
       if (response && response.data?.message) {
         toast.success(response.data.message);
@@ -69,7 +68,9 @@ export function PasswordEmailForm({
                 />
               </div>
               <Button type='submit' className='w-full' disabled={isLoading}>
-                {isLoading ? 'Requesting password reset link...' : 'Request password reset'}
+                {isLoading
+                  ? 'Requesting password reset link...'
+                  : 'Request password reset'}
               </Button>
             </div>
           </form>
@@ -86,7 +87,7 @@ export default function PasswordForm({
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const searchParams = useSearchParams();
-  let token = searchParams.get('token');
+  const token = searchParams.get('token');
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -107,9 +108,13 @@ export default function PasswordForm({
       return;
     }
     try {
-      const response = await api.post<{ message?: string, error?: string }>('/auth/reset-password', {
-        newPassword: newPassword,
-      }, token);
+      const response = await api.post<{ message?: string; error?: string }>(
+        '/auth/reset-password',
+        {
+          newPassword: newPassword,
+        },
+        token
+      );
 
       if (response && response.data?.message) {
         toast.success(response.data.message);

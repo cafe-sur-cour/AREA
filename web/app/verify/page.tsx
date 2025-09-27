@@ -10,7 +10,7 @@ export default function VerifyPage() {
   const [verified, setVerified] = useState(false);
   const [loading, setLoading] = useState(true);
   const searchParams = useSearchParams();
-  let token = searchParams.get('token');
+  const token = searchParams.get('token');
 
   const verifyToken = useCallback(async () => {
     try {
@@ -34,7 +34,7 @@ export default function VerifyPage() {
       setLoading(false);
       setTimeout(() => router.push('/login'), 5000);
     }
-  }, [token]);
+  }, [token, router]);
 
   useEffect(() => {
     if (token) {
