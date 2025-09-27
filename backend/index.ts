@@ -6,13 +6,24 @@ import crypto from 'crypto';
 import cookieParser from 'cookie-parser';
 import { waitForPostgres } from './src/utils/waitForDb';
 import { setupSwagger } from './src/routes/docs/swagger';
+import { setupSignal } from './src/utils/signal';
 import cors from 'cors';
 import process from 'process';
+import { initI18n } from './src/config/i18n';
+import i18next from 'i18next';
+import * as i18nextMiddleware from 'i18next-http-middleware';
 
 import authRoutes from './src/routes/auth/auth';
 import userRoutes from './src/routes/user/user';
+import apiRoutes from './src/routes/api/api';
+import aboutRoutes from './src/routes/about/about';
+import webhookRoutes from './src/webhooks';
+import githubRoutes from './src/routes/github/github';
+import serviceConfigRoutes from './src/routes/services/configs';
+
 import { executionService } from './src/services/ExecutionService';
 import { serviceLoader } from './src/services/ServiceLoader';
+import { webhookLoader } from './src/webhooks/WebhookLoader';
 
 const app = express();
 export const JWT_SECRET = crypto.randomBytes(64).toString('hex');
@@ -44,38 +55,22 @@ app.use(cookieParser());
 /* Route definition with API as prefix */
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
+app.use('/api/github', githubRoutes);
+app.use('/api/services', serviceConfigRoutes);
+app.use('/api/info', apiRoutes);
+app.use('/about.json', aboutRoutes);
+app.use('/webhooks', webhookRoutes);
 
 setupSwagger(app);
-// Middleware
-app.use(express.json());
-
-// Health check endpoint
-app.get('/health', (req: express.Request, res: express.Response) => {
-  res.json({
-    status: 'ok',
-    timestamp: new Date().toISOString(),
-    services: {
-      database: AppDataSource.isInitialized,
-      executionService: executionService ? 'running' : 'stopped',
-    },
-  });
-});
-
-// Graceful shutdown handlers
-process.on('SIGINT', async () => {
-  console.log('Received SIGINT, shutting down gracefully...');
-  await executionService.stop();
-  process.exit(0);
-});
-
-process.on('SIGTERM', async () => {
-  console.log('Received SIGTERM, shutting down gracefully...');
-  await executionService.stop();
-  process.exit(0);
-});
+setupSignal();
 
 (async function start() {
   try {
+    console.log('Initializing i18n...');
+    await initI18n();
+    app.use(i18nextMiddleware.handle(i18next));
+    console.log('i18n initialized');
+
     console.log('Waiting for Postgres to be ready...');
     await waitForPostgres({ retries: 12, delayMs: 2000 });
 
@@ -84,14 +79,11 @@ process.on('SIGTERM', async () => {
 
     console.log('Loading services...');
     await serviceLoader.loadAllServices();
-
+    console.log('Loading webhooks...');
+    await webhookLoader.loadAllWebhooks();
     await executionService.start();
 
-    app.listen(3000, () => {
-      console.log('Server is running on port 3000');
-      console.log('AREA backend server is running on port 3000');
-      console.log('Health check available at: http://localhost:3000/health');
-    });
+    app.listen(3000, () => {});
 
     await saveData();
   } catch (err) {

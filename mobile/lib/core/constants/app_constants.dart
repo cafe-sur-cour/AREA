@@ -1,5 +1,4 @@
-class AppRoutes {
-}
+class AppRoutes {}
 
 class AppDimensions {
   // Padding & Margins
@@ -33,9 +32,4 @@ class AppDimensions {
 
   // BottomNavigationBar
   static const double bottomNavBarHeight = 60.0;
-}
-
-class AppConstants {
-  static const String apiBaseUrl = 'to define';
-  static const int timeoutSeconds = 30;
 }

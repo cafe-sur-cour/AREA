@@ -1,0 +1,224 @@
+{
+  "services": {
+    "github": {
+      "name": "GitHub",
+      "description": "Service GitHub pour les événements et actions de dépôt",
+      "actions": {
+        "github.push": {
+          "name": "Push GitHub",
+          "description": "Se déclenche lorsqu'un événement push se produit sur un dépôt sélectionné",
+          "schema": {
+            "fields": {
+              "repository": {
+                "label": "Dépôt (propriétaire/dépôt)",
+                "placeholder": "octocat/Hello-World"
+              },
+              "branch": {
+                "label": "Branche (optionnel, par défaut toutes les branches)",
+                "placeholder": "main"
+              }
+            }
+          }
+        },
+        "github.pull_request.opened": {
+          "name": "Pull Request GitHub Ouverte",
+          "description": "Se déclenche lorsqu'une nouvelle pull request est ouverte",
+          "schema": {
+            "fields": {
+              "repository": {
+                "label": "Dépôt (propriétaire/dépôt)",
+                "placeholder": "octocat/Hello-World"
+              }
+            }
+          }
+        },
+        "github.pull_request.merged": {
+          "name": "Pull Request GitHub Fusionnée",
+          "description": "Se déclenche lorsqu'une pull request est fusionnée",
+          "schema": {
+            "fields": {
+              "repository": {
+                "label": "Dépôt (propriétaire/dépôt)",
+                "placeholder": "octocat/Hello-World"
+              }
+            }
+          }
+        }
+      },
+      "properties": {
+        "repository": {
+          "description": "Informations du dépôt",
+          "full_name": {
+            "description": "Nom complet du dépôt (propriétaire/dépôt)"
+          },
+          "name": {
+            "description": "Nom du dépôt"
+          },
+          "owner": {
+            "description": "Informations du propriétaire du dépôt",
+            "login": {
+              "description": "Nom d'utilisateur du propriétaire"
+            },
+            "id": {
+              "description": "ID du propriétaire"
+            }
+          }
+        },
+        "ref": {
+          "description": "Référence Git (branche/étiquette)"
+        },
+        "before": {
+          "description": "SHA avant le push"
+        },
+        "after": {
+          "description": "SHA après le push"
+        },
+        "commits": {
+          "description": "Liste des commits dans le push",
+          "items": {
+            "description": "Informations du commit",
+            "id": {
+              "description": "SHA du commit"
+            },
+            "message": {
+              "description": "Message du commit"
+            },
+            "author": {
+              "description": "Informations de l'auteur du commit",
+              "name": {
+                "description": "Nom de l'auteur"
+              },
+              "email": {
+                "description": "Email de l'auteur"
+              }
+            }
+          }
+        },
+        "pusher": {
+          "description": "Informations du pusher",
+          "name": {
+            "description": "Nom d'utilisateur du pusher"
+          },
+          "email": {
+            "description": "Email du pusher"
+          }
+        },
+        "action": {
+          "description": "L'action qui a été effectuée"
+        },
+        "number": {
+          "description": "Numéro de la pull request"
+        },
+        "pull_request": {
+          "description": "Détails de la pull request",
+          "id": {
+            "description": "ID de la pull request"
+          },
+          "title": {
+            "description": "Titre de la pull request"
+          },
+          "body": {
+            "description": "Corps de la pull request"
+          },
+          "state": {
+            "description": "État de la pull request"
+          },
+          "merged": {
+            "description": "Si la pull request est fusionnée"
+          },
+          "merged_at": {
+            "description": "Quand la pull request a été fusionnée"
+          },
+          "user": {
+            "description": "Utilisateur qui a créé la pull request",
+            "login": {
+              "description": "Nom d'utilisateur"
+            },
+            "id": {
+              "description": "ID utilisateur"
+            }
+          },
+          "head": {
+            "description": "Informations de la branche head",
+            "ref": {
+              "description": "Nom de la branche"
+            },
+            "sha": {
+              "description": "SHA du commit"
+            },
+            "repo": {
+              "description": "Informations du dépôt head",
+              "full_name": {
+                "description": "Nom complet du dépôt"
+              }
+            }
+          },
+          "base": {
+            "description": "Informations de la branche base"
+          }
+        }
+      }
+    },
+    "timer": {
+      "name": "Minuteur",
+      "description": "Service de minuterie pour les événements programmés",
+      "actions": {
+        "every_day_at_x_hour": {
+          "name": "Tous les Jours à X Heure",
+          "description": "Se déclenche une fois par jour à une heure spécifique les jours sélectionnés",
+          "schema": {
+            "fields": {
+              "hour": {
+                "label": "Heure (0-23)",
+                "placeholder": "14"
+              },
+              "days": {
+                "label": "Jours de la semaine",
+                "options": {
+                  "monday": "Lundi",
+                  "tuesday": "Mardi",
+                  "wednesday": "Mercredi",
+                  "thursday": "Jeudi",
+                  "friday": "Vendredi",
+                  "saturday": "Samedi",
+                  "sunday": "Dimanche"
+                }
+              }
+            }
+          }
+        },
+        "every_hour_at_intervals": {
+          "name": "Toutes les Heures à X Minute",
+          "description": "Se déclenche toutes les heures à une minute spécifique (00, 15, 30, ou 45)",
+          "schema": {
+            "fields": {
+              "minute": {
+                "label": "Minute",
+                "options": {
+                  "0": ":00",
+                  "15": ":15",
+                  "30": ":30",
+                  "45": ":45"
+                }
+              }
+            }
+          }
+        }
+      },
+      "properties": {
+        "timestamp": {
+          "description": "Horodatage ISO du déclenchement de la minuterie"
+        },
+        "hour": {
+          "description": "L'heure qui a déclenché"
+        },
+        "day": {
+          "description": "Le jour de la semaine"
+        },
+        "minute": {
+          "description": "La minute qui a déclenché (0, 15, 30, ou 45)"
+        }
+      }
+    }
+  }
+}

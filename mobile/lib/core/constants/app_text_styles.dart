@@ -5,7 +5,7 @@ import 'app_colors.dart';
 
 class AppTextStyles {
   // Montserrat - Headlines and Titles
-  
+
   static const TextStyle montserratLight = TextStyle(
     fontFamily: 'Montserrat',
     fontWeight: FontWeight.w300,

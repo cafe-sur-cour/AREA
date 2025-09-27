@@ -4,3 +4,5 @@
 node_modules
 .next
 *lock*
+backend/coverage
+frontend/coverage

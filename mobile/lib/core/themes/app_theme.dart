@@ -12,13 +12,11 @@ class AppTheme {
         primary: AppColors.primary,
         secondary: AppColors.secondary,
         surface: AppColors.background,
-        background: AppColors.background,
         error: AppColors.error,
-        onPrimary: Colors.white,
-        onSecondary: Colors.white,
+        onPrimary: AppColors.areaLightGray,
+        onSecondary: AppColors.areaLightGray,
         onSurface: AppColors.textPrimary,
-        onBackground: AppColors.textPrimary,
-        onError: Colors.white,
+        onError: AppColors.areaLightGray,
       ),
 
       // AppBar Theme
@@ -43,51 +41,6 @@ class AppTheme {
         elevation: 8,
       ),
 
-      // Card Theme
-      cardTheme: CardThemeData(
-        color: AppColors.surface,
-        elevation: 2,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppDimensions.borderRadiusMD),
-        ),
-      ),
-
-      // Elevated Button Theme
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary,
-          foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppDimensions.borderRadiusSM),
-          ),
-          minimumSize: const Size.fromHeight(AppDimensions.buttonHeightMD),
-        ),
-      ),
-
-      // Text Button Theme
-      textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(
-          foregroundColor: AppColors.primary,
-        ),
-      ),
-
-      // Input Decoration Theme
-      inputDecorationTheme: InputDecorationTheme(
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppDimensions.borderRadiusSM),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppDimensions.borderRadiusSM),
-          borderSide: const BorderSide(color: AppColors.primary, width: 2),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppDimensions.borderRadiusSM),
-          borderSide: const BorderSide(color: AppColors.error),
-        ),
-        filled: true,
-        fillColor: AppColors.surface,
-      ),
-
       textTheme: const TextTheme(
         headlineLarge: AppTextStyles.headlineLarge,
         headlineMedium: AppTextStyles.headlineMedium,
@@ -103,7 +56,7 @@ class AppTheme {
       ),
     );
   }
-  
+
   static ThemeData get darkTheme {
     return ThemeData(
       useMaterial3: true,
@@ -111,14 +64,48 @@ class AppTheme {
       colorScheme: const ColorScheme.dark(
         primary: AppColors.primary,
         secondary: AppColors.secondary,
-        surface: Color(0xFF1E1E1E),
-        background: Color(0xFF121212),
+        surface: AppColors.background,
         error: AppColors.error,
-        onPrimary: Colors.white,
-        onSecondary: Colors.white,
-        onSurface: Colors.white,
-        onBackground: Colors.white,
-        onError: Colors.white,
+        onPrimary: AppColors.areaLightGray,
+        onSecondary: AppColors.areaLightGray,
+        onSurface: AppColors.textPrimary,
+        onError: AppColors.areaLightGray,
+      ),
+
+      // AppBar Theme
+      appBarTheme: const AppBarTheme(
+        elevation: AppDimensions.appBarElevation,
+        backgroundColor: AppColors.primary,
+        foregroundColor: AppColors.areaLightGray,
+        titleTextStyle: TextStyle(
+          fontFamily: 'Montserrat',
+          color: AppColors.areaLightGray,
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+
+      // Bottom Navigation Bar Theme
+      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+        backgroundColor: AppColors.background,
+        selectedItemColor: AppColors.primary,
+        unselectedItemColor: AppColors.textSecondary,
+        type: BottomNavigationBarType.fixed,
+        elevation: 8,
+      ),
+
+      textTheme: const TextTheme(
+        headlineLarge: AppTextStyles.headlineLarge,
+        headlineMedium: AppTextStyles.headlineMedium,
+        headlineSmall: AppTextStyles.headlineSmall,
+        bodyLarge: AppTextStyles.bodyLarge,
+        bodyMedium: AppTextStyles.bodyMedium,
+        bodySmall: AppTextStyles.bodySmall,
+      ),
+
+      iconTheme: const IconThemeData(
+        color: AppColors.textSecondary,
+        size: AppDimensions.iconSizeMD,
       ),
     );
   }

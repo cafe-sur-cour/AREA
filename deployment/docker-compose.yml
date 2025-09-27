@@ -1,7 +1,5 @@
-version: '3.8'
-
 services:
-  frontend:
+  client_web:
     build:
       context: ..
       dockerfile: deployment/Dockerfile.frontend
@@ -10,15 +8,17 @@ services:
       - "${NEXT_PORT}:3000"
     environment:
       - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+    volumes:
+      - mobile_build:/usr/share/nginx/html/mobile
     depends_on:
-      - backend
-      - db
+      - client_mobile
+      - server
 
-  backend:
+  server:
     build:
       context: ..
       dockerfile: deployment/Dockerfile.backend
-    container_name: area_app
+    container_name: area_server
     ports:
       - "${NODE_PORT}:3000"
     environment:
@@ -28,12 +28,28 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_NAME=${DB_NAME}
       - FRONTEND_URL=${FRONTEND_URL}
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_SECURE=${SMTP_SECURE}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
+      - SERVICE_GITHUB_CLIENT_ID=${SERVICE_GITHUB_CLIENT_ID}
+      - SERVICE_GITHUB_CLIENT_SECRET=${SERVICE_GITHUB_CLIENT_SECRET}
+      - SERVICE_GITHUB_REDIRECT_URI=${SERVICE_GITHUB_REDIRECT_URI}
     depends_on:
       - db
 
+  client_mobile:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile.mobile
+    container_name: area_mobile
+    volumes:
+      - mobile_build:/app/build
+
   db:
     image: postgres:16
-    container_name: postgres_area_db
+    container_name: postgres_db
     restart: unless-stopped
     environment:
       - POSTGRES_USER=${DB_USER}
@@ -49,3 +65,4 @@ services:
 
 volumes:
   pgdata:
+  mobile_build:

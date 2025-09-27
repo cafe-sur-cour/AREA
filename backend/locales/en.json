@@ -1,0 +1,224 @@
+{
+  "services": {
+    "github": {
+      "name": "GitHub",
+      "description": "GitHub service for repository events and actions",
+      "actions": {
+        "github.push": {
+          "name": "GitHub Push",
+          "description": "Triggers when a push event occurs on a selected repository",
+          "schema": {
+            "fields": {
+              "repository": {
+                "label": "Repository (owner/repo)",
+                "placeholder": "octocat/Hello-World"
+              },
+              "branch": {
+                "label": "Branch (optional, defaults to all branches)",
+                "placeholder": "main"
+              }
+            }
+          }
+        },
+        "github.pull_request.opened": {
+          "name": "GitHub Pull Request Opened",
+          "description": "Triggers when a new pull request is opened",
+          "schema": {
+            "fields": {
+              "repository": {
+                "label": "Repository (owner/repo)",
+                "placeholder": "octocat/Hello-World"
+              }
+            }
+          }
+        },
+        "github.pull_request.merged": {
+          "name": "GitHub Pull Request Merged",
+          "description": "Triggers when a pull request is merged",
+          "schema": {
+            "fields": {
+              "repository": {
+                "label": "Repository (owner/repo)",
+                "placeholder": "octocat/Hello-World"
+              }
+            }
+          }
+        }
+      },
+      "properties": {
+        "repository": {
+          "description": "Repository information",
+          "full_name": {
+            "description": "Full repository name (owner/repo)"
+          },
+          "name": {
+            "description": "Repository name"
+          },
+          "owner": {
+            "description": "Repository owner information",
+            "login": {
+              "description": "Owner username"
+            },
+            "id": {
+              "description": "Owner ID"
+            }
+          }
+        },
+        "ref": {
+          "description": "Git reference (branch/tag)"
+        },
+        "before": {
+          "description": "SHA before the push"
+        },
+        "after": {
+          "description": "SHA after the push"
+        },
+        "commits": {
+          "description": "List of commits in the push",
+          "items": {
+            "description": "Commit information",
+            "id": {
+              "description": "Commit SHA"
+            },
+            "message": {
+              "description": "Commit message"
+            },
+            "author": {
+              "description": "Commit author information",
+              "name": {
+                "description": "Author name"
+              },
+              "email": {
+                "description": "Author email"
+              }
+            }
+          }
+        },
+        "pusher": {
+          "description": "Pusher information",
+          "name": {
+            "description": "Pusher username"
+          },
+          "email": {
+            "description": "Pusher email"
+          }
+        },
+        "action": {
+          "description": "The action that was performed"
+        },
+        "number": {
+          "description": "Pull request number"
+        },
+        "pull_request": {
+          "description": "Pull request details",
+          "id": {
+            "description": "Pull request ID"
+          },
+          "title": {
+            "description": "Pull request title"
+          },
+          "body": {
+            "description": "Pull request body"
+          },
+          "state": {
+            "description": "Pull request state"
+          },
+          "merged": {
+            "description": "Whether pull request is merged"
+          },
+          "merged_at": {
+            "description": "When pull request was merged"
+          },
+          "user": {
+            "description": "User who created the pull request",
+            "login": {
+              "description": "Username"
+            },
+            "id": {
+              "description": "User ID"
+            }
+          },
+          "head": {
+            "description": "Head branch information",
+            "ref": {
+              "description": "Branch name"
+            },
+            "sha": {
+              "description": "Commit SHA"
+            },
+            "repo": {
+              "description": "Head repository information",
+              "full_name": {
+                "description": "Full repository name"
+              }
+            }
+          },
+          "base": {
+            "description": "Base branch information"
+          }
+        }
+      }
+    },
+    "timer": {
+      "name": "Timer",
+      "description": "Timer service for scheduled events",
+      "actions": {
+        "every_day_at_x_hour": {
+          "name": "Every Day at X Hour",
+          "description": "Triggers once a day at a specific hour on selected days",
+          "schema": {
+            "fields": {
+              "hour": {
+                "label": "Hour (0-23)",
+                "placeholder": "14"
+              },
+              "days": {
+                "label": "Days of the week",
+                "options": {
+                  "monday": "Monday",
+                  "tuesday": "Tuesday",
+                  "wednesday": "Wednesday",
+                  "thursday": "Thursday",
+                  "friday": "Friday",
+                  "saturday": "Saturday",
+                  "sunday": "Sunday"
+                }
+              }
+            }
+          }
+        },
+        "every_hour_at_intervals": {
+          "name": "Every Hour at X Minute",
+          "description": "Triggers every hour at a specific minute (00, 15, 30, or 45)",
+          "schema": {
+            "fields": {
+              "minute": {
+                "label": "Minute",
+                "options": {
+                  "0": ":00",
+                  "15": ":15",
+                  "30": ":30",
+                  "45": ":45"
+                }
+              }
+            }
+          }
+        }
+      },
+      "properties": {
+        "timestamp": {
+          "description": "ISO timestamp of when the timer triggered"
+        },
+        "hour": {
+          "description": "The hour that triggered"
+        },
+        "day": {
+          "description": "The day of the week"
+        },
+        "minute": {
+          "description": "The minute that triggered (0, 15, 30, or 45)"
+        }
+      }
+    }
+  }
+}

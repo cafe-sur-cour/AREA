@@ -100,6 +100,27 @@ jobs:
         working-directory: ./backend
         run: npm run format:check
 
+  backend-test:
+    name: Backend tests
+    needs: backend-linter
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up NodeJs
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install backend dependencies
+        working-directory: ./backend
+        run: npm install
+
+      - name: Run backend tests
+        working-directory: ./backend
+        run: npm test
+
   web-linter:
     name: Web frontend linter
     needs: check_repository
@@ -128,8 +149,8 @@ jobs:
 
   deploy-app:
     name: Deploy application
-    needs: [check_repository]
-    if: ${{ needs.check_repository.outputs.target == 0 && (needs.check_repository.outputs.backend_changed == 'true' || needs.check_repository.outputs.web_changed == 'true') }}
+    needs: [backend-test, web-linter]
+    if: ${{ needs.check_repository.outputs.backend_changed == 'true' || needs.check_repository.outputs.web_changed == 'true' }}
     runs-on: ubuntu-latest
     environment: AREA
     steps:
@@ -146,12 +167,20 @@ jobs:
           DB_NAME: ${{ secrets.DB_NAME }}
           DB_PORT: ${{ secrets.DB_PORT }}
           NODE_PORT: ${{ secrets.NODE_PORT }}
+          NEXT_PORT: ${{ secrets.NEXT_PORT }}
+          SERVICE_GITHUB_CLIENT_ID: ${{ secrets.SERVICE_GITHUB_CLIENT_ID }}
+          SERVICE_GITHUB_CLIENT_SECRET: ${{ secrets.SERVICE_GITHUB_CLIENT_SECRET }}
+          SERVICE_GITHUB_REDIRECT_URI: ${{ secrets.SERVICE_GITHUB_REDIRECT_URI }}
         run: |
           echo "DB_USER=$DB_USER" > ./deployment/.env
           echo "DB_PASSWORD=$DB_PASSWORD" >> ./deployment/.env
           echo "DB_NAME=$DB_NAME" >> ./deployment/.env
           echo "DB_PORT=$DB_PORT" >> ./deployment/.env
           echo "NODE_PORT=$NODE_PORT" >> ./deployment/.env
+          echo "NEXT_PORT=$NEXT_PORT" >> ./deployment/.env
+          echo "SERVICE_GITHUB_CLIENT_ID=$SERVICE_GITHUB_CLIENT_ID" >> ./deployment/.env
+          echo "SERVICE_GITHUB_CLIENT_SECRET=$SERVICE_GITHUB_CLIENT_SECRET" >> ./deployment/.env
+          echo "SERVICE_GITHUB_REDIRECT_URI=$SERVICE_GITHUB_REDIRECT_URI" >> ./deployment/.env
 
       - name: Clean all containers
         run: docker compose -f ./deployment/docker-compose.yml down -v
@@ -160,13 +189,13 @@ jobs:
         run: docker compose -f ./deployment/docker-compose.yml up -d --build
 
       - name: Waiting for postgreSQL database
-        run: timeout 60 bash -c "until docker exec postgres_area_db pg_isready -U $DB_USER -d $DB_NAME; do sleep 2; done"
+        run: timeout 60 bash -c "until docker exec postgres_db pg_isready -U $DB_USER -d $DB_NAME; do sleep 2; done"
 
       - name: Waiting for backend service
         run: timeout 60 bash -c 'until nc -z localhost ${{ secrets.NODE_PORT }}; do sleep 2; done'
 
-      # - name: Waiting for web service
-      #   run: timeout 60 bash -c 'until nc -z localhost ${{ secrets.WEB_PORT }}; do sleep 2; done'
+      - name: Waiting for web service
+        run: timeout 60 bash -c 'until nc -z localhost ${{ secrets.NEXT_PORT }}; do sleep 2; done'
 
       - name: List running containers
         run: docker ps

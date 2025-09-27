@@ -2,9 +2,15 @@ import { Request, Response, NextFunction } from 'express';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import { JWT_SECRET } from '../../index';
 
+type AuthPayload = JwtPayload & {
+  id?: number;
+  email?: string;
+  is_admin?: boolean;
+};
+
 type AuthRequest = Request & {
   cookies?: Record<string, unknown>;
-  auth?: string | JwtPayload;
+  auth?: string | AuthPayload;
 };
 
 const token = (
