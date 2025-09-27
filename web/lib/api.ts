@@ -33,7 +33,7 @@ export const authenticatedFetch = async (
   options: RequestInit = {},
   token?: string
 ): Promise<Response> => {
-  const apiUrl = getAPIUrl();
+  const apiUrl = await getAPIUrl();
   const url = endpoint.startsWith('http') ? endpoint : `${apiUrl}${endpoint}`;
 
   const authHeaders = getAuthHeaders(token);
@@ -45,6 +45,7 @@ export const authenticatedFetch = async (
       ...options.headers,
     },
   };
+  console.log(url, config);
   return fetch(url, config);
 };
 
@@ -62,12 +63,17 @@ export const apiGet = async (
 
 export const apiPost = async (
   endpoint: string,
-  data?: unknown
+  data?: unknown,
+  token?: string
 ): Promise<Response> => {
-  return authenticatedFetch(endpoint, {
-    method: 'POST',
-    body: data ? JSON.stringify(data) : undefined,
-  });
+  return authenticatedFetch(
+    endpoint,
+    {
+      method: 'POST',
+      body: data ? JSON.stringify(data) : undefined,
+    },
+    token
+  );
 };
 
 export const apiPut = async (
@@ -119,11 +125,12 @@ export const api = {
 
   post: async <T = unknown>(
     endpoint: string,
-    data?: unknown
+    data?: unknown,
+    token?: string
   ): Promise<{ data: T | null }> => {
-    const response = await apiPost(endpoint, data);
+    const response = await apiPost(endpoint, data, token);
     if (!response.ok) {
-      throw new Error(`API request failed: ${response.statusText}`);
+      throw new Error(`${response.json()}`);
     }
     try {
       const responseData = await response.json();
@@ -140,7 +147,7 @@ export const api = {
   ): Promise<{ data: T | null }> => {
     const response = await apiPut(endpoint, data);
     if (!response.ok) {
-      throw new Error(`API request failed: ${response.statusText}`);
+      throw new Error(`${response.json()}`);
     }
     try {
       const responseData = await response.json();
@@ -189,7 +196,7 @@ export const api = {
     formData: FormData
   ): Promise<T> => {
     try {
-      const apiUrl = getAPIUrl();
+      const apiUrl = await getAPIUrl();
       const url = endpoint.startsWith('http')
         ? endpoint
         : `${apiUrl}${endpoint}`;

@@ -11,7 +11,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /user:
+ * /api/user:
  *   get:
  *     summary: Get all users
  *     tags:
@@ -53,7 +53,7 @@ router.get(
 
 /**
  * @swagger
- * /user/me:
+ * /api/user/me:
  *   get:
  *     summary: Get current authenticated user
  *     tags:
@@ -100,7 +100,7 @@ router.get(
 
 /**
  * @swagger
- * /user/{data}:
+ * /api/user/{data}:
  *   get:
  *     summary: Get a user by id, email or name
  *     tags:
@@ -183,7 +183,7 @@ router.get(
 /* User Route Put */
 /**
  * @swagger
- * /user/me:
+ * /api/user/me:
  *   put:
  *     summary: Update current authenticated user
  *     tags:
@@ -279,7 +279,7 @@ router.put(
 /* User Route Delete */
 /**
  * @swagger
- * /user/{data}:
+ * /api/user/{data}:
  *   delete:
  *     summary: Delete a user by id, email or name
  *     tags:

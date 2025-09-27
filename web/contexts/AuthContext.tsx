@@ -63,7 +63,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             }
           }
 
-          const resp = await api.get<User>({ endpoint: '/user' });
+          const resp = await api.get<User>({ endpoint: '/user/me' });
           if (!resp.data) {
             throw new Error('Invalid user data received');
           }
@@ -83,7 +83,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (token: string, userData: User) => {
     document.cookie = `authToken=${token}; path=/; max-age=${60 * 60 * 24 * 7}`;
-
     setUser(userData);
   };
 
