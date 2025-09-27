@@ -33,7 +33,7 @@ export const authenticatedFetch = async (
   options: RequestInit = {},
   token?: string
 ): Promise<Response> => {
-  const apiUrl = getAPIUrl();
+  const apiUrl = await getAPIUrl();
   const url = endpoint.startsWith('http') ? endpoint : `${apiUrl}${endpoint}`;
 
   const authHeaders = getAuthHeaders(token);
@@ -191,7 +191,7 @@ export const api = {
     formData: FormData
   ): Promise<T> => {
     try {
-      const apiUrl = getAPIUrl();
+      const apiUrl = await getAPIUrl();
       const url = endpoint.startsWith('http')
         ? endpoint
         : `${apiUrl}${endpoint}`;

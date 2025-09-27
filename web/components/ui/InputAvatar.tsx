@@ -21,7 +21,7 @@ interface IDAvatarProps {
   className?: string;
 }
 
-export function IDAvatar(props: IDAvatarProps) {
+export async function IDAvatar(props: IDAvatarProps) {
   const [img, setImg] = useState<string>('');
   const [name, setName] = useState<string>('');
 
@@ -46,13 +46,13 @@ export function IDAvatar(props: IDAvatarProps) {
 
   return (
     <Avatar className={`h-${props.size} w-${props.size} ${props.className}`}>
-      <AvatarImage src={img ? `${getBackendUrl()}${img}` : undefined} />
+      <AvatarImage src={img ? `${await getBackendUrl()}${img}` : undefined} />
       <AvatarFallback>{name.charAt(0).toUpperCase()}</AvatarFallback>
     </Avatar>
   );
 }
 
-export function InputAvatar(props: InputAvatar) {
+export async function InputAvatar(props: InputAvatar) {
   const [img, setImgUrl] = useState<string>(props.url ?? '');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -103,7 +103,7 @@ export function InputAvatar(props: InputAvatar) {
           variant='ghost'
         >
           <Avatar className={`h-${props.size} w-${props.size}`}>
-            <AvatarImage src={img ? `${getBackendUrl()}${img}` : undefined} />
+            <AvatarImage src={img ? `${await getBackendUrl()}${img}` : undefined} />
             <AvatarFallback>{props.defaultChar.toUpperCase()}</AvatarFallback>
           </Avatar>
           {/* Overlay with Pencil icon in the left bottom corner */}
@@ -116,7 +116,7 @@ export function InputAvatar(props: InputAvatar) {
   }
   return (
     <Avatar className={`h-${props.size} w-${props.size}`}>
-      <AvatarImage src={img ? `${getBackendUrl()}${img}` : undefined} />
+      <AvatarImage src={img ? `${await getBackendUrl()}${img}` : undefined} />
       <AvatarFallback>{props.defaultChar.toUpperCase()}</AvatarFallback>
     </Avatar>
   );
