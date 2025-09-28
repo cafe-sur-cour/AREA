@@ -429,19 +429,16 @@ router.post('/verify', mail, (req: Request, res: Response) => {
  *       500:
  *         description: Internal Server Error
  */
-router.get(
-  '/github',
-  async (req: Request, res: Response): Promise<void> => {
-    try {
-      const state = crypto.randomBytes(32).toString('hex');
-      const authUrl = githubOAuth.getAuthorizationUrl(state);
-      res.redirect(authUrl);
-    } catch (err) {
-      console.error('GitHub OAuth initiation error:', err);
-      res.status(500).json({ error: 'Internal Server Error' });
-    }
+router.get('/github', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const state = crypto.randomBytes(32).toString('hex');
+    const authUrl = githubOAuth.getAuthorizationUrl(state);
+    res.redirect(authUrl);
+  } catch (err) {
+    console.error('GitHub OAuth initiation error:', err);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
-);
+});
 
 /**
  * @swagger
@@ -523,11 +520,16 @@ router.get(
         }
 
         if (tokenStr) {
-          const decoded = jwt.verify(tokenStr, JWT_SECRET as string) as jwt.JwtPayload;
+          const decoded = jwt.verify(
+            tokenStr,
+            JWT_SECRET as string
+          ) as jwt.JwtPayload;
           authenticatedUser = decoded;
         }
       } catch {
-        console.log('Invalid token in OAuth callback, proceeding with login/register');
+        console.log(
+          'Invalid token in OAuth callback, proceeding with login/register'
+        );
       }
 
       if (authenticatedUser) {
@@ -545,7 +547,12 @@ router.get(
         return;
       }
 
-      const authToken = await auth.oauthLogin('github', githubUser.id.toString(), githubUser.email, githubUser.name);
+      const authToken = await auth.oauthLogin(
+        'github',
+        githubUser.id.toString(),
+        githubUser.email,
+        githubUser.name
+      );
 
       if (authToken instanceof Error) {
         res.status(500).json({ error: 'Failed to authenticate user' });

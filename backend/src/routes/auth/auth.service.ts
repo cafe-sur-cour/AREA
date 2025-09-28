@@ -72,7 +72,12 @@ export async function resetPassword(token: string, newPassword: string) {
   }
 }
 
-export async function oauthLogin(provider: string, providerId: string, providerEmail: string, name: string): Promise<string | Error> {
+export async function oauthLogin(
+  provider: string,
+  providerId: string,
+  providerEmail: string,
+  name: string
+): Promise<string | Error> {
   let user = await AppDataSource.getRepository(User).findOne({
     where: {
       provider: provider,
