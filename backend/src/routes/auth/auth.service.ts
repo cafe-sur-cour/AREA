@@ -71,3 +71,54 @@ export async function resetPassword(token: string, newPassword: string) {
     return new Error('Invalid or expired token');
   }
 }
+
+export async function oauthLogin(
+  provider: string,
+  providerId: string,
+  providerEmail: string,
+  name: string
+): Promise<string | Error> {
+  let user = await AppDataSource.getRepository(User).findOne({
+    where: {
+      provider: provider,
+      provider_id: providerId,
+    },
+  });
+
+  if (!user) {
+    if (providerEmail) {
+      user = await getUserByEmail(providerEmail);
+      if (user) {
+        user.provider = provider;
+        user.provider_id = providerId;
+        user.provider_email = providerEmail;
+        user.email_verified = true;
+        await AppDataSource.manager.save(user);
+      }
+    }
+  }
+
+  if (!user) {
+    user = new User();
+    user.name = name;
+    user.email = providerEmail || `${providerId}@${provider}.oauth`;
+    user.password_hash = '';
+    user.provider = provider;
+    user.provider_id = providerId;
+    user.provider_email = providerEmail;
+    user.email_verified = true;
+    user.is_active = true;
+    await AppDataSource.manager.save(user);
+  }
+
+  user.last_login_at = new Date();
+  await AppDataSource.manager.save(user);
+
+  const token = jwt.sign(
+    { email: user.email, id: user.id, is_admin: user.is_admin },
+    JWT_SECRET as string,
+    { expiresIn: '1h' }
+  );
+
+  return token;
+}

@@ -12,6 +12,8 @@ import process from 'process';
 import { initI18n } from './src/config/i18n';
 import i18next from 'i18next';
 import * as i18nextMiddleware from 'i18next-http-middleware';
+import passport from 'passport';
+import './src/config/passport';
 
 import authRoutes from './src/routes/auth/auth';
 import userRoutes from './src/routes/user/user';
@@ -30,6 +32,8 @@ export const JWT_SECRET = crypto.randomBytes(64).toString('hex');
 dotenv.config();
 
 const FRONTEND_ORIGIN = process.env.FRONTEND_URL || '';
+
+app.use(passport.initialize());
 
 /* Declare  the cors and allowed routes */
 app.use(
