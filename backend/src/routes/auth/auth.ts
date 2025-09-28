@@ -4,9 +4,8 @@ import nodemailer from 'nodemailer';
 import process from 'process';
 import jwt from 'jsonwebtoken';
 import { JWT_SECRET } from 'index';
-import { githubOAuth } from '../../services/services/github/oauth';
-import crypto from 'crypto';
 import mail from '../../middleware/mail';
+import passport from 'passport';
 
 interface TokenPayload extends jwt.JwtPayload {
   email: string;
@@ -429,16 +428,7 @@ router.post('/verify', mail, (req: Request, res: Response) => {
  *       500:
  *         description: Internal Server Error
  */
-router.get('/github', async (req: Request, res: Response): Promise<void> => {
-  try {
-    const state = crypto.randomBytes(32).toString('hex');
-    const authUrl = githubOAuth.getAuthorizationUrl(state);
-    res.redirect(authUrl);
-  } catch (err) {
-    console.error('GitHub OAuth initiation error:', err);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
+router.get('/github', passport.authenticate('github'));
 
 /**
  * @swagger
@@ -491,89 +481,20 @@ router.get('/github', async (req: Request, res: Response): Promise<void> => {
  */
 router.get(
   '/github/callback',
+  passport.authenticate('github', { session: false }),
   async (req: Request, res: Response): Promise<void> => {
     try {
-      const { code, state } = req.query;
-
-      if (!code || typeof code !== 'string') {
-        res.status(400).json({ error: 'Authorization code is required' });
-        return;
-      }
-
-      if (!state || typeof state !== 'string') {
-        res.status(400).json({ error: 'State parameter is required' });
-        return;
-      }
-
-      const tokenData = await githubOAuth.exchangeCodeForToken(code);
-      const githubUser = await githubOAuth.getUserInfo(tokenData.access_token);
-
-      let authenticatedUser = null;
-      try {
-        const authHeader = req.header('Authorization');
-        let tokenStr = null;
-
-        if (authHeader && authHeader.startsWith('Bearer ')) {
-          tokenStr = authHeader.replace('Bearer ', '');
-        } else if (req.cookies?.auth_token) {
-          tokenStr = req.cookies.auth_token;
-        }
-
-        if (tokenStr) {
-          const decoded = jwt.verify(
-            tokenStr,
-            JWT_SECRET as string
-          ) as jwt.JwtPayload;
-          authenticatedUser = decoded;
-        }
-      } catch {
-        console.log(
-          'Invalid token in OAuth callback, proceeding with login/register'
-        );
-      }
-
-      if (authenticatedUser) {
-        const userId = (authenticatedUser as { id: number }).id;
-        await githubOAuth.storeUserToken(userId, tokenData);
-
-        res.status(200).json({
-          message: 'GitHub account connected successfully for service access',
-          user: {
-            github_id: githubUser.id,
-            github_login: githubUser.login,
-            github_name: githubUser.name,
-          },
+      const user = req.user as { token: string };
+      if (user && user.token) {
+        res.cookie('auth_token', user.token, {
+          maxAge: 86400000,
+          httpOnly: true,
+          sameSite: 'strict',
         });
-        return;
+        res.redirect(`${process.env.FRONTEND_URL || ''}`);
+      } else {
+        res.status(500).json({ error: 'Authentication failed' });
       }
-
-      const authToken = await auth.oauthLogin(
-        'github',
-        githubUser.id.toString(),
-        githubUser.email,
-        githubUser.name
-      );
-
-      if (authToken instanceof Error) {
-        res.status(500).json({ error: 'Failed to authenticate user' });
-        return;
-      }
-
-      res.cookie('auth_token', authToken, {
-        maxAge: 86400000,
-        httpOnly: true,
-        sameSite: 'strict',
-      });
-
-      res.status(200).json({
-        token: authToken,
-        user: {
-          id: githubUser.id,
-          login: githubUser.login,
-          name: githubUser.name,
-          email: githubUser.email,
-        },
-      });
     } catch (err) {
       console.error('GitHub OAuth callback error:', err);
       res.status(500).json({ error: 'Failed to authenticate with GitHub' });
