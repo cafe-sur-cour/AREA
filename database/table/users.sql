@@ -29,6 +29,11 @@ CREATE TABLE users (
     "language" VARCHAR(10) DEFAULT 'en',
     "theme" VARCHAR(20) DEFAULT 'light',
 
+    -- OAuth fields
+    "provider" VARCHAR(50),
+    "provider_id" VARCHAR(255),
+    "provider_email" VARCHAR(255),
+
     -- Metadata
     "is_active" BOOLEAN DEFAULT TRUE,
     "deleted_at" TIMESTAMP
