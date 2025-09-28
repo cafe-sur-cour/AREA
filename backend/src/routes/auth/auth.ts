@@ -6,7 +6,6 @@ import jwt from 'jsonwebtoken';
 import { JWT_SECRET } from 'index';
 import { githubOAuth } from '../../services/services/github/oauth';
 import crypto from 'crypto';
-import token from '../../middleware/token';
 import mail from '../../middleware/mail';
 
 interface TokenPayload extends jwt.JwtPayload {
@@ -417,21 +416,21 @@ router.post('/verify', mail, (req: Request, res: Response) => {
  * @swagger
  * /api/auth/github:
  *   get:
- *     summary: Initiate GitHub OAuth authorization
+ *     summary: Initiate GitHub OAuth authorization for login/register or service connection
  *     tags:
  *       - OAuth
- *     description: Redirects user to GitHub for OAuth authorization
+ *     description: |
+ *       Redirects user to GitHub for OAuth authorization.
+ *       If user is not authenticated, this will be used for login/register.
+ *       If user is already authenticated, this will connect GitHub for service access.
  *     responses:
  *       302:
  *         description: Redirect to GitHub authorization page
- *       401:
- *         description: User not authenticated
  *       500:
  *         description: Internal Server Error
  */
 router.get(
   '/github',
-  token,
   async (req: Request, res: Response): Promise<void> => {
     try {
       const state = crypto.randomBytes(32).toString('hex');
@@ -448,10 +447,13 @@ router.get(
  * @swagger
  * /api/auth/github/callback:
  *   get:
- *     summary: Handle GitHub OAuth callback
+ *     summary: Handle GitHub OAuth callback for login/register or service connection
  *     tags:
  *       - OAuth
- *     description: Exchanges authorization code for access token and stores it
+ *     description: |
+ *       Exchanges authorization code for access token and handles authentication.
+ *       If user is not authenticated, performs login/register.
+ *       If user is already authenticated, connects GitHub account for service access.
  *     parameters:
  *       - name: code
  *         in: query
@@ -467,26 +469,31 @@ router.get(
  *           type: string
  *     responses:
  *       200:
- *         description: OAuth successful, token stored
+ *         description: OAuth successful
  *         content:
  *           application/json:
  *             schema:
  *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                 user:
- *                   type: object
+ *               oneOf:
+ *                 - description: Login/Register response
+ *                   properties:
+ *                     token:
+ *                       type: string
+ *                     user:
+ *                       type: object
+ *                 - description: Service connection response
+ *                   properties:
+ *                     message:
+ *                       type: string
+ *                     user:
+ *                       type: object
  *       400:
  *         description: Bad Request - Missing parameters
- *       401:
- *         description: User not authenticated
  *       500:
  *         description: Internal Server Error
  */
 router.get(
   '/github/callback',
-  token,
   async (req: Request, res: Response): Promise<void> => {
     try {
       const { code, state } = req.query;
@@ -502,23 +509,67 @@ router.get(
       }
 
       const tokenData = await githubOAuth.exchangeCodeForToken(code);
-
       const githubUser = await githubOAuth.getUserInfo(tokenData.access_token);
 
-      const userId = (req.auth as { id: number }).id;
-      await githubOAuth.storeUserToken(userId, tokenData);
+      let authenticatedUser = null;
+      try {
+        const authHeader = req.header('Authorization');
+        let tokenStr = null;
+
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+          tokenStr = authHeader.replace('Bearer ', '');
+        } else if (req.cookies?.auth_token) {
+          tokenStr = req.cookies.auth_token;
+        }
+
+        if (tokenStr) {
+          const decoded = jwt.verify(tokenStr, JWT_SECRET as string) as jwt.JwtPayload;
+          authenticatedUser = decoded;
+        }
+      } catch {
+        console.log('Invalid token in OAuth callback, proceeding with login/register');
+      }
+
+      if (authenticatedUser) {
+        const userId = (authenticatedUser as { id: number }).id;
+        await githubOAuth.storeUserToken(userId, tokenData);
+
+        res.status(200).json({
+          message: 'GitHub account connected successfully for service access',
+          user: {
+            github_id: githubUser.id,
+            github_login: githubUser.login,
+            github_name: githubUser.name,
+          },
+        });
+        return;
+      }
+
+      const authToken = await auth.oauthLogin('github', githubUser.id.toString(), githubUser.email, githubUser.name);
+
+      if (authToken instanceof Error) {
+        res.status(500).json({ error: 'Failed to authenticate user' });
+        return;
+      }
+
+      res.cookie('auth_token', authToken, {
+        maxAge: 86400000,
+        httpOnly: true,
+        sameSite: 'strict',
+      });
 
       res.status(200).json({
-        message: 'GitHub account connected successfully',
+        token: authToken,
         user: {
-          github_id: githubUser.id,
-          github_login: githubUser.login,
-          github_name: githubUser.name,
+          id: githubUser.id,
+          login: githubUser.login,
+          name: githubUser.name,
+          email: githubUser.email,
         },
       });
     } catch (err) {
       console.error('GitHub OAuth callback error:', err);
-      res.status(500).json({ error: 'Failed to connect GitHub account' });
+      res.status(500).json({ error: 'Failed to authenticate with GitHub' });
     }
   }
 );
