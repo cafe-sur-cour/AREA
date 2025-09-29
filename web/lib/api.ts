@@ -1,5 +1,5 @@
 import { getAPIUrl } from './config';
-import getToken from '@/lib/getToken';
+import { getToken } from '@/lib/manageToken';
 
 const getAuthHeaders = async (auth_token?: string): HeadersInit => {
   let token: string | null;

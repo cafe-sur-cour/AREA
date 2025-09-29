@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import api from '@/lib/api';
 import { User } from '@/types/user';
-import getToken from '@/lib/getToken';
+import { getToken, deleteToken } from '@/lib/manageToken';
 
 interface AuthContextType {
   user: User | null;
@@ -71,7 +71,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setUser(resp.data);
         } catch (error) {
           console.error('Authentication error:', error);
-          logout();
+          await logout();
         }
       }
       setIsLoading(false);
@@ -85,11 +85,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(userData);
   };
 
-  const logout = () => {
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem(USER_STORAGE_KEY);
-    document.cookie =
-      'auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+  const logout = async () => {
+    await deleteToken();
     setUser(null);
   };
 
