@@ -27,6 +27,9 @@ import { executionService } from './src/services/ExecutionService';
 import { serviceLoader } from './src/services/ServiceLoader';
 import { webhookLoader } from './src/webhooks/WebhookLoader';
 
+import AdminJS from 'adminjs'
+import AdminJSExpress from '@adminjs/express'
+
 const app = express();
 export const JWT_SECRET = crypto.randomBytes(64).toString('hex');
 dotenv.config();
@@ -51,6 +54,9 @@ app.use((req, res, next) => {
   if (req.method === 'OPTIONS') return res.sendStatus(204);
   next();
 });
+
+const admin = new AdminJS({});
+const adminRouter = AdminJSExpress.buildRouter(admin);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -87,6 +93,7 @@ setupSignal();
     await webhookLoader.loadAllWebhooks();
     await executionService.start();
 
+    app.use(admin.options.rootPath, adminRouter);
     app.listen(3000, () => {});
 
     await saveData();
