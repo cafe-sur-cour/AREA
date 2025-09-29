@@ -450,13 +450,29 @@ router.post('/verify', mail, (req: Request, res: Response) => {
  *       Redirects user to GitHub for OAuth authorization.
  *       If user is not authenticated, this will be used for login/register.
  *       If user is already authenticated, this will connect GitHub for service access.
+ *     parameters:
+ *       - name: token
+ *         in: query
+ *         required: false
+ *         description: JWT token for service connection (when user is already authenticated)
+ *         schema:
+ *           type: string
  *     responses:
  *       302:
  *         description: Redirect to GitHub authorization page
  *       500:
  *         description: Internal Server Error
  */
-router.get('/github', passport.authenticate('github'));
+router.get('/github', (req: Request, res: Response, next) => {
+  const authToken = req.query.token as string || req.headers.authorization?.replace('Bearer ', '') || req.cookies?.auth_token;
+
+  if (authToken) {
+    const state = Buffer.from(JSON.stringify({ authToken })).toString('base64');
+    passport.authenticate('github', { state })(req, res, next);
+  } else {
+    passport.authenticate('github')(req, res, next);
+  }
+});
 
 /**
  * @swagger
