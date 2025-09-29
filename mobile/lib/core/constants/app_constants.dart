@@ -1,4 +1,6 @@
-class AppRoutes {}
+class AppRoutes {
+  static const String healthCheck = "api/info/health";
+}
 
 class AppDimensions {
   // Padding & Margins
