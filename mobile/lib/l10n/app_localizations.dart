@@ -253,6 +253,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Passwords differ'**
   String get confirm_password_differs;
+
+  /// No description provided for @empty_backend_server_address.
+  ///
+  /// In en, this message translates to:
+  /// **'The address cannot be empty'**
+  String get empty_backend_server_address;
+
+  /// No description provided for @invalid_backend_server_address.
+  ///
+  /// In en, this message translates to:
+  /// **'The address is not valid'**
+  String get invalid_backend_server_address;
+
+  /// No description provided for @valid_backend_server_address.
+  ///
+  /// In en, this message translates to:
+  /// **'The address is valid'**
+  String get valid_backend_server_address;
 }
 
 class _AppLocalizationsDelegate

@@ -87,4 +87,13 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get confirm_password_differs =>
       'Les mots de passe ne correspondent pas';
+
+  @override
+  String get empty_backend_server_address => 'L\'adresse ne peut pas être vide';
+
+  @override
+  String get invalid_backend_server_address => 'L\'adresse n\'est pas valide';
+
+  @override
+  String get valid_backend_server_address => 'L\'adresse est valide';
 }

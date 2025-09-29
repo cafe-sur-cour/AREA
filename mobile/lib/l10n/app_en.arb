@@ -25,5 +25,8 @@
   "empty_name": "Please enter your name",
   "invalid_name": "Name must be less than 38 characters",
   "confirm_password": "Confirm Password",
-  "confirm_password_differs": "Passwords differ"
+  "confirm_password_differs": "Passwords differ",
+  "empty_backend_server_address": "The address cannot be empty",
+  "invalid_backend_server_address": "The address is not valid",
+  "valid_backend_server_address": "The address is valid"
 }
