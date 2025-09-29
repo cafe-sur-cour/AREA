@@ -5,7 +5,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import api from '@/lib/api';
 import { useState, useRef, useEffect } from 'react';
 import { getBackendUrl } from '@/lib/config';
-import { Pencil } from 'lucide-react';
+import { Pencil, User } from 'lucide-react';
 
 interface InputAvatar {
   url?: string;
@@ -50,7 +50,7 @@ export function IDAvatar(props: IDAvatarProps) {
   return (
     <Avatar className={`h-${props.size} w-${props.size} ${props.className}`}>
       <AvatarImage src={img ? `${backendUrl}${img}` : undefined} />
-      <AvatarFallback>{name.charAt(0).toUpperCase()}</AvatarFallback>
+      <AvatarFallback>{name ? name.charAt(0).toUpperCase() : <User className="h-4 w-4 text-gray-700" />}</AvatarFallback>
     </Avatar>
   );
 }
