@@ -48,3 +48,73 @@ export const githubPullRequestMergedSchema: ActionReactionSchema = {
     },
   ],
 };
+
+export const githubCreateIssueSchema: ActionReactionSchema = {
+  name: 'Create GitHub Issue',
+  description: 'Creates a new issue in the specified repository',
+  fields: [
+    {
+      name: 'repository',
+      type: 'text',
+      label: 'Repository (owner/repo)',
+      required: true,
+      placeholder: 'octocat/Hello-World',
+    },
+    {
+      name: 'title',
+      type: 'text',
+      label: 'Issue Title',
+      required: true,
+      placeholder: 'Bug report: Something is broken',
+    },
+    {
+      name: 'body',
+      type: 'textarea',
+      label: 'Issue Description',
+      required: false,
+      placeholder: 'Describe the issue in detail...',
+    },
+    {
+      name: 'labels',
+      type: 'text',
+      label: 'Labels (comma-separated)',
+      required: false,
+      placeholder: 'bug,urgent',
+    },
+    {
+      name: 'assignees',
+      type: 'text',
+      label: 'Assignees (comma-separated usernames)',
+      required: false,
+      placeholder: 'octocat,monalisa',
+    },
+  ],
+};
+
+export const githubAddCommentSchema: ActionReactionSchema = {
+  name: 'Add GitHub Comment',
+  description: 'Adds a comment to an issue or pull request',
+  fields: [
+    {
+      name: 'repository',
+      type: 'text',
+      label: 'Repository (owner/repo)',
+      required: true,
+      placeholder: 'octocat/Hello-World',
+    },
+    {
+      name: 'issue_number',
+      type: 'number',
+      label: 'Issue/PR Number',
+      required: true,
+      placeholder: '123',
+    },
+    {
+      name: 'body',
+      type: 'textarea',
+      label: 'Comment Body',
+      required: true,
+      placeholder: 'This is an automated comment from AREA',
+    },
+  ],
+};
