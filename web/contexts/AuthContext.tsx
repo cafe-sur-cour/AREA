@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import api from '@/lib/api';
 import { User } from '@/types/user';
+import { getToken, deleteToken } from '@/lib/manageToken';
 
 interface AuthContextType {
   user: User | null;
@@ -10,7 +11,6 @@ interface AuthContextType {
   isLoading: boolean;
   login: (token: string, userData: User) => Promise<void>;
   logout: () => void;
-  getToken: () => string | null;
   refreshUserInfo: () => Promise<User | null>;
 }
 
@@ -27,7 +27,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const token = getToken();
+      const token = await getToken();
       if (token) {
         try {
           const cachedDataStr = localStorage.getItem(USER_STORAGE_KEY);
@@ -63,7 +63,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             }
           }
 
-          const resp = await api.get<User>({ endpoint: '/user' });
+          const resp = await api.get<User>({ endpoint: '/user/me' });
           if (!resp.data) {
             throw new Error('Invalid user data received');
           }
@@ -71,43 +71,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setUser(resp.data);
         } catch (error) {
           console.error('Authentication error:', error);
-          logout();
+          await logout();
         }
       }
       setIsLoading(false);
     };
 
     checkAuth();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const login = async (token: string, userData: User) => {
-    document.cookie = `authToken=${token}; path=/; max-age=${60 * 60 * 24 * 7}`;
-
+    document.cookie = `auth_token=${token}; path=/; max-age=${60 * 60 * 24 * 7}`;
     setUser(userData);
   };
 
-  const logout = () => {
-    localStorage.removeItem('authToken');
-    localStorage.removeItem(USER_STORAGE_KEY);
-    document.cookie =
-      'authToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+  const logout = async () => {
+    await deleteToken();
     setUser(null);
   };
 
-  const getToken = () => {
-    if (typeof window !== 'undefined') {
-      const cookieValue = document.cookie
-        .split('; ')
-        .find(row => row.startsWith('authToken='))
-        ?.split('=')[1];
-      return cookieValue || null;
-    }
-    return null;
-  };
-
   const refreshUserInfo = async (): Promise<User | null> => {
-    const token = getToken();
+    const token = await getToken();
     if (!token) {
       console.log('refreshUserInfo: No token found');
       return null;
@@ -143,7 +127,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     isLoading,
     login,
     logout,
-    getToken,
     refreshUserInfo,
   };
 

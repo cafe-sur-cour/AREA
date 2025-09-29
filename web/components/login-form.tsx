@@ -11,6 +11,8 @@ import api from '@/lib/api';
 import Image from 'next/image';
 import { FaMeta } from 'react-icons/fa6';
 import { FaGithub, FaGoogle } from 'react-icons/fa';
+import Cookies from 'js-cookie';
+import { getAPIUrl } from '@/lib/config';
 
 export function LoginForm({
   className,
@@ -28,9 +30,18 @@ export function LoginForm({
     const password = formData.get('password') as string;
 
     try {
-      const response = await api.post('/auth/login', { email, password });
-      //TODO: handle token and user data here (e.g., save to context or state)
-      if (response.data) {
+      const response = await api.post<{ token: string }>('/auth/login', {
+        email,
+        password,
+      });
+
+      if (response && response.data) {
+        const token = response.data.token;
+        Cookies.set('auth_token', token, {
+          path: '/',
+          secure: true,
+          sameSite: 'strict',
+        });
         router.push('/dashboard');
       } else {
         alert('Login failed');
@@ -41,6 +52,18 @@ export function LoginForm({
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const signInWithGithub = async () => {
+    window.location.href = `${await getAPIUrl()}/auth/github`;
+  };
+
+  const signInWithGoogle = async () => {
+    window.location.href = `${await getAPIUrl()}/auth/google`;
+  };
+
+  const signInWithMeta = async () => {
+    window.location.href = `${await getAPIUrl()}/auth/meta`;
   };
 
   return (
@@ -69,7 +92,7 @@ export function LoginForm({
                 <div className='flex items-center'>
                   <Label htmlFor='password'>Password</Label>
                   <a
-                    href='#'
+                    href='/forgot-password'
                     className='ml-auto text-sm underline-offset-2 hover:underline'
                   >
                     Forgot your password?
@@ -92,22 +115,37 @@ export function LoginForm({
                 </span>
               </div>
               <div className='grid grid-cols-3 gap-4'>
-                <Button variant='outline' type='button' className='w-full'>
+                <Button
+                  variant='outline'
+                  onClick={async () => await signInWithGithub()}
+                  type='button'
+                  className='w-full'
+                >
                   <FaGithub />
                   <span className='sr-only'>Login with Github</span>
                 </Button>
-                <Button variant='outline' type='button' className='w-full'>
+                <Button
+                  variant='outline'
+                  onClick={async () => await signInWithGoogle()}
+                  type='button'
+                  className='w-full'
+                >
                   <FaGoogle />
                   <span className='sr-only'>Login with Google</span>
                 </Button>
-                <Button variant='outline' type='button' className='w-full'>
+                <Button
+                  variant='outline'
+                  onClick={async () => await signInWithMeta()}
+                  type='button'
+                  className='w-full'
+                >
                   <FaMeta />
                   <span className='sr-only'>Login with Meta</span>
                 </Button>
               </div>
               <div className='text-center text-sm'>
                 Don&apos;t have an account?{' '}
-                <a href='#' className='underline underline-offset-4'>
+                <a href='/register' className='underline underline-offset-4'>
                   Sign up
                 </a>
               </div>

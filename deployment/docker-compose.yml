@@ -8,6 +8,8 @@ services:
       - "${NEXT_PORT}:3000"
     environment:
       - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+      - FRONTEND_URL=${FRONTEND_URL}
+      - NODE_PORT=${NODE_PORT}
     volumes:
       - mobile_build:/usr/share/nginx/html/mobile
     depends_on:

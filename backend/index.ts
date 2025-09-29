@@ -1,4 +1,6 @@
 import * as dotenv from 'dotenv';
+dotenv.config();
+
 import { AppDataSource } from './src/config/db';
 import { saveData } from './src/app';
 import express from 'express';
@@ -29,7 +31,6 @@ import { webhookLoader } from './src/webhooks/WebhookLoader';
 
 const app = express();
 export const JWT_SECRET = crypto.randomBytes(64).toString('hex');
-dotenv.config();
 
 const FRONTEND_ORIGIN = process.env.FRONTEND_URL || '';
 
