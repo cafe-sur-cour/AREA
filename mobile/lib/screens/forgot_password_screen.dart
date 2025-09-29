@@ -65,7 +65,7 @@ class ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
         final data = await jsonDecode(response.body);
 
-        if (response.statusCode != 200 && response.statusCode != 201) {
+        if (response.statusCode != 200) {
           throw data['error'];
         }
 
