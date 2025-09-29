@@ -3,10 +3,11 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
+  BaseEntity
 } from 'typeorm';
 
 @Entity('webhook_failures')
-export class WebhookFailures {
+export class WebhookFailures extends BaseEntity {
   @PrimaryGeneratedColumn()
   id!: number;
 

@@ -4,10 +4,11 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  BaseEntity,
 } from 'typeorm';
 
 @Entity('external_webhooks')
-export class ExternalWebhooks {
+export class ExternalWebhooks extends BaseEntity {
   @PrimaryGeneratedColumn()
   id!: number;
 
