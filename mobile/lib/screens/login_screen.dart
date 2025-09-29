@@ -94,10 +94,10 @@ class LoginScreenState extends State<LoginScreen> {
           ),
         );
       }
-      setState(() {
-        loading = false;
-      });
     }
+    setState(() {
+      loading = false;
+    });
   }
 
   @override
@@ -169,17 +169,21 @@ class LoginScreenState extends State<LoginScreen> {
                     ),
                     child: Text(AppLocalizations.of(context)!.forgot_password_question),
                   ),
-                  ElevatedButton(
-                    onPressed: _submitForm,
-                    style: ElevatedButton.styleFrom(
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                      backgroundColor: AppColors.primary,
+                  if (loading) ...[
+                    const CircularProgressIndicator(),
+                  ] else ...[
+                    ElevatedButton(
+                      onPressed: _submitForm,
+                      style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        backgroundColor: AppColors.primary,
+                      ),
+                      child: Text(
+                        AppLocalizations.of(context)!.login,
+                        style: TextStyle(color: AppColors.areaLightGray),
+                      ),
                     ),
-                    child: Text(
-                      AppLocalizations.of(context)!.login,
-                      style: TextStyle(color: AppColors.areaLightGray),
-                    ),
-                  ),
+                  ],
                 ],
               ),
             ],
