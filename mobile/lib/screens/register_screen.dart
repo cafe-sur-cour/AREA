@@ -22,6 +22,8 @@ class RegisterScreenState extends State<RegisterScreen> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
+  bool loading = false;
+
   @override
   void dispose() {
     _nameController.dispose();
@@ -32,6 +34,9 @@ class RegisterScreenState extends State<RegisterScreen> {
   }
 
   void _submitForm() async {
+    setState(() {
+      loading = true;
+    });
     if (_formKey.currentState!.validate()) {
       String name = _nameController.text;
       String email = _emailController.text;
@@ -52,6 +57,9 @@ class RegisterScreenState extends State<RegisterScreen> {
             backgroundColor: AppColors.error,
           ),
         );
+        setState(() {
+          loading = false;
+        });
         return;
       }
 
@@ -92,6 +100,9 @@ class RegisterScreenState extends State<RegisterScreen> {
           ),
         );
       }
+      setState(() {
+        loading = false;
+      });
     }
   }
 
@@ -197,17 +208,21 @@ class RegisterScreenState extends State<RegisterScreen> {
 
               const SizedBox(height: 32),
 
-              ElevatedButton(
-                onPressed: _submitForm,
-                style: ElevatedButton.styleFrom(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                  backgroundColor: AppColors.primary,
+              if (loading) ...[
+                const CircularProgressIndicator(),
+              ] else ...[
+                ElevatedButton(
+                  onPressed: _submitForm,
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    backgroundColor: AppColors.primary,
+                  ),
+                  child: Text(
+                    AppLocalizations.of(context)!.register,
+                    style: TextStyle(color: AppColors.areaLightGray),
+                  ),
                 ),
-                child: Text(
-                  AppLocalizations.of(context)!.register,
-                  style: TextStyle(color: AppColors.areaLightGray),
-                ),
-              ),
+              ],
             ],
           ),
         ),
