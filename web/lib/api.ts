@@ -1,7 +1,7 @@
 import { getAPIUrl } from './config';
 import { getToken } from '@/lib/manageToken';
 
-const getAuthHeaders = async (auth_token?: string): HeadersInit => {
+const getAuthHeaders = async (auth_token?: string): Promise<HeadersInit> => {
   let token: string | null;
   if (auth_token) token = auth_token;
   else token = (await getToken())?.value || null;
