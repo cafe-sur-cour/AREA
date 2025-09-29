@@ -1,30 +1,16 @@
 import { getAPIUrl } from './config';
+import getToken from '@/lib/getToken';
 
-export const getToken = (): string | null => {
-  if (typeof window !== 'undefined') {
-    const cookies = document.cookie.split(';');
-    const tokenCookie = cookies.find(cookie =>
-      cookie.trim().startsWith('authToken=')
-    );
-    if (tokenCookie) {
-      return tokenCookie.split('=')[1].trim();
-    }
-    return null;
-  }
-  return null;
-};
-
-const getAuthHeaders = (authToken?: string): HeadersInit => {
+const getAuthHeaders = async (auth_token?: string): HeadersInit => {
   let token: string | null;
-  if (authToken) token = authToken;
-  else token = getToken();
+  if (auth_token) token = auth_token;
+  else token = (await getToken())?.value || null;
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
   };
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
   }
-
   return headers;
 };
 
@@ -36,7 +22,7 @@ export const authenticatedFetch = async (
   const apiUrl = await getAPIUrl();
   const url = endpoint.startsWith('http') ? endpoint : `${apiUrl}${endpoint}`;
 
-  const authHeaders = getAuthHeaders(token);
+  const authHeaders = await getAuthHeaders(token);
 
   const config: RequestInit = {
     ...options,
@@ -45,7 +31,6 @@ export const authenticatedFetch = async (
       ...options.headers,
     },
   };
-  console.log(url, config);
   return fetch(url, config);
 };
 
@@ -200,7 +185,7 @@ export const api = {
       const url = endpoint.startsWith('http')
         ? endpoint
         : `${apiUrl}${endpoint}`;
-      const token = getToken();
+      const token = await getToken();
 
       const headers: HeadersInit = {};
       if (token) {

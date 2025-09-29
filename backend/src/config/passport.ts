@@ -1,4 +1,6 @@
 import passport from 'passport';
+import dotenv from 'dotenv'
+dotenv.config();
 import { Strategy as GitHubStrategy, Profile } from 'passport-github';
 import { Request } from 'express';
 import { oauthLogin } from '../routes/auth/auth.service';
