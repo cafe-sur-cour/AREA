@@ -4,10 +4,8 @@ import nodemailer from 'nodemailer';
 import process from 'process';
 import jwt from 'jsonwebtoken';
 import { JWT_SECRET } from 'index';
-import { githubOAuth } from '../../services/services/github/oauth';
-import crypto from 'crypto';
-import token from '../../middleware/token';
 import mail from '../../middleware/mail';
+import passport from 'passport';
 
 interface TokenPayload extends jwt.JwtPayload {
   email: string;
@@ -445,41 +443,32 @@ router.post('/verify', mail, (req: Request, res: Response) => {
  * @swagger
  * /api/auth/github:
  *   get:
- *     summary: Initiate GitHub OAuth authorization
+ *     summary: Initiate GitHub OAuth authorization for login/register or service connection
  *     tags:
  *       - OAuth
- *     description: Redirects user to GitHub for OAuth authorization
+ *     description: |
+ *       Redirects user to GitHub for OAuth authorization.
+ *       If user is not authenticated, this will be used for login/register.
+ *       If user is already authenticated, this will connect GitHub for service access.
  *     responses:
  *       302:
  *         description: Redirect to GitHub authorization page
- *       401:
- *         description: User not authenticated
  *       500:
  *         description: Internal Server Error
  */
-router.get(
-  '/github',
-  token,
-  async (req: Request, res: Response): Promise<void> => {
-    try {
-      const state = crypto.randomBytes(32).toString('hex');
-      const authUrl = githubOAuth.getAuthorizationUrl(state);
-      res.redirect(authUrl);
-    } catch (err) {
-      console.error('GitHub OAuth initiation error:', err);
-      res.status(500).json({ error: 'Internal Server Error' });
-    }
-  }
-);
+router.get('/github', passport.authenticate('github'));
 
 /**
  * @swagger
  * /api/auth/github/callback:
  *   get:
- *     summary: Handle GitHub OAuth callback
+ *     summary: Handle GitHub OAuth callback for login/register or service connection
  *     tags:
  *       - OAuth
- *     description: Exchanges authorization code for access token and stores it
+ *     description: |
+ *       Exchanges authorization code for access token and handles authentication.
+ *       If user is not authenticated, performs login/register.
+ *       If user is already authenticated, connects GitHub account for service access.
  *     parameters:
  *       - name: code
  *         in: query
@@ -495,58 +484,48 @@ router.get(
  *           type: string
  *     responses:
  *       200:
- *         description: OAuth successful, token stored
+ *         description: OAuth successful
  *         content:
  *           application/json:
  *             schema:
  *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                 user:
- *                   type: object
+ *               oneOf:
+ *                 - description: Login/Register response
+ *                   properties:
+ *                     token:
+ *                       type: string
+ *                     user:
+ *                       type: object
+ *                 - description: Service connection response
+ *                   properties:
+ *                     message:
+ *                       type: string
+ *                     user:
+ *                       type: object
  *       400:
  *         description: Bad Request - Missing parameters
- *       401:
- *         description: User not authenticated
  *       500:
  *         description: Internal Server Error
  */
 router.get(
   '/github/callback',
-  token,
+  passport.authenticate('github', { session: false }),
   async (req: Request, res: Response): Promise<void> => {
     try {
-      const { code, state } = req.query;
-
-      if (!code || typeof code !== 'string') {
-        res.status(400).json({ error: 'Authorization code is required' });
-        return;
+      const user = req.user as { token: string };
+      if (user && user.token) {
+        res.cookie('auth_token', user.token, {
+          maxAge: 86400000,
+          httpOnly: true,
+          sameSite: 'strict',
+        });
+        res.redirect(`${process.env.FRONTEND_URL || ''}`);
+      } else {
+        res.status(500).json({ error: 'Authentication failed' });
       }
-
-      if (!state || typeof state !== 'string') {
-        res.status(400).json({ error: 'State parameter is required' });
-        return;
-      }
-
-      const tokenData = await githubOAuth.exchangeCodeForToken(code);
-
-      const githubUser = await githubOAuth.getUserInfo(tokenData.access_token);
-
-      const userId = (req.auth as { id: number }).id;
-      await githubOAuth.storeUserToken(userId, tokenData);
-
-      res.status(200).json({
-        message: 'GitHub account connected successfully',
-        user: {
-          github_id: githubUser.id,
-          github_login: githubUser.login,
-          github_name: githubUser.name,
-        },
-      });
     } catch (err) {
       console.error('GitHub OAuth callback error:', err);
-      res.status(500).json({ error: 'Failed to connect GitHub account' });
+      res.status(500).json({ error: 'Failed to authenticate with GitHub' });
     }
   }
 );

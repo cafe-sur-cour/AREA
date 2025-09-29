@@ -70,6 +70,16 @@ export class User {
   @Column({ type: 'varchar', length: 20, default: 'light' })
   theme!: string;
 
+  // OAuth fields
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  provider!: string;
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  provider_id!: string;
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  provider_email!: string;
+
   // Metadata
   @Column({ type: 'boolean', default: true })
   is_active!: boolean;
