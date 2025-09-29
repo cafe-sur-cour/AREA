@@ -9,16 +9,78 @@ const router = express.Router();
  * @swagger
  * /api/github/oauth/status:
  *   get:
- *     summary: Check GitHub OAuth status
+ *     summary: Check GitHub OAuth connection status
+ *     description: |
+ *       Retrieves the current GitHub OAuth connection status for the authenticated user.
+ *       Returns whether the user has connected their GitHub account and provides token details if connected.
  *     tags:
  *       - GitHub OAuth
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: GitHub connection status
- *       404:
- *         description: GitHub not connected
+ *         description: GitHub OAuth connection status retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               oneOf:
+ *                 - type: object
+ *                   description: User is not connected to GitHub
+ *                   properties:
+ *                     connected:
+ *                       type: boolean
+ *                       example: false
+ *                       description: Indicates if the user has connected GitHub OAuth
+ *                     message:
+ *                       type: string
+ *                       example: "GitHub not connected"
+ *                       description: Status message explaining the connection state
+ *                   required:
+ *                     - connected
+ *                     - message
+ *                 - type: object
+ *                   description: User is connected to GitHub
+ *                   properties:
+ *                     connected:
+ *                       type: boolean
+ *                       example: true
+ *                       description: Indicates if the user has connected GitHub OAuth
+ *                     token_expires_at:
+ *                       type: string
+ *                       format: date-time
+ *                       example: "2025-09-29T15:30:00.000Z"
+ *                       description: Date and time when the OAuth token expires
+ *                     scopes:
+ *                       type: array
+ *                       items:
+ *                         type: string
+ *                         example: "repo"
+ *                       description: Array of OAuth scopes granted to the token
+ *                       example: ["repo", "user:email", "read:org"]
+ *                   required:
+ *                     - connected
+ *                     - token_expires_at
+ *                     - scopes
+ *       401:
+ *         description: Unauthorized - User must be authenticated to check OAuth status
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Unauthorized"
+ *       500:
+ *         description: Internal server error occurred while checking OAuth status
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Internal Server Error"
  */
 router.get(
   '/oauth/status',
@@ -29,7 +91,7 @@ router.get(
       const token = await githubOAuth.getUserToken(userId);
 
       if (!token) {
-        return res.status(404).json({
+        return res.status(200).json({
           connected: false,
           message: 'GitHub not connected',
         });
