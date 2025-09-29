@@ -277,6 +277,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'User registered'**
   String get user_registered;
+
+  /// No description provided for @logged_in.
+  ///
+  /// In en, this message translates to:
+  /// **'Logged in successfully'**
+  String get logged_in;
+
+  /// No description provided for @logged_out.
+  ///
+  /// In en, this message translates to:
+  /// **'Logged out successfully'**
+  String get logged_out;
 }
 
 class _AppLocalizationsDelegate

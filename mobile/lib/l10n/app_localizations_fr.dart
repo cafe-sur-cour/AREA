@@ -100,4 +100,10 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get user_registered => 'Utilisateur créé';
+
+  @override
+  String get logged_in => 'Connexion réussie';
+
+  @override
+  String get logged_out => 'Déconnexion réussie';
 }

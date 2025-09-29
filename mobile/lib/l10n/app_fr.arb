@@ -29,5 +29,7 @@
   "empty_backend_server_address": "Entrez une adresse du serveur backend",
   "invalid_backend_server_address": "L'adresse n'est pas valide",
   "valid_backend_server_address": "L'adresse est valide",
-  "user_registered": "Utilisateur créé"
+  "user_registered": "Utilisateur créé",
+  "logged_in": "Connexion réussie",
+  "logged_out": "Déconnexion réussie"
 }

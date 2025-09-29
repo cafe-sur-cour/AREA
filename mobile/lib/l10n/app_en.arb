@@ -29,5 +29,7 @@
   "empty_backend_server_address": "Please enter a backend server address",
   "invalid_backend_server_address": "The address is not valid",
   "valid_backend_server_address": "The address is valid",
-  "user_registered": "User registered"
+  "user_registered": "User registered",
+  "logged_in": "Logged in successfully",
+  "logged_out": "Logged out successfully"
 }

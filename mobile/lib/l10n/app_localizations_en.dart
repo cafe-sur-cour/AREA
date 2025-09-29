@@ -98,4 +98,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get user_registered => 'User registered';
+
+  @override
+  String get logged_in => 'Logged in successfully';
+
+  @override
+  String get logged_out => 'Logged out successfully';
 }
