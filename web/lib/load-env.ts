@@ -3,8 +3,8 @@
 import path from 'path';
 import dotenv from 'dotenv';
 
-if (process.env.NODE_ENV === "development")
-    dotenv.config({ path: path.resolve(process.cwd(), '../deployment/.env') });
+if (process.env.NODE_ENV === 'development')
+  dotenv.config({ path: path.resolve(process.cwd(), '../deployment/.env') });
 
 export async function getEnv() {
   return {

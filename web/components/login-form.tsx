@@ -115,15 +115,30 @@ export function LoginForm({
                 </span>
               </div>
               <div className='grid grid-cols-3 gap-4'>
-                <Button variant='outline' onClick={async () => await signInWithGithub()} type='button' className='w-full'>
+                <Button
+                  variant='outline'
+                  onClick={async () => await signInWithGithub()}
+                  type='button'
+                  className='w-full'
+                >
                   <FaGithub />
                   <span className='sr-only'>Login with Github</span>
                 </Button>
-                <Button variant='outline' onClick={async () => await signInWithGoogle()} type='button' className='w-full'>
+                <Button
+                  variant='outline'
+                  onClick={async () => await signInWithGoogle()}
+                  type='button'
+                  className='w-full'
+                >
                   <FaGoogle />
                   <span className='sr-only'>Login with Google</span>
                 </Button>
-                <Button variant='outline' onClick={async () => await signInWithMeta()} type='button' className='w-full'>
+                <Button
+                  variant='outline'
+                  onClick={async () => await signInWithMeta()}
+                  type='button'
+                  className='w-full'
+                >
                   <FaMeta />
                   <span className='sr-only'>Login with Meta</span>
                 </Button>
