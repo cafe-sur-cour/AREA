@@ -48,6 +48,54 @@ class ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  void _logout() async {
+    final backendAddressNotifier = Provider.of<BackendAddressNotifier>(context, listen: false);
+
+    if (backendAddressNotifier.backendAddress == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!.empty_backend_server_address,
+            style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+          ),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
+    }
+    final address = "${backendAddressNotifier.backendAddress}${AppRoutes.logout}";
+    final url = Uri.parse(address);
+    try {
+      final response = await http.post(url);
+
+      final data = await jsonDecode(response.body);
+
+      if (response.statusCode != 200) {
+        throw data['error'];
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!.logged_out,
+            style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+          ),
+          backgroundColor: AppColors.success,
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            e.toString(),
+            style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+          ),
+          backgroundColor: AppColors.error,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final localeNotifier = Provider.of<LocaleNotifier>(context);
@@ -88,7 +136,7 @@ class ProfileScreenState extends State<ProfileScreen> {
                 if (_isConnected) ...[
                   TextButton(
                     onPressed: () {
-                      print("User logs out");
+                      _logout();
                       setState(() {
                         _isConnected = false;
                       });
@@ -105,13 +153,10 @@ class ProfileScreenState extends State<ProfileScreen> {
                       TextButton(
                         onPressed: () {
                           Navigator.pushNamed(context, '/login').then((result) {
-                            if (result != null &&
-                                result is List &&
-                                result.isNotEmpty &&
-                                result[0] == true) {
+                            if (result == true) {
                               setState(() {
                                 _isConnected = true;
-                                _userName = result[1] as String;
+                                _userName = "Connected";
                                 _userProfileIcon = Icons.account_circle;
                               });
                             }
