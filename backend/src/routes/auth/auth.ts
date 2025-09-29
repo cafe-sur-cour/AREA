@@ -801,30 +801,34 @@ router.post('/reset-password', mail, async (req: Request, res: Response) => {
   }
 
   jwt.verify(
-  req.token,
-  JWT_SECRET as string,
-  async (
-    err: jwt.VerifyErrors | null,
-    decoded: string | jwt.JwtPayload | undefined
-  ) => {
-    if (err || !decoded || typeof decoded === 'string') {
-      return res.status(400).json({ error: 'Invalid or expired token' });
-    }
+    req.token,
+    JWT_SECRET as string,
+    async (
+      err: jwt.VerifyErrors | null,
+      decoded: string | jwt.JwtPayload | undefined
+    ) => {
+      if (err || !decoded || typeof decoded === 'string') {
+        return res.status(400).json({ error: 'Invalid or expired token' });
+      }
 
-    const { newPassword } = req.body;
-    if (!newPassword) {
-      return res.status(400).json({ error: 'New password is required' });
-    }
+      const { newPassword } = req.body;
+      if (!newPassword) {
+        return res.status(400).json({ error: 'New password is required' });
+      }
 
-    const result = await auth.resetPassword(decoded.email as string, newPassword);
-    if (!result) {
-      return res.status(400).json({ error: 'Invalid or expired token' });
-    }
+      const result = await auth.resetPassword(
+        decoded.email as string,
+        newPassword
+      );
+      if (!result) {
+        return res.status(400).json({ error: 'Invalid or expired token' });
+      }
 
-    return res
-      .status(200)
-      .json({ message: 'Password has been reset successfully' });
-  });
+      return res
+        .status(200)
+        .json({ message: 'Password has been reset successfully' });
+    }
+  );
 });
 
 export default router;
