@@ -43,7 +43,9 @@ export class GitHubReactionExecutor implements ReactionExecutor {
   constructor() {
     this.apiBaseUrl = process.env.SERVICE_GITHUB_API_BASE_URL || '';
   }
-  async execute(context: ReactionExecutionContext): Promise<ReactionExecutionResult> {
+  async execute(
+    context: ReactionExecutionContext
+  ): Promise<ReactionExecutionResult> {
     const { reaction, serviceConfig } = context;
 
     try {
@@ -112,20 +114,25 @@ export class GitHubReactionExecutor implements ReactionExecutor {
     }
 
     if (assignees) {
-      issueData.assignees = assignees.split(',').map((assignee: string) => assignee.trim());
+      issueData.assignees = assignees
+        .split(',')
+        .map((assignee: string) => assignee.trim());
     }
 
     try {
-      const response = await fetch(`${this.apiBaseUrl}/repos/${owner}/${repo}/issues`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json',
-          'Accept': 'application/vnd.github.v3+json',
-          'User-Agent': 'AREA-App',
-        },
-        body: JSON.stringify(issueData),
-      });
+      const response = await fetch(
+        `${this.apiBaseUrl}/repos/${owner}/${repo}/issues`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+            Accept: 'application/vnd.github.v3+json',
+            'User-Agent': 'AREA-App',
+          },
+          body: JSON.stringify(issueData),
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
@@ -147,8 +154,12 @@ export class GitHubReactionExecutor implements ReactionExecutor {
             body: issue.body,
             html_url: issue.html_url,
             state: issue.state,
-            labels: issue.labels?.map((label: { name: string }) => label.name) || [],
-            assignees: issue.assignees?.map((assignee: { login: string }) => assignee.login) || [],
+            labels:
+              issue.labels?.map((label: { name: string }) => label.name) || [],
+            assignees:
+              issue.assignees?.map(
+                (assignee: { login: string }) => assignee.login
+              ) || [],
           },
         },
         metadata: {
@@ -178,7 +189,8 @@ export class GitHubReactionExecutor implements ReactionExecutor {
     if (!repository || !issue_number || !body) {
       return {
         success: false,
-        error: 'Repository, issue_number, and body are required for adding a comment',
+        error:
+          'Repository, issue_number, and body are required for adding a comment',
       };
     }
 
@@ -196,9 +208,9 @@ export class GitHubReactionExecutor implements ReactionExecutor {
         {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${accessToken}`,
+            Authorization: `Bearer ${accessToken}`,
             'Content-Type': 'application/json',
-            'Accept': 'application/vnd.github.v3+json',
+            Accept: 'application/vnd.github.v3+json',
             'User-Agent': 'AREA-App',
           },
           body: JSON.stringify({ body } as GitHubCommentData),

@@ -1,8 +1,5 @@
 import type { ReactionDefinition } from '../../../types/service';
-import {
-  githubCreateIssueSchema,
-  githubAddCommentSchema,
-} from './schemas';
+import { githubCreateIssueSchema, githubAddCommentSchema } from './schemas';
 
 export const githubReactions: ReactionDefinition[] = [
   {
