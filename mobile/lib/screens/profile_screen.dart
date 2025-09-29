@@ -1,7 +1,12 @@
+import 'dart:convert';
+import 'package:area/core/constants/app_colors.dart';
+import 'package:area/core/constants/app_constants.dart';
+import 'package:area/core/notifiers/backend_address_notifier.dart';
+import 'package:area/core/notifiers/locale_notifier.dart';
 import 'package:area/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:area/core/notifiers/locale_notifier.dart';
+import 'package:http/http.dart' as http;
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -22,9 +27,31 @@ class ProfileScreenState extends State<ProfileScreen> {
     _backendServerController.text = "";
   }
 
+  Future<bool> _testApiAddress(String address) async {
+    final url = Uri.parse("$address${AppRoutes.healthCheck}");
+
+    try {
+      final response = await http.get(url);
+
+      if (response.statusCode != 200) {
+        throw response.body;
+      }
+
+      final jsonResponse = jsonDecode(response.body);
+      if (jsonResponse['status'] != 'OK') {
+        throw jsonResponse['status'];
+      }
+
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final localeNotifier = Provider.of<LocaleNotifier>(context);
+    final backendAddressNotifier = Provider.of<BackendAddressNotifier>(context);
 
     return Center(
       child: Padding(
@@ -159,10 +186,45 @@ class ProfileScreenState extends State<ProfileScreen> {
               ),
               keyboardType: TextInputType.url,
               onChanged: (value) {
-                print("Backend server address: $value");
+                if (!value.endsWith("/")) {
+                  value += "/";
+                }
+                backendAddressNotifier.setBackendAddress(value);
+              },
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return AppLocalizations.of(context)!.empty_backend_server_address;
+                }
+                if (!value.endsWith("/")) {
+                  value += "/";
+                }
+                return null;
               },
               onTapOutside: (event) {
                 FocusScope.of(context).unfocus();
+              },
+              onFieldSubmitted: (value) async {
+                if (!value.endsWith("/")) value += "/";
+
+                final ok = await _testApiAddress(value);
+                late String message;
+                late Color color;
+                if (!ok) {
+                  message = AppLocalizations.of(context)!.invalid_backend_server_address;
+                  color = AppColors.error;
+                } else {
+                  message = AppLocalizations.of(context)!.valid_backend_server_address;
+                  color = AppColors.success;
+                }
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      message,
+                      style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+                    ),
+                    backgroundColor: color,
+                  ),
+                );
               },
             ),
           ],
