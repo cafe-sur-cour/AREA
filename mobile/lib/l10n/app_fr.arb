@@ -26,7 +26,8 @@
   "invalid_name": "Le nom doit contenir moins de 38 caractères",
   "confirm_password": "Confirmer le mot de passe",
   "confirm_password_differs": "Les mots de passe ne correspondent pas",
-  "empty_backend_server_address": "L'adresse ne peut pas être vide",
+  "empty_backend_server_address": "Entrez une adresse du serveur backend",
   "invalid_backend_server_address": "L'adresse n'est pas valide",
-  "valid_backend_server_address": "L'adresse est valide"
+  "valid_backend_server_address": "L'adresse est valide",
+  "user_registered": "Utilisateur créé"
 }

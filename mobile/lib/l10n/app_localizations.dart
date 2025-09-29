@@ -257,7 +257,7 @@ abstract class AppLocalizations {
   /// No description provided for @empty_backend_server_address.
   ///
   /// In en, this message translates to:
-  /// **'The address cannot be empty'**
+  /// **'Please enter a backend server address'**
   String get empty_backend_server_address;
 
   /// No description provided for @invalid_backend_server_address.
@@ -271,6 +271,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The address is valid'**
   String get valid_backend_server_address;
+
+  /// No description provided for @user_registered.
+  ///
+  /// In en, this message translates to:
+  /// **'User registered'**
+  String get user_registered;
 }
 
 class _AppLocalizationsDelegate

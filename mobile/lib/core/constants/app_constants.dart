@@ -1,5 +1,12 @@
 class AppRoutes {
+  // Api health
   static const String healthCheck = "api/info/health";
+
+  // Auth
+  static const String login = "api/auth/login";
+  static const String register = "api/auth/register";
+  static const String logout = "api/auth/logout";
+  static const String forgotPassword = "api/auth/forgot-password";
 }
 
 class AppDimensions {

@@ -1,6 +1,12 @@
+import 'dart:convert';
+
 import 'package:area/core/constants/app_colors.dart';
+import 'package:area/core/constants/app_constants.dart';
+import 'package:area/core/notifiers/backend_address_notifier.dart';
 import 'package:area/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -25,15 +31,67 @@ class RegisterScreenState extends State<RegisterScreen> {
     super.dispose();
   }
 
-  void _submitForm() {
+  void _submitForm() async {
     if (_formKey.currentState!.validate()) {
       String name = _nameController.text;
       String email = _emailController.text;
       String password = _passwordController.text;
 
-      print('Name: $name, Email: $email, Password: $password');
+      final backendAddressNotifier = Provider.of<BackendAddressNotifier>(
+        context,
+        listen: false,
+      );
 
-      Navigator.pop(context);
+      if (backendAddressNotifier.backendAddress == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(context)!.empty_backend_server_address,
+              style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+            ),
+            backgroundColor: AppColors.error,
+          ),
+        );
+        return;
+      }
+
+      final address = "${backendAddressNotifier.backendAddress}${AppRoutes.register}";
+      final url = Uri.parse(address);
+
+      try {
+        final response = await http.post(
+          url,
+          body: {'name': name, 'email': email, 'password': password},
+        );
+
+        final data = await jsonDecode(response.body);
+
+        if (response.statusCode != 201) {
+          throw data['error'];
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(context)!.user_registered,
+              style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+            ),
+            backgroundColor: AppColors.success,
+          ),
+        );
+
+        Navigator.pop(context);
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              e.toString(),
+              style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+            ),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
     }
   }
 
