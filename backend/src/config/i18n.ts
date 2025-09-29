@@ -37,6 +37,6 @@ export const initI18n = async (): Promise<void> => {
     console.error('Error initializing i18n:', error);
     throw error;
   }
-};;;;;
+};
 
 export default i18next;
