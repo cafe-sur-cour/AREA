@@ -22,11 +22,14 @@ class ProfileScreenState extends State<ProfileScreen> {
   late IconData _userProfileIcon;
   final TextEditingController _backendServerController = TextEditingController();
 
+  bool _justInitialized = false;
+
   @override
   void initState() {
     super.initState();
     _backendServerController.text = "";
     _loadProfileIfConnected();
+    _justInitialized = true;
   }
 
   void _loadProfileIfConnected() async {
@@ -36,8 +39,14 @@ class ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  Future<bool> _testApiAddress(String address) async {
+  Future<void> _testApiAddress(String address) async {
+    if (!address.endsWith('/')) {
+      address += '/';
+    }
     final url = Uri.parse("$address${AppRoutes.healthCheck}");
+
+    late String message;
+    late Color color;
 
     try {
       final response = await http.get(url);
@@ -51,10 +60,19 @@ class ProfileScreenState extends State<ProfileScreen> {
         throw jsonResponse['status'];
       }
 
-      return true;
+      message = AppLocalizations.of(context)!.valid_backend_server_address;
+      color = AppColors.success;
     } catch (e) {
-      return false;
+      message = AppLocalizations.of(context)!.invalid_backend_server_address;
+      color = AppColors.error;
     }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message, style: TextStyle(color: AppColors.areaLightGray, fontSize: 16)),
+        backgroundColor: color,
+      ),
+    );
   }
 
   void _logout() async {
@@ -162,7 +180,10 @@ class ProfileScreenState extends State<ProfileScreen> {
     final localeNotifier = Provider.of<LocaleNotifier>(context);
     final backendAddressNotifier = Provider.of<BackendAddressNotifier>(context);
 
-    _backendServerController.text = backendAddressNotifier.backendAddress ?? "";
+    if (_justInitialized) {
+      _backendServerController.text = backendAddressNotifier.backendAddress ?? "";
+      _justInitialized = false;
+    }
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -300,29 +321,10 @@ class ProfileScreenState extends State<ProfileScreen> {
               },
               onTapOutside: (event) {
                 FocusScope.of(context).unfocus();
+                _testApiAddress(_backendServerController.text);
               },
               onFieldSubmitted: (value) async {
-                if (!value.endsWith("/")) value += "/";
-
-                final ok = await _testApiAddress(value);
-                late String message;
-                late Color color;
-                if (!ok) {
-                  message = AppLocalizations.of(context)!.invalid_backend_server_address;
-                  color = AppColors.error;
-                } else {
-                  message = AppLocalizations.of(context)!.valid_backend_server_address;
-                  color = AppColors.success;
-                }
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      message,
-                      style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
-                    ),
-                    backgroundColor: color,
-                  ),
-                );
+                await _testApiAddress(value);
               },
             ),
           ],
