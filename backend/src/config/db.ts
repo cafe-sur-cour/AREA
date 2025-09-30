@@ -14,6 +14,7 @@ import { WebhookEvents } from './entity/WebhookEvents';
 import { WebhookFailures } from './entity/WebhookFailures';
 import { WebhookReactions } from './entity/WebhookReactions';
 import { WebhookStats } from './entity/WebhookStats';
+import { Session } from './entity/Session';
 // Load environment variables from .env file
 config();
 
@@ -49,6 +50,7 @@ export const AppDataSource = new DataSource({
     WebhookFailures,
     WebhookReactions,
     WebhookStats,
+    Session,
   ],
   migrations: [],
   subscribers: [],

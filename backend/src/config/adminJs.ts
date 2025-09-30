@@ -10,35 +10,22 @@ import { WebhookFailures } from './entity/WebhookFailures';
 import { WebhookReactions } from './entity/WebhookReactions';
 import { WebhookStats } from './entity/WebhookStats';
 
-
 import AdminJS from 'adminjs';
 import AdminJSExpress from '@adminjs/express';
 import * as AdminJSTypeorm from '@adminjs/typeorm';
 import { DataSource } from 'typeorm';
 import bcrypt from 'bcryptjs';
+import session from 'express-session';
 
-
-// Register the TypeORM adapter
 AdminJS.registerAdapter({
   Resource: AdminJSTypeorm.Resource,
   Database: AdminJSTypeorm.Database,
 });
 
-
-// For development/testing - hardcoded credentials
-export const authenticateAdminSimple = async (email: string, password: string) => {
-  console.log("🔑 Simple authenticate function called with:", email);
-
-  if (email === "albane" && password === "admin") {
-    console.log("✅ Authentication successful for:", email);
-    return { email: "albane", id: 1 };
-  }
-
-  console.log("❌ Authentication failed for:", email);
-  return null;
-};
-
-const AdminRouter = async (AppDataSource: DataSource) => {
+const AdminRouter = async (
+  AppDataSource: DataSource,
+  sessionOptions: session.SessionOptions
+) => {
   const admin = new AdminJS({
     databases: [AppDataSource],
     rootPath: '/admin',
@@ -57,9 +44,28 @@ const AdminRouter = async (AppDataSource: DataSource) => {
     ],
   });
 
-  // Use buildRouter without authentication
-  // We'll handle auth manually in index.ts
-  const router = AdminJSExpress.buildRouter(admin);
+  const router = AdminJSExpress.buildAuthenticatedRouter(
+    admin,
+    {
+      authenticate: async (email, password) => {
+        const userRepo = AppDataSource.getRepository(User);
+
+        const user = await userRepo.findOne({
+          where: { email, is_admin: true },
+        });
+        if (!user) return null;
+
+        const valid = await bcrypt.compare(password, user.password_hash);
+        if (!valid) return null;
+
+        return { id: user.id, email: user.email };
+      },
+      cookieName: 'adminjs',
+      cookiePassword: 'super-secret-pass',
+    },
+    null,
+    sessionOptions
+  );
 
   return { admin, adminRouter: router };
 };

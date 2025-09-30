@@ -30,37 +30,40 @@ import { webhookLoader } from './src/webhooks/WebhookLoader';
 import AdminRouter from './src/config/adminJs';
 import session from 'express-session';
 
-import AdminJS from 'adminjs';
-import AdminJSExpress from '@adminjs/express';
-
-
+import { Session } from './src/config/entity/Session';
+import { TypeormStore } from 'connect-typeorm';
 
 const app = express();
 export const JWT_SECRET = crypto.randomBytes(64).toString('hex');
 dotenv.config();
 
-const FRONTEND_ORIGIN = process.env.FRONTEND_URL || 'http://localhost:8081';
-const allowedOrigins = [
-  FRONTEND_ORIGIN,
-  'http://localhost:8080',
-  'http://localhost:8081',
-];
+const FRONTEND_ORIGIN = process.env.FRONTEND_URL || '';
+const BACKEND_ORIGIN = process.env.BACKEND_URL || '';
+const allowedOrigins = [FRONTEND_ORIGIN, BACKEND_ORIGIN];
 
 console.log('🚀 Starting middleware setup...');
 
-// 1. BODY PARSERS FIRST
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use((req, res, next) => {
+  if (req.path.startsWith('/admin')) return next();
+  express.json()(req, res, next);
+});
+
+app.use((req, res, next) => {
+  if (req.path.startsWith('/admin')) return next();
+  express.urlencoded({ extended: true })(req, res, next);
+});
+
 app.use(cookieParser());
 
-// 2. CORS CONFIGURATION
 app.use(
   cors({
     origin: (origin, callback) => {
       if (!origin) return callback(null, true);
       if (allowedOrigins.includes(origin)) {
         callback(null, true);
+        console.log('Allowed CORS request from origin: [', origin, ']');
       } else {
+        console.log('Blocked CORS request from origin: [', origin, ']');
         callback(new Error('Not allowed by CORS'));
       }
     },
@@ -80,43 +83,25 @@ app.use((req, res, next) => {
   next();
 });
 
-// 3. SESSION MIDDLEWARE (BEFORE PASSPORT AND ADMIN)
-app.use(session({
-  secret: process.env.SESSION_SECRET || 'change-this-secret',
+const sessionRepo = AppDataSource.getRepository(Session);
+
+const sessionOptions: session.SessionOptions = {
+  secret: process.env.SESSION_SECRET || 'super-secret-pass',
   resave: false,
   saveUninitialized: false,
+  store: new TypeormStore({ cleanupLimit: 2 }).connect(sessionRepo),
   cookie: {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    maxAge: 1000 * 60 * 60 * 24 // 24 hours
-  }
-}));
+    maxAge: 1000 * 60 * 60 * 24,
+  },
+};
 
-// 4. PASSPORT - WILL BE SKIPPED FOR ADMIN ROUTES
-app.use((req, res, next) => {
-  // Skip passport entirely for admin routes
-  if (req.path.startsWith('/admin')) {
-    return next();
-  }
-  next();
-});
+app.use(session(sessionOptions));
 
 app.use(passport.initialize());
 app.use(passport.session());
 
 setupSwagger(app);
 setupSignal();
-
-// Extend session type to include adminUser
-declare module 'express-session' {
-  interface SessionData {
-    adminUser?: {
-      email: string;
-      id: number;
-      name?: string;
-    };
-  }
-}
 
 (async function start() {
   try {
@@ -136,14 +121,17 @@ declare module 'express-session' {
     await webhookLoader.loadAllWebhooks();
     await executionService.start();
 
-    // 5. SETUP ADMIN PANEL WITH CUSTOM AUTH MIDDLEWARE
     console.log('🔧 Setting up AdminJS...');
-    const { admin, adminRouter } = await AdminRouter(AppDataSource);
+    const { admin, adminRouter } = await AdminRouter(
+      AppDataSource,
+      sessionOptions
+    );
 
     app.use(admin.options.rootPath, adminRouter);
-    console.log(`✅ Admin panel available at http://localhost:8080${admin.options.rootPath}`);
+    console.log(
+      `✅ Admin panel available at http://localhost:8080${admin.options.rootPath}`
+    );
 
-    // 6. API ROUTES (PROTECTED BY PASSPORT)
     app.use('/api/auth', authRoutes);
     app.use('/api/user', userRoutes);
     app.use('/api/github', githubRoutes);
@@ -152,7 +140,6 @@ declare module 'express-session' {
     app.use('/about.json', aboutRoutes);
     app.use('/webhooks', webhookRoutes);
 
-    // Start server
     app.listen(3000, () => {
       console.log('🚀 Server running on port 3000 (mapped to 8080 via Docker)');
       console.log('📊 Admin panel: http://localhost:8080/admin');
