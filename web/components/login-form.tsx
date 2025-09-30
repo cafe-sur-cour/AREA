@@ -55,15 +55,15 @@ export function LoginForm({
   };
 
   const signInWithGithub = async () => {
-    window.location.href = `${await getAPIUrl()}/auth/github`;
+    window.location.href = `${await getAPIUrl()}/auth/github/login`;
   };
 
   const signInWithGoogle = async () => {
-    window.location.href = `${await getAPIUrl()}/auth/google`;
+    window.location.href = `${await getAPIUrl()}/auth/google/login`;
   };
 
   const signInWithMeta = async () => {
-    window.location.href = `${await getAPIUrl()}/auth/meta`;
+    window.location.href = `${await getAPIUrl()}/auth/meta/login`;
   };
 
   return (
