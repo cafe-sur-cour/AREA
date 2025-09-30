@@ -8,6 +8,7 @@ import 'package:area/services/secure_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
+import 'package:url_launcher/url_launcher.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -101,6 +102,26 @@ class LoginScreenState extends State<LoginScreen> {
     });
   }
 
+  void _goToGithub(BuildContext context) async {
+    final backendAddressNotifier = Provider.of<BackendAddressNotifier>(context, listen: false);
+    if (backendAddressNotifier.backendAddress == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!.empty_backend_server_address,
+            style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+          ),
+          backgroundColor: AppColors.error,
+        ),
+      );
+    }
+
+    final address = "${backendAddressNotifier.backendAddress}${AppRoutes.github}";
+    final uri = Uri.parse(address);
+
+    await launchUrl(uri, mode: LaunchMode.inAppBrowserView);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -185,6 +206,42 @@ class LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                   ],
+                ],
+              ),
+
+              const SizedBox(height: 16),
+
+              Divider(),
+
+              const SizedBox(height: 16),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  ElevatedButton(
+                    onPressed: () => _goToGithub(context),
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      backgroundColor: AppColors.primary,
+                    ),
+                    child: Text('Github', style: TextStyle(color: AppColors.areaLightGray)),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {},
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      backgroundColor: AppColors.primary,
+                    ),
+                    child: Text('Microsoft', style: TextStyle(color: AppColors.areaLightGray)),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {},
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      backgroundColor: AppColors.primary,
+                    ),
+                    child: Text('Google', style: TextStyle(color: AppColors.areaLightGray)),
+                  ),
                 ],
               ),
             ],
