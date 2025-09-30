@@ -29,23 +29,52 @@ import { executionService } from './src/services/ExecutionService';
 import { serviceLoader } from './src/services/ServiceLoader';
 import { webhookLoader } from './src/webhooks/WebhookLoader';
 
+import AdminRouter from './src/config/adminJs';
+import session from 'express-session';
+
+import { Session } from './src/config/entity/Session';
+import { TypeormStore } from 'connect-typeorm';
+
 const app = express();
 export const JWT_SECRET = crypto.randomBytes(64).toString('hex');
 
 const FRONTEND_ORIGIN = process.env.FRONTEND_URL || '';
+const BACKEND_ORIGIN = process.env.BACKEND_URL || '';
+const allowedOrigins = [FRONTEND_ORIGIN, BACKEND_ORIGIN];
 
-app.use(passport.initialize());
+console.log('🚀 Starting middleware setup...');
 
-/* Declare  the cors and allowed routes */
+app.use((req, res, next) => {
+  if (req.path.startsWith('/admin')) return next();
+  express.json()(req, res, next);
+});
+
+app.use((req, res, next) => {
+  if (req.path.startsWith('/admin')) return next();
+  express.urlencoded({ extended: true })(req, res, next);
+});
+
+app.use(cookieParser());
+
 app.use(
   cors({
-    origin: FRONTEND_ORIGIN,
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
   })
 );
 
 app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', FRONTEND_ORIGIN);
+  const origin = req.headers.origin;
+  if (origin && allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
@@ -53,18 +82,22 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
+const sessionRepo = AppDataSource.getRepository(Session);
 
-/* Route definition with API as prefix */
-app.use('/api/auth', authRoutes);
-app.use('/api/user', userRoutes);
-app.use('/api/github', githubRoutes);
-app.use('/api/services', serviceConfigRoutes);
-app.use('/api/info', apiRoutes);
-app.use('/api/webhooks', webhookRoutes);
-app.use('/about.json', aboutRoutes);
+const sessionOptions: session.SessionOptions = {
+  secret: process.env.SESSION_SECRET || 'super-secret-pass',
+  resave: false,
+  saveUninitialized: false,
+  store: new TypeormStore({ cleanupLimit: 2 }).connect(sessionRepo),
+  cookie: {
+    maxAge: 1000 * 60 * 60 * 24,
+  },
+};
+
+app.use(session(sessionOptions));
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 setupSwagger(app);
 setupSignal();
@@ -78,7 +111,6 @@ setupSignal();
 
     console.log('Waiting for Postgres to be ready...');
     await waitForPostgres({ retries: 12, delayMs: 2000 });
-
     await AppDataSource.initialize();
     console.log('Database connection established');
 
@@ -88,11 +120,35 @@ setupSignal();
     await webhookLoader.loadAllWebhooks();
     await executionService.start();
 
-    app.listen(3000, () => {});
+    console.log('🔧 Setting up AdminJS...');
+    const { admin, adminRouter } = await AdminRouter(
+      AppDataSource,
+      sessionOptions
+    );
+
+    app.use(admin.options.rootPath, adminRouter);
+    console.log(
+      `✅ Admin panel available at http://localhost:8080${admin.options.rootPath}`
+    );
+
+    app.use('/api/auth', authRoutes);
+    app.use('/api/user', userRoutes);
+    app.use('/api/github', githubRoutes);
+    app.use('/api/services', serviceConfigRoutes);
+    app.use('/api/info', apiRoutes);
+    app.use('/about.json', aboutRoutes);
+    app.use('/api/webhooks', webhookRoutes);
+
+    app.listen(3000, () => {
+      console.log('🚀 Server running on port 3000 (mapped to 8080 via Docker)');
+      console.log('📊 Admin panel: http://localhost:8080/admin');
+      console.log('🔑 Login with: albane / admin');
+    });
 
     await saveData();
   } catch (err) {
-    console.error('Failed to start application:', (err as Error).message);
+    console.error('❌ Failed to start application:', (err as Error).message);
+    console.error(err);
     process.exit(1);
   }
 })();
