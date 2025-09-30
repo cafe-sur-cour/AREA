@@ -66,17 +66,18 @@ export default function Home() {
         </div>
       </section>
       {/* Infinite Horizontal Cards */}
-      <section className="px-4 sm:px-6 lg:px-8 py-24 bg-muted/30">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-heading font-bold text-foreground mb-4">
+      <section className='px-4 sm:px-6 lg:px-8 py-24 bg-muted/30'>
+        <div className='max-w-7xl mx-auto'>
+          <div className='text-center mb-16'>
+            <h2 className='text-3xl sm:text-4xl lg:text-5xl font-heading font-bold text-foreground mb-4'>
               Availables services
             </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Discover the apps and platforms you can connect to create powerful automations.
+            <p className='text-lg text-muted-foreground max-w-2xl mx-auto'>
+              Discover the apps and platforms you can connect to create powerful
+              automations.
             </p>
           </div>
-          <div className="m-5x w-4xl mx-auto">
+          <div className='m-5x w-4xl mx-auto'>
             <InfiniteHorizontalCards />
           </div>
         </div>
