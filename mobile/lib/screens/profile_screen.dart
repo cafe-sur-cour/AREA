@@ -90,25 +90,29 @@ class ProfileScreenState extends State<ProfileScreen> {
         _userProfileIcon = Icons.account_circle;
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            AppLocalizations.of(context)!.logged_out,
-            style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(context)!.logged_out,
+              style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+            ),
+            backgroundColor: AppColors.success,
           ),
-          backgroundColor: AppColors.success,
-        ),
-      );
+        );
+      }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            e.toString(),
-            style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              e.toString(),
+              style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+            ),
+            backgroundColor: AppColors.error,
           ),
-          backgroundColor: AppColors.error,
-        ),
-      );
+        );
+      }
     }
   }
 
@@ -145,15 +149,17 @@ class ProfileScreenState extends State<ProfileScreen> {
         _isConnected = true;
       });
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            e.toString(),
-            style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              e.toString(),
+              style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+            ),
+            backgroundColor: AppColors.error,
           ),
-          backgroundColor: AppColors.error,
-        ),
-      );
+        );
+      }
     }
   }
 
@@ -304,25 +310,34 @@ class ProfileScreenState extends State<ProfileScreen> {
               onFieldSubmitted: (value) async {
                 if (!value.endsWith("/")) value += "/";
 
+                final scaffoldMessenger = ScaffoldMessenger.of(context);
+                final localizations = AppLocalizations.of(context)!;
+
                 final ok = await _testApiAddress(value);
-                late String message;
-                late Color color;
+
+                if (!mounted) return;
+
                 if (!ok) {
-                  message = AppLocalizations.of(context)!.invalid_backend_server_address;
-                  color = AppColors.error;
-                } else {
-                  message = AppLocalizations.of(context)!.valid_backend_server_address;
-                  color = AppColors.success;
-                }
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      message,
-                      style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+                  scaffoldMessenger.showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        localizations.invalid_backend_server_address,
+                        style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+                      ),
+                      backgroundColor: AppColors.error,
                     ),
-                    backgroundColor: color,
-                  ),
-                );
+                  );
+                } else {
+                  scaffoldMessenger.showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        localizations.valid_backend_server_address,
+                        style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+                      ),
+                      backgroundColor: AppColors.success,
+                    ),
+                  );
+                }
               },
             ),
           ],
