@@ -1,20 +1,9 @@
 # Flutter Mobile Build Dockerfile
 FROM ghcr.io/cirruslabs/flutter:3.35.4 AS builder
 
-# Create a non-root user to avoid running Flutter as root
-RUN useradd -m -s /bin/bash flutter
+WORKDIR /app
 
-# Give flutter user ownership of the Flutter SDK directory and cache
-RUN chown -R flutter:flutter /sdks/flutter
-
-USER flutter
-
-# Add Flutter SDK directory to Git safe directories to avoid ownership issues
-RUN git config --global --add safe.directory /sdks/flutter
-
-WORKDIR /home/flutter/app
-
-COPY --chown=flutter:flutter mobile/ ./
+COPY mobile/ ./
 
 RUN flutter clean
 
@@ -27,6 +16,6 @@ FROM alpine:latest AS runner
 
 RUN mkdir -p /app/build
 
-COPY --from=builder /home/flutter/app/build/app/outputs/flutter-apk/app-release.apk /app/build/area.apk
+COPY --from=builder /app/build/app/outputs/flutter-apk/app-release.apk /app/build/area.apk
 
 WORKDIR /app
