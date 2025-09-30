@@ -4,7 +4,7 @@ dotenv.config();
 import { Strategy as GitHubStrategy, Profile } from 'passport-github';
 import { Request } from 'express';
 import jwt from 'jsonwebtoken';
-import { oauthLogin } from '../routes/auth/auth.service';
+import { oauthLogin, connectOAuthProvider } from '../routes/auth/auth.service';
 import { githubOAuth } from '../services/services/github/oauth';
 import { JWT_SECRET } from '../../index';
 
@@ -13,6 +13,56 @@ export interface GitHubUser {
   name: string;
   email: string;
   token: string;
+}
+
+async function isUserAuthenticated(req: Request): Promise<boolean> {
+  try {
+    const authHeader = req.header('Authorization');
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.replace('Bearer ', '');
+      jwt.verify(token, JWT_SECRET as string);
+      return true;
+    }
+
+    const cookieToken = req.cookies?.auth_token;
+    if (cookieToken) {
+      jwt.verify(cookieToken, JWT_SECRET as string);
+      return true;
+    }
+
+    return false;
+  } catch {
+    return false;
+  }
+}
+
+async function getCurrentUser(
+  req: Request
+): Promise<{ id: number; email: string } | null> {
+  try {
+    const authHeader = req.header('Authorization');
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.replace('Bearer ', '');
+      const decoded = jwt.verify(token, JWT_SECRET as string) as {
+        id: number;
+        email: string;
+      };
+      return decoded;
+    }
+
+    const cookieToken = req.cookies?.auth_token;
+    if (cookieToken) {
+      const decoded = jwt.verify(cookieToken, JWT_SECRET as string) as {
+        id: number;
+        email: string;
+      };
+      return decoded;
+    }
+
+    return null;
+  } catch {
+    return null;
+  }
 }
 
 passport.use(
@@ -37,15 +87,34 @@ passport.use(
         user?: GitHubUser | null
       ) => void;
       try {
-        const user = await oauthLogin(
-          'github',
-          profile.id,
-          profile.emails?.[0]?.value || '',
-          profile.displayName || profile.username || ''
-        );
+        const isServiceConnection = await isUserAuthenticated(req);
 
-        if (user instanceof Error) {
-          return doneCallback(user, null);
+        let userToken: string | Error;
+
+        if (isServiceConnection) {
+          const currentUser = await getCurrentUser(req);
+          if (!currentUser) {
+            return doneCallback(new Error('User not authenticated'), null);
+          }
+
+          userToken = await connectOAuthProvider(
+            currentUser.id,
+            'github',
+            profile.id,
+            profile.emails?.[0]?.value || '',
+            profile.displayName || profile.username || ''
+          );
+        } else {
+          userToken = await oauthLogin(
+            'github',
+            profile.id,
+            profile.emails?.[0]?.value || '',
+            profile.displayName || profile.username || ''
+          );
+        }
+
+        if (userToken instanceof Error) {
+          return doneCallback(userToken, null);
         }
 
         const tokenData = {
@@ -54,7 +123,7 @@ passport.use(
           scope: 'user:email,read:user',
         };
 
-        const decoded = jwt.verify(user, JWT_SECRET as string) as {
+        const decoded = jwt.verify(userToken, JWT_SECRET as string) as {
           id: number;
         };
         await githubOAuth.storeUserToken(decoded.id, tokenData);
@@ -63,7 +132,7 @@ passport.use(
           id: profile.id,
           name: profile.displayName || profile.username || '',
           email: profile.emails?.[0]?.value || '',
-          token: user,
+          token: userToken,
         });
       } catch (error) {
         return doneCallback(error as Error, null);

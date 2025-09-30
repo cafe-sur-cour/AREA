@@ -56,20 +56,57 @@ export async function requestReset(email: string) {
   return token;
 }
 
-export async function resetPassword(email: string, newPassword: string) {
-  try {
-    const user = await getUserByEmail(email as string);
-    if (!user) {
-      return new Error('User not found');
-    }
+export async function connectOAuthProvider(
+  userId: number,
+  provider: string,
+  providerId: string,
+  providerEmail: string,
+  name: string
+): Promise<string | Error> {
+  const oauthProviderRepository =
+    AppDataSource.getRepository(UserOAuthProvider);
 
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-    user.password_hash = hashedPassword;
-    await AppDataSource.manager.save(user);
-    return true;
-  } catch {
-    return new Error('Invalid or expired token');
+  const existingProvider = await oauthProviderRepository.findOne({
+    where: {
+      user_id: userId,
+      provider: provider,
+    },
+  });
+
+  if (existingProvider) {
+    existingProvider.provider_id = providerId;
+    existingProvider.provider_email = providerEmail;
+    existingProvider.provider_username = name;
+    existingProvider.last_used_at = new Date();
+    await oauthProviderRepository.save(existingProvider);
+  } else {
+    const newProvider = oauthProviderRepository.create({
+      user_id: userId,
+      provider: provider,
+      provider_id: providerId,
+      provider_email: providerEmail,
+      provider_username: name,
+    });
+    await oauthProviderRepository.save(newProvider);
   }
+
+  const user = await AppDataSource.getRepository(User).findOneBy({
+    id: userId,
+  });
+  if (!user) {
+    return new Error('User not found');
+  }
+
+  user.last_login_at = new Date();
+  await AppDataSource.manager.save(user);
+
+  const token = jwt.sign(
+    { email: user.email, id: user.id, is_admin: user.is_admin },
+    JWT_SECRET as string,
+    { expiresIn: '1h' }
+  );
+
+  return token;
 }
 
 export async function oauthLogin(
