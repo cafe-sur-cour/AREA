@@ -25,5 +25,11 @@
   "empty_name": "Please enter your name",
   "invalid_name": "Name must be less than 38 characters",
   "confirm_password": "Confirm Password",
-  "confirm_password_differs": "Passwords differ"
+  "confirm_password_differs": "Passwords differ",
+  "empty_backend_server_address": "Please enter a backend server address",
+  "invalid_backend_server_address": "The address is not valid",
+  "valid_backend_server_address": "The address is valid",
+  "user_registered": "User registered",
+  "logged_in": "Logged in successfully",
+  "logged_out": "Logged out successfully"
 }

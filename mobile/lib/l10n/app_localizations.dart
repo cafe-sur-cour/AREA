@@ -253,6 +253,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Passwords differ'**
   String get confirm_password_differs;
+
+  /// No description provided for @empty_backend_server_address.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a backend server address'**
+  String get empty_backend_server_address;
+
+  /// No description provided for @invalid_backend_server_address.
+  ///
+  /// In en, this message translates to:
+  /// **'The address is not valid'**
+  String get invalid_backend_server_address;
+
+  /// No description provided for @valid_backend_server_address.
+  ///
+  /// In en, this message translates to:
+  /// **'The address is valid'**
+  String get valid_backend_server_address;
+
+  /// No description provided for @user_registered.
+  ///
+  /// In en, this message translates to:
+  /// **'User registered'**
+  String get user_registered;
+
+  /// No description provided for @logged_in.
+  ///
+  /// In en, this message translates to:
+  /// **'Logged in successfully'**
+  String get logged_in;
+
+  /// No description provided for @logged_out.
+  ///
+  /// In en, this message translates to:
+  /// **'Logged out successfully'**
+  String get logged_out;
 }
 
 class _AppLocalizationsDelegate

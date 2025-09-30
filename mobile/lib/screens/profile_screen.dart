@@ -1,7 +1,13 @@
+import 'dart:convert';
+import 'package:area/core/constants/app_colors.dart';
+import 'package:area/core/constants/app_constants.dart';
+import 'package:area/core/notifiers/backend_address_notifier.dart';
+import 'package:area/core/notifiers/locale_notifier.dart';
 import 'package:area/l10n/app_localizations.dart';
+import 'package:area/services/secure_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:area/core/notifiers/locale_notifier.dart';
+import 'package:http/http.dart' as http;
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -20,12 +26,143 @@ class ProfileScreenState extends State<ProfileScreen> {
   void initState() {
     super.initState();
     _backendServerController.text = "";
+    _loadProfileIfConnected();
+  }
+
+  void _loadProfileIfConnected() async {
+    final jwt = await getJwt();
+    if (jwt != null && jwt.isNotEmpty) {
+      _updateProfile();
+    }
+  }
+
+  Future<bool> _testApiAddress(String address) async {
+    final url = Uri.parse("$address${AppRoutes.healthCheck}");
+
+    try {
+      final response = await http.get(url);
+
+      if (response.statusCode != 200) {
+        throw response.body;
+      }
+
+      final jsonResponse = jsonDecode(response.body);
+      if (jsonResponse['status'] != 'OK') {
+        throw jsonResponse['status'];
+      }
+
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  void _logout() async {
+    final backendAddressNotifier = Provider.of<BackendAddressNotifier>(context, listen: false);
+
+    if (backendAddressNotifier.backendAddress == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!.empty_backend_server_address,
+            style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+          ),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
+    }
+    final address = "${backendAddressNotifier.backendAddress}${AppRoutes.logout}";
+    final url = Uri.parse(address);
+    try {
+      final response = await http.post(url);
+      final data = await jsonDecode(response.body);
+
+      if (response.statusCode != 200) {
+        throw data['error'];
+      }
+
+      await deleteJwt();
+
+      setState(() {
+        _isConnected = false;
+        _userName = "";
+        _userProfileIcon = Icons.account_circle;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!.logged_out,
+            style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+          ),
+          backgroundColor: AppColors.success,
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            e.toString(),
+            style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+          ),
+          backgroundColor: AppColors.error,
+        ),
+      );
+    }
+  }
+
+  void _updateProfile() async {
+    final backendAddressNotifier = Provider.of<BackendAddressNotifier>(context, listen: false);
+
+    if (backendAddressNotifier.backendAddress == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!.empty_backend_server_address,
+            style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+          ),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
+    }
+    final address = "${backendAddressNotifier.backendAddress}${AppRoutes.me}";
+    final url = Uri.parse(address);
+
+    try {
+      final jwt = await getJwt();
+      final response = await http.get(url, headers: {'Authorization': "Bearer $jwt"});
+      final data = await jsonDecode(response.body);
+
+      if (response.statusCode != 200) {
+        throw data['error'];
+      }
+
+      setState(() {
+        _userName = data['name'];
+        _userProfileIcon = Icons.account_circle;
+        _isConnected = true;
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            e.toString(),
+            style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+          ),
+          backgroundColor: AppColors.error,
+        ),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final localeNotifier = Provider.of<LocaleNotifier>(context);
+    final backendAddressNotifier = Provider.of<BackendAddressNotifier>(context);
 
+    _backendServerController.text = backendAddressNotifier.backendAddress ?? "";
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -60,12 +197,7 @@ class ProfileScreenState extends State<ProfileScreen> {
                 ),
                 if (_isConnected) ...[
                   TextButton(
-                    onPressed: () {
-                      print("User logs out");
-                      setState(() {
-                        _isConnected = false;
-                      });
-                    },
+                    onPressed: _logout,
                     child: Text(
                       AppLocalizations.of(context)!.logout,
                       style: TextStyle(fontSize: 18, color: Theme.of(context).primaryColor),
@@ -78,15 +210,8 @@ class ProfileScreenState extends State<ProfileScreen> {
                       TextButton(
                         onPressed: () {
                           Navigator.pushNamed(context, '/login').then((result) {
-                            if (result != null &&
-                                result is List &&
-                                result.isNotEmpty &&
-                                result[0] == true) {
-                              setState(() {
-                                _isConnected = true;
-                                _userName = result[1] as String;
-                                _userProfileIcon = Icons.account_circle;
-                              });
+                            if (result == true) {
+                              _updateProfile();
                             }
                           });
                         },
@@ -159,10 +284,45 @@ class ProfileScreenState extends State<ProfileScreen> {
               ),
               keyboardType: TextInputType.url,
               onChanged: (value) {
-                print("Backend server address: $value");
+                if (!value.endsWith("/")) {
+                  value += "/";
+                }
+                backendAddressNotifier.setBackendAddress(value);
+              },
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return AppLocalizations.of(context)!.empty_backend_server_address;
+                }
+                if (!value.endsWith("/")) {
+                  value += "/";
+                }
+                return null;
               },
               onTapOutside: (event) {
                 FocusScope.of(context).unfocus();
+              },
+              onFieldSubmitted: (value) async {
+                if (!value.endsWith("/")) value += "/";
+
+                final ok = await _testApiAddress(value);
+                late String message;
+                late Color color;
+                if (!ok) {
+                  message = AppLocalizations.of(context)!.invalid_backend_server_address;
+                  color = AppColors.error;
+                } else {
+                  message = AppLocalizations.of(context)!.valid_backend_server_address;
+                  color = AppColors.success;
+                }
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      message,
+                      style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+                    ),
+                    backgroundColor: color,
+                  ),
+                );
               },
             ),
           ],

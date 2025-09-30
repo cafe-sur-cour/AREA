@@ -1,6 +1,13 @@
+import 'dart:convert';
+
 import 'package:area/core/constants/app_colors.dart';
+import 'package:area/core/constants/app_constants.dart';
+import 'package:area/core/notifiers/backend_address_notifier.dart';
 import 'package:area/l10n/app_localizations.dart';
+import 'package:area/services/secure_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -11,28 +18,87 @@ class LoginScreen extends StatefulWidget {
 
 class LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
+  bool loading = false;
+
   @override
   void dispose() {
-    _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
-  void _submitForm() {
+  void _submitForm() async {
+    setState(() {
+      loading = true;
+    });
     if (_formKey.currentState!.validate()) {
-      String name = _nameController.text;
       String email = _emailController.text;
       String password = _passwordController.text;
 
-      print('Name: $name, Email: $email, Password: $password');
+      final backendAddressNotifier = Provider.of<BackendAddressNotifier>(
+        context,
+        listen: false,
+      );
 
-      Navigator.pop(context, [true, name]);
+      if (backendAddressNotifier.backendAddress == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(context)!.empty_backend_server_address,
+              style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+            ),
+            backgroundColor: AppColors.error,
+          ),
+        );
+        setState(() {
+          loading = false;
+        });
+        return;
+      }
+
+      try {
+        final address = "${backendAddressNotifier.backendAddress}${AppRoutes.login}";
+        final url = Uri.parse(address);
+
+        final response = await http.post(url, body: {'email': email, 'password': password});
+
+        final data = await jsonDecode(response.body);
+
+        if (response.statusCode != 200) {
+          throw data['error'];
+        }
+
+        await saveJwt(data['token']);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(context)!.logged_in,
+              style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+            ),
+            backgroundColor: AppColors.success,
+          ),
+        );
+
+        Navigator.pop(context, true);
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              e.toString(),
+              style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+            ),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
     }
+    setState(() {
+      loading = false;
+    });
   }
 
   @override
@@ -104,17 +170,21 @@ class LoginScreenState extends State<LoginScreen> {
                     ),
                     child: Text(AppLocalizations.of(context)!.forgot_password_question),
                   ),
-                  ElevatedButton(
-                    onPressed: _submitForm,
-                    style: ElevatedButton.styleFrom(
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                      backgroundColor: AppColors.primary,
+                  if (loading) ...[
+                    const CircularProgressIndicator(),
+                  ] else ...[
+                    ElevatedButton(
+                      onPressed: _submitForm,
+                      style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        backgroundColor: AppColors.primary,
+                      ),
+                      child: Text(
+                        AppLocalizations.of(context)!.login,
+                        style: TextStyle(color: AppColors.areaLightGray),
+                      ),
                     ),
-                    child: Text(
-                      AppLocalizations.of(context)!.login,
-                      style: TextStyle(color: AppColors.areaLightGray),
-                    ),
-                  ),
+                  ],
                 ],
               ),
             ],

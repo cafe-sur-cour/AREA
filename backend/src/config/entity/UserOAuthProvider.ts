@@ -6,11 +6,12 @@ import {
   JoinColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  BaseEntity,
 } from 'typeorm';
 import { User } from './User';
 
 @Entity('user_oauth_providers')
-export class UserOAuthProvider {
+export class UserOAuthProvider extends BaseEntity {
   @PrimaryGeneratedColumn()
   id!: number;
 

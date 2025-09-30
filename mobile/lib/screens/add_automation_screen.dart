@@ -23,15 +23,21 @@ class AddAutomationScreenState extends State<AddAutomationScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
-        spacing: 100,
+        spacing: 75,
         children: [
           SizedBox(
-            height: 250,
+            height: 300,
             child: Wrap(
               direction: Axis.vertical,
               alignment: WrapAlignment.end,
               crossAxisAlignment: WrapCrossAlignment.center,
-              children: [Image(image: AssetImage('assets/web-app-manifest-192x192.png'))],
+              children: [
+                Image(
+                  image: AssetImage('assets/web-app-manifest-512x512.png'),
+                  width: 200,
+                  height: 200,
+                ),
+              ],
             ),
           ),
           Wrap(
