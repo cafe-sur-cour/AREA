@@ -83,6 +83,7 @@ export async function connectOAuthProvider(
     const newProvider = oauthProviderRepository.create({
       user_id: userId,
       provider: provider,
+      connection_type: 'service',
       provider_id: providerId,
       provider_email: providerEmail,
       provider_username: name,
@@ -137,6 +138,7 @@ export async function oauthLogin(
       oauthProvider = oauthProviderRepository.create({
         user_id: user.id,
         provider: provider,
+        connection_type: 'auth',
         provider_id: providerId,
         provider_email: providerEmail,
         provider_username: name,
@@ -157,6 +159,7 @@ export async function oauthLogin(
       oauthProvider = oauthProviderRepository.create({
         user_id: user.id,
         provider: provider,
+        connection_type: 'auth',
         provider_id: providerId,
         provider_email: providerEmail,
         provider_username: name,

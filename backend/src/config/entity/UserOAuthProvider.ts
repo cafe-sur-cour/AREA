@@ -22,6 +22,9 @@ export class UserOAuthProvider {
   user!: User;
 
   @Column({ type: 'varchar', length: 50 })
+  connection_type!: 'auth' | 'service'; // 'auth' pour login, 'service' pour webhooks/APIs
+
+  @Column({ type: 'varchar', length: 255 })
   provider!: string;
 
   @Column({ type: 'varchar', length: 255 })
