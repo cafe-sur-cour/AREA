@@ -441,34 +441,33 @@ router.post('/verify', mail, (req: Request, res: Response) => {
 
 /**
  * @swagger
- * /api/auth/github:
+ * /api/auth/github/login:
  *   get:
- *     summary: Initiate GitHub OAuth authorization for login/register or service connection
+ *     summary: Initiate GitHub OAuth authorization for login/register
  *     tags:
  *       - OAuth
  *     description: |
  *       Redirects user to GitHub for OAuth authorization.
- *       If user is not authenticated, this will be used for login/register.
- *       If user is already authenticated, this will connect GitHub for service access.
+ *       This route is used for login/register when user is not authenticated.
  *     responses:
  *       302:
  *         description: Redirect to GitHub authorization page
  *       500:
  *         description: Internal Server Error
  */
-router.get('/github', passport.authenticate('github'));
+router.get('/github/login', passport.authenticate('github-login'));
 
 /**
  * @swagger
  * /api/auth/github/callback:
  *   get:
- *     summary: Handle GitHub OAuth callback for login/register or service connection
+ *     summary: Handle GitHub OAuth callback for both login/register and service connection
  *     tags:
  *       - OAuth
  *     description: |
  *       Exchanges authorization code for access token and handles authentication.
- *       If user is not authenticated, performs login/register.
- *       If user is already authenticated, connects GitHub account for service access.
+ *       Automatically determines whether to perform login/register or service connection
+ *       based on user authentication status.
  *     parameters:
  *       - name: code
  *         in: query
@@ -509,7 +508,31 @@ router.get('/github', passport.authenticate('github'));
  */
 router.get(
   '/github/callback',
-  passport.authenticate('github', { session: false }),
+  async (req: Request, res: Response, next) => {
+    try {
+      // Check if user is authenticated to determine strategy
+      const isAuthenticated = !!(req.auth || req.cookies?.auth_token);
+
+      if (isAuthenticated) {
+        // User is authenticated, use subscribe strategy
+        passport.authenticate('github-subscribe', { session: false })(
+          req,
+          res,
+          next
+        );
+      } else {
+        // User is not authenticated, use login strategy
+        passport.authenticate('github-login', { session: false })(
+          req,
+          res,
+          next
+        );
+      }
+    } catch (err) {
+      console.error('GitHub OAuth callback error:', err);
+      res.status(500).json({ error: 'Failed to authenticate with GitHub' });
+    }
+  },
   async (req: Request, res: Response): Promise<void> => {
     try {
       const user = req.user as { token: string };
@@ -529,18 +552,42 @@ router.get(
     }
   }
 );
-
 /**
  * @swagger
- * /api/auth/google:
+ * /api/auth/github/subscribe:
  *   get:
- *     summary: Initiate Google OAuth authorization for login/register or service connection
+ *     summary: Initiate GitHub OAuth authorization for service connection
+ *     tags:
+ *       - OAuth
+ *     description: |
+ *       Redirects user to GitHub for OAuth authorization.
+ *       This route is used to connect GitHub account for service access when user is already authenticated.
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       302:
+ *         description: Redirect to GitHub authorization page
+ *       401:
+ *         description: User not authenticated
+ *       500:
+ *         description: Internal Server Error
+ */
+router.get('/github/subscribe', async (req: Request, res: Response, next) => {
+  if (!req.auth) {
+    return res.status(401).json({ error: 'Authentication required' });
+  }
+  passport.authenticate('github-subscribe')(req, res, next);
+});
+/**
+ * @swagger
+ * /api/auth/google/login:
+ *   get:
+ *     summary: Initiate Google OAuth authorization for login/register
  *     tags:
  *       - OAuth
  *     description: |
  *       Redirects user to Google for OAuth authorization.
- *       If user is not authenticated, this will be used for login/register.
- *       If user is already authenticated, this will connect Google for service access.
+ *       This route is used for login/register when user is not authenticated.
  *     responses:
  *       302:
  *         description: Redirect to Google authorization page
@@ -548,21 +595,52 @@ router.get(
  *         description: Internal Server Error
  */
 router.get(
-  '/google',
-  passport.authenticate('google', { scope: ['openid', 'email', 'profile'] })
+  '/google/login',
+  passport.authenticate('google-login', {
+    scope: ['openid', 'email', 'profile'],
+  })
 );
+
+/**
+ * @swagger
+ * /api/auth/google/subscribe:
+ *   get:
+ *     summary: Initiate Google OAuth authorization for service connection
+ *     tags:
+ *       - OAuth
+ *     description: |
+ *       Redirects user to Google for OAuth authorization.
+ *       This route is used to connect Google account for service access when user is already authenticated.
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       302:
+ *         description: Redirect to Google authorization page
+ *       401:
+ *         description: User not authenticated
+ *       500:
+ *         description: Internal Server Error
+ */
+router.get('/google/subscribe', async (req: Request, res: Response, next) => {
+  if (!req.auth) {
+    return res.status(401).json({ error: 'Authentication required' });
+  }
+  passport.authenticate('google-subscribe', {
+    scope: ['openid', 'email', 'profile'],
+  })(req, res, next);
+});
 
 /**
  * @swagger
  * /api/auth/google/callback:
  *   get:
- *     summary: Handle Google OAuth callback for login/register or service connection
+ *     summary: Handle Google OAuth callback for both login/register and service connection
  *     tags:
  *       - OAuth
  *     description: |
  *       Exchanges authorization code for access token and handles authentication.
- *       If user is not authenticated, performs login/register.
- *       If user is already authenticated, connects Google account for service access.
+ *       Automatically determines whether to perform login/register or service connection
+ *       based on user authentication status.
  *     parameters:
  *       - name: code
  *         in: query
@@ -603,7 +681,28 @@ router.get(
  */
 router.get(
   '/google/callback',
-  passport.authenticate('google', { session: false }),
+  async (req: Request, res: Response, next) => {
+    try {
+      const isAuthenticated = !!(req.auth || req.cookies?.auth_token);
+
+      if (isAuthenticated) {
+        passport.authenticate('google-subscribe', { session: false })(
+          req,
+          res,
+          next
+        );
+      } else {
+        passport.authenticate('google-login', { session: false })(
+          req,
+          res,
+          next
+        );
+      }
+    } catch (err) {
+      console.error('Google OAuth callback error:', err);
+      res.status(500).json({ error: 'Failed to authenticate with Google' });
+    }
+  },
   async (req: Request, res: Response): Promise<void> => {
     try {
       const user = req.user as { token: string };

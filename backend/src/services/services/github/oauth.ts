@@ -21,6 +21,13 @@ export interface GitHubUser {
   email: string;
 }
 
+export interface GitHubUserEmail {
+  email: string;
+  verified: boolean;
+  primary: boolean;
+  visibility: string | null;
+}
+
 export class GitHubOAuth {
   private clientId: string;
   private clientSecret: string;
@@ -101,6 +108,24 @@ export class GitHubOAuth {
     }
 
     return (await response.json()) as GitHubUser;
+  }
+
+  async getUserEmails(accessToken: string): Promise<GitHubUserEmail[]> {
+    const response = await fetch(`${this.githubApiBaseUrl}/user/emails`, {
+      headers: {
+        Authorization: `token ${accessToken}`,
+        Accept: 'application/vnd.github.v3+json',
+        'User-Agent': 'AREA-App',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to get GitHub user emails: ${response.statusText}`
+      );
+    }
+
+    return (await response.json()) as GitHubUserEmail[];
   }
 
   async storeUserToken(
