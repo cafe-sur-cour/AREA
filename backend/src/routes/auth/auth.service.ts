@@ -1,7 +1,7 @@
 import { User } from '../../config/entity/User';
 import { UserOAuthProvider } from '../../config/entity/UserOAuthProvider';
 import { AppDataSource } from '../../config/db';
-import { getUserByEmail } from '../user/user.service';
+import { getUserByEmail, getUserByID, createUser, updateUserEmailVerified, updateUserLastLogin, updateUserPassword } from '../user/user.service';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { JWT_SECRET } from '../../../index';
@@ -24,10 +24,11 @@ export async function register(email: string, name: string, password: string) {
   const foundUser = await getUserByEmail(email);
   if (foundUser) return new Error('Account already exists');
   const hashed_password = await bcrypt.hash(password, 10);
-  const newUser = new User();
-  newUser.name = name;
-  newUser.email = email;
-  newUser.password_hash = hashed_password;
+  const newUser = await createUser({
+    name,
+    email,
+    password_hash: hashed_password,
+  });
   const token = jwt.sign(
     { name: newUser.name, email: newUser.email },
     JWT_SECRET as string,
@@ -35,15 +36,13 @@ export async function register(email: string, name: string, password: string) {
       expiresIn: '1h',
     }
   );
-  await AppDataSource.manager.save(newUser);
   return token;
 }
 
 export async function verify(email: string) {
   const user = await getUserByEmail(email);
   if (!user) return new Error('User not found');
-  user.email_verified = true;
-  await AppDataSource.manager.save(user);
+  await updateUserEmailVerified(user.id, true);
 }
 
 export async function requestReset(email: string) {
@@ -62,9 +61,12 @@ export async function resetPassword(email: string, newPassword: string) {
 
   try {
     const hashedPassword = await bcrypt.hash(newPassword, 10);
-    user.password_hash = hashedPassword;
-    await AppDataSource.manager.save(user);
-    return true;
+    const success = await updateUserPassword(user.id, hashedPassword);
+    if (success) {
+      return true;
+    } else {
+      return new Error('Failed to update password');
+    }
   } catch {
     return new Error('Invalid or expired token');
   }
@@ -105,15 +107,12 @@ export async function connectOAuthProvider(
     await oauthProviderRepository.save(newProvider);
   }
 
-  const user = await AppDataSource.getRepository(User).findOneBy({
-    id: userId,
-  });
+  const user = await getUserByID(userId);
   if (!user) {
     return new Error('User not found');
   }
 
-  user.last_login_at = new Date();
-  await AppDataSource.manager.save(user);
+  await updateUserLastLogin(user.id);
 
   const token = jwt.sign(
     { email: user.email, id: user.id, is_admin: user.is_admin },
@@ -159,16 +158,15 @@ export async function oauthLogin(
       });
       await oauthProviderRepository.save(oauthProvider);
 
-      user.email_verified = true;
-      await AppDataSource.manager.save(user);
+      await updateUserEmailVerified(user.id, true);
     } else {
-      user = new User();
-      user.name = name;
-      user.email = providerEmail || `${providerId}@${provider}.oauth`;
-      user.password_hash = '';
-      user.email_verified = true;
-      user.is_active = true;
-      await AppDataSource.manager.save(user);
+      user = await createUser({
+        name,
+        email: providerEmail || `${providerId}@${provider}.oauth`,
+        password_hash: '',
+        email_verified: true,
+        is_active: true,
+      });
 
       oauthProvider = oauthProviderRepository.create({
         user_id: user.id,
@@ -186,11 +184,12 @@ export async function oauthLogin(
     return new Error('Failed to create or find user');
   }
 
-  user.last_login_at = new Date();
-  await AppDataSource.manager.save(user);
+  await updateUserLastLogin(user.id);
 
-  oauthProvider.last_used_at = new Date();
-  await oauthProviderRepository.save(oauthProvider);
+  if (oauthProvider) {
+    oauthProvider.last_used_at = new Date();
+    await oauthProviderRepository.save(oauthProvider);
+  }
 
   const token = jwt.sign(
     { email: user.email, id: user.id, is_admin: user.is_admin },

@@ -27,6 +27,14 @@ interface UpdateUserDTO {
   picture?: string;
 }
 
+interface CreateUserDTO {
+  name: string;
+  email: string;
+  password_hash: string;
+  email_verified?: boolean;
+  is_active?: boolean;
+}
+
 export const deleteUserById = async (id: number): Promise<boolean> => {
   const user = await getUserByID(id);
   if (!user) return false;
@@ -72,4 +80,28 @@ export const updateUserName = async (
 /* Those function are here for app gestion */
 export const getNbUser = async (): Promise<number | null> => {
   return AppDataSource.manager.count(User);
+};
+
+export const createUser = async (userData: CreateUserDTO): Promise<User> => {
+  const user = new User();
+  user.name = userData.name;
+  user.email = userData.email;
+  user.password_hash = userData.password_hash;
+  if (userData.email_verified !== undefined) user.email_verified = userData.email_verified;
+  if (userData.is_active !== undefined) user.is_active = userData.is_active;
+  return await AppDataSource.manager.save(user);
+};
+
+export const updateUserEmailVerified = async (id: number, email_verified: boolean): Promise<boolean> => {
+  const user = await getUserByID(id);
+  if (!user) return false;
+  await AppDataSource.manager.update(User, { id }, { email_verified });
+  return true;
+};
+
+export const updateUserLastLogin = async (id: number): Promise<boolean> => {
+  const user = await getUserByID(id);
+  if (!user) return false;
+  await AppDataSource.manager.update(User, { id }, { last_login_at: new Date() });
+  return true;
 };
