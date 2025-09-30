@@ -1,9 +1,13 @@
 # Flutter Mobile Build Dockerfile
-FROM cirrusci/flutter:stable AS builder
+FROM ghcr.io/cirruslabs/flutter:3.35.4 AS builder
 
-WORKDIR /app
+# Create a non-root user to avoid running Flutter as root
+RUN useradd -m -s /bin/bash flutter
+USER flutter
 
-COPY mobile/ ./
+WORKDIR /home/flutter/app
+
+COPY --chown=flutter:flutter mobile/ ./
 
 RUN flutter clean
 
@@ -16,6 +20,6 @@ FROM alpine:latest AS runner
 
 RUN mkdir -p /app/build
 
-COPY --from=builder /app/build/app/outputs/flutter-apk/app-release.apk /app/build/area.apk
+COPY --from=builder /home/flutter/app/build/app/outputs/flutter-apk/app-release.apk /app/build/area.apk
 
 WORKDIR /app
