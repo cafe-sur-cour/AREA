@@ -63,8 +63,8 @@ app.use('/api/user', userRoutes);
 app.use('/api/github', githubRoutes);
 app.use('/api/services', serviceConfigRoutes);
 app.use('/api/info', apiRoutes);
+app.use('/api/webhooks', webhookRoutes);
 app.use('/about.json', aboutRoutes);
-app.use('/webhooks', webhookRoutes);
 
 setupSwagger(app);
 setupSignal();

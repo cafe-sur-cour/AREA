@@ -71,6 +71,9 @@ router.get('/', async (req: Request, res: Response): Promise<void> => {
 
     const currentTime = Math.floor(Date.now() / 1000);
 
+    const lang = (req.query.lang as string) || 'en';
+    await i18next.changeLanguage(lang);
+
     const services = serviceRegistry.getAllServices().map(service => {
       const translatedService = translateService(service, i18next.t);
       return {

@@ -796,28 +796,39 @@ router.post('/forgot-password', async (req: Request, res: Response) => {
  *           newPassword: "123"
  */
 router.post('/reset-password', mail, async (req: Request, res: Response) => {
-  try {
-    if (!req.token) {
-      return res.status(400).json({ error: 'Token is required' });
-    }
-
-    const { newPassword } = req.body;
-    if (!newPassword) {
-      return res.status(400).json({ error: 'New password is required' });
-    }
-
-    const result = await auth.resetPassword(req.token, newPassword);
-    if (!result) {
-      return res.status(400).json({ error: 'Invalid or expired token' });
-    }
-
-    return res
-      .status(200)
-      .json({ message: 'Password has been reset successfully' });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: 'Internal Server Error' });
+  if (!req.token) {
+    return res.status(400).json({ error: 'Token is required' });
   }
+
+  jwt.verify(
+    req.token,
+    JWT_SECRET as string,
+    async (
+      err: jwt.VerifyErrors | null,
+      decoded: string | jwt.JwtPayload | undefined
+    ) => {
+      if (err || !decoded || typeof decoded === 'string') {
+        return res.status(400).json({ error: 'Invalid or expired token' });
+      }
+
+      const { newPassword } = req.body;
+      if (!newPassword) {
+        return res.status(400).json({ error: 'New password is required' });
+      }
+
+      const result = await auth.resetPassword(
+        decoded.email as string,
+        newPassword
+      );
+      if (!result) {
+        return res.status(400).json({ error: 'Invalid or expired token' });
+      }
+
+      return res
+        .status(200)
+        .json({ message: 'Password has been reset successfully' });
+    }
+  );
 });
 
 export default router;

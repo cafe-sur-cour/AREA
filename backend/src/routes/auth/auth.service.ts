@@ -55,10 +55,9 @@ export async function requestReset(email: string) {
   return token;
 }
 
-export async function resetPassword(token: string, newPassword: string) {
+export async function resetPassword(email: string, newPassword: string) {
   try {
-    const decoded = jwt.verify(token, JWT_SECRET as string) as jwt.JwtPayload;
-    const user = await getUserByEmail(decoded.email as string);
+    const user = await getUserByEmail(email as string);
     if (!user) {
       return new Error('User not found');
     }

@@ -281,28 +281,22 @@ describe('Auth Service', () => {
   });
 
   describe('resetPassword', () => {
-    it('should reset password successfully with valid token', async () => {
-      const decodedToken = { email: 'test@test.com' };
+    it('should reset password successfully with valid email', async () => {
       const user = {
         id: 1,
         email: 'test@test.com',
         password_hash: 'oldpassword',
       } as User;
 
-      mockJwt.verify.mockReturnValue(decodedToken as never);
       mockGetUserByEmail.mockResolvedValue(user);
       (mockBcrypt.hash as jest.Mock).mockResolvedValue('newhashed');
 
       const result = await authService.resetPassword(
-        'valid-token',
+        'test@test.com',
         'newpassword123'
       );
 
       expect(result).toBe(true);
-      expect(mockJwt.verify).toHaveBeenCalledWith(
-        'valid-token',
-        'test-jwt-secret'
-      );
       expect(mockGetUserByEmail).toHaveBeenCalledWith('test@test.com');
       expect(mockBcrypt.hash).toHaveBeenCalledWith('newpassword123', 10);
       expect(user.password_hash).toBe('newhashed');
@@ -310,12 +304,10 @@ describe('Auth Service', () => {
     });
 
     it('should return error when user not found', async () => {
-      const decodedToken = { email: 'nonexistent@test.com' };
-      mockJwt.verify.mockReturnValue(decodedToken as never);
       mockGetUserByEmail.mockResolvedValue(null);
 
       const result = await authService.resetPassword(
-        'valid-token',
+        'nonexistent@test.com',
         'newpassword123'
       );
 
@@ -325,30 +317,38 @@ describe('Auth Service', () => {
       expect(mockSave).not.toHaveBeenCalled();
     });
 
-    it('should return error when token is invalid', async () => {
-      mockJwt.verify.mockImplementation(() => {
-        throw new Error('Invalid token');
-      });
+    it('should return error when database operation fails', async () => {
+      const user = {
+        id: 1,
+        email: 'test@test.com',
+        password_hash: 'oldpassword',
+      } as User;
+
+      mockGetUserByEmail.mockResolvedValue(user);
+      (mockBcrypt.hash as jest.Mock).mockRejectedValue(new Error('Hash error'));
 
       const result = await authService.resetPassword(
-        'invalid-token',
+        'test@test.com',
         'newpassword123'
       );
 
       expect(result).toBeInstanceOf(Error);
       expect((result as Error).message).toBe('Invalid or expired token');
-      expect(mockGetUserByEmail).not.toHaveBeenCalled();
-      expect(mockBcrypt.hash).not.toHaveBeenCalled();
-      expect(mockSave).not.toHaveBeenCalled();
     });
 
-    it('should return error when token verification throws', async () => {
-      mockJwt.verify.mockImplementation(() => {
-        throw new Error('Token expired');
-      });
+    it('should return error when save operation fails', async () => {
+      const user = {
+        id: 1,
+        email: 'test@test.com',
+        password_hash: 'oldpassword',
+      } as User;
+
+      mockGetUserByEmail.mockResolvedValue(user);
+      (mockBcrypt.hash as jest.Mock).mockResolvedValue('newhashed');
+      mockSave.mockRejectedValue(new Error('Save error'));
 
       const result = await authService.resetPassword(
-        'expired-token',
+        'test@test.com',
         'newpassword123'
       );
 
@@ -357,14 +357,12 @@ describe('Auth Service', () => {
     });
 
     it('should hash password with correct salt rounds', async () => {
-      const decodedToken = { email: 'test@test.com' };
       const user = { email: 'test@test.com' } as User;
 
-      mockJwt.verify.mockReturnValue(decodedToken as never);
       mockGetUserByEmail.mockResolvedValue(user);
       (mockBcrypt.hash as jest.Mock).mockResolvedValue('hashedpassword');
 
-      await authService.resetPassword('valid-token', 'newpassword123');
+      await authService.resetPassword('test@test.com', 'newpassword123');
 
       expect(mockBcrypt.hash).toHaveBeenCalledWith('newpassword123', 10);
     });
