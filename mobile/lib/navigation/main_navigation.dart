@@ -34,7 +34,7 @@ class MainNavigationState extends State<MainNavigation> {
 
   @override
   Widget build(BuildContext context) {
-    late final List<NavigationItem> _pages = [
+    late final List<NavigationItem> pages = [
       NavigationItem(
         label: AppLocalizations.of(context)!.label_home,
         icon: Icons.home_outlined,
@@ -68,7 +68,7 @@ class MainNavigationState extends State<MainNavigation> {
     ];
 
     return Scaffold(
-      body: _pages[_currentIndex].screen,
+      body: pages[_currentIndex].screen,
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) => setState(() => _currentIndex = index),
@@ -78,7 +78,7 @@ class MainNavigationState extends State<MainNavigation> {
           size: AppDimensions.iconSizeLG,
         ),
         selectedLabelStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-        items: _pages
+        items: pages
             .map(
               (item) => BottomNavigationBarItem(
                 icon: Icon(item.icon),

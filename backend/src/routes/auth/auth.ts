@@ -681,7 +681,7 @@ router.post('/forgot-password', async (req: Request, res: Response) => {
     };
 
     await transporter.sendMail(mailOptions);
-    res.status(201).json({
+    res.status(200).json({
       message:
         'If that email is registered, you will receive a password reset link.',
     });
