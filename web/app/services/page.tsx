@@ -166,10 +166,10 @@ export default function ServicesPage() {
 
   if (authLoading || isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <TbLoader3 className="size-12 animate-spin text-jeb-primary mb-4" />
-          <p className="mt-4 text-gray-600">Loading...</p>
+      <div className='min-h-screen flex items-center justify-center'>
+        <div className='text-center'>
+          <TbLoader3 className='size-12 animate-spin text-jeb-primary mb-4' />
+          <p className='mt-4 text-gray-600'>Loading...</p>
         </div>
       </div>
     );
@@ -180,7 +180,6 @@ export default function ServicesPage() {
       <Navigation />
 
       <main className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
-
         {/* Services Grid */}
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
           {services.map(service => (
@@ -216,7 +215,7 @@ export default function ServicesPage() {
                   {service.description}
                 </p>
 
-                <div className="grid gap-2">
+                <div className='grid gap-2'>
                   {service.isConnected ? (
                     <Button
                       onClick={() => handleDisconnect(service)}
@@ -234,11 +233,11 @@ export default function ServicesPage() {
                     </Button>
                   )}
                   <Button
-                      onClick={() => handleConnect(service)}
-                      variant='outline'
-                      className='w-full border-app-red-primary text-app-red-primary hover:bg-app-red-primary hover:text-blue-500'
-                    >
-                      More details
+                    onClick={() => handleConnect(service)}
+                    variant='outline'
+                    className='w-full border-app-red-primary text-app-red-primary hover:bg-app-red-primary hover:text-blue-500'
+                  >
+                    More details
                   </Button>
                 </div>
               </CardContent>
