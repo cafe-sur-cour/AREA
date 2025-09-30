@@ -99,7 +99,6 @@ app.use(session(sessionOptions));
 app.use(passport.initialize());
 app.use(passport.session());
 
-
 setupSwagger(app);
 setupSignal();
 
