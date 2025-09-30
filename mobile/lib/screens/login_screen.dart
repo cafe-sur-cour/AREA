@@ -73,27 +73,31 @@ class LoginScreenState extends State<LoginScreen> {
 
         await saveJwt(data['token']);
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              AppLocalizations.of(context)!.logged_in,
-              style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                AppLocalizations.of(context)!.logged_in,
+                style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+              ),
+              backgroundColor: AppColors.success,
             ),
-            backgroundColor: AppColors.success,
-          ),
-        );
+          );
 
-        Navigator.pop(context, true);
+          Navigator.pop(context, true);
+        }
       } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              e.toString(),
-              style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                e.toString(),
+                style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+              ),
+              backgroundColor: AppColors.error,
             ),
-            backgroundColor: AppColors.error,
-          ),
-        );
+          );
+        }
       }
     }
     setState(() {
