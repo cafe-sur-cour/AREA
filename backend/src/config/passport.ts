@@ -3,10 +3,10 @@ import dotenv from 'dotenv';
 dotenv.config();
 import { Strategy as GitHubStrategy, Profile } from 'passport-github';
 import { Request } from 'express';
-import { oauthLogin } from '../routes/auth/auth.service';
 import jwt from 'jsonwebtoken';
-import { JWT_SECRET } from '../../index';
+import { oauthLogin, connectOAuthProvider } from '../routes/auth/auth.service';
 import { githubOAuth } from '../services/services/github/oauth';
+import { JWT_SECRET } from '../../index';
 
 export interface GitHubUser {
   id: string;
@@ -15,12 +15,63 @@ export interface GitHubUser {
   token: string;
 }
 
+async function isUserAuthenticated(req: Request): Promise<boolean> {
+  try {
+    const authHeader = req.header('Authorization');
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.replace('Bearer ', '');
+      jwt.verify(token, JWT_SECRET as string);
+      return true;
+    }
+
+    const cookieToken = req.cookies?.auth_token;
+    if (cookieToken) {
+      jwt.verify(cookieToken, JWT_SECRET as string);
+      return true;
+    }
+
+    return false;
+  } catch {
+    return false;
+  }
+}
+
+async function getCurrentUser(
+  req: Request
+): Promise<{ id: number; email: string } | null> {
+  try {
+    const authHeader = req.header('Authorization');
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.replace('Bearer ', '');
+      const decoded = jwt.verify(token, JWT_SECRET as string) as {
+        id: number;
+        email: string;
+      };
+      return decoded;
+    }
+
+    const cookieToken = req.cookies?.auth_token;
+    if (cookieToken) {
+      const decoded = jwt.verify(cookieToken, JWT_SECRET as string) as {
+        id: number;
+        email: string;
+      };
+      return decoded;
+    }
+
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 passport.use(
   new GitHubStrategy(
     {
       clientID: process.env.SERVICE_GITHUB_CLIENT_ID || '',
       clientSecret: process.env.SERVICE_GITHUB_CLIENT_SECRET || '',
       callbackURL: process.env.SERVICE_GITHUB_REDIRECT_URI || '',
+      scope: ['user:email', 'read:user'],
       passReqToCallback: true,
     },
     async (
@@ -36,70 +87,52 @@ passport.use(
         user?: GitHubUser | null
       ) => void;
       try {
-        let authToken: string | null = null;
-        if (req.query.state) {
-          try {
-            const stateData = JSON.parse(Buffer.from(req.query.state as string, 'base64').toString());
-            authToken = stateData.authToken;
-          } catch (error) {
-            console.log('GitHub OAuth - Error decoding state:', error);
+        const isServiceConnection = await isUserAuthenticated(req);
+
+        let userToken: string | Error;
+
+        if (isServiceConnection) {
+          const currentUser = await getCurrentUser(req);
+          if (!currentUser) {
+            return doneCallback(new Error('User not authenticated'), null);
           }
+
+          userToken = await connectOAuthProvider(
+            currentUser.id,
+            'github',
+            profile.id,
+            profile.emails?.[0]?.value || '',
+            profile.displayName || profile.username || ''
+          );
+        } else {
+          userToken = await oauthLogin(
+            'github',
+            profile.id,
+            profile.emails?.[0]?.value || '',
+            profile.displayName || profile.username || ''
+          );
         }
 
-        if (!authToken) {
-          authToken = req.cookies?.auth_token;
-          console.log('GitHub OAuth - Auth token from cookie:', !!authToken);
-        }
-
-        if (authToken) {
-          try {
-            const decoded = jwt.verify(authToken, JWT_SECRET as string) as jwt.JwtPayload;
-            const userId = decoded.id;
-
-            const tokenData = {
-              access_token: accessToken,
-              token_type: 'bearer',
-              scope: (params as { scope?: string })?.scope || 'repo,user',
-            };
-            await githubOAuth.storeUserToken(userId, tokenData);
-
-            return doneCallback(null, {
-              id: profile.id,
-              name: profile.displayName || profile.username || '',
-              email: profile.emails?.[0]?.value || '',
-              token: authToken,
-            });
-          } catch (error) {
-            console.log('GitHub OAuth - Error processing auth token:', error);
-          }
-        }
-
-        const user = await oauthLogin(
-          'github',
-          profile.id,
-          profile.emails?.[0]?.value || '',
-          profile.displayName || profile.username || ''
-        );
-
-        if (user instanceof Error) {
-          return doneCallback(user, null);
+        if (userToken instanceof Error) {
+          return doneCallback(userToken, null);
         }
 
         const tokenData = {
           access_token: accessToken,
           token_type: 'bearer',
-          scope: (params as { scope?: string })?.scope || 'repo,user',
+          scope: 'user:email,read:user',
         };
 
-        const decoded = jwt.verify(user, JWT_SECRET as string) as jwt.JwtPayload;
-        const userId = decoded.id;
-        await githubOAuth.storeUserToken(userId, tokenData);
+        const decoded = jwt.verify(userToken, JWT_SECRET as string) as {
+          id: number;
+        };
+        await githubOAuth.storeUserToken(decoded.id, tokenData);
 
         return doneCallback(null, {
           id: profile.id,
           name: profile.displayName || profile.username || '',
           email: profile.emails?.[0]?.value || '',
-          token: user,
+          token: userToken,
         });
       } catch (error) {
         return doneCallback(error as Error, null);

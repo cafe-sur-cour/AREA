@@ -6,6 +6,7 @@ CREATE TABLE users (
     "password_hash" VARCHAR(255) NOT NULL,
     "is_admin" BOOLEAN DEFAULT FALSE,
     "picture" VARCHAR(500),
+    "bio" TEXT,
     "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
@@ -28,11 +29,6 @@ CREATE TABLE users (
     "timezone" VARCHAR(50) DEFAULT 'UTC',
     "language" VARCHAR(10) DEFAULT 'en',
     "theme" VARCHAR(20) DEFAULT 'light',
-
-    -- OAuth fields
-    "provider" VARCHAR(50),
-    "provider_id" VARCHAR(255),
-    "provider_email" VARCHAR(255),
 
     -- Metadata
     "is_active" BOOLEAN DEFAULT TRUE,
