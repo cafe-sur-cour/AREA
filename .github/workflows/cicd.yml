@@ -13,6 +13,7 @@ jobs:
       target: ${{ steps.new_output.outputs.value }}
       backend_changed: ${{ steps.new_output.outputs.backend_changed }}
       web_changed: ${{ steps.new_output.outputs.web_changed }}
+      mobile_changed: ${{ steps.new_output.outputs.mobile_changed }}
     steps:
       - name: checkout@v4
         uses: actions/checkout@v4
@@ -34,6 +35,7 @@ jobs:
           if [ "${{ github.event_name }}" = "pull_request" ]; then
             echo "backend_changed=true" >> "$GITHUB_OUTPUT"
             echo "web_changed=true" >> "$GITHUB_OUTPUT"
+            echo "mobile_changed=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
@@ -51,6 +53,7 @@ jobs:
             echo "Detected merge commit: $commit_message" >&2
             echo "backend_changed=true" >> "$GITHUB_OUTPUT"
             echo "web_changed=true" >> "$GITHUB_OUTPUT"
+            echo "mobile_changed=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
@@ -72,6 +75,12 @@ jobs:
             echo "web_changed=true" >> "$GITHUB_OUTPUT"
           else
             echo "web_changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+          if echo "$changed_files" | grep -qE '(^mobile/)|(/mobile/)'; then
+            echo "mobile_changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "mobile_changed=false" >> "$GITHUB_OUTPUT"
           fi
 
   backend-linter:
@@ -147,10 +156,53 @@ jobs:
         working-directory: ./web
         run: npm run format:check
 
+  mobile-linter:
+    name: Mobile frontend linter
+    needs: check_repository
+    if: ${{ needs.check_repository.outputs.target == 0 && needs.check_repository.outputs.mobile_changed == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.13.7'
+
+      - name: Install mobile dependencies
+        working-directory: ./mobile
+        run: flutter pub get
+
+      - name: Run mobile Dart analysis
+        working-directory: ./mobile
+        run: flutter analyze
+
+  mobile-test:
+    name: Mobile frontend tests
+    needs: mobile-linter
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.13.7'
+
+      - name: Install mobile dependencies
+        working-directory: ./mobile
+        run: flutter pub get
+
+      - name: Run mobile tests
+        working-directory: ./mobile
+        run: flutter test
+
   deploy-app:
     name: Deploy application
-    needs: [backend-test, web-linter]
-    if: ${{ needs.check_repository.outputs.backend_changed == 'true' || needs.check_repository.outputs.web_changed == 'true' }}
+    needs: [backend-test, web-linter, mobile-test]
+    if: ${{ needs.check_repository.outputs.backend_changed == 'true' || needs.check_repository.outputs.web_changed == 'true' || needs.check_repository.outputs.mobile_changed == 'true' }}
     runs-on: ubuntu-latest
     environment: AREA
     steps:
