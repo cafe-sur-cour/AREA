@@ -42,15 +42,17 @@ class ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       );
 
       if (backendAddressNotifier.backendAddress == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              AppLocalizations.of(context)!.empty_backend_server_address,
-              style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                AppLocalizations.of(context)!.empty_backend_server_address,
+                style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+              ),
+              backgroundColor: AppColors.error,
             ),
-            backgroundColor: AppColors.error,
-          ),
-        );
+          );
+        }
         setState(() {
           loading = false;
         });
@@ -69,32 +71,38 @@ class ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           throw data['error'];
         }
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              "Email sent",
-              style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                "Email sent",
+                style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+              ),
+              backgroundColor: AppColors.success,
             ),
-            backgroundColor: AppColors.success,
-          ),
-        );
+          );
 
-        Navigator.pop(context);
+          Navigator.pop(context);
+        }
       } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              e.toString(),
-              style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                e.toString(),
+                style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+              ),
+              backgroundColor: AppColors.error,
             ),
-            backgroundColor: AppColors.error,
-          ),
-        );
+          );
+        }
       }
     }
-    setState(() {
-      loading = false;
-    });
+    if (mounted) {
+      setState(() {
+        loading = false;
+      });
+    }
   }
 
   @override
