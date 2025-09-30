@@ -6,6 +6,8 @@ services:
     container_name: area_web
     ports:
       - "${NEXT_PORT}:3000"
+    env_file:
+      - .env
     environment:
       - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
       - FRONTEND_URL=${FRONTEND_URL}
@@ -23,6 +25,8 @@ services:
     container_name: area_server
     ports:
       - "${NODE_PORT}:3000"
+    env_file:
+      - .env
     environment:
       - DB_HOST=${DB_HOST}
       - DB_PORT=${DB_PORT}
@@ -30,11 +34,9 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_NAME=${DB_NAME}
       - FRONTEND_URL=${FRONTEND_URL}
-      - SMTP_HOST=${SMTP_HOST}
-      - SMTP_PORT=${SMTP_PORT}
-      - SMTP_SECURE=${SMTP_SECURE}
-      - SMTP_USER=${SMTP_USER}
-      - SMTP_PASSWORD=${SMTP_PASSWORD}
+      - MAILERSEND_API_KEY=${MAILERSEND_API_KEY}
+      - MAILERSEND_SENDER_EMAIL=${MAILERSEND_SENDER_EMAIL}
+      - MAILERSEND_SENDER_NAME=${MAILERSEND_SENDER_NAME}
       - SERVICE_GITHUB_CLIENT_ID=${SERVICE_GITHUB_CLIENT_ID}
       - SERVICE_GITHUB_CLIENT_SECRET=${SERVICE_GITHUB_CLIENT_SECRET}
       - SERVICE_GITHUB_REDIRECT_URI=${SERVICE_GITHUB_REDIRECT_URI}
@@ -54,6 +56,8 @@ services:
     image: postgres:16
     container_name: postgres_db
     restart: unless-stopped
+    env_file:
+      - .env
     environment:
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
