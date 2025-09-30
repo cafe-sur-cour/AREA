@@ -27,27 +27,52 @@ import { executionService } from './src/services/ExecutionService';
 import { serviceLoader } from './src/services/ServiceLoader';
 import { webhookLoader } from './src/webhooks/WebhookLoader';
 
-import AdminJS from 'adminjs'
-import AdminJSExpress from '@adminjs/express'
+import AdminRouter from './src/config/adminJs';
+import session from 'express-session';
+
+import AdminJS from 'adminjs';
+import AdminJSExpress from '@adminjs/express';
+
+
 
 const app = express();
 export const JWT_SECRET = crypto.randomBytes(64).toString('hex');
 dotenv.config();
 
-const FRONTEND_ORIGIN = process.env.FRONTEND_URL || '';
+const FRONTEND_ORIGIN = process.env.FRONTEND_URL || 'http://localhost:8081';
+const allowedOrigins = [
+  FRONTEND_ORIGIN,
+  'http://localhost:8080',
+  'http://localhost:8081',
+];
 
-app.use(passport.initialize());
+console.log('🚀 Starting middleware setup...');
 
-/* Declare  the cors and allowed routes */
+// 1. BODY PARSERS FIRST
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+
+// 2. CORS CONFIGURATION
 app.use(
   cors({
-    origin: FRONTEND_ORIGIN,
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
   })
 );
 
 app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', FRONTEND_ORIGIN);
+  const origin = req.headers.origin;
+  if (origin && allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
@@ -55,24 +80,43 @@ app.use((req, res, next) => {
   next();
 });
 
-const admin = new AdminJS({});
-const adminRouter = AdminJSExpress.buildRouter(admin);
+// 3. SESSION MIDDLEWARE (BEFORE PASSPORT AND ADMIN)
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'change-this-secret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 1000 * 60 * 60 * 24 // 24 hours
+  }
+}));
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
+// 4. PASSPORT - WILL BE SKIPPED FOR ADMIN ROUTES
+app.use((req, res, next) => {
+  // Skip passport entirely for admin routes
+  if (req.path.startsWith('/admin')) {
+    return next();
+  }
+  next();
+});
 
-/* Route definition with API as prefix */
-app.use('/api/auth', authRoutes);
-app.use('/api/user', userRoutes);
-app.use('/api/github', githubRoutes);
-app.use('/api/services', serviceConfigRoutes);
-app.use('/api/info', apiRoutes);
-app.use('/about.json', aboutRoutes);
-app.use('/webhooks', webhookRoutes);
+app.use(passport.initialize());
+app.use(passport.session());
 
 setupSwagger(app);
 setupSignal();
+
+// Extend session type to include adminUser
+declare module 'express-session' {
+  interface SessionData {
+    adminUser?: {
+      email: string;
+      id: number;
+      name?: string;
+    };
+  }
+}
 
 (async function start() {
   try {
@@ -83,7 +127,6 @@ setupSignal();
 
     console.log('Waiting for Postgres to be ready...');
     await waitForPostgres({ retries: 12, delayMs: 2000 });
-
     await AppDataSource.initialize();
     console.log('Database connection established');
 
@@ -93,12 +136,33 @@ setupSignal();
     await webhookLoader.loadAllWebhooks();
     await executionService.start();
 
+    // 5. SETUP ADMIN PANEL WITH CUSTOM AUTH MIDDLEWARE
+    console.log('🔧 Setting up AdminJS...');
+    const { admin, adminRouter } = await AdminRouter(AppDataSource);
+
     app.use(admin.options.rootPath, adminRouter);
-    app.listen(3000, () => {});
+    console.log(`✅ Admin panel available at http://localhost:8080${admin.options.rootPath}`);
+
+    // 6. API ROUTES (PROTECTED BY PASSPORT)
+    app.use('/api/auth', authRoutes);
+    app.use('/api/user', userRoutes);
+    app.use('/api/github', githubRoutes);
+    app.use('/api/services', serviceConfigRoutes);
+    app.use('/api/info', apiRoutes);
+    app.use('/about.json', aboutRoutes);
+    app.use('/webhooks', webhookRoutes);
+
+    // Start server
+    app.listen(3000, () => {
+      console.log('🚀 Server running on port 3000 (mapped to 8080 via Docker)');
+      console.log('📊 Admin panel: http://localhost:8080/admin');
+      console.log('🔑 Login with: albane / admin');
+    });
 
     await saveData();
   } catch (err) {
-    console.error('Failed to start application:', (err as Error).message);
+    console.error('❌ Failed to start application:', (err as Error).message);
+    console.error(err);
     process.exit(1);
   }
 })();

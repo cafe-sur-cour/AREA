@@ -9,7 +9,7 @@ import {
 import type { Action, Reaction } from '../../types/mapping';
 
 @Entity('webhook_configs')
-export class WebhookConfigs extends BaseEntity{
+export class WebhookConfigs extends BaseEntity {
   @PrimaryGeneratedColumn()
   id!: number;
 

@@ -1,4 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column, Index, BaseEntity } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  Index,
+  BaseEntity,
+} from 'typeorm';
 
 @Entity('user_service_configs')
 @Index(['user_id', 'service'], { unique: true })
