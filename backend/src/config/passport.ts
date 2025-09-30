@@ -54,7 +54,9 @@ passport.use(
           scope: 'user:email,read:user',
         };
 
-        const decoded = jwt.verify(user, JWT_SECRET as string) as { id: number };
+        const decoded = jwt.verify(user, JWT_SECRET as string) as {
+          id: number;
+        };
         await githubOAuth.storeUserToken(decoded.id, tokenData);
 
         return doneCallback(null, {
