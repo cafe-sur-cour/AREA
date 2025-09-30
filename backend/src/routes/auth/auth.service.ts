@@ -1,7 +1,19 @@
 import { User } from '../../config/entity/User';
-import { UserOAuthProvider } from '../../config/entity/UserOAuthProvider';
-import { AppDataSource } from '../../config/db';
-import { getUserByEmail, getUserByID, createUser, updateUserEmailVerified, updateUserLastLogin, updateUserPassword } from '../user/user.service';
+import {
+  getUserByEmail,
+  getUserByID,
+  createUser,
+  updateUserEmailVerified,
+  updateUserLastLogin,
+  updateUserPassword,
+} from '../user/user.service';
+import {
+  getOAuthProviderByUserIdAndProvider,
+  getOAuthProviderByProviderAndId,
+  createOAuthProvider,
+  updateOAuthProviderLastUsed,
+  updateOAuthProvider,
+} from './oauth.service';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { JWT_SECRET } from '../../../index';
@@ -79,32 +91,27 @@ export async function connectOAuthProvider(
   providerEmail: string,
   name: string
 ): Promise<string | Error> {
-  const oauthProviderRepository =
-    AppDataSource.getRepository(UserOAuthProvider);
-
-  const existingProvider = await oauthProviderRepository.findOne({
-    where: {
-      user_id: userId,
-      provider: provider,
-    },
-  });
+  const existingProvider = await getOAuthProviderByUserIdAndProvider(
+    userId,
+    provider
+  );
 
   if (existingProvider) {
-    existingProvider.provider_id = providerId;
-    existingProvider.provider_email = providerEmail;
-    existingProvider.provider_username = name;
-    existingProvider.last_used_at = new Date();
-    await oauthProviderRepository.save(existingProvider);
+    await updateOAuthProvider(existingProvider.id, {
+      provider_id: providerId,
+      provider_email: providerEmail,
+      provider_username: name,
+      last_used_at: new Date(),
+    });
   } else {
-    const newProvider = oauthProviderRepository.create({
+    await createOAuthProvider({
       user_id: userId,
-      provider: provider,
+      provider,
       connection_type: 'service',
       provider_id: providerId,
       provider_email: providerEmail,
       provider_username: name,
     });
-    await oauthProviderRepository.save(newProvider);
   }
 
   const user = await getUserByID(userId);
@@ -129,16 +136,10 @@ export async function oauthLogin(
   providerEmail: string,
   name: string
 ): Promise<string | Error> {
-  const oauthProviderRepository =
-    AppDataSource.getRepository(UserOAuthProvider);
-
-  let oauthProvider = await oauthProviderRepository.findOne({
-    where: {
-      provider: provider,
-      provider_id: providerId,
-    },
-    relations: ['user'],
-  });
+  let oauthProvider = await getOAuthProviderByProviderAndId(
+    provider,
+    providerId
+  );
 
   let user: User | null;
 
@@ -148,15 +149,14 @@ export async function oauthLogin(
     user = await getUserByEmail(providerEmail);
 
     if (user) {
-      oauthProvider = oauthProviderRepository.create({
+      await createOAuthProvider({
         user_id: user.id,
-        provider: provider,
+        provider,
         connection_type: 'auth',
         provider_id: providerId,
         provider_email: providerEmail,
         provider_username: name,
       });
-      await oauthProviderRepository.save(oauthProvider);
 
       await updateUserEmailVerified(user.id, true);
     } else {
@@ -168,15 +168,14 @@ export async function oauthLogin(
         is_active: true,
       });
 
-      oauthProvider = oauthProviderRepository.create({
+      await createOAuthProvider({
         user_id: user.id,
-        provider: provider,
+        provider,
         connection_type: 'auth',
         provider_id: providerId,
         provider_email: providerEmail,
         provider_username: name,
       });
-      await oauthProviderRepository.save(oauthProvider);
     }
   }
 
@@ -187,8 +186,7 @@ export async function oauthLogin(
   await updateUserLastLogin(user.id);
 
   if (oauthProvider) {
-    oauthProvider.last_used_at = new Date();
-    await oauthProviderRepository.save(oauthProvider);
+    await updateOAuthProviderLastUsed(oauthProvider.id);
   }
 
   const token = jwt.sign(

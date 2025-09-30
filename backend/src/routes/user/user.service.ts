@@ -87,12 +87,16 @@ export const createUser = async (userData: CreateUserDTO): Promise<User> => {
   user.name = userData.name;
   user.email = userData.email;
   user.password_hash = userData.password_hash;
-  if (userData.email_verified !== undefined) user.email_verified = userData.email_verified;
+  if (userData.email_verified !== undefined)
+    user.email_verified = userData.email_verified;
   if (userData.is_active !== undefined) user.is_active = userData.is_active;
   return await AppDataSource.manager.save(user);
 };
 
-export const updateUserEmailVerified = async (id: number, email_verified: boolean): Promise<boolean> => {
+export const updateUserEmailVerified = async (
+  id: number,
+  email_verified: boolean
+): Promise<boolean> => {
   const user = await getUserByID(id);
   if (!user) return false;
   await AppDataSource.manager.update(User, { id }, { email_verified });
@@ -102,6 +106,10 @@ export const updateUserEmailVerified = async (id: number, email_verified: boolea
 export const updateUserLastLogin = async (id: number): Promise<boolean> => {
   const user = await getUserByID(id);
   if (!user) return false;
-  await AppDataSource.manager.update(User, { id }, { last_login_at: new Date() });
+  await AppDataSource.manager.update(
+    User,
+    { id },
+    { last_login_at: new Date() }
+  );
   return true;
 };
