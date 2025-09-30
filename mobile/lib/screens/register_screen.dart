@@ -78,27 +78,31 @@ class RegisterScreenState extends State<RegisterScreen> {
           throw data['error'];
         }
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              AppLocalizations.of(context)!.user_registered,
-              style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                AppLocalizations.of(context)!.user_registered,
+                style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+              ),
+              backgroundColor: AppColors.success,
             ),
-            backgroundColor: AppColors.success,
-          ),
-        );
+          );
 
-        Navigator.pop(context);
+          Navigator.pop(context);
+        }
       } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              e.toString(),
-              style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                e.toString(),
+                style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+              ),
+              backgroundColor: AppColors.error,
             ),
-            backgroundColor: AppColors.error,
-          ),
-        );
+          );
+        }
       }
       setState(() {
         loading = false;
