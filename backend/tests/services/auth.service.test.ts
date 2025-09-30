@@ -21,7 +21,7 @@ import {
   getUserByEmail,
   createUser,
   updateUserEmailVerified,
-  updateUserPassword
+  updateUserPassword,
 } from '../../src/routes/user/user.service';
 import { User } from '../../src/config/entity/User';
 import bcrypt from 'bcryptjs';
@@ -30,12 +30,11 @@ import jwt from 'jsonwebtoken';
 const mockGetUserByEmail = getUserByEmail as jest.MockedFunction<
   typeof getUserByEmail
 >;
-const mockCreateUser = createUser as jest.MockedFunction<
-  typeof createUser
->;
-const mockUpdateUserEmailVerified = updateUserEmailVerified as jest.MockedFunction<
-  typeof updateUserEmailVerified
->;
+const mockCreateUser = createUser as jest.MockedFunction<typeof createUser>;
+const mockUpdateUserEmailVerified =
+  updateUserEmailVerified as jest.MockedFunction<
+    typeof updateUserEmailVerified
+  >;
 const mockUpdateUserPassword = updateUserPassword as jest.MockedFunction<
   typeof updateUserPassword
 >;
