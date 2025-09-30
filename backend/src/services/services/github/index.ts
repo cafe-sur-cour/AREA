@@ -1,5 +1,7 @@
 import type { Service } from '../../../types/service';
 import { githubActions } from './actions';
+import { githubReactions } from './reactions';
+import { githubReactionExecutor } from './executor';
 
 const githubService: Service = {
   id: 'github',
@@ -7,10 +9,12 @@ const githubService: Service = {
   description: 'GitHub service for repository events and actions',
   version: '1.0.0',
   actions: githubActions,
-  reactions: [], // githubReactions,
+  reactions: githubReactions,
 };
 
 export default githubService;
+
+export { githubReactionExecutor as executor };
 
 export async function initialize(): Promise<void> {
   console.log('Initializing GitHub service...');

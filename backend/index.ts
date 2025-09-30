@@ -1,4 +1,6 @@
 import * as dotenv from 'dotenv';
+dotenv.config();
+
 import { AppDataSource } from './src/config/db';
 import { saveData } from './src/app';
 import express from 'express';
@@ -35,7 +37,6 @@ import { TypeormStore } from 'connect-typeorm';
 
 const app = express();
 export const JWT_SECRET = crypto.randomBytes(64).toString('hex');
-dotenv.config();
 
 const FRONTEND_ORIGIN = process.env.FRONTEND_URL || '';
 const BACKEND_ORIGIN = process.env.BACKEND_URL || '';
@@ -100,6 +101,7 @@ app.use(session(sessionOptions));
 app.use(passport.initialize());
 app.use(passport.session());
 
+
 setupSwagger(app);
 setupSignal();
 
@@ -138,7 +140,7 @@ setupSignal();
     app.use('/api/services', serviceConfigRoutes);
     app.use('/api/info', apiRoutes);
     app.use('/about.json', aboutRoutes);
-    app.use('/webhooks', webhookRoutes);
+    app.use('/api/webhooks', webhookRoutes);
 
     app.listen(3000, () => {
       console.log('🚀 Server running on port 3000 (mapped to 8080 via Docker)');

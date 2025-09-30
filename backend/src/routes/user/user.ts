@@ -1,4 +1,9 @@
-import { getAllUsers, getUserByID } from './user.service';
+import {
+  getAllUsers,
+  getUserByID,
+  getUserByEmail,
+  updateUser,
+} from './user.service';
 import express, { Request, Response } from 'express';
 import token from '../../middleware/token';
 import admin from '../../middleware/admin';
@@ -11,7 +16,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /user:
+ * /api/user:
  *   get:
  *     summary: Get all users
  *     tags:
@@ -53,7 +58,7 @@ router.get(
 
 /**
  * @swagger
- * /user/me:
+ * /api/user/me:
  *   get:
  *     summary: Get current authenticated user
  *     tags:
@@ -100,7 +105,7 @@ router.get(
 
 /**
  * @swagger
- * /user/{data}:
+ * /api/user/{data}:
  *   get:
  *     summary: Get a user by id, email or name
  *     tags:
@@ -140,8 +145,14 @@ router.get(
         return res.status(403).json({ msg: 'Forbidden' });
       }
 
-      const { is_admin, id, email } = req.auth;
+      const auth = req.auth as { id: number; email: string; is_admin: boolean };
+      const { is_admin, id, email } = auth;
       const { data } = req.params;
+
+      if (!data) {
+        return res.status(400).json({ msg: 'Data parameter is required' });
+      }
+
       let user = null;
 
       const isNumeric = /^\d+$/.test(data);
@@ -149,9 +160,9 @@ router.get(
       if (is_admin) {
         // Admin: can access any user
         if (isNumeric) {
-          user = await userService.getUserByID(Number(data));
+          user = await getUserByID(Number(data));
         } else {
-          user = await userService.getUserByEmail(data);
+          user = await getUserByEmail(data);
         }
       } else {
         // Non-admin: can access only their own data
@@ -159,12 +170,12 @@ router.get(
           if (Number(data) !== id) {
             return res.status(403).json({ msg: 'Forbidden' });
           }
-          user = await userService.getUserByID(id);
+          user = await getUserByID(id);
         } else {
           if (data !== email) {
             return res.status(403).json({ msg: 'Forbidden' });
           }
-          user = await userService.getUserByEmail(email);
+          user = await getUserByEmail(email);
         }
       }
 
@@ -183,7 +194,7 @@ router.get(
 /* User Route Put */
 /**
  * @swagger
- * /user/me:
+ * /api/user/me:
  *   put:
  *     summary: Update current authenticated user
  *     tags:
@@ -198,11 +209,11 @@ router.get(
  *           schema:
  *             type: object
  *             properties:
- *               email:
- *                 type: string
  *               name:
  *                 type: string
- *               password:
+ *               bio:
+ *                 type: string
+ *               picture:
  *                 type: string
  *     responses:
  *       200:
@@ -224,13 +235,13 @@ router.put(
   token,
   async (req: Request, res: Response): Promise<Response | void> => {
     try {
-      const { name, bio, image_url } = req.body;
+      const { name, bio, picture } = req.body;
 
       // Require at least one field
-      if (!name && !bio && !image_url) {
+      if (!name && !bio && !picture) {
         return res.status(400).json({
           error: 'Bad Request',
-          message: 'At least one field is required: name, bio, or image_url',
+          message: 'At least one field is required: name, bio, or picture',
         });
       }
 
@@ -241,7 +252,8 @@ router.put(
           .json({ error: 'Forbidden', message: 'Authentication required' });
       }
 
-      const userId = Number(req.auth.id);
+      const auth = req.auth as { id: number; email: string; is_admin: boolean };
+      const userId = Number(auth.id);
       if (isNaN(userId)) {
         return res.status(400).json({
           error: 'Bad Request',
@@ -249,10 +261,10 @@ router.put(
         });
       }
 
-      const updatedUser = await userService.updateUser(userId, {
+      const updatedUser = await updateUser(userId, {
         name,
         bio,
-        image_url,
+        picture,
       });
 
       if (!updatedUser) {
@@ -279,7 +291,7 @@ router.put(
 /* User Route Delete */
 /**
  * @swagger
- * /user/{data}:
+ * /api/user/{data}:
  *   delete:
  *     summary: Delete a user by id, email or name
  *     tags:
@@ -313,6 +325,11 @@ router.delete(
   async (req: Request, res: Response): Promise<Response | void> => {
     try {
       const { data } = req.params;
+
+      if (!data) {
+        return res.status(400).json({ error: 'Data parameter is required' });
+      }
+
       const userRepository = AppDataSource.getRepository(User);
       let userToDelete: User | null = null;
 

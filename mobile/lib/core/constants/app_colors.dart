@@ -10,6 +10,7 @@ class AppColors {
   static const Color background = Color(0xFFE4E2DD); // HEX: #e4e2dd
   static const Color surface = Color(0xFFFFFFFF); // White surface
   static const Color error = Color(0xFFF44336); // Error red
+  static const Color success = Color(0xFF4CAF50); // Success green
 
   static const Color textPrimary = Color(0xFF000000); // HEX: #000000
   static const Color textSecondary = Color(0xFF45433E); // HEX: #45433E
