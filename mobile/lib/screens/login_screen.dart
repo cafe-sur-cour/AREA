@@ -4,6 +4,7 @@ import 'package:area/core/constants/app_colors.dart';
 import 'package:area/core/constants/app_constants.dart';
 import 'package:area/core/notifiers/backend_address_notifier.dart';
 import 'package:area/l10n/app_localizations.dart';
+import 'package:area/services/secure_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
@@ -70,7 +71,7 @@ class LoginScreenState extends State<LoginScreen> {
           throw data['error'];
         }
 
-        print(data['token']);
+        await saveJwt(data['token']);
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
