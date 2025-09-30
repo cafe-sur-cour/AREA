@@ -1,4 +1,5 @@
 import { User } from '../../config/entity/User';
+import { UserOAuthProvider } from '../../config/entity/UserOAuthProvider';
 import { AppDataSource } from '../../config/db';
 import { getUserByEmail } from '../user/user.service';
 import bcrypt from 'bcryptjs';
@@ -77,41 +78,65 @@ export async function oauthLogin(
   providerEmail: string,
   name: string
 ): Promise<string | Error> {
-  let user = await AppDataSource.getRepository(User).findOne({
+  const oauthProviderRepository =
+    AppDataSource.getRepository(UserOAuthProvider);
+
+  let oauthProvider = await oauthProviderRepository.findOne({
     where: {
       provider: provider,
       provider_id: providerId,
     },
+    relations: ['user'],
   });
 
-  if (!user) {
-    if (providerEmail) {
-      user = await getUserByEmail(providerEmail);
-      if (user) {
-        user.provider = provider;
-        user.provider_id = providerId;
-        user.provider_email = providerEmail;
-        user.email_verified = true;
-        await AppDataSource.manager.save(user);
-      }
+  let user: User | null;
+
+  if (oauthProvider) {
+    user = oauthProvider.user;
+  } else {
+    user = await getUserByEmail(providerEmail);
+
+    if (user) {
+      oauthProvider = oauthProviderRepository.create({
+        user_id: user.id,
+        provider: provider,
+        provider_id: providerId,
+        provider_email: providerEmail,
+        provider_username: name,
+      });
+      await oauthProviderRepository.save(oauthProvider);
+
+      user.email_verified = true;
+      await AppDataSource.manager.save(user);
+    } else {
+      user = new User();
+      user.name = name;
+      user.email = providerEmail || `${providerId}@${provider}.oauth`;
+      user.password_hash = '';
+      user.email_verified = true;
+      user.is_active = true;
+      await AppDataSource.manager.save(user);
+
+      oauthProvider = oauthProviderRepository.create({
+        user_id: user.id,
+        provider: provider,
+        provider_id: providerId,
+        provider_email: providerEmail,
+        provider_username: name,
+      });
+      await oauthProviderRepository.save(oauthProvider);
     }
   }
 
   if (!user) {
-    user = new User();
-    user.name = name;
-    user.email = providerEmail || `${providerId}@${provider}.oauth`;
-    user.password_hash = '';
-    user.provider = provider;
-    user.provider_id = providerId;
-    user.provider_email = providerEmail;
-    user.email_verified = true;
-    user.is_active = true;
-    await AppDataSource.manager.save(user);
+    return new Error('Failed to create or find user');
   }
 
   user.last_login_at = new Date();
   await AppDataSource.manager.save(user);
+
+  oauthProvider.last_used_at = new Date();
+  await oauthProviderRepository.save(oauthProvider);
 
   const token = jwt.sign(
     { email: user.email, id: user.id, is_admin: user.is_admin },

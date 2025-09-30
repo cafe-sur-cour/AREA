@@ -24,7 +24,7 @@ export const getUserByName = async (name: string): Promise<User | null> => {
 interface UpdateUserDTO {
   name?: string;
   bio?: string;
-  image_url?: string;
+  picture?: string;
 }
 
 export const deleteUserById = async (id: number): Promise<boolean> => {

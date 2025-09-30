@@ -4,6 +4,7 @@ import { DataSource } from 'typeorm';
 import * as process from 'process';
 
 import { User } from './entity/User';
+import { UserOAuthProvider } from './entity/UserOAuthProvider';
 import { UserToken } from './entity/UserToken';
 import { UserSessions } from './entity/UserSessions';
 import { UserActivityLogs } from './entity/UserActivityLogs';
@@ -39,6 +40,7 @@ export const AppDataSource = new DataSource({
   logging: false,
   entities: [
     User,
+    UserOAuthProvider,
     UserToken,
     UserSessions,
     UserActivityLogs,
