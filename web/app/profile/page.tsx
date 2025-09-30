@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { InputAvatar } from "@/components/ui/InputAvatar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Mail, UserRound, Key, Pencil, Check, X, Lock, Unplug } from "lucide-react";
+import { Mail, UserRound, Key, Pencil, Check, X } from "lucide-react";
 import { FaGithub, FaGoogle } from "react-icons/fa6";
 import { FaMeta } from "react-icons/fa6";
 import api from "@/lib/api";
@@ -196,7 +196,7 @@ export default function ProfilePage() {
 
         <main className="flex-1 py-6 flex items-center justify-center">
           <div className="max-w-7xl w-full px-4 sm:px-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Profile Avatar Card with Welcome */}
               <Card className="md:col-span-1 place-self-center">
                 <CardContent className="p-6 flex flex-col items-center gap-6">
@@ -380,94 +380,6 @@ export default function ProfilePage() {
                             </Button>
                           </div>
                         )}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-              <div className="space-y-4">{/* Spacer for grid alignment */}
-                {/* Github */}
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="flex items-center gap-3">
-                      <div className="p-3 bg-app-blue-light rounded-lg">
-                        <FaGithub className="h-6 w-6 text-app-blue-primary" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-app-text-secondary">
-                          Email
-                        </p>
-                        <div className="flex items-center justify-between">
-                          <p className="text-lg font-bold text-app-text-primary">
-                            {userData?.email ?? "NONE" }
-                          </p>
-                          <Button
-                            size="sm"
-                            onClick={startEditingEmail}
-                            className="p-2 h-8 w-8 cursor-pointer"
-                            variant="ghost"
-                          >
-                            <Unplug className="h-4 w-4 text-app-text-secondary" />
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Meta */}
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="flex items-center gap-3">
-                      <div className="p-3 bg-app-blue-light rounded-lg">
-                        <FaMeta className="h-6 w-6 text-app-blue-primary" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-app-text-secondary">
-                          Email
-                        </p>
-                        <div className="flex items-center justify-between">
-                          <p className="text-lg font-bold text-app-text-primary">
-                            {userData?.email ?? "NONE" }
-                          </p>
-                          <Button
-                            size="sm"
-                            onClick={startEditingEmail}
-                            className="p-2 h-8 w-8 cursor-pointer"
-                            variant="ghost"
-                          >
-                            <Unplug className="h-4 w-4 text-app-text-secondary" />
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Google */}
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="flex items-center gap-3">
-                      <div className="p-3 bg-app-blue-light rounded-lg">
-                        <FaGoogle className="h-6 w-6 text-app-blue-primary" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-app-text-secondary">
-                          Email
-                        </p>
-                        <div className="flex items-center justify-between">
-                          <p className="text-lg font-bold text-app-text-primary">
-                            {userData?.email ?? "NONE" }
-                          </p>
-                          <Button
-                            size="sm"
-                            onClick={startEditingEmail}
-                            className="p-2 h-8 w-8 cursor-pointer"
-                            variant="ghost"
-                          >
-                            <Unplug className="h-4 w-4 text-app-text-secondary" />
-                          </Button>
-                        </div>
                       </div>
                     </div>
                   </CardContent>
