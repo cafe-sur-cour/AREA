@@ -56,6 +56,20 @@ export async function requestReset(email: string) {
   return token;
 }
 
+export async function resetPassword(email: string, newPassword: string) {
+  const user = await getUserByEmail(email);
+  if (!user) return new Error('User not found');
+
+  try {
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password_hash = hashedPassword;
+    await AppDataSource.manager.save(user);
+    return true;
+  } catch {
+    return new Error('Invalid or expired token');
+  }
+}
+
 export async function connectOAuthProvider(
   userId: number,
   provider: string,
