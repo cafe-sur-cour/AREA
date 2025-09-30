@@ -1,8 +1,14 @@
-import { Entity, PrimaryGeneratedColumn, Column, Index } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  Index,
+  BaseEntity,
+} from 'typeorm';
 
 @Entity('user_service_configs')
 @Index(['user_id', 'service'], { unique: true })
-export class UserServiceConfigs {
+export class UserServiceConfigs extends BaseEntity {
   @PrimaryGeneratedColumn()
   id!: number;
 

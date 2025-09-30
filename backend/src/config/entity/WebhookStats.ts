@@ -1,7 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, BaseEntity } from 'typeorm';
 
 @Entity('webhook_stats')
-export class WebhookStats {
+export class WebhookStats extends BaseEntity {
   @PrimaryGeneratedColumn()
   id!: number;
 
