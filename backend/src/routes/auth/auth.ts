@@ -532,6 +532,100 @@ router.get(
 
 /**
  * @swagger
+ * /api/auth/google:
+ *   get:
+ *     summary: Initiate Google OAuth authorization for login/register or service connection
+ *     tags:
+ *       - OAuth
+ *     description: |
+ *       Redirects user to Google for OAuth authorization.
+ *       If user is not authenticated, this will be used for login/register.
+ *       If user is already authenticated, this will connect Google for service access.
+ *     responses:
+ *       302:
+ *         description: Redirect to Google authorization page
+ *       500:
+ *         description: Internal Server Error
+ */
+router.get(
+  '/google',
+  passport.authenticate('google', { scope: ['openid', 'email', 'profile'] })
+);
+
+/**
+ * @swagger
+ * /api/auth/google/callback:
+ *   get:
+ *     summary: Handle Google OAuth callback for login/register or service connection
+ *     tags:
+ *       - OAuth
+ *     description: |
+ *       Exchanges authorization code for access token and handles authentication.
+ *       If user is not authenticated, performs login/register.
+ *       If user is already authenticated, connects Google account for service access.
+ *     parameters:
+ *       - name: code
+ *         in: query
+ *         required: true
+ *         description: Authorization code from Google
+ *         schema:
+ *           type: string
+ *       - name: state
+ *         in: query
+ *         required: true
+ *         description: State parameter for CSRF protection
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: OAuth successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               oneOf:
+ *                 - description: Login/Register response
+ *                   properties:
+ *                     token:
+ *                       type: string
+ *                     user:
+ *                       type: object
+ *                 - description: Service connection response
+ *                   properties:
+ *                     message:
+ *                       type: string
+ *                     user:
+ *                       type: object
+ *       400:
+ *         description: Bad Request - Missing parameters
+ *       500:
+ *         description: Internal Server Error
+ */
+router.get(
+  '/google/callback',
+  passport.authenticate('google', { session: false }),
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const user = req.user as { token: string };
+      if (user && user.token) {
+        res.cookie('auth_token', user.token, {
+          maxAge: 86400000,
+          httpOnly: true,
+          sameSite: 'strict',
+        });
+        res.redirect(`${process.env.FRONTEND_URL || ''}`);
+      } else {
+        res.status(500).json({ error: 'Authentication failed' });
+      }
+    } catch (err) {
+      console.error('Google OAuth callback error:', err);
+      res.status(500).json({ error: 'Failed to authenticate with Google' });
+    }
+  }
+);
+
+/**
+ * @swagger
  * /api/auth/forgot-password:
  *   post:
  *     summary: Request a password reset link
@@ -681,7 +775,7 @@ router.post('/forgot-password', async (req: Request, res: Response) => {
     };
 
     await transporter.sendMail(mailOptions);
-    res.status(201).json({
+    res.status(200).json({
       message:
         'If that email is registered, you will receive a password reset link.',
     });

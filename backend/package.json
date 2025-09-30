@@ -54,8 +54,13 @@
     "typescript": "^5.9.2"
   },
   "dependencies": {
+    "@adminjs/express": "^6.1.1",
+    "@adminjs/typeorm": "^5.0.1",
     "@types/node-fetch": "^2.6.13",
+    "@types/passport-google-oauth20": "^2.0.16",
+    "adminjs": "^7.6.1",
     "bcryptjs": "^3.0.2",
+    "connect-typeorm": "^2.0.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "crypto": "^1.0.1",
@@ -70,6 +75,7 @@
     "nodemailer": "^7.0.6",
     "passport": "^0.7.0",
     "passport-github": "^1.1.0",
+    "passport-google-oauth20": "^2.0.0",
     "pg": "^8.16.3",
     "process": "^0.11.10",
     "reflect-metadata": "^0.2.2",

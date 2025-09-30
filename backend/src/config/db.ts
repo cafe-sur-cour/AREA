@@ -4,6 +4,7 @@ import { DataSource } from 'typeorm';
 import * as process from 'process';
 
 import { User } from './entity/User';
+import { UserOAuthProvider } from './entity/UserOAuthProvider';
 import { UserToken } from './entity/UserToken';
 import { UserSessions } from './entity/UserSessions';
 import { UserActivityLogs } from './entity/UserActivityLogs';
@@ -14,12 +15,12 @@ import { WebhookEvents } from './entity/WebhookEvents';
 import { WebhookFailures } from './entity/WebhookFailures';
 import { WebhookReactions } from './entity/WebhookReactions';
 import { WebhookStats } from './entity/WebhookStats';
+import { Session } from './entity/Session';
 // Load environment variables from .env file
 config();
 
 function getEnvVar(name: string): string {
   const value = process.env[name];
-  console.log('Value of', name, 'is', value);
   if (typeof value !== 'string') {
     throw new Error(
       `Environment variable ${name} is required but was not provided.`
@@ -39,6 +40,7 @@ export const AppDataSource = new DataSource({
   logging: false,
   entities: [
     User,
+    UserOAuthProvider,
     UserToken,
     UserSessions,
     UserActivityLogs,
@@ -49,6 +51,7 @@ export const AppDataSource = new DataSource({
     WebhookFailures,
     WebhookReactions,
     WebhookStats,
+    Session,
   ],
   migrations: [],
   subscribers: [],

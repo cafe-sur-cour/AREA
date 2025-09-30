@@ -1,6 +1,12 @@
+import 'dart:convert';
+
 import 'package:area/core/constants/app_colors.dart';
+import 'package:area/core/constants/app_constants.dart';
+import 'package:area/core/notifiers/backend_address_notifier.dart';
 import 'package:area/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -14,6 +20,8 @@ class ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final _emailController = TextEditingController();
   final _confirmEmailController = TextEditingController();
 
+  bool loading = false;
+
   @override
   void dispose() {
     _emailController.dispose();
@@ -21,14 +29,72 @@ class ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     super.dispose();
   }
 
-  void _submitForm() {
+  void _submitForm() async {
+    setState(() {
+      loading = true;
+    });
     if (_formKey.currentState!.validate()) {
       String email = _emailController.text;
 
-      print('Email: $email');
+      final backendAddressNotifier = Provider.of<BackendAddressNotifier>(
+        context,
+        listen: false,
+      );
 
-      Navigator.pop(context);
+      if (backendAddressNotifier.backendAddress == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(context)!.empty_backend_server_address,
+              style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+            ),
+            backgroundColor: AppColors.error,
+          ),
+        );
+        setState(() {
+          loading = false;
+        });
+        return;
+      }
+
+      try {
+        final address = "${backendAddressNotifier.backendAddress}${AppRoutes.forgotPassword}";
+        final url = Uri.parse(address);
+
+        final response = await http.post(url, body: {'email': email});
+
+        final data = await jsonDecode(response.body);
+
+        if (response.statusCode != 200) {
+          throw data['error'];
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              "Email sent",
+              style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+            ),
+            backgroundColor: AppColors.success,
+          ),
+        );
+
+        Navigator.pop(context);
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              e.toString(),
+              style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+            ),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
     }
+    setState(() {
+      loading = false;
+    });
   }
 
   @override
@@ -91,17 +157,21 @@ class ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
               const SizedBox(height: 32),
 
-              ElevatedButton(
-                onPressed: _submitForm,
-                style: ElevatedButton.styleFrom(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                  backgroundColor: AppColors.primary,
+              if (loading) ...[
+                const CircularProgressIndicator(),
+              ] else ...[
+                ElevatedButton(
+                  onPressed: _submitForm,
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    backgroundColor: AppColors.primary,
+                  ),
+                  child: Text(
+                    AppLocalizations.of(context)!.send,
+                    style: TextStyle(color: AppColors.areaLightGray),
+                  ),
                 ),
-                child: Text(
-                  AppLocalizations.of(context)!.send,
-                  style: TextStyle(color: AppColors.areaLightGray),
-                ),
-              ),
+              ],
             ],
           ),
         ),

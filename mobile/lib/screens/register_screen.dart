@@ -1,6 +1,12 @@
+import 'dart:convert';
+
 import 'package:area/core/constants/app_colors.dart';
+import 'package:area/core/constants/app_constants.dart';
+import 'package:area/core/notifiers/backend_address_notifier.dart';
 import 'package:area/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -16,6 +22,8 @@ class RegisterScreenState extends State<RegisterScreen> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
+  bool loading = false;
+
   @override
   void dispose() {
     _nameController.dispose();
@@ -25,15 +33,76 @@ class RegisterScreenState extends State<RegisterScreen> {
     super.dispose();
   }
 
-  void _submitForm() {
+  void _submitForm() async {
+    setState(() {
+      loading = true;
+    });
     if (_formKey.currentState!.validate()) {
       String name = _nameController.text;
       String email = _emailController.text;
       String password = _passwordController.text;
 
-      print('Name: $name, Email: $email, Password: $password');
+      final backendAddressNotifier = Provider.of<BackendAddressNotifier>(
+        context,
+        listen: false,
+      );
 
-      Navigator.pop(context);
+      if (backendAddressNotifier.backendAddress == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(context)!.empty_backend_server_address,
+              style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+            ),
+            backgroundColor: AppColors.error,
+          ),
+        );
+        setState(() {
+          loading = false;
+        });
+        return;
+      }
+
+      final address = "${backendAddressNotifier.backendAddress}${AppRoutes.register}";
+      final url = Uri.parse(address);
+
+      try {
+        final response = await http.post(
+          url,
+          body: {'name': name, 'email': email, 'password': password},
+        );
+
+        final data = await jsonDecode(response.body);
+
+        if (response.statusCode != 201) {
+          throw data['error'];
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(context)!.user_registered,
+              style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+            ),
+            backgroundColor: AppColors.success,
+          ),
+        );
+
+        Navigator.pop(context);
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              e.toString(),
+              style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+            ),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+      setState(() {
+        loading = false;
+      });
     }
   }
 
@@ -139,17 +208,21 @@ class RegisterScreenState extends State<RegisterScreen> {
 
               const SizedBox(height: 32),
 
-              ElevatedButton(
-                onPressed: _submitForm,
-                style: ElevatedButton.styleFrom(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                  backgroundColor: AppColors.primary,
+              if (loading) ...[
+                const CircularProgressIndicator(),
+              ] else ...[
+                ElevatedButton(
+                  onPressed: _submitForm,
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    backgroundColor: AppColors.primary,
+                  ),
+                  child: Text(
+                    AppLocalizations.of(context)!.register,
+                    style: TextStyle(color: AppColors.areaLightGray),
+                  ),
                 ),
-                child: Text(
-                  AppLocalizations.of(context)!.register,
-                  style: TextStyle(color: AppColors.areaLightGray),
-                ),
-              ),
+              ],
             ],
           ),
         ),

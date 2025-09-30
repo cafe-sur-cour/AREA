@@ -1,7 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, BaseEntity } from 'typeorm';
 
 @Entity('users')
-export class User {
+export class User extends BaseEntity {
   @PrimaryGeneratedColumn()
   id!: number;
 
@@ -19,6 +19,9 @@ export class User {
 
   @Column({ type: 'varchar', length: 500, nullable: true })
   picture!: string;
+
+  @Column({ type: 'text', nullable: true })
+  bio!: string;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at!: Date;
@@ -69,16 +72,6 @@ export class User {
 
   @Column({ type: 'varchar', length: 20, default: 'light' })
   theme!: string;
-
-  // OAuth fields
-  @Column({ type: 'varchar', length: 50, nullable: true })
-  provider!: string;
-
-  @Column({ type: 'varchar', length: 255, nullable: true })
-  provider_id!: string;
-
-  @Column({ type: 'varchar', length: 255, nullable: true })
-  provider_email!: string;
 
   // Metadata
   @Column({ type: 'boolean', default: true })
