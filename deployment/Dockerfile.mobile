@@ -1,7 +1,21 @@
-FROM alpine:latest
-RUN apk add --no-cache bash curl
+# Flutter Mobile Build Dockerfile
+FROM cirrusci/flutter:stable AS builder
+
+WORKDIR /app
+
+COPY mobile/ ./
+
+RUN flutter clean
+
+RUN flutter pub get
+
+RUN flutter build apk --release
+
+# Create the final stage with just the APK
+FROM alpine:latest AS runner
+
 RUN mkdir -p /app/build
-WORKDIR /app/build
-RUN echo "This is a placeholder APK file" > client.apk
-RUN chmod 644 client.apk
-CMD ["sh", "-c", "echo 'Mobile build container ready. APK placeholder created.' && tail -f /dev/null"]
+
+COPY --from=builder /app/build/app/outputs/flutter-apk/app-release.apk /app/build/area.apk
+
+WORKDIR /app
