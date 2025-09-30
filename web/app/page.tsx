@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import Navigation from '@/components/header';
+import InfiniteHorizontalCards from '@/components/infinite-horizontal-cards';
 import { ArrowRight, Zap, Clock, Shield } from 'lucide-react';
 import Link from 'next/link';
 
@@ -61,6 +62,22 @@ export default function Home() {
               </div>
               <div className='text-muted-foreground'>Happy users</div>
             </div>
+          </div>
+        </div>
+      </section>
+      {/* Infinite Horizontal Cards */}
+      <section className="px-4 sm:px-6 lg:px-8 py-24 bg-muted/30">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-heading font-bold text-foreground mb-4">
+              Availables services
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Discover the apps and platforms you can connect to create powerful automations.
+            </p>
+          </div>
+          <div className="m-5x w-4xl mx-auto">
+            <InfiniteHorizontalCards />
           </div>
         </div>
       </section>
