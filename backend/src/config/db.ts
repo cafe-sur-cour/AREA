@@ -21,7 +21,6 @@ config();
 
 function getEnvVar(name: string): string {
   const value = process.env[name];
-  console.log('Value of', name, 'is', value);
   if (typeof value !== 'string') {
     throw new Error(
       `Environment variable ${name} is required but was not provided.`
