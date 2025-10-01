@@ -37,17 +37,6 @@ export default function ProfilePage() {
     try {
       const res = await api.get<User>({ endpoint: '/user/me' });
       if (res.data) setUserData(res.data);
-      // Check connected services
-      const githubRes = await api.get<{
-        msg?: string;
-        message?: string;
-        connected?: boolean;
-      }>({ endpoint: '/github/oauth/status/' });
-      setIsGithubConnected(githubRes.data?.connected || false);
-      // const metaRes = await api.get<{ connected: boolean }>({ endpoint: "/meta/oauth/status" });
-      // setIsMetaConnected(metaRes.data?.connected || false);
-      // const googleRes = await api.get<{ connected: boolean }>({ endpoint: "/google/oauth/status" });
-      // setIsGoogleConnected(googleRes.data?.connected || false);
     } catch (error) {
       console.error(error);
     } finally {
