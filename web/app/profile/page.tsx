@@ -9,8 +9,6 @@ import { InputAvatar } from '@/components/ui/InputAvatar';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Mail, UserRound, Key, Pencil, Check, X } from 'lucide-react';
-import { FaGithub, FaGoogle } from 'react-icons/fa6';
-import { FaMeta } from 'react-icons/fa6';
 import api from '@/lib/api';
 import { User } from '@/types/user';
 import { useAuth } from '@/contexts/AuthContext';
@@ -27,9 +25,6 @@ export default function ProfilePage() {
   const [editingPassword, setEditingPassword] = useState(false);
   const [editedPassword, setEditedPassword] = useState('');
   const [isLoadingData, setIsLoading] = useState<boolean>(false);
-  const [isGithubConnected, setIsGithubConnected] = useState<boolean>(false);
-  const [isMetaConnected, setIsMetaConnected] = useState<boolean>(false);
-  const [isGoogleConnected, setIsGoogleConnected] = useState<boolean>(false);
   const isInitializedRef = useRef(false);
 
   const fetchMe = async () => {
