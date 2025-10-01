@@ -50,7 +50,13 @@ export function IDAvatar(props: IDAvatarProps) {
   return (
     <Avatar className={`h-${props.size} w-${props.size} ${props.className}`}>
       <AvatarImage src={img ? `${backendUrl}${img}` : undefined} />
-      <AvatarFallback>{name ? name.charAt(0).toUpperCase(): <UserRound className="h-4 w-4 text-gray-700" />}</AvatarFallback>
+      <AvatarFallback>
+        {name ? (
+          name.charAt(0).toUpperCase()
+        ) : (
+          <UserRound className='h-4 w-4 text-gray-700' />
+        )}
+      </AvatarFallback>
     </Avatar>
   );
 }
