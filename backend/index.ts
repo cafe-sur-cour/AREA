@@ -23,6 +23,7 @@ import apiRoutes from './src/routes/api/api';
 import aboutRoutes from './src/routes/about/about';
 import webhookRoutes from './src/webhooks';
 import githubRoutes from './src/routes/github/github';
+import googleRoutes from './src/routes/google/google';
 import serviceConfigRoutes from './src/routes/services/configs';
 
 import { executionService } from './src/services/ExecutionService';
@@ -95,7 +96,6 @@ const sessionOptions: session.SessionOptions = {
 };
 
 app.use(session(sessionOptions));
-
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -134,6 +134,7 @@ setupSignal();
     app.use('/api/auth', authRoutes);
     app.use('/api/user', userRoutes);
     app.use('/api/github', githubRoutes);
+    app.use('/api/google', googleRoutes);
     app.use('/api/services', serviceConfigRoutes);
     app.use('/api/info', apiRoutes);
     app.use('/about.json', aboutRoutes);

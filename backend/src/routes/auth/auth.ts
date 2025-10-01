@@ -1,15 +1,21 @@
 import express, { Request, Response } from 'express';
 import * as auth from './auth.service';
-import nodemailer from 'nodemailer';
 import process from 'process';
 import jwt from 'jsonwebtoken';
 import { JWT_SECRET } from 'index';
 import mail from '../../middleware/mail';
 import passport from 'passport';
+import { MailerSend, EmailParams, Sender, Recipient } from 'mailersend';
+import token from '../../middleware/token';
+import { githubOAuth } from '../../services/services/github/oauth';
 
 interface TokenPayload extends jwt.JwtPayload {
   email: string;
 }
+
+const mailerSend = new MailerSend({
+  apiKey: process.env.MAILERSEND_API_KEY as string,
+});
 
 const router = express.Router();
 
@@ -262,27 +268,16 @@ router.post(
         return;
       }
 
-      const transporter = nodemailer.createTransport({
-        service: 'SMTP',
-        host: process.env.SMTP_HOST || '',
-        port: parseInt(process.env.SMTP_PORT || '587'),
-        secure: process.env.SMTP_SECURE === 'true',
-        auth: {
-          user: process.env.SMTP_USER || '',
-          pass: process.env.SMTP_PASSWORD || '',
-        },
-      });
+      const sentFrom = new Sender(
+        process.env.MAILERSEND_SENDER_EMAIL || '',
+        process.env.MAILERSEND_SENDER_NAME || ''
+      );
+      const recipients = [new Recipient(email, name)];
 
-      transporter
-        .verify()
-        .then(() => console.log('SMTP prêt !'))
-        .catch(err => console.error('Erreur SMTP :', err));
-
-      const mailOptions = {
-        from: '"Your App" <no-reply@yourapp.com>',
-        to: email,
-        subject: '🔐 Account Verification',
-        html: `
+      const emailParams = new EmailParams()
+        .setFrom(sentFrom)
+        .setTo(recipients)
+        .setSubject('🔐 Account Verification').setHtml(`
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #648BA0; border-radius: 10px; background-color: #e4e2dd;">
           <style>
           @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Open+Sans&display=swap');
@@ -315,10 +310,9 @@ router.post(
           © ${new Date().getFullYear()} Café sur Cour - AREA - All rights reserved
           </p>
           </div>
-          `,
-      };
+          `);
 
-      await transporter.sendMail(mailOptions);
+      await mailerSend.email.send(emailParams);
       res.status(201).json({ message: 'User registered successfully' });
       return;
     } catch (err) {
@@ -441,50 +435,33 @@ router.post('/verify', mail, (req: Request, res: Response) => {
 
 /**
  * @swagger
- * /api/auth/github:
+ * /api/auth/github/login:
  *   get:
- *     summary: Initiate GitHub OAuth authorization for login/register or service connection
+ *     summary: Initiate GitHub OAuth authorization for login/register
  *     tags:
  *       - OAuth
  *     description: |
  *       Redirects user to GitHub for OAuth authorization.
- *       If user is not authenticated, this will be used for login/register.
- *       If user is already authenticated, this will connect GitHub for service access.
- *     parameters:
- *       - name: token
- *         in: query
- *         required: false
- *         description: JWT token for service connection (when user is already authenticated)
- *         schema:
- *           type: string
+ *       This route is used for login/register when user is not authenticated.
  *     responses:
  *       302:
  *         description: Redirect to GitHub authorization page
  *       500:
  *         description: Internal Server Error
  */
-router.get('/github', (req: Request, res: Response, next) => {
-  const authToken = req.query.token as string || req.headers.authorization?.replace('Bearer ', '') || req.cookies?.auth_token;
-
-  if (authToken) {
-    const state = Buffer.from(JSON.stringify({ authToken })).toString('base64');
-    passport.authenticate('github', { state })(req, res, next);
-  } else {
-    passport.authenticate('github')(req, res, next);
-  }
-});
+router.get('/github/login', passport.authenticate('github-login'));
 
 /**
  * @swagger
  * /api/auth/github/callback:
  *   get:
- *     summary: Handle GitHub OAuth callback for login/register or service connection
+ *     summary: Handle GitHub OAuth callback for both login/register and service connection
  *     tags:
  *       - OAuth
  *     description: |
  *       Exchanges authorization code for access token and handles authentication.
- *       If user is not authenticated, performs login/register.
- *       If user is already authenticated, connects GitHub account for service access.
+ *       Automatically determines whether to perform login/register or service connection
+ *       based on user authentication status.
  *     parameters:
  *       - name: code
  *         in: query
@@ -525,7 +502,232 @@ router.get('/github', (req: Request, res: Response, next) => {
  */
 router.get(
   '/github/callback',
-  passport.authenticate('github', { session: false }),
+  async (req: Request, res: Response, next) => {
+    try {
+      const isAuthenticated = !!(req.auth || req.cookies?.auth_token);
+
+      if (isAuthenticated) {
+        passport.authenticate('github-subscribe', { session: false })(
+          req,
+          res,
+          next
+        );
+      } else {
+        passport.authenticate('github-login', { session: false })(
+          req,
+          res,
+          next
+        );
+      }
+    } catch (err) {
+      console.error('GitHub OAuth callback error:', err);
+      res.status(500).json({ error: 'Failed to authenticate with GitHub' });
+    }
+  },
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const user = req.user as { token: string };
+      if (user && user.token) {
+        res.cookie('auth_token', user.token, {
+          maxAge: 86400000,
+          httpOnly: true,
+          sameSite: 'strict',
+        });
+
+        const isAuthenticated = !!(req.auth || req.cookies?.auth_token);
+        if (isAuthenticated) {
+          const appSlug = process.env.GITHUB_APP_SLUG || 'area-app';
+          const userId = (req.auth as { id: number })?.id || 'unknown';
+          const installUrl = `https://github.com/apps/${appSlug}/installations/new?state=${userId}`;
+          return res.redirect(installUrl);
+        }
+
+        res.redirect(`${process.env.FRONTEND_URL || ''}`);
+      } else {
+        res.status(500).json({ error: 'Authentication failed' });
+      }
+    } catch (err) {
+      console.error('GitHub OAuth callback error:', err);
+      res.status(500).json({ error: 'Failed to authenticate with GitHub' });
+    }
+  }
+);
+/**
+ * @swagger
+ * /api/auth/github/subscribe:
+ *   get:
+ *     summary: Subscribe to GitHub service (OAuth + App Installation)
+ *     tags:
+ *       - OAuth
+ *     description: |
+ *       Complete subscription to GitHub service including OAuth authorization
+ *       and GitHub App installation. This handles the full flow to enable
+ *       webhook creation on user repositories.
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       302:
+ *         description: Redirect to GitHub for OAuth or App installation
+ *       401:
+ *         description: User not authenticated
+ *       500:
+ *         description: Internal Server Error
+ */
+router.get(
+  '/github/subscribe',
+  token,
+  async (req: Request, res: Response, next) => {
+    if (!req.auth) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    try {
+      const userId = (req.auth as { id: number }).id;
+      const existingToken = await githubOAuth.getUserToken(userId);
+
+      if (existingToken) {
+        const appSlug = process.env.GITHUB_APP_SLUG || '';
+        const installUrl = `https://github.com/apps/${appSlug}/installations/new?state=${userId}`;
+        return res.redirect(installUrl);
+      }
+    } catch {
+      console.log('No existing token found, proceeding with OAuth...');
+    }
+
+    passport.authenticate('github-subscribe', { session: false })(
+      req,
+      res,
+      next
+    );
+  }
+);
+/**
+ * @swagger
+ * /api/auth/google/login:
+ *   get:
+ *     summary: Initiate Google OAuth authorization for login/register
+ *     tags:
+ *       - OAuth
+ *     description: |
+ *       Redirects user to Google for OAuth authorization.
+ *       This route is used for login/register when user is not authenticated.
+ *     responses:
+ *       302:
+ *         description: Redirect to Google authorization page
+ *       500:
+ *         description: Internal Server Error
+ */
+router.get(
+  '/google/login',
+  passport.authenticate('google-login', {
+    scope: ['openid', 'email', 'profile'],
+    session: false,
+  })
+);
+
+/**
+ * @swagger
+ * /api/auth/google/subscribe:
+ *   get:
+ *     summary: Initiate Google OAuth authorization for service connection
+ *     tags:
+ *       - OAuth
+ *     description: |
+ *       Redirects user to Google for OAuth authorization.
+ *       This route is used to connect Google account for service access when user is already authenticated.
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       302:
+ *         description: Redirect to Google authorization page
+ *       401:
+ *         description: User not authenticated
+ *       500:
+ *         description: Internal Server Error
+ */
+router.get('/google/subscribe', async (req: Request, res: Response, next) => {
+  if (!req.auth) {
+    return res.status(401).json({ error: 'Authentication required' });
+  }
+  passport.authenticate('google-subscribe', {
+    scope: ['openid', 'email', 'profile'],
+    session: false,
+  })(req, res, next);
+});
+
+/**
+ * @swagger
+ * /api/auth/google/callback:
+ *   get:
+ *     summary: Handle Google OAuth callback for both login/register and service connection
+ *     tags:
+ *       - OAuth
+ *     description: |
+ *       Exchanges authorization code for access token and handles authentication.
+ *       Automatically determines whether to perform login/register or service connection
+ *       based on user authentication status.
+ *     parameters:
+ *       - name: code
+ *         in: query
+ *         required: true
+ *         description: Authorization code from Google
+ *         schema:
+ *           type: string
+ *       - name: state
+ *         in: query
+ *         required: true
+ *         description: State parameter for CSRF protection
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: OAuth successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               oneOf:
+ *                 - description: Login/Register response
+ *                   properties:
+ *                     token:
+ *                       type: string
+ *                     user:
+ *                       type: object
+ *                 - description: Service connection response
+ *                   properties:
+ *                     message:
+ *                       type: string
+ *                     user:
+ *                       type: object
+ *       400:
+ *         description: Bad Request - Missing parameters
+ *       500:
+ *         description: Internal Server Error
+ */
+router.get(
+  '/google/callback',
+  async (req: Request, res: Response, next) => {
+    try {
+      const isAuthenticated = !!(req.auth || req.cookies?.auth_token);
+
+      if (isAuthenticated) {
+        passport.authenticate('google-subscribe', { session: false })(
+          req,
+          res,
+          next
+        );
+      } else {
+        passport.authenticate('google-login', { session: false })(
+          req,
+          res,
+          next
+        );
+      }
+    } catch (err) {
+      console.error('Google OAuth callback error:', err);
+      res.status(500).json({ error: 'Failed to authenticate with Google' });
+    }
+  },
   async (req: Request, res: Response): Promise<void> => {
     try {
       const user = req.user as { token: string };
@@ -540,8 +742,8 @@ router.get(
         res.status(500).json({ error: 'Authentication failed' });
       }
     } catch (err) {
-      console.error('GitHub OAuth callback error:', err);
-      res.status(500).json({ error: 'Failed to authenticate with GitHub' });
+      console.error('Google OAuth callback error:', err);
+      res.status(500).json({ error: 'Failed to authenticate with Google' });
     }
   }
 );
@@ -640,27 +842,16 @@ router.post('/forgot-password', async (req: Request, res: Response) => {
       });
     }
 
-    const transporter = nodemailer.createTransport({
-      service: 'SMTP',
-      host: process.env.SMTP_HOST || '',
-      port: parseInt(process.env.SMTP_PORT || '587'),
-      secure: process.env.SMTP_SECURE === 'true',
-      auth: {
-        user: process.env.SMTP_USER || '',
-        pass: process.env.SMTP_PASSWORD || '',
-      },
-    });
+    const sentFrom = new Sender(
+      process.env.MAILERSEND_SENDER_EMAIL || 'no-reply@example.com',
+      process.env.MAILERSEND_SENDER_NAME || 'AREA App'
+    );
+    const recipients = [new Recipient(email)];
 
-    transporter
-      .verify()
-      .then(() => console.log('SMTP prêt !'))
-      .catch(err => console.error('Erreur SMTP :', err));
-
-    const mailOptions = {
-      from: '"Your App" <no-reply@yourapp.com>',
-      to: email,
-      subject: '🔐 Reset Your Password',
-      html: `
+    const emailParams = new EmailParams()
+      .setFrom(sentFrom)
+      .setTo(recipients)
+      .setSubject('🔐 Reset Your Password').setHtml(`
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #648BA0; border-radius: 10px; background-color: #e4e2dd;">
           <style>
           @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Open+Sans&display=swap');
@@ -693,10 +884,9 @@ router.post('/forgot-password', async (req: Request, res: Response) => {
           © ${new Date().getFullYear()} Café sur Cour - AREA - All rights reserved
           </p>
           </div>
-          `,
-    };
+          `);
 
-    await transporter.sendMail(mailOptions);
+    await mailerSend.email.send(emailParams);
     res.status(200).json({
       message:
         'If that email is registered, you will receive a password reset link.',
