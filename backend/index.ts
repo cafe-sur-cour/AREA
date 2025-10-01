@@ -95,7 +95,6 @@ const sessionOptions: session.SessionOptions = {
 };
 
 app.use(session(sessionOptions));
-
 app.use(passport.initialize());
 app.use(passport.session());
 

@@ -33,6 +33,23 @@ class GitHubWebhookHandler implements WebhookHandler {
         return res.status(404).json({ error: 'Webhook not found' });
       }
 
+      const { serviceSubscriptionManager } = await import(
+        '../../services/ServiceSubscriptionManager'
+      );
+      const isSubscribed = await serviceSubscriptionManager.isUserSubscribed(
+        externalWebhook.user_id,
+        'github'
+      );
+
+      if (!isSubscribed) {
+        console.log(
+          `⚠️  [GitHub Webhook] User ${externalWebhook.user_id} is no longer subscribed to GitHub service. Ignoring webhook.`
+        );
+        return res
+          .status(200)
+          .json({ message: 'User not subscribed to service' });
+      }
+
       if (externalWebhook.secret) {
         const expectedSignature = crypto
           .createHmac('sha256', externalWebhook.secret)
@@ -64,12 +81,23 @@ class GitHubWebhookHandler implements WebhookHandler {
 
       if (event === 'push') {
         const { repository, ref, commits, pusher } = req.body;
-        console.log(`📦 Repository: ${repository?.full_name || 'Unknown'}`);
+        console.log(`� [PUSH WEBHOOK DETECTED] New push received!`);
+        console.log(`�📦 Repository: ${repository?.full_name || 'Unknown'}`);
         console.log(
           `🌿 Branch: ${ref?.replace('refs/heads/', '') || 'Unknown'}`
         );
         console.log(`👤 Pusher: ${pusher?.name || 'Unknown'}`);
         console.log(`📝 Commits: ${commits?.length || 0}`);
+        console.log(`🕐 Timestamp: ${new Date().toISOString()}`);
+
+        if (commits && commits.length > 0) {
+          console.log(`📋 Commit details:`);
+          commits.forEach((commit: Record<string, unknown>, index: number) => {
+            console.log(
+              `  ${index + 1}. ${String(commit.id)?.substring(0, 7)} - "${commit.message}"`
+            );
+          });
+        }
       } else if (event === 'pull_request') {
         const { action, number, pull_request, repository } = req.body;
         console.log(`📦 Repository: ${repository?.full_name || 'Unknown'}`);
