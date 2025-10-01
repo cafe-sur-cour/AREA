@@ -13,6 +13,7 @@ export class ExecutionService {
   private isRunning = false;
   private processingInterval: NodeJS.Timeout | undefined;
   private userServiceConfigService = new UserServiceConfigService();
+  private scheduledReactions = new Map<string, NodeJS.Timeout>();
 
   async start(): Promise<void> {
     if (this.isRunning) {
@@ -44,7 +45,32 @@ export class ExecutionService {
       this.processingInterval = undefined;
     }
 
+    for (const [reactionId, timeoutId] of this.scheduledReactions.entries()) {
+      clearTimeout(timeoutId);
+      console.log(
+        `🚫 [ExecutionService] Cancelled scheduled reaction ${reactionId} due to service stop`
+      );
+    }
+    this.scheduledReactions.clear();
+
     console.log('AREA execution service stopped');
+  }
+
+  public cancelScheduledReaction(reactionId: string): boolean {
+    const timeoutId = this.scheduledReactions.get(reactionId);
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+      this.scheduledReactions.delete(reactionId);
+      console.log(
+        `🚫 [ExecutionService] Cancelled scheduled reaction ${reactionId}`
+      );
+      return true;
+    }
+    return false;
+  }
+
+  public getScheduledReactions(): string[] {
+    return Array.from(this.scheduledReactions.keys());
   }
 
   private async processPendingEvents(): Promise<void> {
@@ -164,8 +190,42 @@ export class ExecutionService {
     event: WebhookEvents,
     mapping: WebhookConfigs
   ): Promise<void> {
-    for (const reaction of mapping.reactions) {
-      await this.executeReaction(event, mapping, reaction);
+    for (const [index, reaction] of mapping.reactions.entries()) {
+      if (reaction.delay && reaction.delay > 0) {
+        const reactionId = `${event.id}-${mapping.id}-${index}`;
+
+        console.log(
+          `⏰ [ExecutionService] Scheduling reaction ${reaction.type} with ${reaction.delay}s delay (ID: ${reactionId})`
+        );
+
+        const timeoutId = setTimeout(async () => {
+          try {
+            console.log(
+              `🚀 [ExecutionService] Executing delayed reaction ${reaction.type} after ${reaction.delay}s (ID: ${reactionId})`
+            );
+            await this.executeReaction(event, mapping, reaction);
+
+            this.scheduledReactions.delete(reactionId);
+
+            console.log(
+              `✅ [ExecutionService] Successfully executed delayed reaction ${reaction.type} (ID: ${reactionId})`
+            );
+          } catch (error) {
+            console.error(
+              `❌ [ExecutionService] Failed to execute delayed reaction ${reaction.type} (ID: ${reactionId}):`,
+              error
+            );
+            this.scheduledReactions.delete(reactionId);
+          }
+        }, reaction.delay * 1000);
+
+        this.scheduledReactions.set(reactionId, timeoutId);
+      } else {
+        console.log(
+          `⚡ [ExecutionService] Executing immediate reaction ${reaction.type}`
+        );
+        await this.executeReaction(event, mapping, reaction);
+      }
     }
   }
 
