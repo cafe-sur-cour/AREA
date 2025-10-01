@@ -6,7 +6,7 @@ import { useState } from "react"
 import { Menu, X } from "lucide-react"
 
 export default function Navigation() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
     <nav className="sticky top-0 z-50 px-6 sm:px-8 lg:px-12 py-4">
