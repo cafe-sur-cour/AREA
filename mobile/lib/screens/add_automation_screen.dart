@@ -78,7 +78,7 @@ class AddAutomationScreenState extends State<AddAutomationScreen> {
                 ),
               ),
               ElevatedButton(
-                onPressed: _actionSelected ? () => print("Reaction pressed") : null,
+                onPressed: _actionSelected ? () {} : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.areaBlue3,
                   padding: EdgeInsets.symmetric(vertical: 16, horizontal: 40),
