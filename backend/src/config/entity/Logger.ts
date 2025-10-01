@@ -11,8 +11,8 @@ export class Logger extends BaseEntity {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column({ type: 'enum', enum: ['info', 'warn', 'error'] })
-  type!: 'info' | 'warn' | 'error';
+  @Column({ type: 'enum', enum: ['info', 'succ', 'warn', 'err'] })
+  type!: 'info' | 'succ' | 'warn' | 'err';
 
   @Column({ type: 'enum', enum: ['login', 'logout', 'other'] })
   kind!: 'login' | 'logout' | 'other';
