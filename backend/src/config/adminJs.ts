@@ -9,9 +9,11 @@ import { WebhookEvents } from './entity/WebhookEvents';
 import { WebhookFailures } from './entity/WebhookFailures';
 import { WebhookReactions } from './entity/WebhookReactions';
 import { WebhookStats } from './entity/WebhookStats';
+import { DashboardService } from './dashboardService';
 
 import AdminJS from 'adminjs';
 import AdminJSExpress from '@adminjs/express';
+import { ComponentLoader } from 'adminjs';
 import * as AdminJSTypeorm from '@adminjs/typeorm';
 import { DataSource } from 'typeorm';
 import bcrypt from 'bcryptjs';
@@ -21,6 +23,32 @@ AdminJS.registerAdapter({
   Resource: AdminJSTypeorm.Resource,
   Database: AdminJSTypeorm.Database,
 });
+
+const myCustomTheme = {
+  id: 'my-custom-theme',
+  name: 'My Custom Theme',
+  overrides: {
+    colors: {
+      primary100: '#3e6172',
+      primary80: '#57798B',
+      primary60: '#648BA0',
+      primary40: '#e4e2DD',
+      primary20: '#45433E',
+
+      accent: '#3e6172',
+      hoverBg: '#648BA0',
+
+      bg: '#ffffff',
+      defaultText: '#333333',
+    },
+  },
+};
+
+const componentLoader = new ComponentLoader();
+
+const Components = {
+  Dashboard: componentLoader.add('Dashboard', './dashboard'),
+};
 
 const AdminRouter = async (
   AppDataSource: DataSource,
@@ -42,6 +70,12 @@ const AdminRouter = async (
       WebhookReactions,
       WebhookStats,
     ],
+    dashboard: {
+      component: Components.Dashboard,
+    },
+    componentLoader,
+    defaultTheme: myCustomTheme.id,
+    availableThemes: [myCustomTheme],
   });
 
   const router = AdminJSExpress.buildAuthenticatedRouter(
@@ -66,6 +100,18 @@ const AdminRouter = async (
     null,
     sessionOptions
   );
+
+  const dashboardService = new DashboardService(AppDataSource);
+
+  router.get('/api/dashboard-stats', async (req, res) => {
+    try {
+      const stats = await dashboardService.getDashboardData();
+      res.json(stats);
+    } catch (error) {
+      console.error('Error fetching dashboard stats:', error);
+      res.status(500).json({ error: 'Failed to fetch dashboard statistics' });
+    }
+  });
 
   return { admin, adminRouter: router };
 };
