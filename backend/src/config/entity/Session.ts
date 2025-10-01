@@ -11,4 +11,7 @@ export class Session extends BaseEntity {
 
   @Column('text')
   json!: string;
+
+  @Column('timestamp', { nullable: true })
+  destroyedAt?: Date;
 }
