@@ -6,9 +6,6 @@ import type { Action, Reaction } from '../../types/mapping';
 
 const router = express.Router();
 
-/**
- * Validates a mapping request body
- */
 function validateMappingRequest(body: unknown): {
   isValid: boolean;
   errors: string[];
@@ -81,9 +78,6 @@ function validateMappingRequest(body: unknown): {
   };
 }
 
-/**
- * Validates that action and reaction types exist in the service registry
- */
 function validateActionReactionTypes(
   action: Action,
   reactions: Reaction[]
@@ -93,7 +87,6 @@ function validateActionReactionTypes(
 } {
   const errors: string[] = [];
 
-  // Validate action type exists
   const actionDefinition = serviceRegistry.getActionByType(action.type);
   if (!actionDefinition) {
     errors.push(
@@ -101,7 +94,6 @@ function validateActionReactionTypes(
     );
   }
 
-  // Validate all reaction types exist
   reactions.forEach((reaction, index) => {
     const reactionDefinition = serviceRegistry.getReactionByType(reaction.type);
     if (!reactionDefinition) {
