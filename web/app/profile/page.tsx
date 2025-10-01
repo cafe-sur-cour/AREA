@@ -1,31 +1,31 @@
-"use client";
+'use client';
 
-import Navigation from "@/components/header";
-import { useEffect, useState, useRef } from "react";
-import { useRouter } from "next/navigation";
-import { TbLoader3 } from "react-icons/tb";
-import { Card, CardContent } from "@/components/ui/card";
-import { InputAvatar } from "@/components/ui/InputAvatar";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Mail, UserRound, Key, Pencil, Check, X } from "lucide-react";
-import { FaGithub, FaGoogle } from "react-icons/fa6";
-import { FaMeta } from "react-icons/fa6";
-import api from "@/lib/api";
-import { User } from "@/types/user";
-import { useAuth } from "@/contexts/AuthContext";
-import { toast } from "sonner";
+import Navigation from '@/components/header';
+import { useEffect, useState, useRef } from 'react';
+import { useRouter } from 'next/navigation';
+import { TbLoader3 } from 'react-icons/tb';
+import { Card, CardContent } from '@/components/ui/card';
+import { InputAvatar } from '@/components/ui/InputAvatar';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Mail, UserRound, Key, Pencil, Check, X } from 'lucide-react';
+import { FaGithub, FaGoogle } from 'react-icons/fa6';
+import { FaMeta } from 'react-icons/fa6';
+import api from '@/lib/api';
+import { User } from '@/types/user';
+import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
 
 export default function ProfilePage() {
   const router = useRouter();
-  const {user, isLoading} = useAuth();
+  const { user, isLoading } = useAuth();
   const [userData, setUserData] = useState<User | undefined>();
   const [editingName, setEditingName] = useState(false);
   const [editingEmail, setEditingEmail] = useState(false);
-  const [editedName, setEditedName] = useState("");
-  const [editedEmail, setEditedEmail] = useState("");
+  const [editedName, setEditedName] = useState('');
+  const [editedEmail, setEditedEmail] = useState('');
   const [editingPassword, setEditingPassword] = useState(false);
-  const [editedPassword, setEditedPassword] = useState("");
+  const [editedPassword, setEditedPassword] = useState('');
   const [isLoadingData, setIsLoading] = useState<boolean>(false);
   const [isGithubConnected, setIsGithubConnected] = useState<boolean>(false);
   const [isMetaConnected, setIsMetaConnected] = useState<boolean>(false);
@@ -35,11 +35,14 @@ export default function ProfilePage() {
   const fetchMe = async () => {
     setIsLoading(true);
     try {
-      const res = await api.get<User>({ endpoint: "/user/me"});
-      if (res.data)
-        setUserData(res.data);
+      const res = await api.get<User>({ endpoint: '/user/me' });
+      if (res.data) setUserData(res.data);
       // Check connected services
-      const githubRes = await api.get<{ msg?:string, message?: string, connected?: boolean }>({ endpoint: "/github/oauth/status/" });
+      const githubRes = await api.get<{
+        msg?: string;
+        message?: string;
+        connected?: boolean;
+      }>({ endpoint: '/github/oauth/status/' });
       setIsGithubConnected(githubRes.data?.connected || false);
       // const metaRes = await api.get<{ connected: boolean }>({ endpoint: "/meta/oauth/status" });
       // setIsMetaConnected(metaRes.data?.connected || false);
@@ -50,7 +53,7 @@ export default function ProfilePage() {
     } finally {
       setIsLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
     if (!isInitializedRef.current) {
@@ -60,25 +63,29 @@ export default function ProfilePage() {
   }, []);
 
   useEffect(() => {
-    if (!user && !isLoading)
-      router.push("/");
-  }, [user, isLoading, router])
+    if (!user && !isLoading) router.push('/');
+  }, [user, isLoading, router]);
 
   const editAndFetchMe = async (dataToSend?: User) => {
     try {
       const data = dataToSend || userData;
       if (!data) return;
 
-      const res = await api.put<User>("/user/me", {name: data.name, email: data.email, password: data.password, picture: data.picture});
+      const res = await api.put<User>('/user/me', {
+        name: data.name,
+        email: data.email,
+        password: data.password,
+        picture: data.picture,
+      });
       if (res.data) {
-        console.log("DATASEND:", data);
-        console.log("Modify: ", res.data);
-        setUserData(res.data)
+        console.log('DATASEND:', data);
+        console.log('Modify: ', res.data);
+        setUserData(res.data);
       }
-    } catch(error) {
+    } catch (error) {
       console.error(error);
     }
-  }
+  };
 
   const handleAvatarChange = (newUrl: string) => {
     if (userData) {
@@ -104,13 +111,13 @@ export default function ProfilePage() {
 
   const startEditingPassword = () => {
     setEditingPassword(true);
-    setEditedPassword("");
+    setEditedPassword('');
   };
 
   const saveName = () => {
-    console.log("Saving name:", editedName);
-    if (editedName.trim() === "") {
-      alert("Name cannot be empty");
+    console.log('Saving name:', editedName);
+    if (editedName.trim() === '') {
+      alert('Name cannot be empty');
       return;
     }
     if (userData) {
@@ -128,7 +135,7 @@ export default function ProfilePage() {
 
   const saveEmail = () => {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(editedEmail)) {
-      alert("Invalid email address");
+      alert('Invalid email address');
       return;
     }
     if (userData) {
@@ -140,15 +147,18 @@ export default function ProfilePage() {
       setUserData(updatedData);
       editAndFetchMe(updatedData);
       fetchMe();
-      toast.success("Please verify your new email address. A verification link has been sent to " + editedEmail);
+      toast.success(
+        'Please verify your new email address. A verification link has been sent to ' +
+          editedEmail
+      );
     }
     setEditingEmail(false);
   };
 
   const savePassword = () => {
-    console.log("Saving password:", editedPassword);
-    if (editedPassword.trim() === "") {
-      alert("Password cannot be empty");
+    console.log('Saving password:', editedPassword);
+    if (editedPassword.trim() === '') {
+      alert('Password cannot be empty');
       return;
     }
     if (userData) {
@@ -166,104 +176,106 @@ export default function ProfilePage() {
 
   const cancelNameEdit = () => {
     setEditingName(false);
-    setEditedName("");
+    setEditedName('');
   };
 
   const cancelPasswordEdit = () => {
     setEditingPassword(false);
-    setEditedPassword("");
+    setEditedPassword('');
   };
 
   const cancelEmailEdit = () => {
     setEditingEmail(false);
-    setEditedEmail("");
+    setEditedEmail('');
   };
 
   if (isLoadingData || !userData)
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <TbLoader3 className="size-12 animate-spin text-jeb-primary mb-4" />
-          <p className="mt-4 text-gray-600">Loading...</p>
+      <div className='min-h-screen flex items-center justify-center'>
+        <div className='text-center'>
+          <TbLoader3 className='size-12 animate-spin text-jeb-primary mb-4' />
+          <p className='mt-4 text-gray-600'>Loading...</p>
         </div>
       </div>
     );
 
   return (
     <>
-      <div className="min-h-screen bg-gradient-to-br from-jeb-gradient-from to-jeb-gradient-to/50 flex flex-col">
+      <div className='min-h-screen bg-gradient-to-br from-jeb-gradient-from to-jeb-gradient-to/50 flex flex-col'>
         <Navigation />
 
-        <main className="flex-1 py-6 flex items-center justify-center">
-          <div className="max-w-7xl w-full px-4 sm:px-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <main className='flex-1 py-6 flex items-center justify-center'>
+          <div className='max-w-7xl w-full px-4 sm:px-6'>
+            <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
               {/* Profile Avatar Card with Welcome */}
-              <Card className="md:col-span-1 place-self-center">
-                <CardContent className="p-6 flex flex-col items-center gap-6">
-                  <h1 className="font-heading text-4xl font-bold text-app-text-primary text-center">
-                    Welcome {userData?.name ?? "NONE"}
+              <Card className='md:col-span-1 place-self-center'>
+                <CardContent className='p-6 flex flex-col items-center gap-6'>
+                  <h1 className='font-heading text-4xl font-bold text-app-text-primary text-center'>
+                    Welcome {userData?.name ?? 'NONE'}
                   </h1>
                   <InputAvatar
                     url={userData?.picture}
                     defaultChar={userData.name.charAt(0)}
                     size={20}
-                    variente="modifiable"
+                    variente='modifiable'
                     onChange={handleAvatarChange}
                   />
-                  <p className="text-sm text-app-text-secondary text-center">Click to change avatar</p>
+                  <p className='text-sm text-app-text-secondary text-center'>
+                    Click to change avatar
+                  </p>
                 </CardContent>
               </Card>
 
               {/* User Info Cards */}
-              <div className="space-y-4">
+              <div className='space-y-4'>
                 {/* Name Card */}
                 <Card>
-                  <CardContent className="p-6">
-                    <div className="flex items-center gap-3">
-                      <div className="p-3 bg-app-green-light rounded-lg">
-                        <UserRound className="h-6 w-6 text-app-green-primary" />
+                  <CardContent className='p-6'>
+                    <div className='flex items-center gap-3'>
+                      <div className='p-3 bg-app-green-light rounded-lg'>
+                        <UserRound className='h-6 w-6 text-app-green-primary' />
                       </div>
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-app-text-secondary">
+                      <div className='flex-1'>
+                        <p className='text-sm font-medium text-app-text-secondary'>
                           Name
                         </p>
                         {editingName ? (
-                          <div className="flex items-center gap-2 mt-1">
+                          <div className='flex items-center gap-2 mt-1'>
                             <Input
                               value={editedName}
-                              onChange={(e) => setEditedName(e.target.value)}
-                              className="flex-1"
-                              placeholder="Enter your name"
+                              onChange={e => setEditedName(e.target.value)}
+                              className='flex-1'
+                              placeholder='Enter your name'
                             />
                             <Button
-                              size="sm"
+                              size='sm'
                               onClick={saveName}
-                              className="p-2 h-8 w-8 cursor-pointer"
-                              variant="ghost"
+                              className='p-2 h-8 w-8 cursor-pointer'
+                              variant='ghost'
                             >
-                              <Check className="h-4 w-4 text-green-600" />
+                              <Check className='h-4 w-4 text-green-600' />
                             </Button>
                             <Button
-                              size="sm"
+                              size='sm'
                               onClick={cancelNameEdit}
-                              className="p-2 h-8 w-8 cursor-pointer"
-                              variant="ghost"
+                              className='p-2 h-8 w-8 cursor-pointer'
+                              variant='ghost'
                             >
-                              <X className="h-4 w-4 text-red-600" />
+                              <X className='h-4 w-4 text-red-600' />
                             </Button>
                           </div>
                         ) : (
-                          <div className="flex items-center justify-between">
-                            <p className="text-lg font-bold text-app-text-primary">
-                              {userData?.name ?? "NONE"}
+                          <div className='flex items-center justify-between'>
+                            <p className='text-lg font-bold text-app-text-primary'>
+                              {userData?.name ?? 'NONE'}
                             </p>
                             <Button
-                              size="sm"
+                              size='sm'
                               onClick={startEditingName}
-                              className="p-2 h-8 w-8 cursor-pointer"
-                              variant="ghost"
+                              className='p-2 h-8 w-8 cursor-pointer'
+                              variant='ghost'
                             >
-                              <Pencil className="h-4 w-4 text-app-text-secondary" />
+                              <Pencil className='h-4 w-4 text-app-text-secondary' />
                             </Button>
                           </div>
                         )}
@@ -274,52 +286,52 @@ export default function ProfilePage() {
 
                 {/* Password Card */}
                 <Card>
-                  <CardContent className="p-6">
-                    <div className="flex items-center gap-3">
-                      <div className="p-3 bg-app-green-light rounded-lg">
-                        <Key className="h-6 w-6 text-app-green-primary" />
+                  <CardContent className='p-6'>
+                    <div className='flex items-center gap-3'>
+                      <div className='p-3 bg-app-green-light rounded-lg'>
+                        <Key className='h-6 w-6 text-app-green-primary' />
                       </div>
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-app-text-secondary">
+                      <div className='flex-1'>
+                        <p className='text-sm font-medium text-app-text-secondary'>
                           Password
                         </p>
                         {editingPassword ? (
-                          <div className="flex items-center gap-2 mt-1">
+                          <div className='flex items-center gap-2 mt-1'>
                             <Input
                               value={editedPassword}
-                              onChange={(e) => setEditedPassword(e.target.value)}
-                              className="flex-1"
-                              placeholder="Enter your new password"
+                              onChange={e => setEditedPassword(e.target.value)}
+                              className='flex-1'
+                              placeholder='Enter your new password'
                             />
                             <Button
-                              size="sm"
+                              size='sm'
                               onClick={savePassword}
-                              className="p-2 h-8 w-8 cursor-pointer"
-                              variant="ghost"
+                              className='p-2 h-8 w-8 cursor-pointer'
+                              variant='ghost'
                             >
-                              <Check className="h-4 w-4 text-green-600" />
+                              <Check className='h-4 w-4 text-green-600' />
                             </Button>
                             <Button
-                              size="sm"
+                              size='sm'
                               onClick={cancelPasswordEdit}
-                              className="p-2 h-8 w-8 cursor-pointer"
-                              variant="ghost"
+                              className='p-2 h-8 w-8 cursor-pointer'
+                              variant='ghost'
                             >
-                              <X className="h-4 w-4 text-red-600" />
+                              <X className='h-4 w-4 text-red-600' />
                             </Button>
                           </div>
                         ) : (
-                          <div className="flex items-center justify-between">
-                            <p className="text-lg font-bold text-app-text-primary">
-                              {"•••••••••"}
+                          <div className='flex items-center justify-between'>
+                            <p className='text-lg font-bold text-app-text-primary'>
+                              {'•••••••••'}
                             </p>
                             <Button
-                              size="sm"
+                              size='sm'
                               onClick={startEditingPassword}
-                              className="p-2 h-8 w-8 cursor-pointer"
-                              variant="ghost"
+                              className='p-2 h-8 w-8 cursor-pointer'
+                              variant='ghost'
                             >
-                              <Pencil className="h-4 w-4 text-app-text-secondary" />
+                              <Pencil className='h-4 w-4 text-app-text-secondary' />
                             </Button>
                           </div>
                         )}
@@ -330,53 +342,53 @@ export default function ProfilePage() {
 
                 {/* Email Card */}
                 <Card>
-                  <CardContent className="p-6">
-                    <div className="flex items-center gap-3">
-                      <div className="p-3 bg-app-blue-light rounded-lg">
-                        <Mail className="h-6 w-6 text-app-blue-primary" />
+                  <CardContent className='p-6'>
+                    <div className='flex items-center gap-3'>
+                      <div className='p-3 bg-app-blue-light rounded-lg'>
+                        <Mail className='h-6 w-6 text-app-blue-primary' />
                       </div>
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-app-text-secondary">
+                      <div className='flex-1'>
+                        <p className='text-sm font-medium text-app-text-secondary'>
                           Email
                         </p>
                         {editingEmail ? (
-                          <div className="flex items-center gap-2 mt-1">
+                          <div className='flex items-center gap-2 mt-1'>
                             <Input
                               value={editedEmail}
-                              onChange={(e) => setEditedEmail(e.target.value)}
-                              className="flex-1"
-                              placeholder="Enter your email"
-                              type="email"
+                              onChange={e => setEditedEmail(e.target.value)}
+                              className='flex-1'
+                              placeholder='Enter your email'
+                              type='email'
                             />
                             <Button
-                              size="sm"
+                              size='sm'
                               onClick={saveEmail}
-                              className="p-2 h-8 w-8 cursor-pointer"
-                              variant="ghost"
+                              className='p-2 h-8 w-8 cursor-pointer'
+                              variant='ghost'
                             >
-                              <Check className="h-4 w-4 text-green-600" />
+                              <Check className='h-4 w-4 text-green-600' />
                             </Button>
                             <Button
-                              size="sm"
+                              size='sm'
                               onClick={cancelEmailEdit}
-                              className="p-2 h-8 w-8 cursor-pointer"
-                              variant="ghost"
+                              className='p-2 h-8 w-8 cursor-pointer'
+                              variant='ghost'
                             >
-                              <X className="h-4 w-4 text-red-600" />
+                              <X className='h-4 w-4 text-red-600' />
                             </Button>
                           </div>
                         ) : (
-                          <div className="flex items-center justify-between">
-                            <p className="text-lg font-bold text-app-text-primary">
-                              {userData?.email ?? "NONE" }
+                          <div className='flex items-center justify-between'>
+                            <p className='text-lg font-bold text-app-text-primary'>
+                              {userData?.email ?? 'NONE'}
                             </p>
                             <Button
-                              size="sm"
+                              size='sm'
                               onClick={startEditingEmail}
-                              className="p-2 h-8 w-8 cursor-pointer"
-                              variant="ghost"
+                              className='p-2 h-8 w-8 cursor-pointer'
+                              variant='ghost'
                             >
-                              <Pencil className="h-4 w-4 text-app-text-secondary" />
+                              <Pencil className='h-4 w-4 text-app-text-secondary' />
                             </Button>
                           </div>
                         )}
