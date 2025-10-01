@@ -4,7 +4,7 @@ import tsParser from '@typescript-eslint/parser';
 /** @type {import("eslint").Linter.FlatConfig[]} */
 export default [
   {
-    files: ['**/*.ts', '**/*.tsx'],
+    files: ['**/*.ts'],
     ignores: ['tests/**/*'],
     languageOptions: {
       parser: tsParser,
