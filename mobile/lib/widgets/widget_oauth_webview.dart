@@ -28,7 +28,7 @@ class OAuthWebViewState extends State<OAuthWebView> {
     _initializeWebViewController();
   }
 
-  void _initializeWebViewController() {
+  void _initializeWebViewController() async {
     webViewController = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setUserAgent(
@@ -91,10 +91,10 @@ class OAuthWebViewState extends State<OAuthWebView> {
       )
       ..loadRequest(Uri.parse(widget.oauthUrl));
 
-    _configureCookieSettings();
+    await _configureCookieSettings();
   }
 
-  Future<void> _configureCookieSettings() async {
+  Future<bool> _configureCookieSettings() async {
     try {
       await webViewController.runJavaScript('''
         var originalCookieDescriptor = Object.getOwnPropertyDescriptor(Document.prototype, 'cookie') ||
@@ -115,8 +115,9 @@ class OAuthWebViewState extends State<OAuthWebView> {
           });
         }
       ''');
+      return true;
     } catch (e) {
-      print('Could not configure cookie debugging: $e');
+      return false;
     }
   }
 
@@ -273,7 +274,6 @@ class OAuthWebViewState extends State<OAuthWebView> {
 
       return token;
     } catch (e) {
-      print('Error parsing URL for token: $e');
       return null;
     }
   }

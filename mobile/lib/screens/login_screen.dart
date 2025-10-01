@@ -109,6 +109,7 @@ class LoginScreenState extends State<LoginScreen> {
 
   Future<void> _goToOAuth(BuildContext context, String provider, String route) async {
     final backendAddressNotifier = Provider.of<BackendAddressNotifier>(context, listen: false);
+
     if (backendAddressNotifier.backendAddress == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -124,6 +125,10 @@ class LoginScreenState extends State<LoginScreen> {
 
     final address = "${backendAddressNotifier.backendAddress}$route";
 
+    final appLocalizations = AppLocalizations.of(context);
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
+
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -135,22 +140,26 @@ class LoginScreenState extends State<LoginScreen> {
       ),
     );
 
-    if (result != null && result is String) {
-      await saveJwt(result);
+    if (!mounted) return;
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              AppLocalizations.of(context)!.logged_in,
-              style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
-            ),
-            backgroundColor: AppColors.success,
+    if (result == null || result is! String) {
+      return;
+    }
+
+    await saveJwt(result);
+
+    if (mounted) {
+      scaffoldMessenger.showSnackBar(
+        SnackBar(
+          content: Text(
+            appLocalizations!.logged_in,
+            style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
           ),
-        );
+          backgroundColor: AppColors.success,
+        ),
+      );
 
-        Navigator.pop(context, true);
-      }
+      navigator.pop(true);
     }
   }
 
