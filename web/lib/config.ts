@@ -29,13 +29,9 @@ export const getAPIUrl = async () => {
 
   if (typeof window !== 'undefined') {
     const hostname = window.location.hostname;
-    if (hostname === 'localhost' || hostname === '127.0.0.1') {
-      return `http://localhost:${backendPort}/api`;
-    } else {
-      return `http://${hostname}:${backendPort}/api`;
-    }
+    return `http://${hostname}:${backendPort}/api`;
   }
-  return `http://localhost:${backendPort}/api`;
+  return `${backendUrl}/api`;
 };
 
 export const getFrontendUrl = async () => {

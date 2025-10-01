@@ -6,6 +6,8 @@ import { JWT_SECRET } from 'index';
 import mail from '../../middleware/mail';
 import passport from 'passport';
 import { MailerSend, EmailParams, Sender, Recipient } from 'mailersend';
+import token from '../../middleware/token';
+import { githubOAuth } from '../../services/services/github/oauth';
 
 interface TokenPayload extends jwt.JwtPayload {
   email: string;
@@ -502,18 +504,15 @@ router.get(
   '/github/callback',
   async (req: Request, res: Response, next) => {
     try {
-      // Check if user is authenticated to determine strategy
       const isAuthenticated = !!(req.auth || req.cookies?.auth_token);
 
       if (isAuthenticated) {
-        // User is authenticated, use subscribe strategy
         passport.authenticate('github-subscribe', { session: false })(
           req,
           res,
           next
         );
       } else {
-        // User is not authenticated, use login strategy
         passport.authenticate('github-login', { session: false })(
           req,
           res,
@@ -534,6 +533,15 @@ router.get(
           httpOnly: true,
           sameSite: 'strict',
         });
+
+        const isAuthenticated = !!(req.auth || req.cookies?.auth_token);
+        if (isAuthenticated) {
+          const appSlug = process.env.GITHUB_APP_SLUG || 'area-app';
+          const userId = (req.auth as { id: number })?.id || 'unknown';
+          const installUrl = `https://github.com/apps/${appSlug}/installations/new?state=${userId}`;
+          return res.redirect(installUrl);
+        }
+
         res.redirect(`${process.env.FRONTEND_URL || ''}`);
       } else {
         res.status(500).json({ error: 'Authentication failed' });
@@ -548,28 +556,51 @@ router.get(
  * @swagger
  * /api/auth/github/subscribe:
  *   get:
- *     summary: Initiate GitHub OAuth authorization for service connection
+ *     summary: Subscribe to GitHub service (OAuth + App Installation)
  *     tags:
  *       - OAuth
  *     description: |
- *       Redirects user to GitHub for OAuth authorization.
- *       This route is used to connect GitHub account for service access when user is already authenticated.
+ *       Complete subscription to GitHub service including OAuth authorization
+ *       and GitHub App installation. This handles the full flow to enable
+ *       webhook creation on user repositories.
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       302:
- *         description: Redirect to GitHub authorization page
+ *         description: Redirect to GitHub for OAuth or App installation
  *       401:
  *         description: User not authenticated
  *       500:
  *         description: Internal Server Error
  */
-router.get('/github/subscribe', async (req: Request, res: Response, next) => {
-  if (!req.auth) {
-    return res.status(401).json({ error: 'Authentication required' });
+router.get(
+  '/github/subscribe',
+  token,
+  async (req: Request, res: Response, next) => {
+    if (!req.auth) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    try {
+      const userId = (req.auth as { id: number }).id;
+      const existingToken = await githubOAuth.getUserToken(userId);
+
+      if (existingToken) {
+        const appSlug = process.env.GITHUB_APP_SLUG || '';
+        const installUrl = `https://github.com/apps/${appSlug}/installations/new?state=${userId}`;
+        return res.redirect(installUrl);
+      }
+    } catch {
+      console.log('No existing token found, proceeding with OAuth...');
+    }
+
+    passport.authenticate('github-subscribe', { session: false })(
+      req,
+      res,
+      next
+    );
   }
-  passport.authenticate('github-subscribe')(req, res, next);
-});
+);
 /**
  * @swagger
  * /api/auth/google/login:
@@ -590,6 +621,7 @@ router.get(
   '/google/login',
   passport.authenticate('google-login', {
     scope: ['openid', 'email', 'profile'],
+    session: false,
   })
 );
 
@@ -619,6 +651,7 @@ router.get('/google/subscribe', async (req: Request, res: Response, next) => {
   }
   passport.authenticate('google-subscribe', {
     scope: ['openid', 'email', 'profile'],
+    session: false,
   })(req, res, next);
 });
 

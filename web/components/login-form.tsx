@@ -42,7 +42,7 @@ export function LoginForm({
           secure: true,
           sameSite: 'strict',
         });
-        router.push('/dashboard');
+        router.push('/');
       } else {
         alert('Login failed');
       }

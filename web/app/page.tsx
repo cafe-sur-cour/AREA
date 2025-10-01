@@ -77,7 +77,7 @@ export default function Home() {
               automations.
             </p>
           </div>
-          <div className='m-5x w-4xl mx-auto'>
+          <div className='m-5x w-4xl max-w-full mx-auto'>
             <InfiniteHorizontalCards />
           </div>
         </div>

@@ -195,6 +195,18 @@ passport.use(
         };
         await githubOAuth.storeUserToken(decoded.id, tokenData);
 
+        try {
+          const { serviceSubscriptionManager } = await import(
+            '../services/ServiceSubscriptionManager'
+          );
+          await serviceSubscriptionManager.subscribeUser(decoded.id, 'github');
+        } catch (subscriptionError) {
+          console.error(
+            'Error auto-subscribing user to GitHub service:',
+            subscriptionError
+          );
+        }
+
         return doneCallback(null, {
           id: profile.id,
           name: profile.displayName || profile.username || '',
@@ -327,6 +339,18 @@ passport.use(
           id: number;
         };
         await googleOAuth.storeUserToken(decoded.id, tokenData);
+
+        try {
+          const { serviceSubscriptionManager } = await import(
+            '../services/ServiceSubscriptionManager'
+          );
+          await serviceSubscriptionManager.subscribeUser(decoded.id, 'google');
+        } catch (subscriptionError) {
+          console.error(
+            'Error auto-subscribing user to Google service:',
+            subscriptionError
+          );
+        }
 
         return doneCallback(null, {
           id: profile.id,

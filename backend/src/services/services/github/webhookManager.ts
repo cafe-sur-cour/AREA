@@ -206,7 +206,7 @@ export class GitHubWebhookManager {
 
   private generateWebhookUrl(): string {
     const baseUrl = process.env.WEBHOOK_BASE_URL || '';
-    return `${baseUrl}/webhooks/github`;
+    return `${baseUrl}/api/webhooks/github`;
   }
 
   private generateSecret(): string {

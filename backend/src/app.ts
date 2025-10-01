@@ -1,8 +1,13 @@
 import { AppDataSource } from './config/db';
 import { User } from './config/entity/User';
+import { getUserByEmail } from './routes/user/user.service';
 
 /* Example of saving elem in table */
 export const saveData = async () => {
+  if (await getUserByEmail('alice@example.com')) {
+    console.log('User already exists');
+    return;
+  }
   const user = new User();
   user.name = 'Alice';
   user.email = 'alice@example.com';

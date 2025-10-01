@@ -19,27 +19,24 @@ class AddAutomationScreenState extends State<AddAutomationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        spacing: 75,
-        children: [
+    return SingleChildScrollView(
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+          const SizedBox(height: 50),
           SizedBox(
-            height: 300,
-            child: Wrap(
-              direction: Axis.vertical,
-              alignment: WrapAlignment.end,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                Image(
-                  image: AssetImage('assets/web-app-manifest-512x512.png'),
-                  width: 200,
-                  height: 200,
-                ),
-              ],
+            height: 250,
+            child: Center(
+              child: Image(
+                image: const AssetImage('assets/web-app-manifest-512x512.png'),
+                width: 200,
+                height: 200,
+              ),
             ),
           ),
+          const SizedBox(height: 50),
           Wrap(
             direction: Axis.vertical,
             spacing: 32,
@@ -51,27 +48,29 @@ class AddAutomationScreenState extends State<AddAutomationScreen> {
                   padding: EdgeInsets.symmetric(vertical: 16, horizontal: 40),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
                 ),
-                child: SizedBox(
-                  width: 250,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(minWidth: 200, maxWidth: 300),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.max,
+                    mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        "Action",
-                        style: TextStyle(
-                          fontFamily: 'Montserrat',
-                          color: AppColors.areaLightGray,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 32.0,
+                      Flexible(
+                        child: Text(
+                          "Action",
+                          style: const TextStyle(
+                            fontFamily: 'Montserrat',
+                            color: AppColors.areaLightGray,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 28.0,
+                          ),
                         ),
                       ),
-                      Icon(
+                      const SizedBox(width: 8),
+                      const Icon(
                         Icons.add,
                         color: AppColors.areaLightGray,
-                        size: 40,
-                        fontWeight: FontWeight.w900,
+                        size: 32,
                       ),
                     ],
                   ),
@@ -84,27 +83,29 @@ class AddAutomationScreenState extends State<AddAutomationScreen> {
                   padding: EdgeInsets.symmetric(vertical: 16, horizontal: 40),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
                 ),
-                child: SizedBox(
-                  width: 250,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(minWidth: 200, maxWidth: 300),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.max,
+                    mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        "REAction",
-                        style: TextStyle(
-                          fontFamily: 'Montserrat',
-                          color: AppColors.areaLightGray,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 32.0,
+                      Flexible(
+                        child: Text(
+                          "REAction",
+                          style: const TextStyle(
+                            fontFamily: 'Montserrat',
+                            color: AppColors.areaLightGray,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 28.0,
+                          ),
                         ),
                       ),
+                      const SizedBox(width: 8),
                       Icon(
                         Icons.add,
                         color: AppColors.areaLightGray,
-                        size: _actionSelected ? 40 : 0,
-                        fontWeight: FontWeight.w900,
+                        size: _actionSelected ? 32 : 0,
                       ),
                     ],
                   ),
@@ -112,7 +113,9 @@ class AddAutomationScreenState extends State<AddAutomationScreen> {
               ),
             ],
           ),
+          const SizedBox(height: 50),
         ],
+        ),
       ),
     );
   }

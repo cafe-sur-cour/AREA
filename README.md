@@ -132,3 +132,15 @@ docker compose -f deployment/docker-compose.yml down # Down services
 docker compose -f deployment/docker-compose.yml down -v # Down services and remove all volumes
 docker exec -it postgres_db psql -U postgres -d mydb # Access our db
 ```
+
+
+## Documentation 🦕
+
+The documentation of the project is currently handled by a docusaurus instace.
+
+To run it :
+```bash
+cd documentation/area-documentation/
+npm start
+```
+Then you can find the documentation at http://localhost:3000/

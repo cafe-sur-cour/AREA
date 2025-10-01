@@ -11,7 +11,7 @@ const options = {
       description: 'API documentation',
     },
   },
-  apis: ['./src/routes/**/*.ts'],
+  apis: ['./src/routes/**/*.ts', './src/webhooks/**/*.ts'],
 };
 
 const specs = swaggerJsdoc(options);
