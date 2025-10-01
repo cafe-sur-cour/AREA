@@ -48,6 +48,8 @@ class ProfileScreenState extends State<ProfileScreen> {
     late String message;
     late Color color;
 
+    final appLocalizations = AppLocalizations.of(context);
+
     try {
       final response = await http.get(url);
 
@@ -60,19 +62,24 @@ class ProfileScreenState extends State<ProfileScreen> {
         throw jsonResponse['status'];
       }
 
-      message = AppLocalizations.of(context)!.valid_backend_server_address;
+      message = appLocalizations!.valid_backend_server_address;
       color = AppColors.success;
     } catch (e) {
-      message = AppLocalizations.of(context)!.invalid_backend_server_address;
+      message = appLocalizations!.invalid_backend_server_address;
       color = AppColors.error;
     }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message, style: TextStyle(color: AppColors.areaLightGray, fontSize: 16)),
-        backgroundColor: color,
-      ),
-    );
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            message,
+            style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+          ),
+          backgroundColor: color,
+        ),
+      );
+    }
   }
 
   void _logout() async {
@@ -108,25 +115,29 @@ class ProfileScreenState extends State<ProfileScreen> {
         _userProfileIcon = Icons.account_circle;
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            AppLocalizations.of(context)!.logged_out,
-            style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(context)!.logged_out,
+              style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+            ),
+            backgroundColor: AppColors.success,
           ),
-          backgroundColor: AppColors.success,
-        ),
-      );
+        );
+      }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            e.toString(),
-            style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              e.toString(),
+              style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+            ),
+            backgroundColor: AppColors.error,
           ),
-          backgroundColor: AppColors.error,
-        ),
-      );
+        );
+      }
     }
   }
 
@@ -163,15 +174,17 @@ class ProfileScreenState extends State<ProfileScreen> {
         _isConnected = true;
       });
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            e.toString(),
-            style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              e.toString(),
+              style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+            ),
+            backgroundColor: AppColors.error,
           ),
-          backgroundColor: AppColors.error,
-        ),
-      );
+        );
+      }
     }
   }
 

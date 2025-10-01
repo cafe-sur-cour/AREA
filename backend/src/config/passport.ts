@@ -2,10 +2,15 @@ import passport from 'passport';
 import dotenv from 'dotenv';
 dotenv.config();
 import { Strategy as GitHubStrategy, Profile } from 'passport-github';
+import {
+  Strategy as GoogleStrategy,
+  Profile as GoogleProfile,
+} from 'passport-google-oauth20';
 import { Request } from 'express';
 import jwt from 'jsonwebtoken';
 import { oauthLogin, connectOAuthProvider } from '../routes/auth/auth.service';
 import { githubOAuth } from '../services/services/github/oauth';
+import { googleOAuth } from '../services/services/google/oauth';
 import { JWT_SECRET } from '../../index';
 
 export interface GitHubUser {
@@ -15,25 +20,11 @@ export interface GitHubUser {
   token: string;
 }
 
-async function isUserAuthenticated(req: Request): Promise<boolean> {
-  try {
-    const authHeader = req.header('Authorization');
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      const token = authHeader.replace('Bearer ', '');
-      jwt.verify(token, JWT_SECRET as string);
-      return true;
-    }
-
-    const cookieToken = req.cookies?.auth_token;
-    if (cookieToken) {
-      jwt.verify(cookieToken, JWT_SECRET as string);
-      return true;
-    }
-
-    return false;
-  } catch {
-    return false;
-  }
+export interface GoogleUser {
+  id: string;
+  name: string;
+  email: string;
+  token: string;
 }
 
 async function getCurrentUser(
@@ -66,12 +57,13 @@ async function getCurrentUser(
 }
 
 passport.use(
+  'github-login',
   new GitHubStrategy(
     {
       clientID: process.env.SERVICE_GITHUB_CLIENT_ID || '',
       clientSecret: process.env.SERVICE_GITHUB_CLIENT_SECRET || '',
       callbackURL: process.env.SERVICE_GITHUB_REDIRECT_URI || '',
-      scope: ['user:email', 'read:user'],
+      scope: ['user:email'],
       passReqToCallback: true,
     },
     async (
@@ -87,31 +79,27 @@ passport.use(
         user?: GitHubUser | null
       ) => void;
       try {
-        const isServiceConnection = await isUserAuthenticated(req);
-
-        let userToken: string | Error;
-
-        if (isServiceConnection) {
-          const currentUser = await getCurrentUser(req);
-          if (!currentUser) {
-            return doneCallback(new Error('User not authenticated'), null);
+        let userEmail = profile.emails?.[0]?.value || '';
+        if (userEmail.includes('@github.oauth') || !userEmail) {
+          try {
+            const emails = await githubOAuth.getUserEmails(accessToken);
+            const primaryEmail = emails.find(
+              email => email.primary && email.verified
+            );
+            if (primaryEmail) {
+              userEmail = primaryEmail.email;
+            }
+          } catch (error) {
+            console.warn('Failed to fetch GitHub user emails:', error);
           }
-
-          userToken = await connectOAuthProvider(
-            currentUser.id,
-            'github',
-            profile.id,
-            profile.emails?.[0]?.value || '',
-            profile.displayName || profile.username || ''
-          );
-        } else {
-          userToken = await oauthLogin(
-            'github',
-            profile.id,
-            profile.emails?.[0]?.value || '',
-            profile.displayName || profile.username || ''
-          );
         }
+
+        const userToken = await oauthLogin(
+          'github',
+          profile.id,
+          userEmail,
+          profile.displayName || profile.username || ''
+        );
 
         if (userToken instanceof Error) {
           return doneCallback(userToken, null);
@@ -120,7 +108,7 @@ passport.use(
         const tokenData = {
           access_token: accessToken,
           token_type: 'bearer',
-          scope: 'user:email,read:user',
+          scope: 'user:email',
         };
 
         const decoded = jwt.verify(userToken, JWT_SECRET as string) as {
@@ -131,6 +119,221 @@ passport.use(
         return doneCallback(null, {
           id: profile.id,
           name: profile.displayName || profile.username || '',
+          email: userEmail,
+          token: userToken,
+        });
+      } catch (error) {
+        return doneCallback(error as Error, null);
+      }
+    }
+  )
+);
+
+passport.use(
+  'github-subscribe',
+  new GitHubStrategy(
+    {
+      clientID: process.env.SERVICE_GITHUB_CLIENT_ID || '',
+      clientSecret: process.env.SERVICE_GITHUB_CLIENT_SECRET || '',
+      callbackURL: process.env.SERVICE_GITHUB_REDIRECT_URI || '',
+      scope: ['user:email', 'repo'],
+      passReqToCallback: true,
+    },
+    async (
+      req: Request,
+      accessToken: string,
+      params: unknown,
+      refreshToken: string,
+      profile: Profile,
+      done: unknown
+    ) => {
+      const doneCallback = done as (
+        error: Error | null,
+        user?: GitHubUser | null
+      ) => void;
+      try {
+        const currentUser = await getCurrentUser(req);
+        if (!currentUser) {
+          return doneCallback(new Error('User not authenticated'), null);
+        }
+
+        let userEmail = profile.emails?.[0]?.value || '';
+        if (userEmail.includes('@github.oauth') || !userEmail) {
+          try {
+            const emails = await githubOAuth.getUserEmails(accessToken);
+            const primaryEmail = emails.find(
+              email => email.primary && email.verified
+            );
+            if (primaryEmail) {
+              userEmail = primaryEmail.email;
+            }
+          } catch (error) {
+            console.warn('Failed to fetch GitHub user emails:', error);
+          }
+        }
+
+        const userToken = await connectOAuthProvider(
+          currentUser.id,
+          'github',
+          profile.id,
+          userEmail,
+          profile.displayName || profile.username || ''
+        );
+
+        if (userToken instanceof Error) {
+          return doneCallback(userToken, null);
+        }
+
+        const tokenData = {
+          access_token: accessToken,
+          token_type: 'bearer',
+          scope: 'user:email,repo',
+        };
+
+        const decoded = jwt.verify(userToken, JWT_SECRET as string) as {
+          id: number;
+        };
+        await githubOAuth.storeUserToken(decoded.id, tokenData);
+
+        return doneCallback(null, {
+          id: profile.id,
+          name: profile.displayName || profile.username || '',
+          email: userEmail,
+          token: userToken,
+        });
+      } catch (error) {
+        return doneCallback(error as Error, null);
+      }
+    }
+  )
+);
+
+passport.use(
+  'google-login',
+  new GoogleStrategy(
+    {
+      clientID: process.env.SERVICE_GOOGLE_CLIENT_ID || '',
+      clientSecret: process.env.SERVICE_GOOGLE_CLIENT_SECRET || '',
+      callbackURL: process.env.SERVICE_GOOGLE_REDIRECT_URI || '',
+      scope: ['openid', 'email', 'profile'],
+      passReqToCallback: true,
+    },
+    async (
+      req: Request,
+      accessToken: string,
+      refreshToken: string,
+      params: { expires_in?: number },
+      profile: GoogleProfile,
+      done: unknown
+    ) => {
+      const doneCallback = done as (
+        error: Error | null,
+        user?: GoogleUser | null
+      ) => void;
+      try {
+        const userToken = await oauthLogin(
+          'google',
+          profile.id,
+          profile.emails?.[0]?.value || '',
+          profile.displayName ||
+            profile.name?.givenName + ' ' + profile.name?.familyName ||
+            ''
+        );
+
+        if (userToken instanceof Error) {
+          return doneCallback(userToken, null);
+        }
+
+        const tokenData = {
+          access_token: accessToken,
+          token_type: 'bearer',
+          expires_in: params.expires_in || 3600,
+          refresh_token: refreshToken,
+          scope: 'openid email profile',
+        };
+
+        const decoded = jwt.verify(userToken, JWT_SECRET as string) as {
+          id: number;
+        };
+        await googleOAuth.storeUserToken(decoded.id, tokenData);
+
+        return doneCallback(null, {
+          id: profile.id,
+          name:
+            profile.displayName ||
+            profile.name?.givenName + ' ' + profile.name?.familyName ||
+            '',
+          email: profile.emails?.[0]?.value || '',
+          token: userToken,
+        });
+      } catch (error) {
+        return doneCallback(error as Error, null);
+      }
+    }
+  )
+);
+
+passport.use(
+  'google-subscribe',
+  new GoogleStrategy(
+    {
+      clientID: process.env.SERVICE_GOOGLE_CLIENT_ID || '',
+      clientSecret: process.env.SERVICE_GOOGLE_CLIENT_SECRET || '',
+      callbackURL: process.env.SERVICE_GOOGLE_REDIRECT_URI || '',
+      scope: ['openid', 'email', 'profile'],
+      passReqToCallback: true,
+    },
+    async (
+      req: Request,
+      accessToken: string,
+      refreshToken: string,
+      params: { expires_in?: number },
+      profile: GoogleProfile,
+      done: unknown
+    ) => {
+      const doneCallback = done as (
+        error: Error | null,
+        user?: GoogleUser | null
+      ) => void;
+      try {
+        const currentUser = await getCurrentUser(req);
+        if (!currentUser) {
+          return doneCallback(new Error('User not authenticated'), null);
+        }
+
+        const userToken = await connectOAuthProvider(
+          currentUser.id,
+          'google',
+          profile.id,
+          profile.emails?.[0]?.value || '',
+          profile.displayName ||
+            profile.name?.givenName + ' ' + profile.name?.familyName ||
+            ''
+        );
+
+        if (userToken instanceof Error) {
+          return doneCallback(userToken, null);
+        }
+
+        const tokenData = {
+          access_token: accessToken,
+          token_type: 'bearer',
+          expires_in: params.expires_in || 3600,
+          refresh_token: refreshToken,
+          scope: 'openid email profile',
+        };
+
+        const decoded = jwt.verify(userToken, JWT_SECRET as string) as {
+          id: number;
+        };
+        await googleOAuth.storeUserToken(decoded.id, tokenData);
+
+        return doneCallback(null, {
+          id: profile.id,
+          name:
+            profile.displayName ||
+            profile.name?.givenName + ' ' + profile.name?.familyName ||
+            '',
           email: profile.emails?.[0]?.value || '',
           token: userToken,
         });
