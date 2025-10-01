@@ -7,6 +7,7 @@ import 'package:area/l10n/app_localizations.dart';
 import 'package:area/services/secure_storage.dart';
 import 'package:area/widgets/widget_oauth_webview.dart';
 import 'package:flutter/material.dart';
+import 'package:icons_plus/icons_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 
@@ -128,7 +129,7 @@ class LoginScreenState extends State<LoginScreen> {
       MaterialPageRoute(
         builder: (context) => OAuthWebView(
           oauthUrl: address,
-          redirectUrl: 'http://localhost:8081',
+          redirectUrl: 'http://backend.nduboi.fr:16834',
           providerName: provider,
         ),
       ),
@@ -266,24 +267,51 @@ class LoginScreenState extends State<LoginScreen> {
                     style: ElevatedButton.styleFrom(
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                       backgroundColor: AppColors.primary,
+                      padding: EdgeInsets.symmetric(horizontal: 16),
                     ),
-                    child: Text('Github', style: TextStyle(color: AppColors.areaLightGray)),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(IonIcons.logo_github, color: AppColors.areaLightGray),
+                        SizedBox(width: 8),
+                        Text('Github', style: TextStyle(color: AppColors.areaLightGray)),
+                      ],
+                    ),
                   ),
                   ElevatedButton(
                     onPressed: () => _goToMicrosoft(context),
                     style: ElevatedButton.styleFrom(
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                       backgroundColor: AppColors.primary,
+                      padding: EdgeInsets.symmetric(horizontal: 16),
                     ),
-                    child: Text('Microsoft', style: TextStyle(color: AppColors.areaLightGray)),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(IonIcons.logo_microsoft, color: AppColors.areaLightGray),
+                        SizedBox(width: 8),
+                        Text('Microsoft', style: TextStyle(color: AppColors.areaLightGray)),
+                      ],
+                    ),
                   ),
                   ElevatedButton(
                     onPressed: () => _goToGoogle(context),
                     style: ElevatedButton.styleFrom(
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                       backgroundColor: AppColors.primary,
+                      padding: EdgeInsets.symmetric(horizontal: 16),
                     ),
-                    child: Text('Google', style: TextStyle(color: AppColors.areaLightGray)),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(IonIcons.logo_google, color: AppColors.areaLightGray),
+                        SizedBox(width: 8),
+                        Text('Google', style: TextStyle(color: AppColors.areaLightGray)),
+                      ],
+                    ),
                   ),
                 ],
               ),
