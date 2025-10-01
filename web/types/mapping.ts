@@ -1,20 +1,20 @@
 export interface Mapping {
-  id: number,
-  name: String,
-  description: String,
+  id: number;
+  name: string;
+  description: string;
   action: {
-    type: String,
-    config: {}
-  },
+    type: string;
+    config: object;
+  };
   reactions: [
     {
-      type: String,
-      config: {},
-      delay: number
-    }
-  ],
-  is_active: boolean,
-  created_by: number,
-  created_at: String,
-  updated_at: String
+      type: string;
+      config: object;
+      delay: number;
+    },
+  ];
+  is_active: boolean;
+  created_by: number;
+  created_at: string;
+  updated_at: string;
 }
