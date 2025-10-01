@@ -7,9 +7,8 @@ import { useRouter } from 'next/navigation';
 import Navigation from '@/components/header';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Search, CheckCircle2, Circle } from 'lucide-react';
+import { CheckCircle2 } from 'lucide-react';
 import {
   FaTwitch,
   FaGithub,
@@ -144,7 +143,7 @@ export default function ServicesPage() {
     if (user) {
       checkServiceStatus();
     }
-  }, [user]);
+  }, [user, services]);
 
   const handleConnect = async (service: Service) => {
     const apiUrl = await getAPIUrl();
