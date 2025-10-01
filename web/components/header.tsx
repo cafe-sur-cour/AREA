@@ -16,6 +16,7 @@ export default function Navigation() {
   const navItems = [
     { href: '/', label: 'Home' },
     { href: '/catalogue', label: 'Catalogue' },
+    { href: '/services', label: 'Services' }, // Added Services link
     { href: '/dashboard', label: 'Dashboard' },
     { href: '/about', label: 'About' },
   ];
