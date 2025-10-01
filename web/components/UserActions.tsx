@@ -36,19 +36,20 @@ export function UserActions({ className, isMobile }: UserActionsProps) {
           <button
             onClick={handleSwitchToProfile}
             className={`relative flex items-center justify-center font-heading font-bold text-app-text-secondary hover:text-area-hover transition-all duration-300 p-2 rounded-lg hover:bg-area-light/20 ${
-              isMobile ? "w-full" : ""
+              isMobile ? "w-full  gap-2" : ""
             }`}
           >
             <IDAvatar id={0} />
+            {isMobile && <span className="text-app-text-secondary">Profile</span>}
           </button>
           <button
             onClick={handleLogout}
             className={`font-heading font-bold text-app-red-primary hover:text-red-600 transition-all duration-300 p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center justify-center gap-2 ${
-              isMobile ? "w-full text-lg" : ""
+              isMobile ? "w-full" : ""
             }`}
           >
             <LogOut />
-            {isMobile && <span>Logout</span>}
+            {isMobile && <span className="text-app-text-secondary">Logout</span>}
           </button>
         </>
       ) : (
