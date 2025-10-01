@@ -1,26 +1,26 @@
 import express, { Request, Response } from 'express';
-import { ReactionService } from './reaction.service';
+import { ActionService } from './action.service';
 import { serviceRegistry } from '../../services/ServiceRegistry';
 
 const router = express.Router();
-const reactionService = new ReactionService();
+const actionService = new ActionService();
 
 /**
  * @swagger
- * /api/reactions:
+ * /api/actions:
  *   get:
- *     summary: Get all available reactions
+ *     summary: Get all available actions
  *     tags:
- *       - Reactions
+ *       - Actions
  *     responses:
  *       200:
- *         description: List of all reactions
+ *         description: List of all actions
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
- *                 reactions:
+ *                 actions:
  *                   type: array
  *                   items:
  *                     type: object
@@ -35,7 +35,7 @@ const reactionService = new ReactionService();
  *                         type: string
  *                       configSchema:
  *                         type: object
- *                       outputSchema:
+ *                       inputSchema:
  *                         type: object
  *                       metadata:
  *                         type: object
@@ -44,44 +44,44 @@ const reactionService = new ReactionService();
  */
 router.get('/', async (req: Request, res: Response): Promise<Response> => {
   try {
-    const reactions = reactionService.getAllReactions();
+    const actions = actionService.getAllActions();
 
-    const enrichedReactions = reactions.map(reaction => {
-      const serviceId = reaction.id.split('.')[0];
+    const enrichedActions = actions.map(action => {
+      const serviceId = action.id.split('.')[0];
       if (!serviceId) {
-        throw new Error(`Invalid reaction ID format: ${reaction.id}`);
+        throw new Error(`Invalid action ID format: ${action.id}`);
       }
       const service = serviceRegistry.getService(serviceId);
 
       return {
-        id: reaction.id,
-        name: reaction.name,
-        description: reaction.description,
+        id: action.id,
+        name: action.name,
+        description: action.description,
         service: service?.name || serviceId,
         serviceId: serviceId,
-        configSchema: reaction.configSchema,
-        outputSchema: reaction.outputSchema,
-        metadata: reaction.metadata,
+        configSchema: action.configSchema,
+        inputSchema: action.inputSchema,
+        metadata: action.metadata,
       };
     });
 
     return res.status(200).json({
-      reactions: enrichedReactions,
-      count: enrichedReactions.length,
+      actions: enrichedActions,
+      count: enrichedActions.length,
     });
   } catch (err) {
-    console.error('Error fetching reactions:', err);
+    console.error('Error fetching actions:', err);
     return res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
 /**
  * @swagger
- * /api/reactions/service/{serviceId}:
+ * /api/actions/service/{serviceId}:
  *   get:
- *     summary: Get reactions for a specific service
+ *     summary: Get actions for a specific service
  *     tags:
- *       - Reactions
+ *       - Actions
  *     parameters:
  *       - in: path
  *         name: serviceId
@@ -91,7 +91,7 @@ router.get('/', async (req: Request, res: Response): Promise<Response> => {
  *         description: The service ID
  *     responses:
  *       200:
- *         description: List of reactions for the specified service
+ *         description: List of actions for the specified service
  *         content:
  *           application/json:
  *             schema:
@@ -106,7 +106,7 @@ router.get('/', async (req: Request, res: Response): Promise<Response> => {
  *                       type: string
  *                     description:
  *                       type: string
- *                 reactions:
+ *                 actions:
  *                   type: array
  *                   items:
  *                     type: object
@@ -119,7 +119,7 @@ router.get('/', async (req: Request, res: Response): Promise<Response> => {
  *                         type: string
  *                       configSchema:
  *                         type: object
- *                       outputSchema:
+ *                       inputSchema:
  *                         type: object
  *                       metadata:
  *                         type: object
@@ -143,7 +143,7 @@ router.get(
         return res.status(404).json({ error: 'Service not found' });
       }
 
-      const reactions = reactionService.getReactionsByService(serviceId);
+      const actions = actionService.getActionsByService(serviceId);
 
       return res.status(200).json({
         service: {
@@ -152,18 +152,18 @@ router.get(
           description: service.description,
           version: service.version,
         },
-        reactions: reactions.map(reaction => ({
-          id: reaction.id,
-          name: reaction.name,
-          description: reaction.description,
-          configSchema: reaction.configSchema,
-          outputSchema: reaction.outputSchema,
-          metadata: reaction.metadata,
+        actions: actions.map(action => ({
+          id: action.id,
+          name: action.name,
+          description: action.description,
+          configSchema: action.configSchema,
+          inputSchema: action.inputSchema,
+          metadata: action.metadata,
         })),
-        count: reactions.length,
+        count: actions.length,
       });
     } catch (err) {
-      console.error('Error fetching reactions for service:', err);
+      console.error('Error fetching actions for service:', err);
       return res.status(500).json({ error: 'Internal Server Error' });
     }
   }
@@ -171,14 +171,14 @@ router.get(
 
 /**
  * @swagger
- * /api/reactions/grouped:
+ * /api/actions/grouped:
  *   get:
- *     summary: Get all reactions grouped by service
+ *     summary: Get all actions grouped by service
  *     tags:
- *       - Reactions
+ *       - Actions
  *     responses:
  *       200:
- *         description: Reactions grouped by service
+ *         description: Actions grouped by service
  *         content:
  *           application/json:
  *             schema:
@@ -198,7 +198,7 @@ router.get(
  *                             type: string
  *                           description:
  *                             type: string
- *                       reactions:
+ *                       actions:
  *                         type: array
  *                         items:
  *                           type: object
@@ -209,10 +209,10 @@ router.get(
   '/grouped',
   async (req: Request, res: Response): Promise<Response> => {
     try {
-      const groupedReactions = reactionService.getReactionsGroupedByService();
+      const groupedActions = actionService.getActionsGroupedByService();
       const services: Record<string, unknown> = {};
 
-      Object.entries(groupedReactions).forEach(([serviceId, reactions]) => {
+      Object.entries(groupedActions).forEach(([serviceId, actions]) => {
         const service = serviceRegistry.getService(serviceId);
         services[serviceId] = {
           service: {
@@ -221,28 +221,28 @@ router.get(
             description: service?.description || '',
             version: service?.version || '1.0.0',
           },
-          reactions: reactions.map(reaction => ({
-            id: reaction.id,
-            name: reaction.name,
-            description: reaction.description,
-            configSchema: reaction.configSchema,
-            outputSchema: reaction.outputSchema,
-            metadata: reaction.metadata,
+          actions: actions.map(action => ({
+            id: action.id,
+            name: action.name,
+            description: action.description,
+            configSchema: action.configSchema,
+            inputSchema: action.inputSchema,
+            metadata: action.metadata,
           })),
-          count: reactions.length,
+          count: actions.length,
         };
       });
 
       return res.status(200).json({
         services,
         totalServices: Object.keys(services).length,
-        totalReactions: Object.values(groupedReactions).reduce(
-          (sum, reactions) => sum + reactions.length,
+        totalActions: Object.values(groupedActions).reduce(
+          (sum, actions) => sum + actions.length,
           0
         ),
       });
     } catch (err) {
-      console.error('Error fetching grouped reactions:', err);
+      console.error('Error fetching grouped actions:', err);
       return res.status(500).json({ error: 'Internal Server Error' });
     }
   }
@@ -250,68 +250,68 @@ router.get(
 
 /**
  * @swagger
- * /api/reactions/{reactionType}:
+ * /api/actions/{actionType}:
  *   get:
- *     summary: Get a specific reaction by type
+ *     summary: Get a specific action by type
  *     tags:
- *       - Reactions
+ *       - Actions
  *     parameters:
  *       - in: path
- *         name: reactionType
+ *         name: actionType
  *         required: true
  *         schema:
  *           type: string
- *         description: The reaction type (e.g., github.create_issue)
+ *         description: The action type (e.g., github.push)
  *     responses:
  *       200:
- *         description: Reaction details
+ *         description: Action details
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
- *                 reaction:
+ *                 action:
  *                   type: object
  *       404:
- *         description: Reaction not found
+ *         description: Action not found
  *       500:
  *         description: Internal server error
  */
 router.get(
-  '/:reactionType',
+  '/:actionType',
   async (req: Request, res: Response): Promise<Response> => {
     try {
-      const { reactionType } = req.params;
+      const { actionType } = req.params;
 
-      if (!reactionType) {
-        return res.status(400).json({ error: 'Reaction type is required' });
+      if (!actionType) {
+        return res.status(400).json({ error: 'Action type is required' });
       }
 
-      const reaction = reactionService.getReactionByType(reactionType);
-      if (!reaction) {
-        return res.status(404).json({ error: 'Reaction not found' });
+      const action = actionService.getActionByType(actionType);
+      if (!action) {
+        return res.status(404).json({ error: 'Action not found' });
       }
 
-      const serviceId = reactionType.split('.')[0];
+      const serviceId = actionType.split('.')[0];
       if (!serviceId) {
-        return res.status(400).json({ error: 'Invalid reaction type format' });
+        return res.status(400).json({ error: 'Invalid action type format' });
       }
       const service = serviceRegistry.getService(serviceId);
 
       return res.status(200).json({
-        reaction: {
-          id: reaction.id,
-          name: reaction.name,
-          description: reaction.description,
+        action: {
+          id: action.id,
+          name: action.name,
+          description: action.description,
           service: service?.name || serviceId,
           serviceId: serviceId,
-          configSchema: reaction.configSchema,
-          outputSchema: reaction.outputSchema,
-          metadata: reaction.metadata,
+          configSchema: action.configSchema,
+          inputSchema: action.inputSchema,
+          metadata: action.metadata,
         },
       });
     } catch (err) {
-      console.error('Error fetching reaction:', err);
+      console.error('Error fetching action:', err);
       return res.status(500).json({ error: 'Internal Server Error' });
     }
   }
