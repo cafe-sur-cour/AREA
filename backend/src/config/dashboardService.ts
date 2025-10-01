@@ -88,7 +88,7 @@ export class DashboardService {
         console.error('Error fetching service statistics:', error);
       }
 
-      let serviceDistribution: any[] = [];
+      let serviceDistribution: unknown[] = [];
 
       try {
         serviceDistribution = await serviceRepo
@@ -110,7 +110,7 @@ export class DashboardService {
         console.error('Error fetching webhook statistics:', error);
       }
 
-      let webhookStats: any[] = [];
+      let webhookStats: unknown[] = [];
 
       try {
         webhookStats = await webhookStatsRepo.find({

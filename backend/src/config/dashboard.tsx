@@ -184,7 +184,6 @@ export const Dashboard: React.FC = () => {
           setStats(dashboardStats);
         } catch (fallbackErr) {
           console.error('Fallback API also failed:', fallbackErr);
-          // Set fallback stats when all API calls fail
           setStats({
             totalUsers: 0,
             activeUsers: 0,
@@ -276,12 +275,6 @@ export const Dashboard: React.FC = () => {
           subtitle="Different services"
           color="#795548"
         />
-        {/* <StatCard
-          title="Active Rate"
-          value={stats?.totalServices > 0 ? `${Math.round((stats.activeServices / stats.totalServices) * 100)}%` : '0%'}
-          subtitle="Service activation"
-          color="#607d8b"
-        /> */}
         <StatCard
           title="User Growth"
           value="📈"
