@@ -6,9 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'navigation/main_navigation.dart';
-import 'core/themes/app_theme.dart';
-import 'core/notifiers/backend_address_notifier.dart';
-import 'core/notifiers/locale_notifier.dart';
+import 'package:area/core/themes/app_theme.dart';
+import 'package:area/core/notifiers/backend_address_notifier.dart';
+import 'package:area/core/notifiers/locale_notifier.dart';
 
 void main() {
   runApp(
