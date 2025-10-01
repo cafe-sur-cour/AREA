@@ -5,10 +5,10 @@ import 'package:area/core/constants/app_constants.dart';
 import 'package:area/core/notifiers/backend_address_notifier.dart';
 import 'package:area/l10n/app_localizations.dart';
 import 'package:area/services/secure_storage.dart';
+import 'package:area/widgets/widget_oauth_webview.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
-import 'package:url_launcher/url_launcher.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -74,27 +74,31 @@ class LoginScreenState extends State<LoginScreen> {
 
         await saveJwt(data['token']);
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              AppLocalizations.of(context)!.logged_in,
-              style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                AppLocalizations.of(context)!.logged_in,
+                style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+              ),
+              backgroundColor: AppColors.success,
             ),
-            backgroundColor: AppColors.success,
-          ),
-        );
+          );
 
-        Navigator.pop(context, true);
+          Navigator.pop(context, true);
+        }
       } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              e.toString(),
-              style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                e.toString(),
+                style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+              ),
+              backgroundColor: AppColors.error,
             ),
-            backgroundColor: AppColors.error,
-          ),
-        );
+          );
+        }
       }
     }
     setState(() {
@@ -102,7 +106,7 @@ class LoginScreenState extends State<LoginScreen> {
     });
   }
 
-  void _goToGithub(BuildContext context) async {
+  Future<void> _goToOAuth(BuildContext context, String provider, String route) async {
     final backendAddressNotifier = Provider.of<BackendAddressNotifier>(context, listen: false);
     if (backendAddressNotifier.backendAddress == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -114,12 +118,51 @@ class LoginScreenState extends State<LoginScreen> {
           backgroundColor: AppColors.error,
         ),
       );
+      return;
     }
 
-    final address = "${backendAddressNotifier.backendAddress}${AppRoutes.github}";
-    final uri = Uri.parse(address);
+    final address = "${backendAddressNotifier.backendAddress}$route";
 
-    await launchUrl(uri, mode: LaunchMode.inAppBrowserView);
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => OAuthWebView(
+          oauthUrl: address,
+          redirectUrl: 'http://localhost:8081',
+          providerName: provider,
+        ),
+      ),
+    );
+
+    if (result != null && result is String) {
+      await saveJwt(result);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(context)!.logged_in,
+              style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+            ),
+            backgroundColor: AppColors.success,
+          ),
+        );
+
+        Navigator.pop(context, true);
+      }
+    }
+  }
+
+  void _goToGithub(BuildContext context) async {
+    await _goToOAuth(context, 'GitHub', AppRoutes.github);
+  }
+
+  void _goToMicrosoft(BuildContext context) async {
+    // await _goToOAuth(context, 'Microsoft', 'api/auth/microsoft');
+  }
+
+  void _goToGoogle(BuildContext context) async {
+    // await _goToOAuth(context, 'Google', 'api/auth/google');
   }
 
   @override
@@ -227,7 +270,7 @@ class LoginScreenState extends State<LoginScreen> {
                     child: Text('Github', style: TextStyle(color: AppColors.areaLightGray)),
                   ),
                   ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () => _goToMicrosoft(context),
                     style: ElevatedButton.styleFrom(
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                       backgroundColor: AppColors.primary,
@@ -235,7 +278,7 @@ class LoginScreenState extends State<LoginScreen> {
                     child: Text('Microsoft', style: TextStyle(color: AppColors.areaLightGray)),
                   ),
                   ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () => _goToGoogle(context),
                     style: ElevatedButton.styleFrom(
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                       backgroundColor: AppColors.primary,
