@@ -1,6 +1,8 @@
 # Flutter Mobile Build Dockerfile
 FROM ghcr.io/cirruslabs/flutter:3.35.4 AS builder
 
+ARG SKIP_APK_BUILD=false
+
 WORKDIR /app
 
 COPY mobile/ ./
@@ -9,7 +11,13 @@ RUN flutter clean
 
 RUN flutter pub get
 
-RUN flutter build apk --release
+RUN if [ "$SKIP_APK_BUILD" != "true" ]; then \
+        flutter build apk --release; \
+    else \
+        echo "Skipping APK build for development"; \
+        mkdir -p /app/build/app/outputs/flutter-apk/; \
+        touch /app/build/app/outputs/flutter-apk/app-release.apk; \
+    fi
 
 # Create the final stage with just the APK
 FROM alpine:latest AS runner
