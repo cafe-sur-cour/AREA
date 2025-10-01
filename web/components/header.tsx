@@ -4,6 +4,7 @@ import { NavLinks } from './NavLinks';
 import { UserActions } from './UserActions';
 import { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
+import Image from 'next/image';
 
 export default function Navigation() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -24,6 +25,7 @@ export default function Navigation() {
       <div className='flex h-20 items-center justify-between px-6 sm:px-8 max-w-7xl mx-auto'>
         {/* Desktop */}
         <div className='hidden lg:flex items-center justify-between w-full'>
+          <Image src='/base-logo-transparent.png' width={90} height={90} alt='Logo'/>
           <NavLinks className='flex gap-6' />
           <UserActions className='flex gap-4' />
         </div>
