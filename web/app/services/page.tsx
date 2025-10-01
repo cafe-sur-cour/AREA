@@ -46,7 +46,7 @@ export default function ServicesPage() {
         'Connect your Twitch account to automate streaming workflows',
       icon: <FaTwitch className='w-8 h-8 text-purple-500' />,
       isConnected: false,
-      authEndpoint: '/auth/twitch',
+      authEndpoint: '/auth/twitch/subscribe',
       statusEndpoint: '/twitch/oauth/status',
     },
     {
@@ -56,7 +56,7 @@ export default function ServicesPage() {
         'Integrate with Facebook and Instagram for social automation',
       icon: <FaMeta className='w-8 h-8 text-blue-600' />,
       isConnected: false,
-      authEndpoint: '/auth/meta',
+      authEndpoint: '/auth/meta/subscribe',
       statusEndpoint: '/meta/oauth/status',
     },
     {
@@ -65,7 +65,7 @@ export default function ServicesPage() {
       description: 'Access Gmail, Drive, Calendar and other Google services',
       icon: <FaGoogle className='w-8 h-8 text-red-500' />,
       isConnected: false,
-      authEndpoint: '/auth/google',
+      authEndpoint: '/auth/google/subscribe',
       statusEndpoint: '/google/oauth/status',
     },
     {
@@ -74,7 +74,7 @@ export default function ServicesPage() {
       description: 'Connect to Outlook, OneDrive, Teams and Office apps',
       icon: <FaMicrosoft className='w-8 h-8 text-blue-500' />,
       isConnected: false,
-      authEndpoint: '/auth/microsoft',
+      authEndpoint: '/auth/microsoft/subscribe',
       statusEndpoint: '/microsoft/oauth/status',
     },
     {
@@ -83,7 +83,7 @@ export default function ServicesPage() {
       description: 'Automate your development workflow with GitHub integration',
       icon: <FaGithub className='w-8 h-8 text-gray-800 dark:text-white' />,
       isConnected: false,
-      authEndpoint: '/auth/github',
+      authEndpoint: '/auth/auth/github/subscribe',
       statusEndpoint: '/github/oauth/status/',
     },
     {
@@ -101,7 +101,7 @@ export default function ServicesPage() {
       description: 'Manage your Spotify playlists and listening activity',
       icon: <FaSpotify className='w-8 h-8 text-green-500' />,
       isConnected: false,
-      authEndpoint: '/auth/spotify',
+      authEndpoint: '/auth/spotify/subscribe',
       statusEndpoint: '/spotify/oauth/status',
     },
   ]);
