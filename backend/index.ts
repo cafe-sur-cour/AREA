@@ -25,6 +25,7 @@ import webhookRoutes from './src/webhooks';
 import githubRoutes from './src/routes/github/github';
 import googleRoutes from './src/routes/google/google';
 import serviceConfigRoutes from './src/routes/services/configs';
+import reactionRoutes from './src/routes/reaction/reaction';
 
 import { executionService } from './src/services/ExecutionService';
 import { serviceLoader } from './src/services/ServiceLoader';
@@ -136,6 +137,7 @@ setupSignal();
     app.use('/api/github', githubRoutes);
     app.use('/api/google', googleRoutes);
     app.use('/api/services', serviceConfigRoutes);
+    app.use('/api/reactions', reactionRoutes);
     app.use('/api/info', apiRoutes);
     app.use('/about.json', aboutRoutes);
     app.use('/api/webhooks', webhookRoutes);
