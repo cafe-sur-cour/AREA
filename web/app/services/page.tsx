@@ -31,13 +31,19 @@ interface Service {
   isConnected: boolean;
   authEndpoint: string;
   statusEndpoint: string;
+  loginStatusEndpoint?: string;
+  subscribeEndpoint?: string;
+  unsubscribeEndpoint?: string;
+  oauthConnected?: boolean;
+  subscribed?: boolean;
 }
 
 export default function ServicesPage() {
   const router = useRouter();
   const { user, isLoading: authLoading } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
-  const [services, setServices] = useState<Service[]>([
+
+  const initialServices: Service[] = [
     {
       id: 'twitch',
       name: 'Twitch',
@@ -45,8 +51,13 @@ export default function ServicesPage() {
         'Connect your Twitch account to automate streaming workflows',
       icon: <FaTwitch className='w-8 h-8 text-purple-500' />,
       isConnected: false,
-      authEndpoint: '/auth/twitch/subscribe',
-      statusEndpoint: '/twitch/oauth/status',
+      authEndpoint: '/auth/twitch/login',
+      statusEndpoint: '/twitch/subscribe/status',
+      loginStatusEndpoint: '/twitch/login/status',
+      subscribeEndpoint: '/twitch/subscribe',
+      unsubscribeEndpoint: '/twitch/unsubscribe',
+      oauthConnected: false,
+      subscribed: false,
     },
     {
       id: 'meta',
@@ -55,8 +66,13 @@ export default function ServicesPage() {
         'Integrate with Facebook and Instagram for social automation',
       icon: <FaMeta className='w-8 h-8 text-blue-600' />,
       isConnected: false,
-      authEndpoint: '/auth/meta/subscribe',
-      statusEndpoint: '/meta/oauth/status',
+      authEndpoint: '/auth/meta/login',
+      statusEndpoint: '/meta/subscribe/status',
+      loginStatusEndpoint: '/meta/login/status',
+      subscribeEndpoint: '/meta/subscribe',
+      unsubscribeEndpoint: '/meta/unsubscribe',
+      oauthConnected: false,
+      subscribed: false,
     },
     {
       id: 'google',
@@ -64,8 +80,13 @@ export default function ServicesPage() {
       description: 'Access Gmail, Drive, Calendar and other Google services',
       icon: <FaGoogle className='w-8 h-8 text-red-500' />,
       isConnected: false,
-      authEndpoint: '/auth/google/subscribe',
-      statusEndpoint: '/google/oauth/status',
+      authEndpoint: '/auth/google/login',
+      statusEndpoint: '/google/subscribe/status',
+      loginStatusEndpoint: '/google/login/status',
+      subscribeEndpoint: '/google/subscribe',
+      unsubscribeEndpoint: '/google/unsubscribe',
+      oauthConnected: false,
+      subscribed: false,
     },
     {
       id: 'microsoft',
@@ -73,8 +94,13 @@ export default function ServicesPage() {
       description: 'Connect to Outlook, OneDrive, Teams and Office apps',
       icon: <FaMicrosoft className='w-8 h-8 text-blue-500' />,
       isConnected: false,
-      authEndpoint: '/auth/microsoft/subscribe',
-      statusEndpoint: '/microsoft/oauth/status',
+      authEndpoint: '/auth/microsoft/login',
+      statusEndpoint: '/microsoft/subscribe/status',
+      loginStatusEndpoint: '/microsoft/login/status',
+      subscribeEndpoint: '/microsoft/subscribe',
+      unsubscribeEndpoint: '/microsoft/unsubscribe',
+      oauthConnected: false,
+      subscribed: false,
     },
     {
       id: 'github',
@@ -82,8 +108,13 @@ export default function ServicesPage() {
       description: 'Automate your development workflow with GitHub integration',
       icon: <FaGithub className='w-8 h-8 text-gray-800 dark:text-white' />,
       isConnected: false,
-      authEndpoint: '/auth/auth/github/subscribe',
-      statusEndpoint: '/github/oauth/status/',
+      authEndpoint: '/auth/github/login',
+      statusEndpoint: '/github/subscribe/status',
+      loginStatusEndpoint: '/github/login/status',
+      subscribeEndpoint: '/github/subscribe',
+      unsubscribeEndpoint: '/github/unsubscribe',
+      oauthConnected: false,
+      subscribed: false,
     },
     {
       id: 'deezer',
@@ -91,8 +122,13 @@ export default function ServicesPage() {
       description: 'Control your music and playlists on Deezer',
       icon: <FaDeezer className='w-8 h-8 text-orange-500' />,
       isConnected: false,
-      authEndpoint: '/auth/deezer',
-      statusEndpoint: '/deezer/oauth/status',
+      authEndpoint: '/auth/deezer/login',
+      statusEndpoint: '/deezer/subscribe/status',
+      loginStatusEndpoint: '/deezer/login/status',
+      subscribeEndpoint: '/deezer/subscribe',
+      unsubscribeEndpoint: '/deezer/unsubscribe',
+      oauthConnected: false,
+      subscribed: false,
     },
     {
       id: 'spotify',
@@ -100,10 +136,17 @@ export default function ServicesPage() {
       description: 'Manage your Spotify playlists and listening activity',
       icon: <FaSpotify className='w-8 h-8 text-green-500' />,
       isConnected: false,
-      authEndpoint: '/auth/spotify/subscribe',
-      statusEndpoint: '/spotify/oauth/status',
+      authEndpoint: '/auth/spotify/login',
+      statusEndpoint: '/spotify/subscribe/status',
+      loginStatusEndpoint: '/spotify/login/status',
+      subscribeEndpoint: '/spotify/subscribe',
+      unsubscribeEndpoint: '/spotify/unsubscribe',
+      oauthConnected: false,
+      subscribed: false,
     },
-  ]);
+  ];
+
+  const [services, setServices] = useState<Service[]>(initialServices);
 
   useEffect(() => {
     if (!user && !authLoading) {
@@ -119,16 +162,31 @@ export default function ServicesPage() {
       const updatedServices = await Promise.all(
         services.map(async service => {
           try {
-            const response = await api.get<{
-              connected?: boolean;
-              msg?: string;
-              message?: string;
-            }>({
-              endpoint: service.statusEndpoint,
-            });
+            const [oauthResponse, subscribeResponse] = await Promise.allSettled(
+              [
+                api.get<{ connected?: boolean }>({
+                  endpoint: service.loginStatusEndpoint!,
+                }),
+                api.get<{ subscribed?: boolean; oauth_connected?: boolean }>({
+                  endpoint: service.statusEndpoint,
+                }),
+              ]
+            );
+
+            const oauthConnected =
+              (oauthResponse.status === 'fulfilled' &&
+                oauthResponse.value.data?.connected) ||
+              false;
+            const subscribed =
+              (subscribeResponse.status === 'fulfilled' &&
+                subscribeResponse.value.data?.subscribed) ||
+              false;
+
             return {
               ...service,
-              isConnected: response.data?.connected || false,
+              isConnected: subscribed,
+              oauthConnected,
+              subscribed,
             };
           } catch (error) {
             console.error(`Error checking ${service.name} status:`, error);
@@ -143,19 +201,45 @@ export default function ServicesPage() {
     if (user) {
       checkServiceStatus();
     }
-  }, [user, services]);
+  }, [user]);
 
   const handleConnect = async (service: Service) => {
     const apiUrl = await getAPIUrl();
-    window.location.href = `${apiUrl}${service.authEndpoint}`;
+
+    if (!service.oauthConnected) {
+      window.location.href = `${apiUrl}${service.authEndpoint}`;
+    } else if (service.oauthConnected && !service.subscribed) {
+      try {
+        await api.post(service.subscribeEndpoint!, {});
+        setServices(
+          services.map(s =>
+            s.id === service.id
+              ? {
+                  ...s,
+                  isConnected: true,
+                  subscribed: true,
+                }
+              : s
+          )
+        );
+      } catch (error) {
+        console.error(`Error subscribing to ${service.name}:`, error);
+      }
+    }
   };
 
   const handleDisconnect = async (service: Service) => {
     try {
-      await api.delete(`${service.statusEndpoint}`);
+      await api.post(service.unsubscribeEndpoint!, {});
       setServices(
         services.map(s =>
-          s.id === service.id ? { ...s, isConnected: false } : s
+          s.id === service.id
+            ? {
+                ...s,
+                isConnected: false,
+                subscribed: false,
+              }
+            : s
         )
       );
     } catch (error) {
@@ -194,14 +278,16 @@ export default function ServicesPage() {
                   {service.isConnected ? (
                     <Badge className='bg-app-green-light text-app-green-primary border-app-green-primary'>
                       <CheckCircle2 className='w-3 h-3 mr-1' />
-                      Connected
+                      Subscribed
                     </Badge>
                   ) : (
                     <Badge
                       variant='outline'
                       className='border-app-border-light text-app-text-secondary'
                     >
-                      Not Connected
+                      {service.oauthConnected
+                        ? 'Not Subscribed'
+                        : 'Not Connected'}
                     </Badge>
                   )}
                 </div>
@@ -215,29 +301,33 @@ export default function ServicesPage() {
                 </p>
 
                 <div className='grid gap-2'>
-                  {service.isConnected ? (
-                    <Button
-                      onClick={() => handleDisconnect(service)}
-                      variant='outline'
-                      className='w-full border-app-red-primary text-app-red-primary hover:bg-app-red-primary hover:text-red-700'
-                    >
-                      Disconnect
-                    </Button>
-                  ) : (
+                  <>
+                    {service.isConnected ? (
+                      <Button
+                        onClick={() => handleDisconnect(service)}
+                        variant='outline'
+                        className='w-full border-app-red-primary text-app-red-primary hover:bg-app-red-primary hover:text-red-700'
+                      >
+                        Unsubscribe
+                      </Button>
+                    ) : (
+                      <Button
+                        onClick={() => handleConnect(service)}
+                        className='w-full bg-area-primary hover:bg-area-hover text-white'
+                      >
+                        {service.oauthConnected
+                          ? 'Subscribe'
+                          : 'Connect & Subscribe'}
+                      </Button>
+                    )}
                     <Button
                       onClick={() => handleConnect(service)}
-                      className='w-full bg-area-primary hover:bg-area-hover text-white'
+                      variant='outline'
+                      className='w-full border-app-red-primary text-app-red-primary hover:bg-app-red-primary hover:text-blue-500'
                     >
-                      Connect
+                      More details
                     </Button>
-                  )}
-                  <Button
-                    onClick={() => handleConnect(service)}
-                    variant='outline'
-                    className='w-full border-app-red-primary text-app-red-primary hover:bg-app-red-primary hover:text-blue-500'
-                  >
-                    More details
-                  </Button>
+                  </>
                 </div>
               </CardContent>
             </Card>
