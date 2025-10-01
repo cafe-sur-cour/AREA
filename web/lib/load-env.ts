@@ -9,7 +9,7 @@ if (process.env.NODE_ENV === 'development')
 export async function getEnv() {
   return {
     backendPort: process.env.NODE_PORT,
-    backendUrl: process.env.NEXT_PUBLIC_API_URL,
+    backendUrl: process.env.BACKEND_URL,
     frontendUrl: process.env.FRONTEND_URL,
   };
 }
