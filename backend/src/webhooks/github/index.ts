@@ -10,7 +10,7 @@ class GitHubWebhookHandler implements WebhookHandler {
 
   async handle(req: Request, res: Response): Promise<Response> {
     try {
-      console.log("Received a webhook request");
+      console.log('Received a webhook request');
       const signature = req.headers['x-hub-signature-256'] as string;
       const event = req.headers['x-github-event'] as string;
       const deliveryId = req.headers['x-github-delivery'] as string;
