@@ -66,7 +66,6 @@ export class MappingService {
     description?: string;
     action: Action;
     reactions: Reaction[];
-    delay?: number;
     is_active?: boolean;
     created_by: number;
   }): Promise<WebhookConfigs> {
@@ -75,7 +74,6 @@ export class MappingService {
       description,
       action,
       reactions,
-      delay,
       is_active = true,
       created_by,
     } = data;
@@ -95,16 +93,6 @@ export class MappingService {
     newMapping.reactions = reactions;
     newMapping.is_active = is_active;
     newMapping.created_by = created_by;
-
-    if (delay !== undefined && delay > 0) {
-      newMapping.action = {
-        ...action,
-        config: {
-          ...action.config,
-          delay: delay,
-        },
-      };
-    }
 
     return await this.mappingRepository.save(newMapping);
   }
@@ -150,7 +138,6 @@ export class MappingService {
       description?: string;
       action?: Action;
       reactions?: Reaction[];
-      delay?: number;
       is_active?: boolean;
     }
   ): Promise<WebhookConfigs | null> {
@@ -177,16 +164,6 @@ export class MappingService {
 
     if (updates.is_active !== undefined) {
       mapping.is_active = updates.is_active;
-    }
-
-    if (updates.delay !== undefined) {
-      mapping.action = {
-        ...mapping.action,
-        config: {
-          ...mapping.action.config,
-          delay: updates.delay > 0 ? updates.delay : undefined,
-        },
-      };
     }
 
     return await this.mappingRepository.save(mapping);

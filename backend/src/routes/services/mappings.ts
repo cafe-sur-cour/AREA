@@ -64,6 +64,14 @@ function validateMappingRequest(body: unknown): {
           `Reaction ${index + 1}: config is required and must be an object`
         );
       }
+
+      if (reactionObj.delay !== undefined) {
+        if (typeof reactionObj.delay !== 'number' || reactionObj.delay < 0) {
+          errors.push(
+            `Reaction ${index + 1}: delay must be a positive number (seconds)`
+          );
+        }
+      }
     });
   }
 
@@ -162,10 +170,10 @@ function validateActionReactionTypes(
  *                     config:
  *                       type: object
  *                       description: Reaction configuration
- *               delay:
- *                 type: number
- *                 description: Optional delay in seconds before executing reactions
- *                 minimum: 0
+ *                     delay:
+ *                       type: number
+ *                       description: Optional delay in seconds before executing this reaction
+ *                       minimum: 0
  *               is_active:
  *                 type: boolean
  *                 description: Whether the mapping is active
@@ -227,7 +235,6 @@ router.post(
         description,
         action,
         reactions,
-        delay,
         is_active = true,
       } = req.body;
 
@@ -244,7 +251,6 @@ router.post(
         description,
         action,
         reactions,
-        delay,
         is_active,
         created_by: userId,
       });
@@ -256,7 +262,6 @@ router.post(
           description: savedMapping.description,
           action: savedMapping.action,
           reactions: savedMapping.reactions,
-          delay: savedMapping.action.config?.delay || null,
           is_active: savedMapping.is_active,
           created_by: savedMapping.created_by,
           created_at: savedMapping.created_at,
@@ -300,7 +305,6 @@ router.get(
           description: mapping.description,
           action: mapping.action,
           reactions: mapping.reactions,
-          delay: mapping.action.config?.delay || null,
           is_active: mapping.is_active,
           created_by: mapping.created_by,
           created_at: mapping.created_at,
@@ -370,7 +374,6 @@ router.get(
           description: mapping.description,
           action: mapping.action,
           reactions: mapping.reactions,
-          delay: mapping.action.config?.delay || null,
           is_active: mapping.is_active,
           created_by: mapping.created_by,
           created_at: mapping.created_at,
