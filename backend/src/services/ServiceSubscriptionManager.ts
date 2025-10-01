@@ -5,6 +5,10 @@ import { ExternalWebhooks } from '../config/entity/ExternalWebhooks';
 
 export class ServiceSubscriptionManager {
   async isUserSubscribed(userId: number, service: string): Promise<boolean> {
+    if (service === 'timer') {
+      return true;
+    }
+
     const subscription = await AppDataSource.getRepository(
       UserServiceSubscriptions
     ).findOne({
