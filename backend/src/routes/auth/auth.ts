@@ -8,8 +8,7 @@ import passport from 'passport';
 import { MailerSend, EmailParams, Sender, Recipient } from 'mailersend';
 import token from '../../middleware/token';
 import { githubOAuth } from '../../services/services/github/oauth';
-import { createLog } from  '../logs/logs.service';
-import e from 'express';
+import { createLog } from '../logs/logs.service';
 
 interface TokenPayload extends jwt.JwtPayload {
   email: string;
@@ -160,7 +159,11 @@ router.post(
         const missingFields = [];
         if (!email) missingFields.push('email');
         if (!password) missingFields.push('password');
-        await createLog(400, 'login', `Failed login attempt: missing fields - ${missingFields.join(', ')}`);
+        await createLog(
+          400,
+          'login',
+          `Failed login attempt: missing fields - ${missingFields.join(', ')}`
+        );
         res.status(400).json({
           error: 'Bad Request',
           message: `Missing required fields: ${missingFields.join(', ')}`,
@@ -345,25 +348,35 @@ router.post(
  *       500:
  *         description: Internal Server Error
  */
-router.post('/logout', token, async (req: Request, res: Response): Promise<void> => {
-  try {
-    if (!req.auth) {
-      await createLog(403, 'logout', `Logout attempt with no authenticated user`);
-      res.status(403).json({ message: 'Logout failed: No authenticated user' });
-      return;
-    }
+router.post(
+  '/logout',
+  token,
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      if (!req.auth) {
+        await createLog(
+          403,
+          'logout',
+          `Logout attempt with no authenticated user`
+        );
+        res
+          .status(403)
+          .json({ message: 'Logout failed: No authenticated user' });
+        return;
+      }
 
-    const email = (req.auth as { email: string })?.email;
-    res.clearCookie('auth_token');
-    await createLog(200, 'logout', `User logged out: ${email || 'unknown'}`);
-    res.status(200).json({ message: 'Logged out successfully' });
-  } catch (err) {
-    console.error(err);
-    const errorMessage = err instanceof Error ? err.message : String(err);
-    await createLog(500, 'logout', `Error during logout: ${errorMessage}`);
-    res.status(500).json({ error: 'Internal Server Error' });
+      const email = (req.auth as { email: string })?.email;
+      res.clearCookie('auth_token');
+      await createLog(200, 'logout', `User logged out: ${email || 'unknown'}`);
+      res.status(200).json({ message: 'Logged out successfully' });
+    } catch (err) {
+      console.error(err);
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      await createLog(500, 'logout', `Error during logout: ${errorMessage}`);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
   }
-});
+);
 
 /**
  * @swagger
