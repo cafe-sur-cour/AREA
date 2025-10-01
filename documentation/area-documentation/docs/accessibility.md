@@ -1,6 +1,6 @@
 # Accesibility & Security
 
-Here explain the securoty chosen how to implent it
+Here explain the security chosen how to implent it
 
 
-Ecplain level of WCAG chosne
+Explain level of WCAG chosen
