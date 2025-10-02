@@ -262,6 +262,7 @@ router.post(
         .map(([key]) => key);
 
       if (missingFields.length > 0) {
+        await createLog(400, 'register', `Failed registration attempt: missing fields - ${missingFields.join(', ')}`);
         return res.status(400).json({
           error: 'Bad Request',
           message: `Missing required fields: ${missingFields.join(', ')}`,
@@ -269,6 +270,7 @@ router.post(
       }
       const token = await auth.register(email, name, password);
       if (token instanceof Error) {
+        await createLog(409, 'register', `Failed registration attempt: ${token.message}`);
         res.status(409).json({ error: token.message });
         return;
       }
@@ -330,9 +332,11 @@ router.post(
       };
 
       await transporter.sendMail(mailOptions);
+      await createLog(201, 'register', `New user registered: ${email}`);
       return res.status(201).json({ message: 'User registered successfully' });
     } catch (err) {
       console.error(err);
+      await createLog(500, 'register', `Error during registration: ${err instanceof Error ? err.message : String(err)}`);
       return res.status(500).json({ error: 'Internal Server Error' });
     }
   }

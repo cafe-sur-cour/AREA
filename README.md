@@ -130,7 +130,7 @@ docker compose -f deployment/docker-compose.yml up --build -d # Build image usin
 docker compose -f deployment/docker-compose.yml up -d # Up services without building image
 docker compose -f deployment/docker-compose.yml down # Down services
 docker compose -f deployment/docker-compose.yml down -v # Down services and remove all volumes
-docker exec -it postgres_db psql -U postgres -d mydb # Access our db
+docker exec -it postgres_db psql -U postgres -d area-db # Access our db
 ```
 
 
