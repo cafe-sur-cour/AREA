@@ -5,9 +5,9 @@ import 'package:area/core/notifiers/backend_address_notifier.dart';
 import 'package:area/core/notifiers/locale_notifier.dart';
 import 'package:area/l10n/app_localizations.dart';
 import 'package:area/services/secure_storage.dart';
+import 'package:area/services/secure_http_client.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -52,7 +52,8 @@ class ProfileScreenState extends State<ProfileScreen> {
     final appLocalizations = AppLocalizations.of(context);
 
     try {
-      final response = await http.get(url);
+      final client = SecureHttpClient.getClient();
+      final response = await client.get(url);
 
       if (response.statusCode != 200) {
         throw response.body;
@@ -101,7 +102,8 @@ class ProfileScreenState extends State<ProfileScreen> {
     final address = "${backendAddressNotifier.backendAddress}${AppRoutes.logout}";
     final url = Uri.parse(address);
     try {
-      final response = await http.post(url);
+      final client = SecureHttpClient.getClient();
+      final response = await client.post(url);
       final data = await jsonDecode(response.body);
 
       if (response.statusCode != 200) {
@@ -162,7 +164,8 @@ class ProfileScreenState extends State<ProfileScreen> {
 
     try {
       final jwt = await getJwt();
-      final response = await http.get(url, headers: {'Authorization': "Bearer $jwt"});
+      final client = SecureHttpClient.getClient();
+      final response = await client.get(url, headers: {'Authorization': "Bearer $jwt"});
       final data = await jsonDecode(response.body);
 
       if (response.statusCode != 200) {

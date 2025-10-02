@@ -1,10 +1,10 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:area/models/service_models.dart';
 import 'package:area/models/action_models.dart';
 import 'package:area/models/reaction_models.dart';
 import 'package:area/core/constants/app_constants.dart';
 import 'package:area/services/secure_storage.dart';
+import 'package:area/services/secure_http_client.dart';
 
 class ApiService {
   static Future<List<ServiceModel>> fetchServicesWithActions(String backendAddress) async {
@@ -17,7 +17,8 @@ class ApiService {
       headers['Authorization'] = 'Bearer $jwt';
     }
 
-    final response = await http.get(url, headers: headers);
+    final client = SecureHttpClient.getClient();
+    final response = await client.get(url, headers: headers);
 
     if (response.statusCode != 200) {
       final errorData = jsonDecode(response.body);
@@ -42,7 +43,8 @@ class ApiService {
       headers['Authorization'] = 'Bearer $jwt';
     }
 
-    final response = await http.get(url, headers: headers);
+    final client = SecureHttpClient.getClient();
+    final response = await client.get(url, headers: headers);
 
     if (response.statusCode != 200) {
       final errorData = jsonDecode(response.body);
@@ -65,7 +67,8 @@ class ApiService {
       headers['Authorization'] = 'Bearer $jwt';
     }
 
-    final response = await http.get(url, headers: headers);
+    final client = SecureHttpClient.getClient();
+    final response = await client.get(url, headers: headers);
 
     if (response.statusCode != 200) {
       final errorData = jsonDecode(response.body);
@@ -91,7 +94,8 @@ class ApiService {
       headers['Authorization'] = 'Bearer $jwt';
     }
 
-    final response = await http.get(url, headers: headers);
+    final client = SecureHttpClient.getClient();
+    final response = await client.get(url, headers: headers);
 
     if (response.statusCode != 200) {
       final errorData = jsonDecode(response.body);
