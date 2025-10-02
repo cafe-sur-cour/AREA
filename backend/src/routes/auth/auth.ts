@@ -5,18 +5,14 @@ import jwt from 'jsonwebtoken';
 import { JWT_SECRET } from 'index';
 import mail from '../../middleware/mail';
 import passport from 'passport';
-import { MailerSend, EmailParams, Sender, Recipient } from 'mailersend';
 import token from '../../middleware/token';
+import nodemailer from 'nodemailer';
 import { githubOAuth } from '../../services/services/github/oauth';
 import { createLog } from '../logs/logs.service';
 
 interface TokenPayload extends jwt.JwtPayload {
   email: string;
 }
-
-const mailerSend = new MailerSend({
-  apiKey: process.env.MAILERSEND_API_KEY as string,
-});
 
 const router = express.Router();
 
@@ -277,16 +273,27 @@ router.post(
         return;
       }
 
-      const sentFrom = new Sender(
-        process.env.MAILERSEND_SENDER_EMAIL || '',
-        process.env.MAILERSEND_SENDER_NAME || ''
-      );
-      const recipients = [new Recipient(email, name)];
+      const transporter = nodemailer.createTransport({
+        service: 'SMTP',
+        host: process.env.SMTP_HOST || '',
+        port: parseInt(process.env.SMTP_PORT || '587'),
+        secure: process.env.SMTP_SECURE === 'true',
+        auth: {
+          user: process.env.SMTP_USER || '',
+          pass: process.env.SMTP_PASSWORD || '',
+        },
+      });
 
-      const emailParams = new EmailParams()
-        .setFrom(sentFrom)
-        .setTo(recipients)
-        .setSubject('🔐 Account Verification').setHtml(`
+      transporter
+        .verify()
+        .then(() => console.log('SMTP prêt !'))
+        .catch(err => console.error('Erreur SMTP :', err));
+
+      const mailOptions = {
+        from: '"AREA dev Team" <no-reply@yourapp.com>',
+        to: email,
+        subject: '🔐 Account Verification',
+        html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #648BA0; border-radius: 10px; background-color: #e4e2dd;">
           <style>
           @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Open+Sans&display=swap');
@@ -319,11 +326,11 @@ router.post(
           © ${new Date().getFullYear()} Café sur Cour - AREA - All rights reserved
           </p>
           </div>
-          `);
+          `,
+      };
 
-      await mailerSend.email.send(emailParams);
-      res.status(201).json({ message: 'User registered successfully' });
-      return;
+      await transporter.sendMail(mailOptions);
+      return res.status(201).json({ message: 'User registered successfully' });
     } catch (err) {
       console.error(err);
       return res.status(500).json({ error: 'Internal Server Error' });
@@ -871,16 +878,27 @@ router.post('/forgot-password', async (req: Request, res: Response) => {
       });
     }
 
-    const sentFrom = new Sender(
-      process.env.MAILERSEND_SENDER_EMAIL || 'no-reply@example.com',
-      process.env.MAILERSEND_SENDER_NAME || 'AREA App'
-    );
-    const recipients = [new Recipient(email)];
+    const transporter = nodemailer.createTransport({
+      service: 'SMTP',
+      host: process.env.SMTP_HOST || '',
+      port: parseInt(process.env.SMTP_PORT || '587'),
+      secure: process.env.SMTP_SECURE === 'true',
+      auth: {
+        user: process.env.SMTP_USER || '',
+        pass: process.env.SMTP_PASSWORD || '',
+      },
+    });
 
-    const emailParams = new EmailParams()
-      .setFrom(sentFrom)
-      .setTo(recipients)
-      .setSubject('🔐 Reset Your Password').setHtml(`
+    transporter
+      .verify()
+      .then(() => console.log('SMTP prêt !'))
+      .catch(err => console.error('Erreur SMTP :', err));
+
+    const mailOptions = {
+      from: '"AREA dev Team" <no-reply@yourapp.com>',
+      to: email,
+      subject: '🔐 Reset Your Password',
+      html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #648BA0; border-radius: 10px; background-color: #e4e2dd;">
           <style>
           @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Open+Sans&display=swap');
@@ -913,14 +931,14 @@ router.post('/forgot-password', async (req: Request, res: Response) => {
           © ${new Date().getFullYear()} Café sur Cour - AREA - All rights reserved
           </p>
           </div>
-          `);
+          `,
+    };
 
-    await mailerSend.email.send(emailParams);
-    res.status(200).json({
+    await transporter.sendMail(mailOptions);
+    return res.status(201).json({
       message:
         'If that email is registered, you will receive a password reset link.',
     });
-    return;
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: 'Internal Server Error' });
