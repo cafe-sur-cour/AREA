@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:area/models/reaction_models.dart';
 import 'package:area/models/service_models.dart';
 import 'package:area/core/constants/app_colors.dart';
+import 'package:area/core/utils/color_utils.dart';
 
 class ReactionDetailsScreen extends StatelessWidget {
   final ReactionModel reaction;
@@ -10,18 +11,7 @@ class ReactionDetailsScreen extends StatelessWidget {
   const ReactionDetailsScreen({super.key, required this.reaction, required this.service});
 
   Color _getServiceColor() {
-    try {
-      String colorHex = service.color;
-      if (colorHex.startsWith('#')) {
-        colorHex = colorHex.substring(1);
-      }
-      if (colorHex.length == 6) {
-        colorHex = 'FF$colorHex';
-      }
-      return Color(int.parse(colorHex, radix: 16));
-    } catch (e) {
-      return AppColors.areaBlue3;
-    }
+    return ColorUtils.getReactionColor(reaction, service);
   }
 
   void _selectReaction(BuildContext context) {
@@ -71,11 +61,11 @@ class ReactionDetailsScreen extends StatelessWidget {
                           color: AppColors.areaLightGray.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(6),
                         ),
-                        child: service.iconUrl != null
+                        child: service.icon != null
                             ? ClipRRect(
                                 borderRadius: BorderRadius.circular(6),
                                 child: Image.network(
-                                  service.iconUrl!,
+                                  service.icon!,
                                   fit: BoxFit.cover,
                                   errorBuilder: (context, error, stackTrace) {
                                     return const Icon(
@@ -110,11 +100,11 @@ class ReactionDetailsScreen extends StatelessWidget {
                           color: AppColors.areaLightGray.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: reaction.iconUrl != null
+                        child: reaction.metadata?.icon != null
                             ? ClipRRect(
                                 borderRadius: BorderRadius.circular(8),
                                 child: Image.network(
-                                  reaction.iconUrl!,
+                                  reaction.metadata!.icon!,
                                   fit: BoxFit.cover,
                                   errorBuilder: (context, error, stackTrace) {
                                     return const Icon(
@@ -203,7 +193,8 @@ class ReactionDetailsScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 24),
                   ],
-                  if (reaction.parameters != null && reaction.parameters!.isNotEmpty) ...[
+                  if (reaction.configSchema?.fields != null &&
+                      reaction.configSchema!.fields.isNotEmpty) ...[
                     const Text(
                       'Parameters',
                       style: TextStyle(
@@ -227,7 +218,7 @@ class ReactionDetailsScreen extends StatelessWidget {
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: reaction.parameters!.entries.map((entry) {
+                        children: reaction.configSchema!.fields.map((field) {
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 8),
                             child: Row(
@@ -240,7 +231,7 @@ class ReactionDetailsScreen extends StatelessWidget {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        entry.key,
+                                        field.label,
                                         style: const TextStyle(
                                           fontFamily: 'Montserrat',
                                           fontSize: 14,
@@ -249,7 +240,7 @@ class ReactionDetailsScreen extends StatelessWidget {
                                         ),
                                       ),
                                       Text(
-                                        entry.value.toString(),
+                                        '${field.type}${field.required ? ' (required)' : ''}',
                                         style: const TextStyle(
                                           fontFamily: 'Montserrat',
                                           fontSize: 14,

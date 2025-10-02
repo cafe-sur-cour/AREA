@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:area/models/action_models.dart';
 import 'package:area/models/service_models.dart';
 import 'package:area/core/constants/app_colors.dart';
+import 'package:area/core/utils/color_utils.dart';
 
 class ActionDetailsScreen extends StatelessWidget {
   final ActionModel action;
@@ -10,18 +11,7 @@ class ActionDetailsScreen extends StatelessWidget {
   const ActionDetailsScreen({super.key, required this.action, required this.service});
 
   Color _getServiceColor() {
-    try {
-      String colorHex = service.color;
-      if (colorHex.startsWith('#')) {
-        colorHex = colorHex.substring(1);
-      }
-      if (colorHex.length == 6) {
-        colorHex = 'FF$colorHex';
-      }
-      return Color(int.parse(colorHex, radix: 16));
-    } catch (e) {
-      return AppColors.areaBlue3;
-    }
+    return ColorUtils.getActionColor(action, service);
   }
 
   void _selectAction(BuildContext context) {
@@ -71,11 +61,11 @@ class ActionDetailsScreen extends StatelessWidget {
                           color: AppColors.areaLightGray.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(6),
                         ),
-                        child: service.iconUrl != null
+                        child: service.icon != null
                             ? ClipRRect(
                                 borderRadius: BorderRadius.circular(6),
                                 child: Image.network(
-                                  service.iconUrl!,
+                                  service.icon!,
                                   fit: BoxFit.cover,
                                   errorBuilder: (context, error, stackTrace) {
                                     return const Icon(
@@ -110,11 +100,11 @@ class ActionDetailsScreen extends StatelessWidget {
                           color: AppColors.areaLightGray.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: action.iconUrl != null
+                        child: action.metadata?.icon != null
                             ? ClipRRect(
                                 borderRadius: BorderRadius.circular(8),
                                 child: Image.network(
-                                  action.iconUrl!,
+                                  action.metadata!.icon!,
                                   fit: BoxFit.cover,
                                   errorBuilder: (context, error, stackTrace) {
                                     return const Icon(
@@ -203,7 +193,8 @@ class ActionDetailsScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 24),
                   ],
-                  if (action.parameters != null && action.parameters!.isNotEmpty) ...[
+                  if (action.configSchema?.fields != null &&
+                      action.configSchema!.fields.isNotEmpty) ...[
                     const Text(
                       'Parameters',
                       style: TextStyle(
@@ -227,7 +218,7 @@ class ActionDetailsScreen extends StatelessWidget {
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: action.parameters!.entries.map((entry) {
+                        children: action.configSchema!.fields.map((field) {
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 8),
                             child: Row(
@@ -240,7 +231,7 @@ class ActionDetailsScreen extends StatelessWidget {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        entry.key,
+                                        field.label,
                                         style: const TextStyle(
                                           fontFamily: 'Montserrat',
                                           fontSize: 14,
@@ -249,7 +240,7 @@ class ActionDetailsScreen extends StatelessWidget {
                                         ),
                                       ),
                                       Text(
-                                        entry.value.toString(),
+                                        '${field.type}${field.required ? ' (required)' : ''}',
                                         style: const TextStyle(
                                           fontFamily: 'Montserrat',
                                           fontSize: 14,
