@@ -1,36 +1,62 @@
 import 'package:area/core/constants/app_colors.dart';
 import 'package:area/core/constants/app_constants.dart';
 import 'package:area/l10n/app_localizations.dart';
+import 'package:area/models/action_models.dart';
+import 'package:area/models/reaction_models.dart';
+import 'package:area/models/service_models.dart';
+import 'package:area/screens/home_screen.dart';
+import 'package:area/screens/catalogue_screen.dart';
+import 'package:area/screens/add_automation_screen.dart';
+import 'package:area/screens/automations_screen.dart';
+import 'package:area/screens/profile_screen.dart';
 import 'package:flutter/material.dart';
-import '../screens/home_screen.dart';
-import '../screens/catalogue_screen.dart';
-import '../screens/add_automation_screen.dart';
-import '../screens/automations_screen.dart';
-import '../screens/profile_screen.dart';
 
 class NavigationItem {
   final String label;
   final IconData icon;
-  final Widget screen;
+  final Widget Function()? screenBuilder;
+  final Widget? screen;
   final IconData selectedIcon;
 
   NavigationItem({
     required this.label,
     required this.icon,
-    required this.screen,
+    this.screenBuilder,
+    this.screen,
     required this.selectedIcon,
-  });
+  }) : assert(screenBuilder != null || screen != null);
 }
 
 class MainNavigation extends StatefulWidget {
-  const MainNavigation({super.key});
+  final ActionModel? selectedAction;
+  final ServiceModel? selectedService;
+  final ReactionModel? selectedReaction;
+  final ServiceModel? selectedReactionService;
+
+  const MainNavigation({
+    super.key,
+    this.selectedAction,
+    this.selectedService,
+    this.selectedReaction,
+    this.selectedReactionService,
+  });
 
   @override
   MainNavigationState createState() => MainNavigationState();
 }
 
 class MainNavigationState extends State<MainNavigation> {
-  int _currentIndex = 0;
+  int _currentIndex = 2;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.selectedAction != null || widget.selectedReaction != null) {
+      _currentIndex = 2;
+    } else {
+      _currentIndex = 0;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +76,12 @@ class MainNavigationState extends State<MainNavigation> {
       NavigationItem(
         label: AppLocalizations.of(context)!.label_add,
         icon: Icons.add_circle_outline,
-        screen: AddAutomationScreen(),
+        screenBuilder: () => AddAutomationScreen(
+          selectedAction: widget.selectedAction,
+          selectedService: widget.selectedService,
+          selectedReaction: widget.selectedReaction,
+          selectedReactionService: widget.selectedReactionService,
+        ),
         selectedIcon: Icons.add_circle,
       ),
       NavigationItem(
@@ -68,7 +99,7 @@ class MainNavigationState extends State<MainNavigation> {
     ];
 
     return Scaffold(
-      body: pages[_currentIndex].screen,
+      body: pages[_currentIndex].screenBuilder?.call() ?? pages[_currentIndex].screen!,
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) => setState(() => _currentIndex = index),
