@@ -460,14 +460,17 @@ router.post('/verify', mail, (req: Request, res: Response) => {
       decoded: string | jwt.JwtPayload | undefined
     ) => {
       if (err || !decoded || typeof decoded === 'string') {
+        await createLog(401, 'register', `Failed verification attempt: invalid or expired token`);
         return res.status(401).json({ error: 'Invalid token' });
       }
       const payload = decoded as TokenPayload;
       var result = await auth.verify(payload.email);
       if (result instanceof Error) {
+        await createLog(409, 'register', `Failed verification attempt: ${result.message}`);
         res.status(409).json({ error: result.message });
         return;
       }
+      await createLog(200, 'register', `User verified: ${payload.email}`);
       res.status(200).json({ message: 'Account verified successfully' });
     }
   );
@@ -871,11 +874,13 @@ router.post('/forgot-password', async (req: Request, res: Response) => {
   try {
     const { email } = req.body;
     if (!email) {
+      await createLog(400, 'other', 'Failed password reset request: missing email');
       return res.status(400).json({ error: 'Email is required' });
     }
 
     const token = await auth.requestReset(email);
     if (!token) {
+      await createLog(404, 'other', `Email doesn't exist: ${email}`);
       return res.status(200).json({
         message:
           'If that email is registered, you will receive a password reset link.',
@@ -939,12 +944,14 @@ router.post('/forgot-password', async (req: Request, res: Response) => {
     };
 
     await transporter.sendMail(mailOptions);
+    await createLog(201, 'other', `Password reset email sent to: ${email}`);
     return res.status(201).json({
       message:
         'If that email is registered, you will receive a password reset link.',
     });
   } catch (error) {
     console.error(error);
+    await createLog(500, 'other', `Error during password reset: ${error instanceof Error ? error.message : String(error)}`);
     return res.status(500).json({ error: 'Internal Server Error' });
   }
 });
@@ -1054,6 +1061,7 @@ router.post('/forgot-password', async (req: Request, res: Response) => {
  */
 router.post('/reset-password', mail, async (req: Request, res: Response) => {
   if (!req.token) {
+    await createLog(400, 'other', 'Token is required to reset password');
     return res.status(400).json({ error: 'Token is required' });
   }
 
@@ -1065,11 +1073,13 @@ router.post('/reset-password', mail, async (req: Request, res: Response) => {
       decoded: string | jwt.JwtPayload | undefined
     ) => {
       if (err || !decoded || typeof decoded === 'string') {
+        await createLog(400, 'other', 'Invalid or expired token used for password reset');
         return res.status(400).json({ error: 'Invalid or expired token' });
       }
 
       const { newPassword } = req.body;
       if (!newPassword) {
+        await createLog(400, 'other', 'New password is required for password reset');
         return res.status(400).json({ error: 'New password is required' });
       }
 
@@ -1078,9 +1088,10 @@ router.post('/reset-password', mail, async (req: Request, res: Response) => {
         newPassword
       );
       if (!result) {
+        await createLog(400, 'other', 'Failed password reset: invalid or expired token');
         return res.status(400).json({ error: 'Invalid or expired token' });
       }
-
+      await createLog(200, 'other', `Password reset successfully for: ${decoded.email}`);
       return res
         .status(200)
         .json({ message: 'Password has been reset successfully' });
