@@ -201,7 +201,7 @@ export default function ServicesPage() {
     if (user) {
       checkServiceStatus();
     }
-  }, [user]);
+  }, [user, services]);
 
   const handleConnect = async (service: Service) => {
     const apiUrl = await getAPIUrl();
