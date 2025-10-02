@@ -11,5 +11,4 @@ export async function getToken() {
 export async function deleteToken() {
   const cookieStore = await cookies();
   cookieStore.delete('auth_token');
-  document.cookie = "auth_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.nduboi.fr;";
 }

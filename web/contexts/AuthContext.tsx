@@ -84,6 +84,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.error('Logout request failed:', err);
     });
     await deleteToken();
+    document.cookie = "auth_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.nduboi.fr;";
     setUser(null);
   };
 
