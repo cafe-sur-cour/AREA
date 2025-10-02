@@ -78,6 +78,9 @@ export class MappingService {
       created_by,
     } = data;
 
+    console.log('Creating mapping with action:', JSON.stringify(action));
+    console.log('Creating mapping with reactions:', JSON.stringify(reactions));
+
     let finalName: string;
     if (name) {
       finalName = await this.generateUniqueName(name, created_by);
@@ -94,7 +97,17 @@ export class MappingService {
     newMapping.is_active = is_active;
     newMapping.created_by = created_by;
 
-    return await this.mappingRepository.save(newMapping);
+    const saved = await this.mappingRepository.save(newMapping);
+    console.log(
+      'Saved mapping:',
+      saved.id,
+      'action:',
+      saved.action,
+      'reactions:',
+      saved.reactions
+    );
+
+    return saved;
   }
 
   async getUserMappings(userId: number): Promise<WebhookConfigs[]> {
