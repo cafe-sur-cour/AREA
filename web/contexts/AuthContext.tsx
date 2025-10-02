@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import api from '@/lib/api';
 import { User } from '@/types/user';
-import { getToken, deleteToken } from '@/lib/manageToken';
+import { getToken } from '@/lib/manageToken';
 
 interface AuthContextType {
   user: User | null;
@@ -83,8 +83,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await api.post('/auth/logout').catch(err => {
       console.error('Logout request failed:', err);
     });
-    await deleteToken();
-    document.cookie = "auth_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.nduboi.fr;";
     setUser(null);
   };
 

@@ -8,7 +8,3 @@ export async function getToken() {
   return cookieValue || null;
 }
 
-export async function deleteToken() {
-  const cookieStore = await cookies();
-  cookieStore.delete('auth_token');
-}

@@ -391,7 +391,8 @@ router.post(
       }
 
       const email = (req.auth as { email: string })?.email;
-      res.clearCookie('auth_token');
+      console.debug("Logout CALLED");
+      res.clearCookie('auth_token', { path: '/', domain: '.nduboi.fr' });
       await createLog(200, 'logout', `User logged out: ${email || 'unknown'}`);
       res.status(200).json({ message: 'Logged out successfully' });
     } catch (err) {
