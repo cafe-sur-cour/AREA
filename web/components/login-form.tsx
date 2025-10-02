@@ -36,12 +36,6 @@ export function LoginForm({
       });
 
       if (response && response.data) {
-        const token = response.data.token;
-        Cookies.set('auth_token', token, {
-          path: '/',
-          secure: true,
-          sameSite: 'strict',
-        });
         router.push('/');
       } else {
         alert('Login failed');
