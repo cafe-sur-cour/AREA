@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:area/models/reaction_models.dart';
 import 'package:area/core/constants/app_colors.dart';
+import 'package:area/core/utils/color_utils.dart';
 
 class ReactionCard extends StatelessWidget {
   final ReactionModel reaction;
@@ -28,25 +29,29 @@ class ReactionCard extends StatelessWidget {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: AppColors.areaBlue3.withValues(alpha: 0.1),
+                      color: ColorUtils.getReactionColor(reaction).withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: reaction.iconUrl != null
+                    child: reaction.metadata?.icon != null
                         ? ClipRRect(
                             borderRadius: BorderRadius.circular(8),
                             child: Image.network(
-                              reaction.iconUrl!,
+                              reaction.metadata!.icon!,
                               fit: BoxFit.cover,
                               errorBuilder: (context, error, stackTrace) {
-                                return const Icon(
+                                return Icon(
                                   Icons.replay,
-                                  color: AppColors.areaBlue3,
+                                  color: ColorUtils.getReactionColor(reaction),
                                   size: 24,
                                 );
                               },
                             ),
                           )
-                        : const Icon(Icons.replay, color: AppColors.areaBlue3, size: 24),
+                        : Icon(
+                            Icons.replay,
+                            color: ColorUtils.getReactionColor(reaction),
+                            size: 24,
+                          ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -78,7 +83,8 @@ class ReactionCard extends StatelessWidget {
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
                 ),
-              if (reaction.parameters != null && reaction.parameters!.isNotEmpty)
+              if (reaction.configSchema?.fields != null &&
+                  reaction.configSchema!.fields.isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: Row(
@@ -90,7 +96,7 @@ class ReactionCard extends StatelessWidget {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        '${reaction.parameters!.length} parameter${reaction.parameters!.length == 1 ? '' : 's'}',
+                        '${reaction.configSchema!.fields.length} parameter${reaction.configSchema!.fields.length == 1 ? '' : 's'}',
                         style: TextStyle(
                           fontFamily: 'Montserrat',
                           fontSize: 12,

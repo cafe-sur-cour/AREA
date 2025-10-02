@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:area/models/action_models.dart';
 import 'package:area/core/constants/app_colors.dart';
+import 'package:area/core/utils/color_utils.dart';
 
 class ActionCard extends StatelessWidget {
   final ActionModel action;
@@ -28,25 +29,29 @@ class ActionCard extends StatelessWidget {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: AppColors.areaBlue3.withValues(alpha: 0.1),
+                      color: ColorUtils.getActionColor(action).withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: action.iconUrl != null
+                    child: action.metadata?.icon != null
                         ? ClipRRect(
                             borderRadius: BorderRadius.circular(8),
                             child: Image.network(
-                              action.iconUrl!,
+                              action.metadata!.icon!,
                               fit: BoxFit.cover,
                               errorBuilder: (context, error, stackTrace) {
-                                return const Icon(
+                                return Icon(
                                   Icons.flash_on,
-                                  color: AppColors.areaBlue3,
+                                  color: ColorUtils.getActionColor(action),
                                   size: 24,
                                 );
                               },
                             ),
                           )
-                        : const Icon(Icons.flash_on, color: AppColors.areaBlue3, size: 24),
+                        : Icon(
+                            Icons.flash_on,
+                            color: ColorUtils.getActionColor(action),
+                            size: 24,
+                          ),
                   ),
 
                   const SizedBox(width: 12),
@@ -83,7 +88,8 @@ class ActionCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
 
-              if (action.parameters != null && action.parameters!.isNotEmpty)
+              if (action.configSchema?.fields != null &&
+                  action.configSchema!.fields.isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: Row(
@@ -97,7 +103,7 @@ class ActionCard extends StatelessWidget {
                       const SizedBox(width: 4),
 
                       Text(
-                        '${action.parameters!.length} parameter${action.parameters!.length == 1 ? '' : 's'}',
+                        '${action.configSchema!.fields.length} parameter${action.configSchema!.fields.length == 1 ? '' : 's'}',
                         style: TextStyle(
                           fontFamily: 'Montserrat',
                           fontSize: 12,
