@@ -46,7 +46,7 @@ const router = express.Router();
  *                           properties:
  *                             id:
  *                               type: string
- *                               description: Unique identifier for the action (format: service.action)
+ *                               description: "Unique identifier for the action (format: service.action)"
  *                             name:
  *                               type: string
  *                               description: Human-readable name of the action
@@ -74,8 +74,14 @@ const router = express.Router();
  *                                         description: Field name
  *                                       type:
  *                                         type: string
- *                                         enum: [text, email, textarea, select, checkbox, number]
  *                                         description: Type of the field
+ *                                         enum:
+ *                                           - text
+ *                                           - email
+ *                                           - textarea
+ *                                           - select
+ *                                           - checkbox
+ *                                           - number
  *                                       label:
  *                                         type: string
  *                                         description: Human-readable label for the field
@@ -106,7 +112,8 @@ const router = express.Router();
  *                               properties:
  *                                 type:
  *                                   type: string
- *                                   enum: [object]
+ *                                   enum:
+ *                                     - object
  *                                 properties:
  *                                   type: object
  *                                   description: Input properties schema
@@ -210,7 +217,7 @@ router.get(
  *                           properties:
  *                             id:
  *                               type: string
- *                               description: Unique identifier for the reaction (format: service.reaction)
+ *                               description: "Unique identifier for the reaction (format: service.reaction)"
  *                             name:
  *                               type: string
  *                               description: Human-readable name of the reaction
@@ -238,8 +245,14 @@ router.get(
  *                                         description: Field name
  *                                       type:
  *                                         type: string
- *                                         enum: [text, email, textarea, select, checkbox, number]
  *                                         description: Type of the field
+ *                                         enum:
+ *                                           - text
+ *                                           - email
+ *                                           - textarea
+ *                                           - select
+ *                                           - checkbox
+ *                                           - number
  *                                       label:
  *                                         type: string
  *                                         description: Human-readable label for the field
@@ -270,7 +283,8 @@ router.get(
  *                               properties:
  *                                 type:
  *                                   type: string
- *                                   enum: [object]
+ *                                   enum:
+ *                                     - object
  *                                 properties:
  *                                   type: object
  *                                   description: Output properties schema
@@ -370,7 +384,7 @@ router.get(
  *                     properties:
  *                       id:
  *                         type: string
- *                         description: Unique identifier for the action (format: service.action)
+ *                         description: "Unique identifier for the action (format: service.action)"
  *                       name:
  *                         type: string
  *                         description: Human-readable name of the action
@@ -398,8 +412,14 @@ router.get(
  *                                   description: Field name
  *                                 type:
  *                                   type: string
- *                                   enum: [text, email, textarea, select, checkbox, number]
  *                                   description: Type of the field
+ *                                   enum:
+ *                                     - text
+ *                                     - email
+ *                                     - textarea
+ *                                     - select
+ *                                     - checkbox
+ *                                     - number
  *                                 label:
  *                                   type: string
  *                                   description: Human-readable label for the field
@@ -430,7 +450,8 @@ router.get(
  *                         properties:
  *                           type:
  *                             type: string
- *                             enum: [object]
+ *                             enum:
+ *                               - object
  *                           properties:
  *                             type: object
  *                             description: Input properties schema
@@ -559,7 +580,7 @@ router.get(
  *                     properties:
  *                       id:
  *                         type: string
- *                         description: Unique identifier for the reaction (format: service.reaction)
+ *                         description: "Unique identifier for the reaction (format: service.reaction)"
  *                       name:
  *                         type: string
  *                         description: Human-readable name of the reaction
@@ -587,8 +608,14 @@ router.get(
  *                                   description: Field name
  *                                 type:
  *                                   type: string
- *                                   enum: [text, email, textarea, select, checkbox, number]
  *                                   description: Type of the field
+ *                                   enum:
+ *                                     - text
+ *                                     - email
+ *                                     - textarea
+ *                                     - select
+ *                                     - checkbox
+ *                                     - number
  *                                 label:
  *                                   type: string
  *                                   description: Human-readable label for the field
@@ -619,7 +646,8 @@ router.get(
  *                         properties:
  *                           type:
  *                             type: string
- *                             enum: [object]
+ *                             enum:
+ *                               - object
  *                           properties:
  *                             type: object
  *                             description: Output properties schema

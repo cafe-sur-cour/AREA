@@ -461,16 +461,6 @@ router.get(
  *                         properties:
  *                           type:
  *                             type: string
- *                             description: Reaction type identifier
- *                           config:
- *                             type: object
- *                             description: Reaction configuration parameters
- *                           delay:
- *                             type: number
- *                             description: Optional delay in seconds before executing this reaction
- *                         properties:
- *                           type:
- *                             type: string
  *                             description: Reaction type in format "service.reaction"
  *                           config:
  *                             type: object
