@@ -2,7 +2,7 @@ import * as cron from 'node-cron';
 import { AppDataSource } from '../../../config/db';
 import { WebhookConfigs } from '../../../config/entity/WebhookConfigs';
 import { WebhookEvents } from '../../../config/entity/WebhookEvents';
-import type { Action } from '../../../types/mapping';
+import { Raw } from 'typeorm';
 
 export class TimerScheduler {
   private cronJobs: Map<string, cron.ScheduledTask> = new Map();
@@ -23,7 +23,7 @@ export class TimerScheduler {
 
     this.cronJobs.set('timer-check', checkJob);
 
-    console.log('Timer scheduler started');
+    console.log('Timer scheduler started successfully');
   }
 
   async stop(): Promise<void> {
@@ -69,17 +69,18 @@ export class TimerScheduler {
     const mappings = await mappingRepository.find({
       where: {
         is_active: true,
-        action: {
+        action: Raw(alias => `${alias} ->> 'type' = :type`, {
           type: 'timer.every_hour_at_intervals',
-        } as Partial<Action>,
+        }),
       },
     });
 
     for (const mapping of mappings) {
       try {
-        const config = mapping.action.config as { minute: string };
+        const config = mapping.action.config as { minute: number };
 
-        if (config.minute && currentMinute.toString() === config.minute) {
+        if (config.minute !== undefined && currentMinute === config.minute) {
+          console.log(`Triggering timer for mapping ${mapping.id}`);
           await this.triggerTimerEvent(mapping, {
             timestamp: new Date().toISOString(),
             minute: currentMinute,
@@ -101,9 +102,9 @@ export class TimerScheduler {
     const mappings = await mappingRepository.find({
       where: {
         is_active: true,
-        action: {
+        action: Raw(alias => `${alias} ->> 'type' = :type`, {
           type: 'timer.every_day_at_x_hour',
-        } as Partial<Action>,
+        }),
       },
     });
 
@@ -154,6 +155,7 @@ export class TimerScheduler {
       payload: payload,
       source: 'timer',
       status: 'received',
+      mapping_id: mapping.id,
     });
 
     await eventRepository.save(event);

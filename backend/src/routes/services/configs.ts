@@ -17,6 +17,37 @@ const userServiceConfigService = new UserServiceConfigService();
  *     responses:
  *       200:
  *         description: List of user's service configurations
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 configs:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                         description: Unique identifier for the configuration
+ *                       service:
+ *                         type: string
+ *                         description: Service identifier
+ *                       settings:
+ *                         type: object
+ *                         description: Service-specific configuration settings
+ *                         additionalProperties: true
+ *                       is_active:
+ *                         type: boolean
+ *                         description: Whether this configuration is active
+ *                       created_at:
+ *                         type: string
+ *                         format: date-time
+ *                         description: Timestamp when the configuration was created
+ *                       updated_at:
+ *                         type: string
+ *                         format: date-time
+ *                         description: Timestamp when the configuration was last updated
  *       500:
  *         description: Internal server error
  */
@@ -64,6 +95,35 @@ router.get(
  *     responses:
  *       200:
  *         description: Service configuration details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 config:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                       description: Unique identifier for the configuration
+ *                     service:
+ *                       type: string
+ *                       description: Service identifier
+ *                     settings:
+ *                       type: object
+ *                       description: Service-specific configuration settings
+ *                       additionalProperties: true
+ *                     is_active:
+ *                       type: boolean
+ *                       description: Whether this configuration is active
+ *                     created_at:
+ *                       type: string
+ *                       format: date-time
+ *                       description: Timestamp when the configuration was created
+ *                     updated_at:
+ *                       type: string
+ *                       format: date-time
+ *                       description: Timestamp when the configuration was last updated
  *       404:
  *         description: Service configuration not found
  *       500:
@@ -130,13 +190,51 @@ router.get(
  *             properties:
  *               service:
  *                 type: string
+ *                 description: Service identifier (must match a registered service)
+ *                 example: "github"
  *               credentials:
  *                 type: object
+ *                 description: Service-specific authentication credentials (API keys, tokens, etc.)
+ *                 additionalProperties:
+ *                   type: string
+ *                 example: {"token": "ghp_...", "username": "myuser"}
  *               settings:
  *                 type: object
+ *                 description: Service-specific configuration settings
+ *                 additionalProperties: true
+ *                 example: {"default_repository": "my-repo", "webhook_url": "https://..."}
  *     responses:
  *       201:
  *         description: Service configuration created/updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 config:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                       description: Unique identifier for the configuration
+ *                     service:
+ *                       type: string
+ *                       description: Service identifier
+ *                     settings:
+ *                       type: object
+ *                       description: Service-specific configuration settings
+ *                       additionalProperties: true
+ *                     is_active:
+ *                       type: boolean
+ *                       description: Whether this configuration is active
+ *                     created_at:
+ *                       type: string
+ *                       format: date-time
+ *                       description: Timestamp when the configuration was created
+ *                     updated_at:
+ *                       type: string
+ *                       format: date-time
+ *                       description: Timestamp when the configuration was last updated
  *       400:
  *         description: Invalid request data
  *       500:
@@ -205,13 +303,51 @@ router.post(
  *             properties:
  *               credentials:
  *                 type: object
+ *                 description: Service-specific authentication credentials (API keys, tokens, etc.)
+ *                 additionalProperties:
+ *                   type: string
+ *                 example: {"token": "ghp_...", "username": "myuser"}
  *               settings:
  *                 type: object
+ *                 description: Service-specific configuration settings
+ *                 additionalProperties: true
+ *                 example: {"default_repository": "my-repo", "webhook_url": "https://..."}
  *               is_active:
  *                 type: boolean
+ *                 description: Whether this service configuration is active
+ *                 example: true
  *     responses:
  *       200:
  *         description: Service configuration updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 config:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                       description: Unique identifier for the configuration
+ *                     service:
+ *                       type: string
+ *                       description: Service identifier
+ *                     settings:
+ *                       type: object
+ *                       description: Service-specific configuration settings
+ *                       additionalProperties: true
+ *                     is_active:
+ *                       type: boolean
+ *                       description: Whether this configuration is active
+ *                     created_at:
+ *                       type: string
+ *                       format: date-time
+ *                       description: Timestamp when the configuration was created
+ *                     updated_at:
+ *                       type: string
+ *                       format: date-time
+ *                       description: Timestamp when the configuration was last updated
  *       404:
  *         description: Service configuration not found
  *       500:

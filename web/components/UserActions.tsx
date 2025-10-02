@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { LogOut } from 'lucide-react';
 import { IDAvatar } from './ui/InputAvatar';
 import Link from 'next/link';
+import { TbLoader3 } from 'react-icons/tb';
 
 interface UserActionsProps {
   className?: string;
@@ -13,11 +14,21 @@ interface UserActionsProps {
 
 export function UserActions({ className, isMobile }: UserActionsProps) {
   const router = useRouter();
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, logout, isLoading } = useAuth();
 
   const handleLogout = () => logout();
   const handleSwitchToProfile = () => router.push('/profile');
   const handleSwitchToAdmin = () => router.push('/admin');
+
+  if (isLoading) {
+    return (
+      <div
+        className={`flex ${isMobile ? 'flex-col space-y-3' : 'space-x-6'} items-center ${className}`}
+      >
+        <TbLoader3 className='animate-spin text-app-text-secondary' size={24} />
+      </div>
+    );
+  }
 
   return (
     <div
