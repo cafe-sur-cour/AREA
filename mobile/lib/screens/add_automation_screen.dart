@@ -1,4 +1,5 @@
 import 'package:area/core/constants/app_colors.dart';
+import 'package:area/core/utils/color_utils.dart';
 import 'package:area/l10n/app_localizations.dart';
 import 'package:area/services/secure_storage.dart';
 import 'package:area/models/action_models.dart';
@@ -62,19 +63,7 @@ class AddAutomationScreenState extends State<AddAutomationScreen> {
 
   Color _getServiceColor() {
     if (_selectedService == null) return AppColors.areaBlue3;
-
-    try {
-      String colorHex = _selectedService!.color;
-      if (colorHex.startsWith('#')) {
-        colorHex = colorHex.substring(1);
-      }
-      if (colorHex.length == 6) {
-        colorHex = 'FF$colorHex';
-      }
-      return Color(int.parse(colorHex, radix: 16));
-    } catch (e) {
-      return AppColors.areaBlue3;
-    }
+    return ColorUtils.getServiceColor(_selectedService!);
   }
 
   void _clearAction() {
@@ -107,19 +96,7 @@ class AddAutomationScreenState extends State<AddAutomationScreen> {
 
   Color _getReactionServiceColor() {
     if (_selectedReactionService == null) return AppColors.areaBlue3;
-
-    try {
-      String colorHex = _selectedReactionService!.color;
-      if (colorHex.startsWith('#')) {
-        colorHex = colorHex.substring(1);
-      }
-      if (colorHex.length == 6) {
-        colorHex = 'FF$colorHex';
-      }
-      return Color(int.parse(colorHex, radix: 16));
-    } catch (e) {
-      return AppColors.areaBlue3;
-    }
+    return ColorUtils.getServiceColor(_selectedReactionService!);
   }
 
   void _clearReaction() {
