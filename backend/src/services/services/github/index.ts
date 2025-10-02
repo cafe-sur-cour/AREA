@@ -10,6 +10,11 @@ const githubService: Service = {
   version: '1.0.0',
   actions: githubActions,
   reactions: githubReactions,
+  getCredentials: async (userId: number) => {
+    const { githubOAuth } = await import('./oauth');
+    const userToken = await githubOAuth.getUserToken(userId);
+    return userToken ? { access_token: userToken.token_value } : {};
+  },
 };
 
 export default githubService;

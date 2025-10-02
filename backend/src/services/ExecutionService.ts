@@ -3,7 +3,8 @@ import { WebhookConfigs } from '../config/entity/WebhookConfigs';
 import { WebhookEvents } from '../config/entity/WebhookEvents';
 import { WebhookReactions } from '../config/entity/WebhookReactions';
 import { WebhookFailures } from '../config/entity/WebhookFailures';
-import type { Action, Reaction } from '../types/mapping';
+import { Raw } from 'typeorm';
+import type { Reaction } from '../types/mapping';
 import { serviceRegistry } from './ServiceRegistry';
 import { reactionExecutorRegistry } from './ReactionExecutorRegistry';
 import { UserServiceConfigService } from './UserServiceConfigService';
@@ -100,7 +101,7 @@ export class ExecutionService {
 
     try {
       console.log(
-        `🔄 [ExecutionService] Processing event ${event.id} - Action: ${event.action_type}`
+        `🔄 [ExecutionService] Processing event ${event.id} - Action: ${event.action_type}, mapping_id: ${event.mapping_id}`
       );
 
       const actionDefinition = serviceRegistry.getActionByType(
@@ -120,7 +121,8 @@ export class ExecutionService {
       }
       const mappings = await this.loadMappingsForAction(
         event.action_type,
-        event.user_id
+        event.user_id,
+        event.mapping_id ?? undefined
       );
 
       console.log(
@@ -171,19 +173,35 @@ export class ExecutionService {
 
   private async loadMappingsForAction(
     actionType: string,
-    userId: number
+    userId: number,
+    mappingId?: number
   ): Promise<WebhookConfigs[]> {
     const mappingRepository = AppDataSource.getRepository(WebhookConfigs);
 
-    return await mappingRepository.find({
+    if (mappingId) {
+      const mapping = await mappingRepository.findOne({
+        where: {
+          id: mappingId,
+          created_by: userId,
+          is_active: true,
+        },
+      });
+      const result = mapping ? [mapping] : [];
+      console.log(`Loaded mappings: ${result.length}`);
+      return result;
+    }
+
+    const result = await mappingRepository.find({
       where: {
         is_active: true,
         created_by: userId,
-        action: {
+        action: Raw(alias => `${alias} ->> 'type' = :type`, {
           type: actionType,
-        } as Partial<Action>,
+        }),
       },
     });
+    console.log(`Loaded mappings: ${result.length}`);
+    return result;
   }
 
   private async executeMappingReactions(
@@ -421,6 +439,16 @@ export class ExecutionService {
     }
 
     try {
+      const service = serviceRegistry.getService(serviceName);
+      if (service?.getCredentials) {
+        const credentials = await service.getCredentials(userId);
+        return {
+          credentials,
+          settings: {},
+          env: process.env,
+        };
+      }
+
       const userConfig =
         await this.userServiceConfigService.getUserServiceConfig(
           userId,

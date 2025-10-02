@@ -7,6 +7,7 @@ export interface Service {
   version: string;
   actions: ActionDefinition[];
   reactions: ReactionDefinition[];
+  getCredentials?: (userId: number) => Promise<Record<string, string>>;
 }
 
 export interface ActionDefinition {
