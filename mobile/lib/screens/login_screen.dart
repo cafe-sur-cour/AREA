@@ -108,7 +108,14 @@ class LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(AppLocalizations.of(context)!.login)),
+      appBar: AppBar(
+        title: Text(
+          AppLocalizations.of(context)!.login,
+          style: TextStyle(fontFamily: 'Montserrat', fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: AppColors.areaBlue3,
+        foregroundColor: AppColors.areaLightGray,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(32.0),
         child: Form(
