@@ -99,7 +99,7 @@ router.get(
  *             description: HTTP-only authentication cookie
  *             schema:
  *               type: string
- *               example: "auth_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...; HttpOnly; SameSite=Strict; Max-Age=86400"
+ *               example: "auth_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...; HttpOnly; Secure; domain:DOMAIN.env SameSite=Strict; Max-Age=86400"
  *         content:
  *           application/json:
  *             schema:
@@ -176,7 +176,9 @@ router.post(
       res.cookie('auth_token', token, {
         maxAge: 86400000,
         httpOnly: true,
-        sameSite: 'strict',
+        secure: true,
+        domain: process.env.DOMAIN,
+        sameSite: 'none',
       });
       await createLog(200, 'login', `User logged in: ${email}`);
       return res.status(200).json({ token });
@@ -389,7 +391,7 @@ router.post(
       }
 
       const email = (req.auth as { email: string })?.email;
-      res.clearCookie('auth_token');
+      res.clearCookie('auth_token', { path: '/', domain: '.nduboi.fr' });
       await createLog(200, 'logout', `User logged out: ${email || 'unknown'}`);
       res.status(200).json({ message: 'Logged out successfully' });
     } catch (err) {
@@ -594,7 +596,9 @@ router.get(
         res.cookie('auth_token', user.token, {
           maxAge: 86400000,
           httpOnly: true,
-          sameSite: 'strict',
+          domain: process.env.DOMAIN,
+          secure: true,
+          sameSite: 'none',
         });
 
         const isAuthenticated = !!(req.auth || req.cookies?.auth_token);
@@ -798,7 +802,9 @@ router.get(
         res.cookie('auth_token', user.token, {
           maxAge: 86400000,
           httpOnly: true,
-          sameSite: 'strict',
+          secure: true,
+          domain: process.env.DOMAIN,
+          sameSite: 'none',
         });
         res.redirect(`${process.env.FRONTEND_URL || ''}`);
       } else {
