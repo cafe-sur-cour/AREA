@@ -143,10 +143,12 @@ function validateActionReactionTypes(
  *                 properties:
  *                   type:
  *                     type: string
- *                     description: Action type in format "service.action"
+ *                     description: Action type in format "service.action" (must exist in a registered service)
+ *                     example: "github.new_issue"
  *                   config:
  *                     type: object
- *                     description: Action configuration
+ *                     description: Action configuration parameters as defined by the action's configSchema from the service registry
+ *                     example: {"repository": "my-repo", "token": "ghp_..."}
  *               reactions:
  *                 type: array
  *                 minItems: 1
@@ -158,10 +160,12 @@ function validateActionReactionTypes(
  *                   properties:
  *                     type:
  *                       type: string
- *                       description: Reaction type in format "service.reaction"
+ *                       description: Reaction type in format "service.reaction" (must exist in a registered service)
+ *                       example: "discord.send_message"
  *                     config:
  *                       type: object
- *                       description: Reaction configuration
+ *                       description: Reaction configuration parameters as defined by the reaction's configSchema from the service registry
+ *                       example: {"channel_id": "123456789", "message": "Hello World!"}
  *                     delay:
  *                       type: number
  *                       description: Optional delay in seconds before executing this reaction
@@ -189,8 +193,17 @@ function validateActionReactionTypes(
  *                       type: string
  *                     action:
  *                       type: object
+ *                       description: The configured action
+ *                       properties:
+ *                         type:
+ *                           type: string
+ *                           description: Action type identifier
+ *                         config:
+ *                           type: object
+ *                           description: Action configuration parameters
  *                     reactions:
  *                       type: array
+ *                       description: List of configured reactions
  *                     delay:
  *                       type: number
  *                     is_active:
@@ -442,8 +455,19 @@ router.get(
  *                           description: Action configuration parameters
  *                     reactions:
  *                       type: array
+ *                       description: List of configured reactions
  *                       items:
  *                         type: object
+ *                         properties:
+ *                           type:
+ *                             type: string
+ *                             description: Reaction type identifier
+ *                           config:
+ *                             type: object
+ *                             description: Reaction configuration parameters
+ *                           delay:
+ *                             type: number
+ *                             description: Optional delay in seconds before executing this reaction
  *                         properties:
  *                           type:
  *                             type: string
