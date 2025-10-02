@@ -36,18 +36,30 @@ export function RegisterForm({
     }
 
     try {
-      await api.post<{ message?: string; error?: string }>('/auth/register', {
-        email,
-        name,
-        password,
-      });
-      toast.success(
-        'Registration successful! Please check your email to verify your account.'
+      const res = await api.post<{ message?: string; error?: string }>(
+        '/auth/register',
+        {
+          email,
+          name,
+          password,
+        }
       );
-      setTimeout(() => router.push('/login'), 2000);
+
+      // If the API returned an error payload, show it.
+      const payload = res.data as { message?: string; error?: string } | null;
+      if (payload && payload.error) {
+        const errMsg = payload.error;
+        toast.error(errMsg);
+      } else {
+        const successMsg = payload?.message ||
+          'Registration successful! Please check your email to verify your account.';
+        toast.success(successMsg);
+        setTimeout(() => router.push('/login'), 2000);
+      }
     } catch (error) {
       console.error('Registration error:', error);
-      toast.error('Registration failed: ' + error);
+      const errMsg = error instanceof Error ? error.message : String(error);
+      toast.error('Registration failed: ' + errMsg);
     } finally {
       setIsLoading(false);
     }

@@ -115,8 +115,17 @@ export const api = {
   ): Promise<{ data: T | null }> => {
     const response = await apiPost(endpoint, data, token);
     if (!response.ok) {
-      throw new Error(`${response.json()}`);
+      // Try to read the error body (JSON) to include it in the thrown Error.
+      let errBody: string;
+      try {
+        const parsed = await response.json();
+        errBody = typeof parsed === 'string' ? parsed : JSON.stringify(parsed);
+      } catch (_) {
+        errBody = response.statusText || `Status ${response.status}`;
+      }
+      throw new Error(`API request failed: ${errBody}`);
     }
+
     try {
       const responseData = await response.json();
       return { data: responseData };
@@ -132,7 +141,14 @@ export const api = {
   ): Promise<{ data: T | null }> => {
     const response = await apiPut(endpoint, data);
     if (!response.ok) {
-      throw new Error(`${response.json()}`);
+      let errBody: string;
+      try {
+        const parsed = await response.json();
+        errBody = typeof parsed === 'string' ? parsed : JSON.stringify(parsed);
+      } catch (_) {
+        errBody = response.statusText || `Status ${response.status}`;
+      }
+      throw new Error(`API request failed: ${errBody}`);
     }
     try {
       const responseData = await response.json();
