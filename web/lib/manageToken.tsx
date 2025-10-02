@@ -7,4 +7,3 @@ export async function getToken() {
   const cookieValue = cookieStore.get('auth_token');
   return cookieValue || null;
 }
-
