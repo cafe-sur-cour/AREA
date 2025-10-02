@@ -56,7 +56,7 @@ export const apiPost = async (
     {
       method: 'POST',
       body: data ? JSON.stringify(data) : undefined,
-      credentials: "include"
+      credentials: 'include',
     },
     token
   );
