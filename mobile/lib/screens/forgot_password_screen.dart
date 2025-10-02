@@ -76,7 +76,7 @@ class ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                "Email sent",
+                AppLocalizations.of(context)!.email_sent,
                 style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
               ),
               backgroundColor: AppColors.success,

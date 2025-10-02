@@ -20,6 +20,7 @@
   "forgot_password": "Mot de passe oublié",
   "confirm_email": "Confirmer l'email",
   "confirm_email_differs": "Les mails ne correspondent pas",
+  "email_sent": "Email envoyé",
   "send": "Envoyer",
   "name": "Nom",
   "empty_name": "Entrez votre nom",

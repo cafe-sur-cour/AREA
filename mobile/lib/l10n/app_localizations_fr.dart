@@ -69,6 +69,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get confirm_email_differs => 'Les mails ne correspondent pas';
 
   @override
+  String get email_sent => 'Email envoyé';
+
+  @override
   String get send => 'Envoyer';
 
   @override
