@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   experimental: {
     serverActions: {
-      allowedOrigins: ['frontend.nduboi.fr:16836', 'frontend.nduboi.fr'],
+      allowedOrigins: ['frontend.nduboi.fr:16836', 'frontend.nduboi.fr', 'localhost:3000'],
     },
   },
 };

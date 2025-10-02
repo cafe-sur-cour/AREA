@@ -162,16 +162,23 @@ export default function ServicesPage() {
       const updatedServices = await Promise.all(
         services.map(async service => {
           try {
-            const [oauthResponse, subscribeResponse] = await Promise.allSettled(
-              [
-                api.get<{ connected?: boolean }>({
-                  endpoint: service.loginStatusEndpoint!,
-                }),
-                api.get<{ subscribed?: boolean; oauth_connected?: boolean }>({
+            // Guard against missing endpoints to avoid 404s
+            const oauthPromise = service.loginStatusEndpoint
+              ? api.get<{ connected?: boolean }>({
+                  endpoint: service.loginStatusEndpoint,
+                })
+              : Promise.resolve({ data: null });
+
+            const subscribePromise = service.statusEndpoint
+              ? api.get<{ subscribed?: boolean; oauth_connected?: boolean }>({
                   endpoint: service.statusEndpoint,
-                }),
-              ]
-            );
+                })
+              : Promise.resolve({ data: null });
+
+            const [oauthResponse, subscribeResponse] = await Promise.allSettled([
+              oauthPromise,
+              subscribePromise,
+            ]);
 
             const oauthConnected =
               (oauthResponse.status === 'fulfilled' &&
@@ -201,7 +208,8 @@ export default function ServicesPage() {
     if (user) {
       checkServiceStatus();
     }
-  }, [user, services]);
+    // only re-run when the authenticated user changes
+  }, [user]);
 
   const handleConnect = async (service: Service) => {
     const apiUrl = await getAPIUrl();
