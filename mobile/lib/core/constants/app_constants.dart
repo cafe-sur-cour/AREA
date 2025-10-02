@@ -10,6 +10,14 @@ class AppRoutes {
 
   // Profile
   static const String me = "api/user/me";
+
+  // Services
+  static const String servicesWithActions = "api/services/actions";
+  static const String servicesWithReactions = "api/services/reactions";
+
+  // Service-specific routes
+  static String actionsFromService(String serviceId) => "api/services/$serviceId/actions";
+  static String reactionsFromService(String serviceId) => "api/services/$serviceId/reactions";
 }
 
 class AppDimensions {
