@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:area/core/constants/app_colors.dart';
+import 'package:area/core/utils/color_utils.dart';
 import 'package:area/core/notifiers/backend_address_notifier.dart';
 import 'package:area/models/service_models.dart';
 import 'package:area/models/action_models.dart';
@@ -78,18 +79,7 @@ class ServiceActionsScreenState extends State<ServiceActionsScreen> {
   }
 
   Color _getServiceColor() {
-    try {
-      String colorHex = widget.service.color;
-      if (colorHex.startsWith('#')) {
-        colorHex = colorHex.substring(1);
-      }
-      if (colorHex.length == 6) {
-        colorHex = 'FF$colorHex';
-      }
-      return Color(int.parse(colorHex, radix: 16));
-    } catch (e) {
-      return AppColors.areaBlue3;
-    }
+    return ColorUtils.getServiceColor(widget.service);
   }
 
   @override
@@ -145,11 +135,11 @@ class ServiceActionsScreenState extends State<ServiceActionsScreen> {
                       color: AppColors.areaLightGray.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: widget.service.iconUrl != null
+                    child: widget.service.icon != null
                         ? ClipRRect(
                             borderRadius: BorderRadius.circular(8),
                             child: Image.network(
-                              widget.service.iconUrl!,
+                              widget.service.icon!,
                               fit: BoxFit.cover,
                               errorBuilder: (context, error, stackTrace) {
                                 return const Icon(
