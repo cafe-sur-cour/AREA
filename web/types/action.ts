@@ -47,5 +47,5 @@ export interface ServiceAction {
 
 export interface formAction {
   type: string;
-  config: Record<string, object>;
+  config: Record<string, unknown>;
 }

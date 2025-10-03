@@ -50,11 +50,11 @@ export default function MappingPage() {
   });
 
   const [selectedAction, setSelectedAction] = useState<Action | null>(null);
-  const [actionConfig, setActionConfig] = useState<Record<string, object>>({});
+  const [actionConfig, setActionConfig] = useState<Record<string, unknown>>({});
 
   const [selectedReactions, setSelectedReactions] = useState<Reaction[]>([]);
   const [reactionsConfig, setReactionsConfig] = useState<
-    Record<string, object>[]
+    Record<string, unknown>[]
   >([]);
 
   const fetchData = async () => {

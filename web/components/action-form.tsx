@@ -16,9 +16,15 @@ import {
 interface ActionFormProps {
   selectedAction: Action | null;
   onActionChange: (action: Action | null) => void;
-  actionConfig: Record<string, object>;
-  onConfigChange: (config: Record<string, object>) => void;
+  actionConfig: Record<string, unknown>;
+  onConfigChange: (config: Record<string, unknown>) => void;
 }
+
+const getStringValue = (value: unknown): string => {
+  if (typeof value === 'string') return value;
+  if (typeof value === 'number') return value.toString();
+  return '';
+};
 
 export default function ActionForm({
   selectedAction,
@@ -119,7 +125,11 @@ export default function ActionForm({
                   name={field.name}
                   placeholder={field.placeholder}
                   required={field.required}
-                  value={actionConfig[field.name] || field.default || ''}
+                  value={
+                    getStringValue(actionConfig[field.name]) ||
+                    getStringValue(field.default) ||
+                    ''
+                  }
                   onChange={e => {
                     onConfigChange({
                       ...actionConfig,

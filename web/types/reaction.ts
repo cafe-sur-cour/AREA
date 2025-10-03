@@ -47,5 +47,5 @@ export interface ServiceReaction {
 
 export interface formReaction {
   type: string;
-  config: Record<string, object>;
+  config: Record<string, unknown>;
 }

@@ -19,14 +19,20 @@ import { Plus, Trash2 } from 'lucide-react';
 interface ReactionInstance {
   id: string;
   reaction: Reaction | null;
-  config: Record<string, object>;
+  config: Record<string, unknown>;
   selectedService: string | null;
 }
 
 interface ReactionFormProps {
   onReactionsChange: (reactions: Reaction[]) => void;
-  onConfigChange: (config: Record<string, object>[]) => void;
+  onConfigChange: (config: Record<string, unknown>[]) => void;
 }
+
+const getStringValue = (value: unknown): string => {
+  if (typeof value === 'string') return value;
+  if (typeof value === 'number') return value.toString();
+  return '';
+};
 
 export default function ReactionForm({
   onReactionsChange,
@@ -227,7 +233,11 @@ export default function ReactionForm({
                       name={field.name}
                       placeholder={field.placeholder}
                       required={field.required}
-                      value={instance.config[field.name] || field.default || ''}
+                      value={
+                        getStringValue(instance.config[field.name]) ||
+                        getStringValue(field.default) ||
+                        ''
+                      }
                       onChange={e => {
                         updateReactionInstance(instance.id, {
                           config: {
