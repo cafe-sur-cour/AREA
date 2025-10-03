@@ -3,7 +3,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import Navigation from '@/components/header';
 import { useEffect, useState } from 'react';
-import type { Mapping } from '@/types/mapping';
+import type { Mapping, formMapping } from '@/types/mapping';
+import type { Action } from '@/types/action';
+import type { Reaction } from '@/types/reaction';
 import { api } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -28,6 +30,8 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Trash2, Plus, Power, PowerOff } from 'lucide-react';
+import ActionForm from '@/components/action-form';
+import ReactionForm from '@/components/reaction-form';
 
 export default function AutomationPage() {
   const router = useRouter();
@@ -36,16 +40,19 @@ export default function AutomationPage() {
   const [data, setData] = useState<Mapping[]>([]);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<formMapping>({
     name: '',
     description: '',
-    actionType: '',
-    actionConfig: '{}',
-    reactionType: '',
-    reactionConfig: '{}',
-    reactionDelay: 0,
+    action: undefined,
+    reaction: [],
     is_active: true,
   });
+
+  const [selectedAction, setSelectedAction] = useState<Action | null>(null);
+  const [actionConfig, setActionConfig] = useState<Record<string, any>>({});
+
+  const [selectedReactions, setSelectedReactions] = useState<Reaction[]>([]);
+  const [reactionsConfig, setReactionsConfig] = useState<Record<string, any>[]>([]);
 
   const fetchData = async () => {
     setLoadingData(true);
@@ -63,40 +70,35 @@ export default function AutomationPage() {
 
   const handleCreateAutomation = async () => {
     try {
+      formData.action = {
+        type: selectedAction?.id || '',
+        config: actionConfig,
+      }
+      formData.reaction = selectedReactions.map((reaction, index) => ({
+        type: reaction.id,
+        config: reactionsConfig[index] || {},
+        delay: 0,
+      }));
       console.log('Creating automation with data:', formData);
       const payload = {
         name: formData.name,
         description: formData.description,
-        action: {
-          type: formData.actionType,
-          config: JSON.parse(formData.actionConfig),
-        },
-        reactions: [
-          {
-            type: formData.reactionType,
-            config: JSON.parse(formData.reactionConfig),
-            delay: formData.reactionDelay,
-          },
-        ],
+        action: formData.action,
+        reactions: formData.reaction,
         is_active: formData.is_active,
       };
 
       await api.post('/mappings', payload);
 
-      // Reset form and close drawer
       setFormData({
         name: '',
         description: '',
-        actionType: '',
-        actionConfig: '{}',
-        reactionType: '',
-        reactionConfig: '{}',
-        reactionDelay: 0,
+        action: undefined,
+        reaction: [],
         is_active: true,
       });
       setIsDrawerOpen(false);
 
-      // Refresh data
       fetchData();
     } catch (error) {
       console.error('Error creating automation:', error);
@@ -108,7 +110,7 @@ export default function AutomationPage() {
     if (!confirm('Are you sure you want to delete this automation?')) return;
 
     try {
-      await api.delete(`/api/mapping/${id}`);
+      await api.delete(`/mappings/${id}`);
       fetchData();
     } catch (error) {
       console.error('Error deleting automation:', error);
@@ -196,86 +198,23 @@ export default function AutomationPage() {
                 <div className='border-t pt-4'>
                   <h3 className='font-semibold mb-3'>Action</h3>
 
-                  <div className='space-y-2'>
-                    <Label htmlFor='actionType'>Action Type *</Label>
-                    <Input
-                      id='actionType'
-                      placeholder='e.g., webhook, schedule, event'
-                      value={formData.actionType}
-                      onChange={e =>
-                        setFormData({ ...formData, actionType: e.target.value })
-                      }
-                    />
-                  </div>
-
-                  <div className='space-y-2 mt-3'>
-                    <Label htmlFor='actionConfig'>Action Config</Label>
-                    <Textarea
-                      id='actionConfig'
-                      placeholder='{"key": "value"}'
-                      value={formData.actionConfig}
-                      onChange={e =>
-                        setFormData({
-                          ...formData,
-                          actionConfig: e.target.value,
-                        })
-                      }
-                      rows={3}
-                      className='font-mono text-sm'
-                    />
-                  </div>
+                  <ActionForm 
+                    selectedAction={selectedAction}
+                    onActionChange={setSelectedAction}
+                    actionConfig={actionConfig}
+                    onConfigChange={setActionConfig}
+                  />
                 </div>
 
                 <div className='border-t pt-4'>
                   <h3 className='font-semibold mb-3'>Reaction</h3>
 
-                  <div className='space-y-2'>
-                    <Label htmlFor='reactionType'>Reaction Type *</Label>
-                    <Input
-                      id='reactionType'
-                      placeholder='e.g., email, notification, api_call'
-                      value={formData.reactionType}
-                      onChange={e =>
-                        setFormData({
-                          ...formData,
-                          reactionType: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-
-                  <div className='space-y-2 mt-3'>
-                    <Label htmlFor='reactionConfig'>Reaction Config</Label>
-                    <Textarea
-                      id='reactionConfig'
-                      placeholder='{"key": "value"}'
-                      value={formData.reactionConfig}
-                      onChange={e =>
-                        setFormData({
-                          ...formData,
-                          reactionConfig: e.target.value,
-                        })
-                      }
-                      rows={3}
-                      className='font-mono text-sm'
-                    />
-                  </div>
-
-                  <div className='space-y-2 mt-3'>
-                    <Label htmlFor='reactionDelay'>Delay</Label>
-                    <Input
-                      id='reactionDelay'
-                      type='number'
-                      min='0'
-                      value={formData.reactionDelay}
-                      onChange={e =>
-                        setFormData({
-                          ...formData,
-                          reactionDelay: Number.parseInt(e.target.value) || 0,
-                        })
-                      }
-                    />
-                  </div>
+                  <ReactionForm 
+                    selectedReactions={selectedReactions}
+                    onReactionsChange={setSelectedReactions}
+                    reactionsConfig={reactionsConfig}
+                    onConfigChange={setReactionsConfig}
+                  />
                 </div>
 
                 <div className='flex items-center justify-between border-t pt-4'>
