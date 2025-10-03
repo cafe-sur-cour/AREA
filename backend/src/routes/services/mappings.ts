@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express';
 import token from '../../middleware/token';
 import { serviceRegistry } from '../../services/ServiceRegistry';
 import { mappingService } from './mappings.service';
+import { executionService } from '../../services/ExecutionService';
 import type { Action, Reaction } from '../../types/mapping';
 
 const router = express.Router();
@@ -285,6 +286,19 @@ router.post(
         is_active,
         created_by: userId,
       });
+
+      try {
+        await executionService.ensureExternalWebhooksForMapping(
+          savedMapping,
+          userId
+        );
+        console.log('✅ External webhooks ensured for new mapping');
+      } catch (webhookError) {
+        console.error(
+          '❌ Failed to ensure external webhooks for mapping:',
+          webhookError
+        );
+      }
 
       return res.status(201).json({
         mapping: {
