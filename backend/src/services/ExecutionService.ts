@@ -322,6 +322,10 @@ export class ExecutionService {
         return;
       } catch (error) {
         attempt++;
+        console.error(
+          `❌ [ExecutionService] Reaction attempt ${attempt} failed for ${reaction.type}:`,
+          (error as Error).message
+        );
         if (attempt >= maxRetries) {
           await this.recordReactionFailure(
             event,
