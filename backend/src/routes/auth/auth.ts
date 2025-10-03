@@ -603,10 +603,25 @@ router.get(
 
         const isAuthenticated = !!(req.auth || req.cookies?.auth_token);
         if (isAuthenticated) {
-          const appSlug = process.env.GITHUB_APP_SLUG || 'area-app';
-          const userId = (req.auth as { id: number })?.id || 'unknown';
-          const installUrl = `https://github.com/apps/${appSlug}/installations/new?state=${userId}`;
-          return res.redirect(installUrl);
+          const session = req.session as
+            | { githubSubscriptionFlow?: boolean }
+            | undefined;
+          const isSubscriptionFlow = session?.githubSubscriptionFlow;
+
+          if (isSubscriptionFlow) {
+            const appSlug =
+              process.env.GITHUB_APP_SLUG || 'area-cafe-sur-cours';
+            const userId = (req.auth as { id: number })?.id || 'unknown';
+            const installUrl = `https://github.com/apps/${appSlug}/installations/new?state=${userId}`;
+
+            if (session) {
+              delete session.githubSubscriptionFlow;
+            }
+            return res.redirect(installUrl);
+          } else {
+            const frontendUrl = process.env.FRONTEND_URL || '';
+            return res.redirect(`${frontendUrl}?github_connected=true`);
+          }
         }
 
         res.redirect(`${process.env.FRONTEND_URL || ''}`);
@@ -653,12 +668,19 @@ router.get(
       const existingToken = await githubOAuth.getUserToken(userId);
 
       if (existingToken) {
-        const appSlug = process.env.GITHUB_APP_SLUG || '';
+        const appSlug = process.env.GITHUB_APP_SLUG || 'area-cafe-sur-cours';
         const installUrl = `https://github.com/apps/${appSlug}/installations/new?state=${userId}`;
         return res.redirect(installUrl);
       }
     } catch {
       console.log('No existing token found, proceeding with OAuth...');
+    }
+
+    const session = req.session as
+      | { githubSubscriptionFlow?: boolean }
+      | undefined;
+    if (session) {
+      session.githubSubscriptionFlow = true;
     }
 
     passport.authenticate('github-subscribe', { session: false })(

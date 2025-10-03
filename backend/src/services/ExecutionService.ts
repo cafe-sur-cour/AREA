@@ -119,6 +119,10 @@ export class ExecutionService {
         );
         return;
       }
+      console.log(
+        `🚀 [ExecutionService] Processing event ${event.id} - Action: ${event.action_type}`
+      );
+
       const mappings = await this.loadMappingsForAction(
         event.action_type,
         event.user_id,
@@ -131,11 +135,15 @@ export class ExecutionService {
 
       if (mappings.length === 0) {
         console.log(
-          `ℹ️  [ExecutionService] No active mappings found, marking event as completed`
+          `ℹ️  [ExecutionService] No active mappings found for action type '${event.action_type}', marking event as completed`
         );
         await this.markEventProcessed(event, 'completed', startTime);
         return;
       }
+
+      console.log(
+        `🎯 [ExecutionService] Starting execution of ${mappings.length} mapping(s)...`
+      );
 
       for (const mapping of mappings) {
         for (const reaction of mapping.reactions) {
@@ -176,6 +184,10 @@ export class ExecutionService {
     userId: number,
     mappingId?: number
   ): Promise<WebhookConfigs[]> {
+    console.log(
+      `🔍 [ExecutionService] Loading mappings for action: ${actionType}, user: ${userId}${mappingId ? `, specific mapping: ${mappingId}` : ''}`
+    );
+
     const mappingRepository = AppDataSource.getRepository(WebhookConfigs);
 
     if (mappingId) {
@@ -187,9 +199,23 @@ export class ExecutionService {
         },
       });
       const result = mapping ? [mapping] : [];
-      console.log(`Loaded mappings: ${result.length}`);
+      console.log(
+        `📊 [ExecutionService] Loaded specific mapping: ${result.length} found`
+      );
+      if (result.length > 0) {
+        console.log(`📋 [ExecutionService] Mapping details:`, {
+          id: result[0].id,
+          name: result[0].name,
+          action_type: result[0].action.type,
+          reactions_count: result[0].reactions.length,
+        });
+      }
       return result;
     }
+
+    console.log(
+      `🔍 [ExecutionService] Searching for mappings with action type: ${actionType}`
+    );
 
     const result = await mappingRepository.find({
       where: {
@@ -200,7 +226,38 @@ export class ExecutionService {
         }),
       },
     });
-    console.log(`Loaded mappings: ${result.length}`);
+
+    console.log(
+      `📊 [ExecutionService] Found ${result.length} active mappings for user ${userId}`
+    );
+
+    if (result.length > 0) {
+      console.log(
+        `📋 [ExecutionService] Mappings found:`,
+        result.map(m => ({
+          id: m.id,
+          name: m.name,
+          action_type: m.action.type,
+          reactions_count: m.reactions.length,
+          is_active: m.is_active,
+        }))
+      );
+    } else {
+      const allUserMappings = await mappingRepository.find({
+        where: { created_by: userId },
+        select: ['id', 'name', 'action', 'is_active'],
+      });
+      console.log(
+        `🔍 [ExecutionService] All mappings for user ${userId}:`,
+        allUserMappings.map(m => ({
+          id: m.id,
+          name: m.name,
+          action_type: m.action?.type || 'undefined',
+          is_active: m.is_active,
+        }))
+      );
+    }
+
     return result;
   }
 
