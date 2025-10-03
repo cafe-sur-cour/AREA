@@ -14,6 +14,8 @@ interface TokenPayload extends jwt.JwtPayload {
   email: string;
 }
 
+
+
 const router = express.Router();
 
 /* Auth GET Routes */
@@ -603,10 +605,19 @@ router.get(
 
         const isAuthenticated = !!(req.auth || req.cookies?.auth_token);
         if (isAuthenticated) {
-          const appSlug = process.env.GITHUB_APP_SLUG || 'area-app';
-          const userId = (req.auth as { id: number })?.id || 'unknown';
-          const installUrl = `https://github.com/apps/${appSlug}/installations/new?state=${userId}`;
-          return res.redirect(installUrl);
+          const isSubscriptionFlow = (req.session as any)?.githubSubscriptionFlow;
+
+          if (isSubscriptionFlow) {
+            const appSlug = process.env.GITHUB_APP_SLUG || 'area-cafe-sur-cours';
+            const userId = (req.auth as { id: number })?.id || 'unknown';
+            const installUrl = `https://github.com/apps/${appSlug}/installations/new?state=${userId}`;
+
+            delete (req.session as any).githubSubscriptionFlow;
+            return res.redirect(installUrl);
+          } else {
+            const frontendUrl = process.env.FRONTEND_URL || '';
+            return res.redirect(`${frontendUrl}?github_connected=true`);
+          }
         }
 
         res.redirect(`${process.env.FRONTEND_URL || ''}`);
@@ -653,13 +664,15 @@ router.get(
       const existingToken = await githubOAuth.getUserToken(userId);
 
       if (existingToken) {
-        const appSlug = process.env.GITHUB_APP_SLUG || '';
+        const appSlug = process.env.GITHUB_APP_SLUG || 'area-cafe-sur-cours';
         const installUrl = `https://github.com/apps/${appSlug}/installations/new?state=${userId}`;
         return res.redirect(installUrl);
       }
     } catch {
       console.log('No existing token found, proceeding with OAuth...');
     }
+
+    (req.session as any).githubSubscriptionFlow = true;
 
     passport.authenticate('github-subscribe', { session: false })(
       req,

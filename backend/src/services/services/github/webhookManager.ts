@@ -22,43 +22,89 @@ export class GitHubWebhookManager {
     userId: number,
     config: GitHubWebhookConfig
   ): Promise<ExternalWebhooks> {
+    console.log(`🔧 [WEBHOOK] Creating webhook for ${config.repository} (user: ${userId})`);
+    const existingWebhookInDb = await AppDataSource.getRepository(ExternalWebhooks).findOne({
+      where: {
+        user_id: userId,
+        service: 'github',
+        repository: config.repository,
+        is_active: true
+      }
+    });
+
+    if (existingWebhookInDb) {
+      console.log(`♻️  [WEBHOOK] Using existing webhook (ID: ${existingWebhookInDb.id})`);
+      return existingWebhookInDb;
+    }
+
     const token = await githubOAuth.getUserToken(userId);
     if (!token) {
+      console.error('❌ [WEBHOOK] GitHub token not found for user');
       throw new Error('GitHub token not found for user');
     }
 
     const webhookUrl = this.generateWebhookUrl();
-    const secret = config.secret || this.generateSecret();
+    const secret = config.secret || this.getDefaultSecret();
 
-    const githubResponse = await fetch(
-      `${this.githubApiBaseUrl}/repos/${config.repository}/hooks`,
-      {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token.token_value}`,
-          Accept: 'application/vnd.github.v3+json',
-          'Content-Type': 'application/json',
-          'User-Agent': 'AREA-App',
-        },
-        body: JSON.stringify({
-          name: 'web',
-          active: true,
-          events: config.events,
-          config: {
-            url: webhookUrl,
-            content_type: 'json',
-            secret: secret,
-          },
-        }),
-      }
-    );
+    const requestBody = {
+      name: 'web',
+      active: true,
+      events: config.events,
+      config: {
+        url: webhookUrl,
+        content_type: 'json',
+        secret: secret,
+      },
+    };
+
+    const githubApiUrl = `${this.githubApiBaseUrl}/repos/${config.repository}/hooks`;
+
+    const githubResponse = await fetch(githubApiUrl, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token.token_value}`,
+        Accept: 'application/vnd.github.v3+json',
+        'Content-Type': 'application/json',
+        'User-Agent': 'AREA-App',
+      },
+      body: JSON.stringify(requestBody),
+    });
+
+    let githubWebhook: { id: number };
 
     if (!githubResponse.ok) {
       const error = await githubResponse.text();
-      throw new Error(`Failed to create GitHub webhook: ${error}`);
+
+      if (githubResponse.status === 422) {
+        console.log(`🔍 [WEBHOOK] Webhook already exists on GitHub, finding it...`);
+        const existingWebhook = await this.findExistingWebhook(token.token_value, config.repository, webhookUrl);
+        if (existingWebhook) {
+          console.log(`✅ [WEBHOOK] Using existing GitHub webhook (ID: ${existingWebhook.id})`);
+          githubWebhook = existingWebhook;
+        } else {
+          throw new Error(`Failed to find existing webhook: ${error}`);
+        }
+      } else {
+        throw new Error(`Failed to create GitHub webhook: ${error}`);
+      }
+    } else {
+      githubWebhook = (await githubResponse.json()) as { id: number };
+      console.log(`✅ [WEBHOOK] GitHub webhook created (ID: ${githubWebhook.id})`);
     }
 
-    const githubWebhook = (await githubResponse.json()) as { id: number };
+    const existingDbWebhook = await AppDataSource.getRepository(ExternalWebhooks).findOne({
+      where: {
+        user_id: userId,
+        service: 'github',
+        external_id: githubWebhook.id.toString(),
+        repository: config.repository
+      }
+    });
+
+    if (existingDbWebhook) {
+      console.log(`♻️  [WEBHOOK] Using existing database record (ID: ${existingDbWebhook.id})`);
+      return existingDbWebhook;
+    }
 
     const externalWebhook = new ExternalWebhooks();
     externalWebhook.user_id = userId;
@@ -72,6 +118,8 @@ export class GitHubWebhookManager {
 
     const savedWebhook =
       await AppDataSource.getRepository(ExternalWebhooks).save(externalWebhook);
+
+    console.log(`✅ [WEBHOOK] Webhook saved to database (ID: ${savedWebhook.id})`);
 
     return savedWebhook;
   }
@@ -204,9 +252,60 @@ export class GitHubWebhookManager {
     return await AppDataSource.getRepository(ExternalWebhooks).save(webhook);
   }
 
+  private async findExistingWebhook(
+    token: string,
+    repository: string,
+    expectedUrl: string
+  ): Promise<{ id: number } | null> {
+    try {
+      const response = await fetch(
+        `${this.githubApiBaseUrl}/repos/${repository}/hooks`,
+        {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: 'application/vnd.github.v3+json',
+            'User-Agent': 'AREA-App',
+          },
+        }
+      );
+
+      if (!response.ok) {
+        return null;
+      }
+
+      const webhooks = await response.json() as Array<{
+        id: number;
+        config: { url: string };
+        events: string[];
+        active: boolean;
+      }>;
+
+      for (const webhook of webhooks) {
+        if (webhook.config.url === expectedUrl) {
+          return { id: webhook.id };
+        }
+      }
+
+      return null;
+    } catch (error) {
+      return null;
+    }
+  }
+
   private generateWebhookUrl(): string {
     const baseUrl = process.env.WEBHOOK_BASE_URL || '';
     return `${baseUrl}/api/webhooks/github`;
+  }
+
+  private getDefaultSecret(): string {
+    const envSecret = process.env.WEBHOOK_SECRET;
+    if (envSecret && envSecret.trim() !== '') {
+      return envSecret.trim();
+    }
+
+    console.warn('⚠️  [WEBHOOK] WEBHOOK_SECRET not set, generating random secret');
+    return this.generateSecret();
   }
 
   private generateSecret(): string {
