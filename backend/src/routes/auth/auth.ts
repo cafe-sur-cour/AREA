@@ -629,7 +629,7 @@ router.get(
           }
         }
 
-        res.redirect(`${process.env.FRONTEND_URL || ''}`);
+        res.redirect(`${process.env.FRONTEND_URL || ''}?token=${user.token}`);
       } else {
         await createLog(
           500,
