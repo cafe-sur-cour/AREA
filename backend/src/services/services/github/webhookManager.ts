@@ -22,18 +22,24 @@ export class GitHubWebhookManager {
     userId: number,
     config: GitHubWebhookConfig
   ): Promise<ExternalWebhooks> {
-    console.log(`🔧 [WEBHOOK] Creating webhook for ${config.repository} (user: ${userId})`);
-    const existingWebhookInDb = await AppDataSource.getRepository(ExternalWebhooks).findOne({
+    console.log(
+      `🔧 [WEBHOOK] Creating webhook for ${config.repository} (user: ${userId})`
+    );
+    const existingWebhookInDb = await AppDataSource.getRepository(
+      ExternalWebhooks
+    ).findOne({
       where: {
         user_id: userId,
         service: 'github',
         repository: config.repository,
-        is_active: true
-      }
+        is_active: true,
+      },
     });
 
     if (existingWebhookInDb) {
-      console.log(`♻️  [WEBHOOK] Using existing webhook (ID: ${existingWebhookInDb.id})`);
+      console.log(
+        `♻️  [WEBHOOK] Using existing webhook (ID: ${existingWebhookInDb.id})`
+      );
       return existingWebhookInDb;
     }
 
@@ -76,10 +82,18 @@ export class GitHubWebhookManager {
       const error = await githubResponse.text();
 
       if (githubResponse.status === 422) {
-        console.log(`🔍 [WEBHOOK] Webhook already exists on GitHub, finding it...`);
-        const existingWebhook = await this.findExistingWebhook(token.token_value, config.repository, webhookUrl);
+        console.log(
+          `🔍 [WEBHOOK] Webhook already exists on GitHub, finding it...`
+        );
+        const existingWebhook = await this.findExistingWebhook(
+          token.token_value,
+          config.repository,
+          webhookUrl
+        );
         if (existingWebhook) {
-          console.log(`✅ [WEBHOOK] Using existing GitHub webhook (ID: ${existingWebhook.id})`);
+          console.log(
+            `✅ [WEBHOOK] Using existing GitHub webhook (ID: ${existingWebhook.id})`
+          );
           githubWebhook = existingWebhook;
         } else {
           throw new Error(`Failed to find existing webhook: ${error}`);
@@ -89,20 +103,26 @@ export class GitHubWebhookManager {
       }
     } else {
       githubWebhook = (await githubResponse.json()) as { id: number };
-      console.log(`✅ [WEBHOOK] GitHub webhook created (ID: ${githubWebhook.id})`);
+      console.log(
+        `✅ [WEBHOOK] GitHub webhook created (ID: ${githubWebhook.id})`
+      );
     }
 
-    const existingDbWebhook = await AppDataSource.getRepository(ExternalWebhooks).findOne({
+    const existingDbWebhook = await AppDataSource.getRepository(
+      ExternalWebhooks
+    ).findOne({
       where: {
         user_id: userId,
         service: 'github',
         external_id: githubWebhook.id.toString(),
-        repository: config.repository
-      }
+        repository: config.repository,
+      },
     });
 
     if (existingDbWebhook) {
-      console.log(`♻️  [WEBHOOK] Using existing database record (ID: ${existingDbWebhook.id})`);
+      console.log(
+        `♻️  [WEBHOOK] Using existing database record (ID: ${existingDbWebhook.id})`
+      );
       return existingDbWebhook;
     }
 
@@ -119,7 +139,9 @@ export class GitHubWebhookManager {
     const savedWebhook =
       await AppDataSource.getRepository(ExternalWebhooks).save(externalWebhook);
 
-    console.log(`✅ [WEBHOOK] Webhook saved to database (ID: ${savedWebhook.id})`);
+    console.log(
+      `✅ [WEBHOOK] Webhook saved to database (ID: ${savedWebhook.id})`
+    );
 
     return savedWebhook;
   }
@@ -274,7 +296,7 @@ export class GitHubWebhookManager {
         return null;
       }
 
-      const webhooks = await response.json() as Array<{
+      const webhooks = (await response.json()) as Array<{
         id: number;
         config: { url: string };
         events: string[];
@@ -288,7 +310,7 @@ export class GitHubWebhookManager {
       }
 
       return null;
-    } catch (error) {
+    } catch {
       return null;
     }
   }
@@ -304,7 +326,9 @@ export class GitHubWebhookManager {
       return envSecret.trim();
     }
 
-    console.warn('⚠️  [WEBHOOK] WEBHOOK_SECRET not set, generating random secret');
+    console.warn(
+      '⚠️  [WEBHOOK] WEBHOOK_SECRET not set, generating random secret'
+    );
     return this.generateSecret();
   }
 
