@@ -586,6 +586,11 @@ router.get(
       }
     } catch (err) {
       console.error('GitHub OAuth callback error:', err);
+      await createLog(
+        500,
+        'github',
+        `Failed to authenticate with GitHub: ${err}`
+      );
       res.status(500).json({ error: 'Failed to authenticate with GitHub' });
     }
   },
@@ -626,14 +631,25 @@ router.get(
 
         res.redirect(`${process.env.FRONTEND_URL || ''}`);
       } else {
+        await createLog(
+          500,
+          'github',
+          `Failed to authenticate with GitHub: No token received`
+        );
         res.status(500).json({ error: 'Authentication failed' });
       }
     } catch (err) {
       console.error('GitHub OAuth callback error:', err);
+      await createLog(
+        500,
+        'github',
+        `Failed to authenticate with GitHub: ${err}`
+      );
       res.status(500).json({ error: 'Failed to authenticate with GitHub' });
     }
   }
 );
+
 /**
  * @swagger
  * /api/auth/github/subscribe:
@@ -660,6 +676,11 @@ router.get(
   token,
   async (req: Request, res: Response, next) => {
     if (!req.auth) {
+      await createLog(
+        401,
+        'github',
+        `Authentication required to subscribe to GitHub`
+      );
       return res.status(401).json({ error: 'Authentication required' });
     }
 
@@ -690,6 +711,7 @@ router.get(
     );
   }
 );
+
 /**
  * @swagger
  * /api/auth/google/login:
@@ -736,6 +758,11 @@ router.get(
  */
 router.get('/google/subscribe', async (req: Request, res: Response, next) => {
   if (!req.auth) {
+    await createLog(
+      401,
+      'google',
+      `Authentication required to subscribe to Google`
+    );
     return res.status(401).json({ error: 'Authentication required' });
   }
   passport.authenticate('google-subscribe', {
@@ -814,6 +841,11 @@ router.get(
       }
     } catch (err) {
       console.error('Google OAuth callback error:', err);
+      await createLog(
+        500,
+        'google',
+        `Failed to authenticate with Google: ${err}`
+      );
       res.status(500).json({ error: 'Failed to authenticate with Google' });
     }
   },
@@ -830,10 +862,20 @@ router.get(
         });
         res.redirect(`${process.env.FRONTEND_URL || ''}`);
       } else {
+        await createLog(
+          500,
+          'google',
+          `Failed to authenticate with Google: No token received`
+        );
         res.status(500).json({ error: 'Authentication failed' });
       }
     } catch (err) {
       console.error('Google OAuth callback error:', err);
+      await createLog(
+        500,
+        'google',
+        `Failed to authenticate with Google: ${err}`
+      );
       res.status(500).json({ error: 'Failed to authenticate with Google' });
     }
   }
