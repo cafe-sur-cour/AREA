@@ -201,7 +201,8 @@ export default function ServicesPage() {
     if (user) {
       checkServiceStatus();
     }
-  }, [user, services]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
   const handleConnect = async (service: Service) => {
     const apiUrl = await getAPIUrl();
