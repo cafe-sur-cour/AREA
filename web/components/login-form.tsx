@@ -5,20 +5,17 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import api from '@/lib/api';
 import Image from 'next/image';
 import { FaMeta } from 'react-icons/fa6';
 import { FaGithub, FaGoogle } from 'react-icons/fa';
-import Cookies from 'js-cookie';
 import { getAPIUrl } from '@/lib/config';
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<'div'>) {
-  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -36,13 +33,7 @@ export function LoginForm({
       });
 
       if (response && response.data) {
-        const token = response.data.token;
-        Cookies.set('auth_token', token, {
-          path: '/',
-          secure: true,
-          sameSite: 'strict',
-        });
-        router.push('/');
+        window.location.href = '/';
       } else {
         alert('Login failed');
       }

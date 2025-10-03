@@ -9,6 +9,7 @@ import token from '../../middleware/token';
 import admin from '../../middleware/admin';
 import { AppDataSource } from '../../config/db';
 import { User } from '../../config/entity/User';
+import { createLog } from '../logs/logs.service';
 
 const router = express.Router();
 
@@ -89,6 +90,7 @@ router.get(
       const basicUserInfo = req.auth as { id: number; email: string };
       const user = await getUserByID(basicUserInfo.id);
       if (!user) {
+        await createLog(404, 'user', `User not found: ${basicUserInfo.id}`);
         return res.status(404).json({ error: 'User not found' });
       }
       const userResponse = {
@@ -98,6 +100,7 @@ router.get(
       return res.status(200).json(userResponse);
     } catch (err) {
       console.error(err);
+      await createLog(500, 'user', `Internal Server Error: ${err}`);
       return res.status(500).json({ error: 'Internal Server Error' });
     }
   }
@@ -237,16 +240,24 @@ router.put(
     try {
       const { name, bio, picture } = req.body;
 
-      // Require at least one field
       if (!name && !bio && !picture) {
+        await createLog(
+          400,
+          'user',
+          'Bad Request: At least one field is required'
+        );
         return res.status(400).json({
           error: 'Bad Request',
           message: 'At least one field is required: name, bio, or picture',
         });
       }
 
-      // Ensure auth exists
       if (!req.auth) {
+        await createLog(
+          403,
+          'user',
+          'Forbidden: Authentication required to update profile'
+        );
         return res
           .status(403)
           .json({ error: 'Forbidden', message: 'Authentication required' });
@@ -255,6 +266,7 @@ router.put(
       const auth = req.auth as { id: number; email: string; is_admin: boolean };
       const userId = Number(auth.id);
       if (isNaN(userId)) {
+        await createLog(400, 'user', 'Bad Request: Invalid user ID in token');
         return res.status(400).json({
           error: 'Bad Request',
           message: 'Invalid user ID in authentication token',
@@ -269,15 +281,26 @@ router.put(
 
       if (!updatedUser) {
         console.log('updateUser returned null');
+        await createLog(
+          400,
+          'user',
+          'Bad Request: Failed to update profile - invalid data provided'
+        );
         return res.status(400).json({
           error: 'Bad Request',
           message: 'Failed to update user - invalid data provided',
         });
       }
 
+      await createLog(
+        200,
+        'user',
+        `User updated successfully: ${updatedUser.email}`
+      );
       return res.status(200).json(updatedUser);
     } catch (err: unknown) {
       console.error(err);
+      await createLog(500, 'user', `Internal Server Error: ${err}`);
       return res.status(500).json({
         error: 'Internal Server Error',
         message: 'An unexpected error occurred while updating user',
@@ -327,6 +350,7 @@ router.delete(
       const { data } = req.params;
 
       if (!data) {
+        await createLog(400, 'user', 'Bad Request: Data parameter is required');
         return res.status(400).json({ error: 'Data parameter is required' });
       }
 
@@ -343,14 +367,17 @@ router.delete(
       }
 
       if (!userToDelete) {
+        await createLog(404, 'user', `User not found for deletion: ${data}`);
         return res.status(404).json({ error: 'User not found' });
       }
 
       await userRepository.delete(userToDelete.id);
 
+      await createLog(200, 'user', `User deleted successfully: ${data}`);
       return res.status(200).json({ message: 'User deleted successfully' });
     } catch (err: unknown) {
       console.error(err);
+      await createLog(500, 'user', `Internal Server Error: ${err}`);
       return res.status(500).json({
         error: 'Internal Server Error',
         message: 'An unexpected error occurred while deleting the user',

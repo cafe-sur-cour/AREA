@@ -3,7 +3,7 @@ import { everyDayAtXHourSchema, everyHourAtIntervalsSchema } from './schemas';
 
 export const timerActions: ActionDefinition[] = [
   {
-    id: 'every_day_at_x_hour',
+    id: 'timer.every_day_at_x_hour',
     name: 'Every Day at X Hour',
     description: 'Triggers once a day at a specific hour on selected days',
     configSchema: everyDayAtXHourSchema,
@@ -31,7 +31,7 @@ export const timerActions: ActionDefinition[] = [
     },
   },
   {
-    id: 'every_hour_at_intervals',
+    id: 'timer.every_hour_at_intervals',
     name: 'Every Hour at X Minute',
     description: 'Triggers every hour at a specific minute (00, 15, 30, or 45)',
     configSchema: everyHourAtIntervalsSchema,
