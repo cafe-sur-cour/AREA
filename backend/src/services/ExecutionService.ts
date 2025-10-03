@@ -146,6 +146,10 @@ export class ExecutionService {
       );
 
       for (const mapping of mappings) {
+        await this.ensureExternalWebhooksForMapping(mapping, event.user_id);
+      }
+
+      for (const mapping of mappings) {
         for (const reaction of mapping.reactions) {
           const reactionDefinition = serviceRegistry.getReactionByType(
             reaction.type
@@ -202,7 +206,7 @@ export class ExecutionService {
       console.log(
         `📊 [ExecutionService] Loaded specific mapping: ${result.length} found`
       );
-      if (result.length > 0) {
+      if (result.length > 0 && result[0]) {
         console.log(`📋 [ExecutionService] Mapping details:`, {
           id: result[0].id,
           name: result[0].name,
@@ -528,6 +532,24 @@ export class ExecutionService {
       settings: {},
       env: process.env,
     };
+  }
+
+  async ensureExternalWebhooksForMapping(
+    mapping: WebhookConfigs,
+    userId: number
+  ): Promise<void> {
+    const actionDefinition = serviceRegistry.getActionByType(
+      mapping.action.type
+    );
+    if (!actionDefinition || !actionDefinition.metadata?.webhookPattern) {
+      return;
+    }
+
+    const serviceId = mapping.action.type.split('.')[0];
+    if (serviceId === 'github') {
+      const { ensureWebhookForMapping } = await import('./services/github');
+      await ensureWebhookForMapping(mapping, userId, actionDefinition);
+    }
   }
 }
 
