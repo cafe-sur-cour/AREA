@@ -1,4 +1,4 @@
-"use client"
+'use client';
 
 import { Button } from '@/components/ui/button';
 import Navigation from '@/components/header';
@@ -43,7 +43,7 @@ export default function Home() {
                     <Link href='/login'>Sign in</Link>
                   </Button>
                 </>
-              ): (
+              ) : (
                 <Button asChild size='lg' className='text-base px-8'>
                   <Link href='/dashboard'>
                     Go to Dashboard
