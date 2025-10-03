@@ -32,8 +32,9 @@ import {
 import { Trash2, Plus, Power, PowerOff } from 'lucide-react';
 import ActionForm from '@/components/action-form';
 import ReactionForm from '@/components/reaction-form';
+import { TbLoader3 } from 'react-icons/tb';
 
-export default function AutomationPage() {
+export default function MappingPage() {
   const router = useRouter();
   const { isAuthenticated, isLoading } = useAuth();
   const [loadingData, setLoadingData] = useState(true);
@@ -79,7 +80,7 @@ export default function AutomationPage() {
         config: reactionsConfig[index] || {},
         delay: 0,
       }));
-      console.log('Creating automation with data:', formData);
+      console.log('Creating mapping with data:', formData);
       const payload = {
         name: formData.name,
         description: formData.description,
@@ -101,20 +102,20 @@ export default function AutomationPage() {
 
       fetchData();
     } catch (error) {
-      console.error('Error creating automation:', error);
-      alert('Failed to create automation. Please check your input.');
+      console.error('Error creating mapping:', error);
+      alert('Failed to create mapping. Please check your input.');
     }
   };
 
-  const handleDeleteAutomation = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this automation?')) return;
+  const handleDeleteMapping = async (id: number) => {
+    if (!confirm('Are you sure you want to delete this mapping?')) return;
 
     try {
       await api.delete(`/mappings/${id}`);
       fetchData();
     } catch (error) {
-      console.error('Error deleting automation:', error);
-      alert('Failed to delete automation.');
+      console.error('Error deleting mapping:', error);
+      alert('Failed to delete mapping.');
     }
   };
 
@@ -126,6 +127,7 @@ export default function AutomationPage() {
     return (
       <div className='min-h-screen flex items-center justify-center'>
         <div className='text-lg'>Loading...</div>
+        <TbLoader3 className='animate-spin text-app-text-secondary' size={24} />
       </div>
     );
   }
@@ -143,10 +145,10 @@ export default function AutomationPage() {
         <div className='flex justify-between items-center mb-8'>
           <div>
             <h1 className='text-4xl font-bold text-primary mb-2'>
-              Automations
+              Mapping
             </h1>
             <p className='text-muted-foreground'>
-              Manage your automation workflows
+              Manage your mapping workflows
             </p>
           </div>
 
@@ -158,14 +160,14 @@ export default function AutomationPage() {
             <DrawerTrigger asChild>
               <Button className='gap-2'>
                 <Plus className='w-4 h-4' />
-                New Automation
+                New Mapping
               </Button>
             </DrawerTrigger>
             <DrawerContent className='h-screen w-full sm:w-[500px] fixed right-0 top-0'>
               <DrawerHeader>
-                <DrawerTitle>Create New Automation</DrawerTitle>
+                <DrawerTitle>Create New Mapping</DrawerTitle>
                 <DrawerDescription>
-                  Set up a new automation workflow
+                  Set up a new mapping workflow
                 </DrawerDescription>
               </DrawerHeader>
 
@@ -174,7 +176,7 @@ export default function AutomationPage() {
                   <Label htmlFor='name'>Name *</Label>
                   <Input
                     id='name'
-                    placeholder='My Automation'
+                    placeholder='My Mapping'
                     value={formData.name}
                     onChange={e =>
                       setFormData({ ...formData, name: e.target.value })
@@ -186,7 +188,7 @@ export default function AutomationPage() {
                   <Label htmlFor='description'>Description *</Label>
                   <Textarea
                     id='description'
-                    placeholder='Describe what this automation does...'
+                    placeholder='Describe what this mapping does...'
                     value={formData.description}
                     onChange={e =>
                       setFormData({ ...formData, description: e.target.value })
@@ -231,7 +233,7 @@ export default function AutomationPage() {
 
               <DrawerFooter>
                 <Button onClick={handleCreateAutomation}>
-                  Create Automation
+                  Create Mapping
                 </Button>
                 <DrawerClose asChild>
                   <Button variant='outline'>Cancel</Button>
@@ -244,15 +246,15 @@ export default function AutomationPage() {
         {loadingData ? (
           <div className='text-center py-12'>
             <div className='text-lg text-muted-foreground'>
-              Loading automations...
+              Loading mappings...
             </div>
           </div>
         ) : data.length === 0 ? (
           <Card>
             <CardContent className='py-12 text-center'>
-              <p className='text-muted-foreground mb-4'>No automations yet</p>
+              <p className='text-muted-foreground mb-4'>No mappings yet</p>
               <p className='text-sm text-muted-foreground'>
-                Create your first automation to get started
+                Create your first mapping to get started
               </p>
             </CardContent>
           </Card>
@@ -319,7 +321,7 @@ export default function AutomationPage() {
                       <Button
                         variant='ghost'
                         size='sm'
-                        onClick={() => handleDeleteAutomation(mapping.id)}
+                        onClick={() => handleDeleteMapping(mapping.id)}
                         className='text-destructive hover:text-destructive hover:bg-destructive/10'
                       >
                         <Trash2 className='w-4 h-4' />
