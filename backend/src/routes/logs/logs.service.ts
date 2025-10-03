@@ -3,7 +3,7 @@ import { AppDataSource } from '../../config/db';
 
 export const createLog = async (
   error: number,
-  kind: 'login' | 'logout' | 'register' | 'other',
+  kind: 'login' | 'logout' | 'register' | 'user' | 'other',
   message: string | null
 ): Promise<Logger> => {
   const log = new Logger();

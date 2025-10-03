@@ -14,8 +14,11 @@ export class Logger extends BaseEntity {
   @Column({ type: 'enum', enum: ['info', 'succ', 'warn', 'err'] })
   type!: 'info' | 'succ' | 'warn' | 'err';
 
-  @Column({ type: 'enum', enum: ['login', 'logout', 'register', 'other'] })
-  kind!: 'login' | 'logout' | 'register' | 'other';
+  @Column({
+    type: 'enum',
+    enum: ['login', 'logout', 'register', 'user', 'other'],
+  })
+  kind!: 'login' | 'logout' | 'register' | 'user' | 'other';
 
   @CreateDateColumn({ type: 'timestamp' })
   created_at!: Date;

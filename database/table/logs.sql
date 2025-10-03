@@ -4,7 +4,7 @@
 
 -- Create ENUM types
 CREATE TYPE log_type AS ENUM ('info', 'succ', 'warn', 'error');
-CREATE TYPE log_kind AS ENUM ('login', 'logout', 'register', 'other');
+CREATE TYPE log_kind AS ENUM ('login', 'logout', 'register', 'user', 'other');
 
 -- Logs table
 CREATE TABLE logs (
