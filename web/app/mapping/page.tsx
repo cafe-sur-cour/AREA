@@ -50,10 +50,12 @@ export default function MappingPage() {
   });
 
   const [selectedAction, setSelectedAction] = useState<Action | null>(null);
-  const [actionConfig, setActionConfig] = useState<Record<string, any>>({});
+  const [actionConfig, setActionConfig] = useState<Record<string, object>>({});
 
   const [selectedReactions, setSelectedReactions] = useState<Reaction[]>([]);
-  const [reactionsConfig, setReactionsConfig] = useState<Record<string, any>[]>([]);
+  const [reactionsConfig, setReactionsConfig] = useState<
+    Record<string, object>[]
+  >([]);
 
   const fetchData = async () => {
     setLoadingData(true);
@@ -74,7 +76,7 @@ export default function MappingPage() {
       formData.action = {
         type: selectedAction?.id || '',
         config: actionConfig,
-      }
+      };
       formData.reaction = selectedReactions.map((reaction, index) => ({
         type: reaction.id,
         config: reactionsConfig[index] || {},
@@ -144,9 +146,7 @@ export default function MappingPage() {
       <div className='container mx-auto px-4 py-8'>
         <div className='flex justify-between items-center mb-8'>
           <div>
-            <h1 className='text-4xl font-bold text-primary mb-2'>
-              Mapping
-            </h1>
+            <h1 className='text-4xl font-bold text-primary mb-2'>Mapping</h1>
             <p className='text-muted-foreground'>
               Manage your mapping workflows
             </p>
@@ -200,7 +200,7 @@ export default function MappingPage() {
                 <div className='border-t pt-4'>
                   <h3 className='font-semibold mb-3'>Action</h3>
 
-                  <ActionForm 
+                  <ActionForm
                     selectedAction={selectedAction}
                     onActionChange={setSelectedAction}
                     actionConfig={actionConfig}
@@ -211,10 +211,8 @@ export default function MappingPage() {
                 <div className='border-t pt-4'>
                   <h3 className='font-semibold mb-3'>Reaction</h3>
 
-                  <ReactionForm 
-                    selectedReactions={selectedReactions}
+                  <ReactionForm
                     onReactionsChange={setSelectedReactions}
-                    reactionsConfig={reactionsConfig}
                     onConfigChange={setReactionsConfig}
                   />
                 </div>
@@ -232,9 +230,7 @@ export default function MappingPage() {
               </div>
 
               <DrawerFooter>
-                <Button onClick={handleCreateAutomation}>
-                  Create Mapping
-                </Button>
+                <Button onClick={handleCreateAutomation}>Create Mapping</Button>
                 <DrawerClose asChild>
                   <Button variant='outline'>Cancel</Button>
                 </DrawerClose>

@@ -1,5 +1,5 @@
-import { formAction } from "./action";
-import { formReaction } from "./reaction";
+import { formAction } from './action';
+import { formReaction } from './reaction';
 
 export interface Mapping {
   id: number;
@@ -23,9 +23,9 @@ export interface Mapping {
 }
 
 export interface formMapping {
-  name: string,
-  description: string,
-  action?: formAction,
-  reaction?: formReaction[],
-  is_active: boolean,
+  name: string;
+  description: string;
+  action?: formAction;
+  reaction?: formReaction[];
+  is_active: boolean;
 }
