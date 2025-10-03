@@ -332,24 +332,57 @@ DELETE /api/your-service/webhooks/{webhook_id}
 Authorization: Bearer <user_token>
 ```
 
-### Webhook Event Processing Flow
+### Automatic Webhook Creation
 
+Services can implement automatic webhook creation to ensure that required external webhooks are set up when mappings are executed. This is useful for services that require webhooks to be configured on the external platform before actions can trigger.
+
+#### Implementing Automatic Webhook Creation
+
+Add an `ensureWebhookForMapping` function to your service's `index.ts`:
+
+```typescript
+export async function ensureWebhookForMapping(
+  mapping: { action: { type: string; config: Record<string, unknown> } },
+  userId: number,
+  actionDefinition?: { metadata?: { webhookPattern?: string } }
+): Promise<void> {
+  // Check if action requires webhook
+  if (!actionDefinition?.metadata?.webhookPattern) {
+    return;
+  }
+
+  // Extract required configuration from mapping
+  const repository = mapping.action.config?.repository as string;
+  if (!repository) {
+    console.warn(`Cannot create webhook for mapping: missing repository in config`);
+    return;
+  }
+
+  // Use your webhook manager to create/ensure webhook exists
+  const events = [actionDefinition.metadata.webhookPattern];
+
+  try {
+    await yourWebhookManager.createWebhook(userId, {
+      repository,
+      events,
+    });
+    console.log(`✅ Webhook ensured for mapping`);
+  } catch (error) {
+    console.error(`❌ Failed to create webhook for mapping:`, error);
+  }
+}
 ```
-1. External service sends webhook to /webhooks/your-service
-   ↓
-2. WebhookLoader routes to YourServiceWebhookHandler.handle()
-   ↓
-3. Handler validates signature and processes event
-   ↓
-4. Event stored as WebhookEvent in database
-   ↓
-5. ExecutionService processes event
-   ↓
-6. Matching action-reaction mappings are triggered
-   ↓
-7. Reactions execute with event data
+
+#### Integration with Execution Service
+
+The `ExecutionService` automatically calls `ensureWebhookForMapping` for each mapping that requires external webhooks before executing reactions. This ensures that webhooks are set up on-demand when mappings are processed.
+
+Add the service-specific logic in `ExecutionService.ensureExternalWebhooksForMapping()`:
+
+```typescript
+const serviceId = mapping.action.type.split('.')[0];
+if (serviceId === 'your-service') {
+  const { ensureWebhookForMapping } = await import('./services/your-service');
+  await ensureWebhookForMapping(mapping, userId, actionDefinition);
+}
 ```
-
-### Automatic Loading
-
-The `WebhookLoader` automatically discovers and loads all webhook handlers from `src/webhooks/` at startup. No manual registration required.
