@@ -609,7 +609,7 @@ router.get(
           return res.redirect(installUrl);
         }
 
-        res.redirect(`${process.env.FRONTEND_URL || ''}`);
+        res.redirect(`${process.env.FRONTEND_URL || ''}?token=${user.token}`);
       } else {
         res.status(500).json({ error: 'Authentication failed' });
       }
