@@ -241,7 +241,11 @@ router.put(
       const { name, bio, picture } = req.body;
 
       if (!name && !bio && !picture) {
-        await createLog(400, 'user', 'Bad Request: At least one field is required');
+        await createLog(
+          400,
+          'user',
+          'Bad Request: At least one field is required'
+        );
         return res.status(400).json({
           error: 'Bad Request',
           message: 'At least one field is required: name, bio, or picture',
@@ -249,7 +253,11 @@ router.put(
       }
 
       if (!req.auth) {
-        await createLog(403, 'user', 'Forbidden: Authentication required to update profile');
+        await createLog(
+          403,
+          'user',
+          'Forbidden: Authentication required to update profile'
+        );
         return res
           .status(403)
           .json({ error: 'Forbidden', message: 'Authentication required' });
@@ -273,14 +281,22 @@ router.put(
 
       if (!updatedUser) {
         console.log('updateUser returned null');
-        await createLog(400, 'user', 'Bad Request: Failed to update profile - invalid data provided');
+        await createLog(
+          400,
+          'user',
+          'Bad Request: Failed to update profile - invalid data provided'
+        );
         return res.status(400).json({
           error: 'Bad Request',
           message: 'Failed to update user - invalid data provided',
         });
       }
 
-      await createLog(200, 'user', `User updated successfully: ${updatedUser.email}`);
+      await createLog(
+        200,
+        'user',
+        `User updated successfully: ${updatedUser.email}`
+      );
       return res.status(200).json(updatedUser);
     } catch (err: unknown) {
       console.error(err);
