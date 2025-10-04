@@ -38,10 +38,12 @@ const token = (
         req.auth = decoded;
         return next();
       } catch (err) {
+        void err;
         console.error('Invalid Bearer token');
-
         if (req.cookies?.auth_token) {
-          console.log('Clearing invalid auth_token cookie due to invalid Bearer token');
+          console.log(
+            'Clearing invalid auth_token cookie due to invalid Bearer token'
+          );
           clearAuthCookie(res);
         }
 
@@ -88,7 +90,9 @@ const token = (
     return res.status(401).json({ msg: 'Authentication required' });
   } catch (error) {
     console.error('Authentication error:', error);
-    return res.status(500).json({ msg: 'Internal server error in token middleware' });
+    return res
+      .status(500)
+      .json({ msg: 'Internal server error in token middleware' });
   }
 };
 
