@@ -275,8 +275,8 @@ export default function Home() {
           </p>
           {isAuthenticated ? (
             <Button asChild size='lg' className='text-base px-8'>
-              <Link href='/mapping'>
-                Go to Mapping
+              <Link href='/my-areas'>
+                Go to My AREAs
                 <ArrowRight className='ml-2 h-5 w-5' />
               </Link>
             </Button>
