@@ -46,12 +46,14 @@ class OAuthWebViewState extends State<OAuthWebView> {
             setState(() {
               isLoading = false;
             });
+            print("NEW URL: " + url.toString());
 
             if (url.startsWith(widget.redirectUrl)) {
-              _tryExtractTokenFromPage();
+              _handleRedirect(url);
             }
           },
           onNavigationRequest: (NavigationRequest request) {
+            print("NEW URL REQUEST: " + request.url.toString());
             if (request.url.startsWith(widget.redirectUrl)) {
               _handleRedirect(request.url);
               return NavigationDecision.prevent;
@@ -66,188 +68,7 @@ class OAuthWebViewState extends State<OAuthWebView> {
           },
         ),
       )
-      ..addJavaScriptChannel(
-        'OAuthTokenExtractor',
-        onMessageReceived: (JavaScriptMessage message) {
-          final messageContent = message.message;
-          if (mounted) {
-            if (messageContent.isNotEmpty && messageContent != 'NO_TOKEN') {
-              if (messageContent.startsWith('NO_TOKEN:')) {
-                final url = messageContent.substring(9);
-                final token = _extractTokenFromUrl(url);
-                if (token != null && token.isNotEmpty) {
-                  Navigator.pop(context, token);
-                } else {
-                  _showTokenNotFoundError();
-                }
-              } else {
-                Navigator.pop(context, messageContent);
-              }
-            } else {
-              _showTokenNotFoundError();
-            }
-          }
-        },
-      )
       ..loadRequest(Uri.parse(widget.oauthUrl));
-
-    await _configureCookieSettings();
-  }
-
-  Future<bool> _configureCookieSettings() async {
-    try {
-      await webViewController.runJavaScript('''
-        var originalCookieDescriptor = Object.getOwnPropertyDescriptor(Document.prototype, 'cookie') ||
-                                     Object.getOwnPropertyDescriptor(HTMLDocument.prototype, 'cookie');
-        
-        if (originalCookieDescriptor && originalCookieDescriptor.configurable) {
-          Object.defineProperty(document, 'cookie', {
-            get: function() {
-              try {
-                var result = originalCookieDescriptor.get.call(this);
-                return result;
-              } catch (e) {
-                throw e;
-              }
-            },
-            set: originalCookieDescriptor.set,
-            configurable: true
-          });
-        }
-      ''');
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  void _tryExtractTokenFromPage() async {
-    try {
-      await webViewController.runJavaScript('''
-        (function() {
-          var token = null;
-
-          try {
-            if (document.cookie) {
-              var cookies = document.cookie.split(';');
-              for (var i = 0; i < cookies.length; i++) {
-                var cookie = cookies[i].trim();
-                if (cookie.indexOf('auth_token=') === 0) {
-                  token = cookie.substring('auth_token='.length);
-                  break;
-                }
-              }
-            }
-          } catch (cookieError) {
-            var urlParams = new URLSearchParams(window.location.search);
-            token = urlParams.get('token') || urlParams.get('auth_token');
-            if (!token && window.location.hash) {
-              var hashParams = new URLSearchParams(window.location.hash.substring(1));
-              token = hashParams.get('token') || hashParams.get('auth_token');
-            }
-            
-            try {
-              if (!token && window.localStorage) {
-                token = localStorage.getItem('auth_token') || localStorage.getItem('token');
-              }
-            } catch (storageError) {
-              
-            }
-            try {
-              if (!token && window.sessionStorage) {
-                token = sessionStorage.getItem('auth_token') || sessionStorage.getItem('token');
-              }
-            } catch (storageError) {
-              
-            }
-          }
-
-          if (token) {
-            OAuthTokenExtractor.postMessage(token);
-          } else {
-            OAuthTokenExtractor.postMessage('NO_TOKEN:' + window.location.href);
-          }
-        })();
-      ''');
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Failed to extract authentication token',
-              style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
-            ),
-            backgroundColor: AppColors.error,
-          ),
-        );
-        Navigator.pop(context);
-      }
-    }
-  }
-
-  Future<void> _extractTokenFromCookies() async {
-    try {
-      await webViewController.runJavaScript('''
-        (function() {
-          var authToken = null;
-          
-          try {
-            var cookies = document.cookie.split(';');
-            
-            for (var i = 0; i < cookies.length; i++) {
-              var cookie = cookies[i].trim();
-              if (cookie.indexOf('auth_token=') === 0) {
-                authToken = cookie.substring('auth_token='.length);
-                break;
-              }
-            }
-          } catch (cookieError) {
-            var urlParams = new URLSearchParams(window.location.search);
-            authToken = urlParams.get('token') || urlParams.get('auth_token');
-            
-            if (!authToken && window.location.hash) {
-              var hashParams = new URLSearchParams(window.location.hash.substring(1));
-              authToken = hashParams.get('token') || hashParams.get('auth_token');
-            }
-            
-            try {
-              if (!authToken && window.localStorage) {
-                authToken = localStorage.getItem('auth_token') || localStorage.getItem('token');
-              }
-            } catch (storageError) {
-              
-            }
-            
-            try {
-              if (!authToken && window.sessionStorage) {
-                authToken = sessionStorage.getItem('auth_token') || sessionStorage.getItem('token');
-              }
-            } catch (storageError) {
-              
-            }
-          }
-          
-          if (authToken) {
-            OAuthTokenExtractor.postMessage(authToken);
-          } else {
-            OAuthTokenExtractor.postMessage('NO_TOKEN:' + window.location.href);
-          }
-        })();
-      ''');
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Failed to extract authentication token',
-              style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
-            ),
-            backgroundColor: AppColors.error,
-          ),
-        );
-        Navigator.pop(context);
-      }
-    }
   }
 
   String? _extractTokenFromUrl(String url) {
@@ -279,27 +100,31 @@ class OAuthWebViewState extends State<OAuthWebView> {
   }
 
   void _showTokenNotFoundError() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'No authentication token found. Please try again.',
-          style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'No authentication token found. Please try again.',
+            style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+          ),
+          backgroundColor: AppColors.error,
         ),
-        backgroundColor: AppColors.error,
-      ),
-    );
-    Navigator.pop(context);
+      );
+      Navigator.pop(context);
+    }
   }
 
-  void _handleRedirect(String url) async {
+  void _handleRedirect(String url) {
     try {
       final token = _extractTokenFromUrl(url);
       if (token != null && token.isNotEmpty) {
-        Navigator.pop(context, token);
+        if (mounted) {
+          Navigator.pop(context, token);
+        }
         return;
       }
 
-      await _extractTokenFromCookies();
+      _showTokenNotFoundError();
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

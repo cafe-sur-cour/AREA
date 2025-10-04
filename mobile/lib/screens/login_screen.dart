@@ -134,7 +134,7 @@ class LoginScreenState extends State<LoginScreen> {
       MaterialPageRoute(
         builder: (context) => OAuthWebView(
           oauthUrl: address,
-          redirectUrl: 'http://backend.nduboi.fr:16834',
+          redirectUrl: 'https://frontend.nduboi.fr:16836',
           providerName: provider,
         ),
       ),
