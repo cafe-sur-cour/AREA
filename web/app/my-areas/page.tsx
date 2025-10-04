@@ -34,7 +34,7 @@ import ActionForm from '@/components/action-form';
 import ReactionForm from '@/components/reaction-form';
 import { TbLoader3 } from 'react-icons/tb';
 
-export default function MappingPage() {
+export default function MyAreasPage() {
   const router = useRouter();
   const { isAuthenticated, isLoading } = useAuth();
   const [loadingData, setLoadingData] = useState(true);
@@ -146,9 +146,9 @@ export default function MappingPage() {
       <div className='container mx-auto px-4 py-8'>
         <div className='flex justify-between items-center mb-8'>
           <div>
-            <h1 className='text-4xl font-bold text-primary mb-2'>Mapping</h1>
+            <h1 className='text-4xl font-bold text-primary mb-2'>My AREAs</h1>
             <p className='text-muted-foreground'>
-              Manage your mapping workflows
+              Manage your area (actions & reactions) workflows
             </p>
           </div>
 
@@ -160,14 +160,14 @@ export default function MappingPage() {
             <DrawerTrigger asChild>
               <Button className='gap-2'>
                 <Plus className='w-4 h-4' />
-                New Mapping
+                New Area
               </Button>
             </DrawerTrigger>
             <DrawerContent className='h-screen w-full sm:w-[500px] fixed right-0 top-0'>
               <DrawerHeader>
-                <DrawerTitle>Create New Mapping</DrawerTitle>
+                <DrawerTitle>Create New Area</DrawerTitle>
                 <DrawerDescription>
-                  Set up a new mapping workflow
+                  Set up a new area workflow
                 </DrawerDescription>
               </DrawerHeader>
 
@@ -176,7 +176,7 @@ export default function MappingPage() {
                   <Label htmlFor='name'>Name *</Label>
                   <Input
                     id='name'
-                    placeholder='My Mapping'
+                    placeholder='My Area'
                     value={formData.name}
                     onChange={e =>
                       setFormData({ ...formData, name: e.target.value })
@@ -188,7 +188,7 @@ export default function MappingPage() {
                   <Label htmlFor='description'>Description *</Label>
                   <Textarea
                     id='description'
-                    placeholder='Describe what this mapping does...'
+                    placeholder='Describe what this area does...'
                     value={formData.description}
                     onChange={e =>
                       setFormData({ ...formData, description: e.target.value })
@@ -230,7 +230,7 @@ export default function MappingPage() {
               </div>
 
               <DrawerFooter>
-                <Button onClick={handleCreateAutomation}>Create Mapping</Button>
+                <Button onClick={handleCreateAutomation}>Create Area</Button>
                 <DrawerClose asChild>
                   <Button variant='outline'>Cancel</Button>
                 </DrawerClose>
@@ -242,15 +242,15 @@ export default function MappingPage() {
         {loadingData ? (
           <div className='text-center py-12'>
             <div className='text-lg text-muted-foreground'>
-              Loading mappings...
+              Loading areas...
             </div>
           </div>
         ) : data.length === 0 ? (
           <Card>
             <CardContent className='py-12 text-center'>
-              <p className='text-muted-foreground mb-4'>No mappings yet</p>
+              <p className='text-muted-foreground mb-4'>No areas yet</p>
               <p className='text-sm text-muted-foreground'>
-                Create your first mapping to get started
+                Create your first area to get started
               </p>
             </CardContent>
           </Card>

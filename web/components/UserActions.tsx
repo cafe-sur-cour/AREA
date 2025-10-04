@@ -16,7 +16,7 @@ interface UserActionsProps {
 const navItems = [
   { href: '/services', label: 'My Services' },
   { href: '/dashboard', label: 'My Dashboard' },
-  { href: '/mapping', label: 'My Mapping' },
+  { href: '/my-areas', label: 'My AREAs' },
 ];
 
 export function UserActions({ className, isMobile }: UserActionsProps) {
