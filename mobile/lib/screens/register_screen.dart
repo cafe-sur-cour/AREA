@@ -105,10 +105,10 @@ class RegisterScreenState extends State<RegisterScreen> {
           );
         }
       }
-      setState(() {
-        loading = false;
-      });
     }
+    setState(() {
+      loading = false;
+    });
   }
 
   @override

@@ -103,7 +103,10 @@ class ProfileScreenState extends State<ProfileScreen> {
     final url = Uri.parse(address);
     try {
       final client = SecureHttpClient.getClient();
-      final response = await client.post(url);
+      final response = await client.post(
+        url,
+        headers: {'Authorization': 'Bearer ${await getJwt()}'},
+      );
       final data = await jsonDecode(response.body);
 
       if (response.statusCode != 200) {
