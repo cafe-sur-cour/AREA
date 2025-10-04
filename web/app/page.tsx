@@ -1,10 +1,15 @@
+'use client';
+
 import { Button } from '@/components/ui/button';
 import Navigation from '@/components/header';
 import InfiniteHorizontalCards from '@/components/infinite-horizontal-cards';
 import { ArrowRight, Zap, Clock, Shield } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
 
 export default function Home() {
+  const { isAuthenticated } = useAuth();
+
   return (
     <div className='min-h-screen bg-background'>
       <Navigation />
@@ -21,20 +26,31 @@ export default function Home() {
               automations. Save time and focus on what matters most.
             </p>
             <div className='flex flex-col sm:flex-row gap-4 justify-center items-center'>
-              <Button asChild size='lg' className='text-base px-8'>
-                <Link href='/register'>
-                  Get started free
-                  <ArrowRight className='ml-2 h-5 w-5' />
-                </Link>
-              </Button>
-              <Button
-                asChild
-                variant='outline'
-                size='lg'
-                className='text-base px-8 bg-transparent'
-              >
-                <Link href='/login'>Sign in</Link>
-              </Button>
+              {!isAuthenticated ? (
+                <>
+                  <Button asChild size='lg' className='text-base px-8'>
+                    <Link href='/register'>
+                      Get started free
+                      <ArrowRight className='ml-2 h-5 w-5' />
+                    </Link>
+                  </Button>
+                  <Button
+                    asChild
+                    variant='outline'
+                    size='lg'
+                    className='text-base px-8 bg-transparent'
+                  >
+                    <Link href='/login'>Sign in</Link>
+                  </Button>
+                </>
+              ) : (
+                <Button asChild size='lg' className='text-base px-8'>
+                  <Link href='/dashboard'>
+                    Go to Dashboard
+                    <ArrowRight className='ml-2 h-5 w-5' />
+                  </Link>
+                </Button>
+              )}
             </div>
           </div>
         </div>
@@ -257,12 +273,21 @@ export default function Home() {
             Join millions of users who are already saving time with powerful
             automations.
           </p>
-          <Button asChild size='lg' className='text-base px-8'>
-            <Link href='/register'>
-              Start for free
-              <ArrowRight className='ml-2 h-5 w-5' />
-            </Link>
-          </Button>
+          {isAuthenticated ? (
+            <Button asChild size='lg' className='text-base px-8'>
+              <Link href='/mapping'>
+                Go to Mapping
+                <ArrowRight className='ml-2 h-5 w-5' />
+              </Link>
+            </Button>
+          ) : (
+            <Button asChild size='lg' className='text-base px-8'>
+              <Link href='/register'>
+                Start for free
+                <ArrowRight className='ml-2 h-5 w-5' />
+              </Link>
+            </Button>
+          )}
         </div>
       </section>
 
