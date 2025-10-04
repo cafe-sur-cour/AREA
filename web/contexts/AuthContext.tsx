@@ -3,13 +3,12 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import api from '@/lib/api';
 import { User } from '@/types/user';
-import { getToken, deleteToken } from '@/lib/manageToken';
+import { getToken } from '@/lib/manageToken';
 
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (token: string, userData: User) => Promise<void>;
   logout: () => void;
   refreshUserInfo: () => Promise<User | null>;
 }
@@ -80,16 +79,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     checkAuth();
   }, []);
 
-  const login = async (token: string, userData: User) => {
-    document.cookie = `auth_token=${token}; path=/; max-age=${60 * 60 * 24 * 7}`;
-    setUser(userData);
-  };
-
   const logout = async () => {
     await api.post('/auth/logout').catch(err => {
       console.error('Logout request failed:', err);
     });
-    await deleteToken();
     setUser(null);
   };
 
@@ -128,7 +121,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     user,
     isAuthenticated: !!user,
     isLoading,
-    login,
     logout,
     refreshUserInfo,
   };

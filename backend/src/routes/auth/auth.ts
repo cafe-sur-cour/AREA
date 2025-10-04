@@ -99,7 +99,7 @@ router.get(
  *             description: HTTP-only authentication cookie
  *             schema:
  *               type: string
- *               example: "auth_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...; HttpOnly; SameSite=Strict; Max-Age=86400"
+ *               example: "auth_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...; HttpOnly; Secure; domain:DOMAIN.env SameSite=Strict; Max-Age=86400"
  *         content:
  *           application/json:
  *             schema:
@@ -176,7 +176,9 @@ router.post(
       res.cookie('auth_token', token, {
         maxAge: 86400000,
         httpOnly: true,
-        sameSite: 'strict',
+        secure: true,
+        domain: process.env.DOMAIN,
+        sameSite: 'none',
       });
       await createLog(200, 'login', `User logged in: ${email}`);
       return res.status(200).json({ token });
@@ -389,7 +391,7 @@ router.post(
       }
 
       const email = (req.auth as { email: string })?.email;
-      res.clearCookie('auth_token');
+      res.clearCookie('auth_token', { path: '/', domain: process.env.DOMAIN });
       await createLog(200, 'logout', `User logged out: ${email || 'unknown'}`);
       res.status(200).json({ message: 'Logged out successfully' });
     } catch (err) {
@@ -584,6 +586,11 @@ router.get(
       }
     } catch (err) {
       console.error('GitHub OAuth callback error:', err);
+      await createLog(
+        500,
+        'github',
+        `Failed to authenticate with GitHub: ${err}`
+      );
       res.status(500).json({ error: 'Failed to authenticate with GitHub' });
     }
   },
@@ -594,27 +601,55 @@ router.get(
         res.cookie('auth_token', user.token, {
           maxAge: 86400000,
           httpOnly: true,
-          sameSite: 'strict',
+          domain: process.env.DOMAIN,
+          secure: true,
+          sameSite: 'none',
         });
 
         const isAuthenticated = !!(req.auth || req.cookies?.auth_token);
         if (isAuthenticated) {
-          const appSlug = process.env.GITHUB_APP_SLUG || 'area-app';
-          const userId = (req.auth as { id: number })?.id || 'unknown';
-          const installUrl = `https://github.com/apps/${appSlug}/installations/new?state=${userId}`;
-          return res.redirect(installUrl);
+          const session = req.session as
+            | { githubSubscriptionFlow?: boolean }
+            | undefined;
+          const isSubscriptionFlow = session?.githubSubscriptionFlow;
+
+          if (isSubscriptionFlow) {
+            const appSlug =
+              process.env.GITHUB_APP_SLUG || 'area-cafe-sur-cours';
+            const userId = (req.auth as { id: number })?.id || 'unknown';
+            const installUrl = `https://github.com/apps/${appSlug}/installations/new?state=${userId}`;
+
+            if (session) {
+              delete session.githubSubscriptionFlow;
+            }
+            return res.redirect(installUrl);
+          } else {
+            const frontendUrl = process.env.FRONTEND_URL || '';
+            return res.redirect(`${frontendUrl}?github_connected=true`);
+          }
         }
 
-        res.redirect(`${process.env.FRONTEND_URL || ''}`);
+        res.redirect(`${process.env.FRONTEND_URL || ''}?token=${user.token}`);
       } else {
+        await createLog(
+          500,
+          'github',
+          `Failed to authenticate with GitHub: No token received`
+        );
         res.status(500).json({ error: 'Authentication failed' });
       }
     } catch (err) {
       console.error('GitHub OAuth callback error:', err);
+      await createLog(
+        500,
+        'github',
+        `Failed to authenticate with GitHub: ${err}`
+      );
       res.status(500).json({ error: 'Failed to authenticate with GitHub' });
     }
   }
 );
+
 /**
  * @swagger
  * /api/auth/github/subscribe:
@@ -641,6 +676,11 @@ router.get(
   token,
   async (req: Request, res: Response, next) => {
     if (!req.auth) {
+      await createLog(
+        401,
+        'github',
+        `Authentication required to subscribe to GitHub`
+      );
       return res.status(401).json({ error: 'Authentication required' });
     }
 
@@ -649,12 +689,19 @@ router.get(
       const existingToken = await githubOAuth.getUserToken(userId);
 
       if (existingToken) {
-        const appSlug = process.env.GITHUB_APP_SLUG || '';
+        const appSlug = process.env.GITHUB_APP_SLUG || 'area-cafe-sur-cours';
         const installUrl = `https://github.com/apps/${appSlug}/installations/new?state=${userId}`;
         return res.redirect(installUrl);
       }
     } catch {
       console.log('No existing token found, proceeding with OAuth...');
+    }
+
+    const session = req.session as
+      | { githubSubscriptionFlow?: boolean }
+      | undefined;
+    if (session) {
+      session.githubSubscriptionFlow = true;
     }
 
     passport.authenticate('github-subscribe', { session: false })(
@@ -664,6 +711,7 @@ router.get(
     );
   }
 );
+
 /**
  * @swagger
  * /api/auth/google/login:
@@ -710,6 +758,11 @@ router.get(
  */
 router.get('/google/subscribe', async (req: Request, res: Response, next) => {
   if (!req.auth) {
+    await createLog(
+      401,
+      'google',
+      `Authentication required to subscribe to Google`
+    );
     return res.status(401).json({ error: 'Authentication required' });
   }
   passport.authenticate('google-subscribe', {
@@ -788,6 +841,11 @@ router.get(
       }
     } catch (err) {
       console.error('Google OAuth callback error:', err);
+      await createLog(
+        500,
+        'google',
+        `Failed to authenticate with Google: ${err}`
+      );
       res.status(500).json({ error: 'Failed to authenticate with Google' });
     }
   },
@@ -798,14 +856,26 @@ router.get(
         res.cookie('auth_token', user.token, {
           maxAge: 86400000,
           httpOnly: true,
-          sameSite: 'strict',
+          secure: true,
+          domain: process.env.DOMAIN,
+          sameSite: 'none',
         });
         res.redirect(`${process.env.FRONTEND_URL || ''}`);
       } else {
+        await createLog(
+          500,
+          'google',
+          `Failed to authenticate with Google: No token received`
+        );
         res.status(500).json({ error: 'Authentication failed' });
       }
     } catch (err) {
       console.error('Google OAuth callback error:', err);
+      await createLog(
+        500,
+        'google',
+        `Failed to authenticate with Google: ${err}`
+      );
       res.status(500).json({ error: 'Failed to authenticate with Google' });
     }
   }
