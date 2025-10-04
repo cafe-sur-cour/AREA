@@ -136,6 +136,10 @@ export class GitHubReactionExecutor implements ReactionExecutor {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
+        console.error(
+          `❌ [GitHub Executor] Failed to create issue in ${repository}: ${response.status} ${response.statusText}`,
+          errorData.message
+        );
         return {
           success: false,
           error: `GitHub API error: ${response.status} ${response.statusText} - ${errorData.message || 'Unknown error'}`,
@@ -143,6 +147,7 @@ export class GitHubReactionExecutor implements ReactionExecutor {
       }
 
       const issue: GitHubIssueResponse = await response.json();
+      console.log(`✅ [GitHub Executor] Issue created: ${issue.html_url}`);
 
       return {
         success: true,

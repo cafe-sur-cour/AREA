@@ -42,13 +42,28 @@ const token = (
         req.auth = decoded;
         return next();
       } catch (err: unknown) {
+        console.log('Clearing invalid auth_token cookie');
+        res.clearCookie('auth_token', {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax',
+          path: '/',
+        });
+
         if (
           err &&
           typeof err === 'object' &&
           'name' in err &&
           (err as { name?: string }).name === 'TokenExpiredError'
         ) {
-          res.clearCookie('auth_token');
+          console.log('Token expired, cookie cleared');
+        } else if (
+          err &&
+          typeof err === 'object' &&
+          'name' in err &&
+          (err as { name?: string }).name === 'JsonWebTokenError'
+        ) {
+          console.log('Invalid token signature, cookie cleared');
         }
         return res.status(401).json({ msg: 'Invalid authentication token' });
       }

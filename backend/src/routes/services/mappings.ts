@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express';
 import token from '../../middleware/token';
 import { serviceRegistry } from '../../services/ServiceRegistry';
 import { mappingService } from './mappings.service';
+import { executionService } from '../../services/ExecutionService';
 import type { Action, Reaction } from '../../types/mapping';
 
 const router = express.Router();
@@ -143,10 +144,12 @@ function validateActionReactionTypes(
  *                 properties:
  *                   type:
  *                     type: string
- *                     description: Action type in format "service.action"
+ *                     description: Action type in format "service.action" (must exist in a registered service)
+ *                     example: "github.new_issue"
  *                   config:
  *                     type: object
- *                     description: Action configuration
+ *                     description: Action configuration parameters as defined by the action's configSchema from the service registry
+ *                     example: {"repository": "my-repo", "token": "ghp_..."}
  *               reactions:
  *                 type: array
  *                 minItems: 1
@@ -158,10 +161,12 @@ function validateActionReactionTypes(
  *                   properties:
  *                     type:
  *                       type: string
- *                       description: Reaction type in format "service.reaction"
+ *                       description: Reaction type in format "service.reaction" (must exist in a registered service)
+ *                       example: "discord.send_message"
  *                     config:
  *                       type: object
- *                       description: Reaction configuration
+ *                       description: Reaction configuration parameters as defined by the reaction's configSchema from the service registry
+ *                       example: {"channel_id": "123456789", "message": "Hello World!"}
  *                     delay:
  *                       type: number
  *                       description: Optional delay in seconds before executing this reaction
@@ -189,8 +194,17 @@ function validateActionReactionTypes(
  *                       type: string
  *                     action:
  *                       type: object
+ *                       description: The configured action
+ *                       properties:
+ *                         type:
+ *                           type: string
+ *                           description: Action type identifier
+ *                         config:
+ *                           type: object
+ *                           description: Action configuration parameters
  *                     reactions:
  *                       type: array
+ *                       description: List of configured reactions
  *                     delay:
  *                       type: number
  *                     is_active:
@@ -202,8 +216,34 @@ function validateActionReactionTypes(
  *                       format: date-time
  *       400:
  *         description: Invalid request data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Invalid request data"
+ *                 details:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *                   description: List of validation errors
  *       404:
  *         description: Action or reaction type not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Invalid action or reaction types"
+ *                 details:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *                   description: List of invalid types
  *       500:
  *         description: Internal server error
  */
@@ -247,6 +287,19 @@ router.post(
         created_by: userId,
       });
 
+      try {
+        await executionService.ensureExternalWebhooksForMapping(
+          savedMapping,
+          userId
+        );
+        console.log('✅ External webhooks ensured for new mapping');
+      } catch (webhookError) {
+        console.error(
+          '❌ Failed to ensure external webhooks for mapping:',
+          webhookError
+        );
+      }
+
       return res.status(201).json({
         mapping: {
           id: savedMapping.id,
@@ -279,6 +332,64 @@ router.post(
  *     responses:
  *       200:
  *         description: List of user mappings
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 mappings:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                         description: Unique identifier for the mapping
+ *                       name:
+ *                         type: string
+ *                         description: Human-readable name for the mapping
+ *                       description:
+ *                         type: string
+ *                         description: Optional description of the mapping
+ *                       action:
+ *                         type: object
+ *                         description: Action configuration
+ *                         properties:
+ *                           type:
+ *                             type: string
+ *                             description: Action type in format "service.action"
+ *                           config:
+ *                             type: object
+ *                             description: Action configuration parameters
+ *                       reactions:
+ *                         type: array
+ *                         items:
+ *                           type: object
+ *                           properties:
+ *                             type:
+ *                               type: string
+ *                               description: Reaction type in format "service.reaction"
+ *                             config:
+ *                               type: object
+ *                               description: Reaction configuration parameters
+ *                             delay:
+ *                               type: number
+ *                               description: Optional delay in seconds before executing this reaction
+ *                               minimum: 0
+ *                       is_active:
+ *                         type: boolean
+ *                         description: Whether the mapping is currently active
+ *                       created_by:
+ *                         type: integer
+ *                         description: ID of the user who created the mapping
+ *                       created_at:
+ *                         type: string
+ *                         format: date-time
+ *                         description: Timestamp when the mapping was created
+ *                       updated_at:
+ *                         type: string
+ *                         format: date-time
+ *                         description: Timestamp when the mapping was last updated
  *       500:
  *         description: Internal server error
  */
@@ -325,11 +436,87 @@ router.get(
  *         required: true
  *         schema:
  *           type: integer
+ *         description: Unique identifier of the mapping
  *     responses:
  *       200:
  *         description: Mapping details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 mapping:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                       description: Unique identifier for the mapping
+ *                     name:
+ *                       type: string
+ *                       description: Human-readable name for the mapping
+ *                     description:
+ *                       type: string
+ *                       description: Optional description of the mapping
+ *                     action:
+ *                       type: object
+ *                       description: Action configuration
+ *                       properties:
+ *                         type:
+ *                           type: string
+ *                           description: Action type in format "service.action"
+ *                         config:
+ *                           type: object
+ *                           description: Action configuration parameters
+ *                     reactions:
+ *                       type: array
+ *                       description: List of configured reactions
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           type:
+ *                             type: string
+ *                             description: Reaction type in format "service.reaction"
+ *                           config:
+ *                             type: object
+ *                             description: Reaction configuration parameters
+ *                           delay:
+ *                             type: number
+ *                             description: Optional delay in seconds before executing this reaction
+ *                             minimum: 0
+ *                     is_active:
+ *                       type: boolean
+ *                       description: Whether the mapping is currently active
+ *                     created_by:
+ *                       type: integer
+ *                       description: ID of the user who created the mapping
+ *                     created_at:
+ *                       type: string
+ *                       format: date-time
+ *                       description: Timestamp when the mapping was created
+ *                     updated_at:
+ *                       type: string
+ *                       format: date-time
+ *                       description: Timestamp when the mapping was last updated
+ *       400:
+ *         description: Invalid mapping ID
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Invalid mapping ID"
  *       404:
  *         description: Mapping not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Mapping not found"
  *       500:
  *         description: Internal server error
  */
@@ -394,11 +581,38 @@ router.get(
  *         required: true
  *         schema:
  *           type: integer
+ *         description: Unique identifier of the mapping to delete
  *     responses:
  *       200:
  *         description: Mapping deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Mapping deleted successfully"
+ *       400:
+ *         description: Invalid mapping ID
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Invalid mapping ID"
  *       404:
  *         description: Mapping not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Mapping not found"
  *       500:
  *         description: Internal server error
  */
