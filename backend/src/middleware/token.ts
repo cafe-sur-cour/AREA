@@ -17,8 +17,8 @@ const clearAuthCookie = (res: Response) => {
   res.clearCookie('auth_token', {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
     path: '/',
+    domain: process.env.DOMAIN
   });
 };
 
@@ -64,8 +64,8 @@ const token = (
         res.clearCookie('auth_token', {
           httpOnly: true,
           secure: process.env.NODE_ENV === 'production',
-          sameSite: 'lax',
           path: '/',
+          domain: process.env.DOMAIN
         });
 
         if (
