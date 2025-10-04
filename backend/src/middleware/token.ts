@@ -13,6 +13,15 @@ type AuthRequest = Request & {
   auth?: string | AuthPayload;
 };
 
+const clearAuthCookie = (res: Response) => {
+  res.clearCookie('auth_token', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    path: '/',
+  });
+};
+
 const token = (
   req: AuthRequest,
   res: Response,
@@ -29,7 +38,14 @@ const token = (
         req.auth = decoded;
         return next();
       } catch (err) {
-        console.error('Invalid Bearer token, checking cookies... ', err);
+        console.error('Invalid Bearer token');
+
+        if (req.cookies?.auth_token) {
+          console.log('Clearing invalid auth_token cookie due to invalid Bearer token');
+          clearAuthCookie(res);
+        }
+
+        return res.status(401).json({ msg: 'Invalid authentication token' });
       }
     }
 
@@ -72,7 +88,7 @@ const token = (
     return res.status(401).json({ msg: 'Authentication required' });
   } catch (error) {
     console.error('Authentication error:', error);
-    return res.status(500).json({ msg: 'Internal server error' });
+    return res.status(500).json({ msg: 'Internal server error in token middleware' });
   }
 };
 
