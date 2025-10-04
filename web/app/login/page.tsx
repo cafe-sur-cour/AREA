@@ -3,7 +3,6 @@
 import { LoginForm } from '@/components/login-form';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
-import { toast } from 'sonner';
 import { TbLoader3 } from 'react-icons/tb';
 
 export default function LoginPage() {

@@ -4,7 +4,6 @@ import { RegisterForm } from '@/components/register-form';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { TbLoader3 } from 'react-icons/tb';
-import { toast } from 'sonner';
 
 export default function RegisterPage() {
   const { isAuthenticated, isLoading } = useAuth();
