@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:area/core/config/app_config.dart';
 import 'package:area/core/constants/app_colors.dart';
 import 'package:area/core/constants/app_constants.dart';
 import 'package:area/core/notifiers/backend_address_notifier.dart';
@@ -134,7 +135,7 @@ class LoginScreenState extends State<LoginScreen> {
       MaterialPageRoute(
         builder: (context) => OAuthWebView(
           oauthUrl: address,
-          redirectUrl: 'https://frontend.nduboi.fr:16836',
+          redirectUrl: AppConfig.getOAuthRedirectUrl(),
           providerName: provider,
         ),
       ),
