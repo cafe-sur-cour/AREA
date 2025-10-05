@@ -52,7 +52,7 @@ router.get(
       return res.status(200).json(users);
     } catch (err) {
       console.error(err);
-      return res.status(500).json({ error: 'Internal Server Error' });
+      return res.status(500).json({ error: 'Internal Server Error get all users' });
     }
   }
 );
@@ -101,7 +101,7 @@ router.get(
     } catch (err) {
       console.error(err);
       await createLog(500, 'user', `Internal Server Error: ${err}`);
-      return res.status(500).json({ error: 'Internal Server Error' });
+      return res.status(500).json({ error: 'Internal Server Error in get me' });
     }
   }
 );
@@ -189,7 +189,7 @@ router.get(
       return res.status(200).json(user);
     } catch (err: unknown) {
       console.error(err);
-      return res.status(500).json({ msg: 'Internal server error' });
+      return res.status(500).json({ msg: 'Internal server error in get user :data' });
     }
   }
 );

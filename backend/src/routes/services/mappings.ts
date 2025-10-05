@@ -315,7 +315,7 @@ router.post(
       });
     } catch (err) {
       console.error('Error creating mapping:', err);
-      return res.status(500).json({ error: 'Internal Server Error' });
+      return res.status(500).json({ error: 'Internal Server Error in create mapping' });
     }
   }
 );
@@ -416,7 +416,7 @@ router.get(
       });
     } catch (err) {
       console.error('Error fetching mappings:', err);
-      return res.status(500).json({ error: 'Internal Server Error' });
+      return res.status(500).json({ error: 'Internal Server Error in fetching mappings' });
     }
   }
 );
@@ -561,7 +561,7 @@ router.get(
       });
     } catch (err) {
       console.error('Error fetching mapping:', err);
-      return res.status(500).json({ error: 'Internal Server Error' });
+      return res.status(500).json({ error: 'Internal Server Error in get mapping by id' });
     }
   }
 );
@@ -647,7 +647,7 @@ router.delete(
       });
     } catch (err) {
       console.error('Error deleting mapping:', err);
-      return res.status(500).json({ error: 'Internal Server Error' });
+      return res.status(500).json({ error: 'Internal Server Error in deleting mapping' });
     }
   }
 );

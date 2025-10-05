@@ -170,7 +170,7 @@ router.get(
       });
     } catch (err) {
       console.error('Error fetching services with actions:', err);
-      return res.status(500).json({ error: 'Internal Server Error' });
+      return res.status(500).json({ error: 'Internal Server Error in get services actions' });
     }
   }
 );
@@ -341,7 +341,7 @@ router.get(
       });
     } catch (err) {
       console.error('Error fetching services with reactions:', err);
-      return res.status(500).json({ error: 'Internal Server Error' });
+      return res.status(500).json({ error: 'Internal Server Error in get services reactions' });
     }
   }
 );
@@ -537,7 +537,7 @@ router.get(
       });
     } catch (err) {
       console.error('Error fetching service actions:', err);
-      return res.status(500).json({ error: 'Internal Server Error' });
+      return res.status(500).json({ error: 'Internal Server Error in get id actions' });
     }
   }
 );
@@ -733,7 +733,7 @@ router.get(
       });
     } catch (err) {
       console.error('Error fetching service reactions:', err);
-      return res.status(500).json({ error: 'Internal Server Error' });
+      return res.status(500).json({ error: 'Internal Server Error in get id reactions' });
     }
   }
 );

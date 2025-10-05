@@ -60,7 +60,7 @@ router.get(
       });
     } catch (err) {
       console.error(err);
-      return res.status(500).json({ error: 'Internal Server Error' });
+      return res.status(500).json({ error: 'Internal Server Error in google login status' });
     }
   }
 );
@@ -138,7 +138,7 @@ router.get(
       });
     } catch (err) {
       console.error(err);
-      return res.status(500).json({ error: 'Internal Server Error' });
+      return res.status(500).json({ error: 'Internal Server Error in google subscribe status' });
     }
   }
 );
@@ -198,7 +198,7 @@ router.post(
       });
     } catch (err) {
       console.error(err);
-      return res.status(500).json({ error: 'Internal Server Error' });
+      return res.status(500).json({ error: 'Internal Server Error in google subscribe' });
     }
   }
 );
@@ -252,7 +252,7 @@ router.post(
       });
     } catch (err) {
       console.error(err);
-      return res.status(500).json({ error: 'Internal Server Error' });
+      return res.status(500).json({ error: 'Internal Server Error in google unsubscribe' });
     }
   }
 );

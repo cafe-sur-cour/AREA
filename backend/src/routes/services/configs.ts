@@ -72,7 +72,7 @@ router.get(
       });
     } catch (err) {
       console.error('Error fetching service configs:', err);
-      return res.status(500).json({ error: 'Internal Server Error' });
+      return res.status(500).json({ error: 'Internal Server Error in service configs' });
     }
   }
 );
@@ -164,7 +164,7 @@ router.get(
       });
     } catch (err) {
       console.error('Error fetching service config:', err);
-      return res.status(500).json({ error: 'Internal Server Error' });
+      return res.status(500).json({ error: 'Internal Server Error in service config id' });
     }
   }
 );
@@ -275,7 +275,7 @@ router.post(
       });
     } catch (err) {
       console.error('Error creating/updating service config:', err);
-      return res.status(500).json({ error: 'Internal Server Error' });
+      return res.status(500).json({ error: 'Internal Server Error in service configs post' });
     }
   }
 );
@@ -395,7 +395,7 @@ router.put(
       });
     } catch (err) {
       console.error('Error updating service config:', err);
-      return res.status(500).json({ error: 'Internal Server Error' });
+      return res.status(500).json({ error: 'Internal Server Error in put service config :id' });
     }
   }
 );
@@ -451,7 +451,7 @@ router.delete(
       });
     } catch (err) {
       console.error('Error deleting service config:', err);
-      return res.status(500).json({ error: 'Internal Server Error' });
+      return res.status(500).json({ error: 'Internal Server Error in delete service config' });
     }
   }
 );

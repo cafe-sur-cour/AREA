@@ -61,7 +61,7 @@ router.get(
       });
     } catch (err) {
       console.error(err);
-      return res.status(500).json({ error: 'Internal Server Error' });
+      return res.status(500).json({ error: 'Internal Server Error in github login status' });
     }
   }
 );
@@ -139,7 +139,7 @@ router.get(
       });
     } catch (err) {
       console.error(err);
-      return res.status(500).json({ error: 'Internal Server Error' });
+      return res.status(500).json({ error: 'Internal Server Error in github subscribe status' });
     }
   }
 );
@@ -193,7 +193,7 @@ router.post(
       });
     } catch (err) {
       console.error(err);
-      return res.status(500).json({ error: 'Internal Server Error' });
+      return res.status(500).json({ error: 'Internal Server Error in github subscribe' });
     }
   }
 );
@@ -245,7 +245,7 @@ router.post(
       });
     } catch (err) {
       console.error(err);
-      return res.status(500).json({ error: 'Internal Server Error' });
+      return res.status(500).json({ error: 'Internal Server Error in github unsubscribe' });
     }
   }
 );
@@ -275,7 +275,7 @@ router.get(
       return res.status(200).json(webhooks);
     } catch (err) {
       console.error(err);
-      return res.status(500).json({ error: 'Internal Server Error' });
+      return res.status(500).json({ error: 'Internal Server Error in github webhooks' });
     }
   }
 );
@@ -341,7 +341,7 @@ router.post(
       return res.status(201).json(webhook);
     } catch (err) {
       console.error(err);
-      return res.status(500).json({ error: 'Internal Server Error' });
+      return res.status(500).json({ error: 'Internal Server Error in github webhooks' });
     }
   }
 );
@@ -383,7 +383,7 @@ router.delete(
       return res.status(200).json({ message: 'Webhook deleted successfully' });
     } catch (err) {
       console.error(err);
-      return res.status(500).json({ error: 'Internal Server Error' });
+      return res.status(500).json({ error: 'Internal Server Error in github webhooks' });
     }
   }
 );
