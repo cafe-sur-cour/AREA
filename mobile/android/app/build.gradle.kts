@@ -28,6 +28,9 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+
+        // WebView configuration for stability
+        multiDexEnabled = true
     }
 
     buildTypes {
