@@ -52,7 +52,9 @@ router.get(
       return res.status(200).json(users);
     } catch (err) {
       console.error(err);
-      return res.status(500).json({ error: 'Internal Server Error get all users' });
+      return res
+        .status(500)
+        .json({ error: 'Internal Server Error get all users' });
     }
   }
 );
@@ -189,7 +191,9 @@ router.get(
       return res.status(200).json(user);
     } catch (err: unknown) {
       console.error(err);
-      return res.status(500).json({ msg: 'Internal server error in get user :data' });
+      return res
+        .status(500)
+        .json({ msg: 'Internal server error in get user :data' });
     }
   }
 );

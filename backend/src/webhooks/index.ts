@@ -50,7 +50,9 @@ router.post(
       await handler.handle(req, res);
     } catch (error) {
       console.error(`Error handling webhook for service '${service}':`, error);
-      return res.status(500).json({ error: 'Internal server error in updates service webhook' });
+      return res
+        .status(500)
+        .json({ error: 'Internal server error in updates service webhook' });
     }
   }
 );
