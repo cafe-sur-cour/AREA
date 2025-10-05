@@ -48,7 +48,9 @@ router.get(
       }
     } catch (err) {
       console.error(err);
-      return res.status(500).json({ error: 'Internal Server Error' });
+      return res
+        .status(500)
+        .json({ error: 'Internal Server Error in login status route' });
     }
   }
 );
@@ -351,7 +353,9 @@ router.post(
         'register',
         `Error during registration: ${err instanceof Error ? err.message : String(err)}`
       );
-      return res.status(500).json({ error: 'Internal Server Error' });
+      return res
+        .status(500)
+        .json({ error: 'Internal Server Error in Register' });
     }
   }
 );
@@ -398,7 +402,7 @@ router.post(
       console.error(err);
       const errorMessage = err instanceof Error ? err.message : String(err);
       await createLog(500, 'logout', `Error during logout: ${errorMessage}`);
-      res.status(500).json({ error: 'Internal Server Error' });
+      res.status(500).json({ error: 'Internal Server Error in logout' });
     }
   }
 );
@@ -1050,7 +1054,9 @@ router.post('/forgot-password', async (req: Request, res: Response) => {
       'other',
       `Error during password reset: ${error instanceof Error ? error.message : String(error)}`
     );
-    return res.status(500).json({ error: 'Internal Server Error' });
+    return res
+      .status(500)
+      .json({ error: 'Internal Server Error in forgot password' });
   }
 });
 
