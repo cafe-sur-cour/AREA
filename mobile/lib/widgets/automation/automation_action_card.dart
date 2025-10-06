@@ -24,22 +24,12 @@ class AutomationActionCard extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
       child: Material(
         elevation: 8,
-        shadowColor: _serviceColor.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(20),
         child: Container(
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                _serviceColor.withValues(alpha: 0.15),
-                _serviceColor.withValues(alpha: 0.05),
-                Colors.white.withValues(alpha: 0.8),
-              ],
-            ),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: _serviceColor.withValues(alpha: 0.4), width: 2),
+            border: Border.all(color: AppColors.areaBlue3, width: 2),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -80,7 +70,7 @@ class AutomationActionCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
-                            '🎯 TRIGGER',
+                            'ACTION',
                             style: TextStyle(
                               fontFamily: 'Montserrat',
                               fontSize: 10,
@@ -163,31 +153,6 @@ class AutomationActionCard extends StatelessWidget {
                   ),
                 ],
               ),
-              if (action.description.isNotEmpty) ...[
-                const SizedBox(height: 16),
-
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.7),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: _serviceColor.withValues(alpha: 0.2)),
-                  ),
-                  child: Text(
-                    action.description,
-                    style: const TextStyle(
-                      fontFamily: 'Montserrat',
-                      fontSize: 13,
-                      color: AppColors.areaDarkGray,
-                      height: 1.4,
-                      fontStyle: FontStyle.italic,
-                    ),
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
             ],
           ),
         ),

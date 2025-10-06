@@ -91,7 +91,7 @@ class DelayPickerDialogState extends State<DelayPickerDialog> {
       seconds: seconds,
     );
 
-    if (totalSeconds == 0) return 'No delay (instant)';
+    if (totalSeconds == 0) return 'No delay';
 
     List<String> parts = [];
     if (days > 0) parts.add('${days}d');

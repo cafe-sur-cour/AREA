@@ -28,22 +28,12 @@ class AutomationReactionCard extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
       child: Material(
         elevation: 6,
-        shadowColor: _serviceColor.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(20),
         child: Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                _serviceColor.withValues(alpha: 0.15),
-                _serviceColor.withValues(alpha: 0.05),
-                Colors.white.withValues(alpha: 0.8),
-              ],
-            ),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: _serviceColor.withValues(alpha: 0.4), width: 2),
+            border: Border.all(color: AppColors.areaBlue3, width: 2),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -71,7 +61,7 @@ class AutomationReactionCard extends StatelessWidget {
                     child: Stack(
                       children: [
                         const Center(
-                          child: Icon(Icons.replay_rounded, color: Colors.white, size: 24),
+                          child: Icon(Icons.play_arrow, color: Colors.white, size: 24),
                         ),
                         Positioned(
                           top: 2,
@@ -113,7 +103,7 @@ class AutomationReactionCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
-                            '⚡ REACTION ${index + 1}',
+                            'REACTION ${index + 1}',
                             style: TextStyle(
                               fontFamily: 'Montserrat',
                               fontSize: 10,
@@ -196,31 +186,6 @@ class AutomationReactionCard extends StatelessWidget {
                   ),
                 ],
               ),
-              if (reaction.description.isNotEmpty) ...[
-                const SizedBox(height: 12),
-
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.7),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: _serviceColor.withValues(alpha: 0.2)),
-                  ),
-                  child: Text(
-                    reaction.description,
-                    style: const TextStyle(
-                      fontFamily: 'Montserrat',
-                      fontSize: 12,
-                      color: AppColors.areaDarkGray,
-                      height: 1.4,
-                      fontStyle: FontStyle.italic,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
 
               const SizedBox(height: 16),
 

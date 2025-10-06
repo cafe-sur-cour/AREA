@@ -64,7 +64,7 @@ class AutomationConnector extends StatelessWidget {
                 const SizedBox(width: 8),
 
                 Text(
-                  reactions.length > 1 ? 'THEN ALL' : 'THEN',
+                  'THEN',
                   style: const TextStyle(
                     fontFamily: 'Montserrat',
                     fontSize: 12,
