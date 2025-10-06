@@ -159,6 +159,7 @@ export default function ServicesPage() {
       if (!user) return;
 
       setIsLoading(true);
+      try {
       const updatedServices = await Promise.all(
         services.map(async service => {
           try {
@@ -182,6 +183,10 @@ export default function ServicesPage() {
                 subscribeResponse.value.data?.subscribed) ||
               false;
 
+            if (oauthResponse.status === 'rejected' || subscribeResponse.status === 'rejected') {
+              console.log(`User not connected to ${service.name}`);
+            }
+
             return {
               ...service,
               isConnected: subscribed,
@@ -189,13 +194,17 @@ export default function ServicesPage() {
               subscribed,
             };
           } catch (error) {
-            console.error(`Error checking ${service.name} status:`, error);
+            console.log(`User not connected to ${service.name}`);
             return service;
           }
         })
       );
       setServices(updatedServices);
-      setIsLoading(false);
+      } catch (error) {
+        console.log('Error updating services');
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     if (user) {
@@ -230,7 +239,7 @@ export default function ServicesPage() {
           )
         );
       } catch (error) {
-        console.error(`Error subscribing to ${service.name}:`, error);
+        console.log(`User not connected to ${service.name}`);
       }
     }
   };
@@ -250,7 +259,7 @@ export default function ServicesPage() {
         )
       );
     } catch (error) {
-      console.error(`Error disconnecting ${service.name}:`, error);
+      console.log(`User not connected to ${service.name}`);
     }
   };
 
