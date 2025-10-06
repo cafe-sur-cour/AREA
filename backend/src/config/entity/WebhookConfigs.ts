@@ -19,7 +19,7 @@ export class WebhookConfigs extends BaseEntity {
   @Column({ type: 'jsonb' })
   action!: Action;
 
-  @Column({ type: 'jsonb', array: true })
+  @Column({ type: 'jsonb' })
   reactions!: Reaction[];
 
   @Column({ type: 'boolean', default: true })

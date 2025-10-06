@@ -5,17 +5,14 @@ import jwt from 'jsonwebtoken';
 import { JWT_SECRET } from 'index';
 import mail from '../../middleware/mail';
 import passport from 'passport';
-import { MailerSend, EmailParams, Sender, Recipient } from 'mailersend';
 import token from '../../middleware/token';
+import nodemailer from 'nodemailer';
 import { githubOAuth } from '../../services/services/github/oauth';
+import { createLog } from '../logs/logs.service';
 
 interface TokenPayload extends jwt.JwtPayload {
   email: string;
 }
-
-const mailerSend = new MailerSend({
-  apiKey: process.env.MAILERSEND_API_KEY as string,
-});
 
 const router = express.Router();
 
@@ -51,7 +48,9 @@ router.get(
       }
     } catch (err) {
       console.error(err);
-      return res.status(500).json({ error: 'Internal Server Error' });
+      return res
+        .status(500)
+        .json({ error: 'Internal Server Error in login status route' });
     }
   }
 );
@@ -102,7 +101,7 @@ router.get(
  *             description: HTTP-only authentication cookie
  *             schema:
  *               type: string
- *               example: "auth_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...; HttpOnly; SameSite=Strict; Max-Age=86400"
+ *               example: "auth_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...; HttpOnly; Secure; domain:DOMAIN.env SameSite=Strict; Max-Age=86400"
  *         content:
  *           application/json:
  *             schema:
@@ -158,6 +157,11 @@ router.post(
         const missingFields = [];
         if (!email) missingFields.push('email');
         if (!password) missingFields.push('password');
+        await createLog(
+          400,
+          'login',
+          `Failed login attempt: missing fields - ${missingFields.join(', ')}`
+        );
         res.status(400).json({
           error: 'Bad Request',
           message: `Missing required fields: ${missingFields.join(', ')}`,
@@ -166,6 +170,7 @@ router.post(
       }
       const token = await auth.login(email, password);
       if (token instanceof Error) {
+        await createLog(401, 'login', `Unauthorized login attempt: ${email}`);
         res.status(401).json({ error: token.message });
         return;
       }
@@ -173,11 +178,15 @@ router.post(
       res.cookie('auth_token', token, {
         maxAge: 86400000,
         httpOnly: true,
-        sameSite: 'strict',
+        secure: true,
+        domain: process.env.DOMAIN,
+        sameSite: 'none',
       });
+      await createLog(200, 'login', `User logged in: ${email}`);
       return res.status(200).json({ token });
     } catch (err) {
       console.error(err);
+      await createLog(401, 'login', `Unauthorized login attempt: ${email}`);
       return res.status(401).json({ error: 'Unauthorized' });
     }
   }
@@ -257,6 +266,11 @@ router.post(
         .map(([key]) => key);
 
       if (missingFields.length > 0) {
+        await createLog(
+          400,
+          'register',
+          `Failed registration attempt: missing fields - ${missingFields.join(', ')}`
+        );
         return res.status(400).json({
           error: 'Bad Request',
           message: `Missing required fields: ${missingFields.join(', ')}`,
@@ -264,20 +278,36 @@ router.post(
       }
       const token = await auth.register(email, name, password);
       if (token instanceof Error) {
+        await createLog(
+          409,
+          'register',
+          `Failed registration attempt: ${token.message}`
+        );
         res.status(409).json({ error: token.message });
         return;
       }
 
-      const sentFrom = new Sender(
-        process.env.MAILERSEND_SENDER_EMAIL || '',
-        process.env.MAILERSEND_SENDER_NAME || ''
-      );
-      const recipients = [new Recipient(email, name)];
+      const transporter = nodemailer.createTransport({
+        service: 'SMTP',
+        host: process.env.SMTP_HOST || '',
+        port: parseInt(process.env.SMTP_PORT || '587'),
+        secure: process.env.SMTP_SECURE === 'true',
+        auth: {
+          user: process.env.SMTP_USER || '',
+          pass: process.env.SMTP_PASSWORD || '',
+        },
+      });
 
-      const emailParams = new EmailParams()
-        .setFrom(sentFrom)
-        .setTo(recipients)
-        .setSubject('🔐 Account Verification').setHtml(`
+      transporter
+        .verify()
+        .then(() => console.log('SMTP prêt !'))
+        .catch(err => console.error('Erreur SMTP :', err));
+
+      const mailOptions = {
+        from: '"AREA dev Team" <no-reply@yourapp.com>',
+        to: email,
+        subject: '🔐 Account Verification',
+        html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #648BA0; border-radius: 10px; background-color: #e4e2dd;">
           <style>
           @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Open+Sans&display=swap');
@@ -310,14 +340,22 @@ router.post(
           © ${new Date().getFullYear()} Café sur Cour - AREA - All rights reserved
           </p>
           </div>
-          `);
+          `,
+      };
 
-      await mailerSend.email.send(emailParams);
-      res.status(201).json({ message: 'User registered successfully' });
-      return;
+      await transporter.sendMail(mailOptions);
+      await createLog(201, 'register', `New user registered: ${email}`);
+      return res.status(201).json({ message: 'User registered successfully' });
     } catch (err) {
       console.error(err);
-      return res.status(500).json({ error: 'Internal Server Error' });
+      await createLog(
+        500,
+        'register',
+        `Error during registration: ${err instanceof Error ? err.message : String(err)}`
+      );
+      return res
+        .status(500)
+        .json({ error: 'Internal Server Error in Register' });
     }
   }
 );
@@ -339,15 +377,35 @@ router.post(
  *       500:
  *         description: Internal Server Error
  */
-router.post('/logout', async (req: Request, res: Response): Promise<void> => {
-  try {
-    res.clearCookie('auth_token');
-    res.status(200).json({ message: 'Logged out successfully' });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Internal Server Error' });
+router.post(
+  '/logout',
+  token,
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      if (!req.auth) {
+        await createLog(
+          403,
+          'logout',
+          `Logout attempt with no authenticated user`
+        );
+        res
+          .status(403)
+          .json({ message: 'Logout failed: No authenticated user' });
+        return;
+      }
+
+      const email = (req.auth as { email: string })?.email;
+      res.clearCookie('auth_token', { path: '/', domain: process.env.DOMAIN });
+      await createLog(200, 'logout', `User logged out: ${email || 'unknown'}`);
+      res.status(200).json({ message: 'Logged out successfully' });
+    } catch (err) {
+      console.error(err);
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      await createLog(500, 'logout', `Error during logout: ${errorMessage}`);
+      res.status(500).json({ error: 'Internal Server Error in logout' });
+    }
   }
-});
+);
 
 /**
  * @swagger
@@ -420,14 +478,25 @@ router.post('/verify', mail, (req: Request, res: Response) => {
       decoded: string | jwt.JwtPayload | undefined
     ) => {
       if (err || !decoded || typeof decoded === 'string') {
+        await createLog(
+          401,
+          'register',
+          `Failed verification attempt: invalid or expired token`
+        );
         return res.status(401).json({ error: 'Invalid token' });
       }
       const payload = decoded as TokenPayload;
       var result = await auth.verify(payload.email);
       if (result instanceof Error) {
+        await createLog(
+          409,
+          'register',
+          `Failed verification attempt: ${result.message}`
+        );
         res.status(409).json({ error: result.message });
         return;
       }
+      await createLog(200, 'register', `User verified: ${payload.email}`);
       res.status(200).json({ message: 'Account verified successfully' });
     }
   );
@@ -521,6 +590,11 @@ router.get(
       }
     } catch (err) {
       console.error('GitHub OAuth callback error:', err);
+      await createLog(
+        500,
+        'github',
+        `Failed to authenticate with GitHub: ${err}`
+      );
       res.status(500).json({ error: 'Failed to authenticate with GitHub' });
     }
   },
@@ -531,27 +605,55 @@ router.get(
         res.cookie('auth_token', user.token, {
           maxAge: 86400000,
           httpOnly: true,
-          sameSite: 'strict',
+          domain: process.env.DOMAIN,
+          secure: true,
+          sameSite: 'none',
         });
 
         const isAuthenticated = !!(req.auth || req.cookies?.auth_token);
         if (isAuthenticated) {
-          const appSlug = process.env.GITHUB_APP_SLUG || 'area-app';
-          const userId = (req.auth as { id: number })?.id || 'unknown';
-          const installUrl = `https://github.com/apps/${appSlug}/installations/new?state=${userId}`;
-          return res.redirect(installUrl);
+          const session = req.session as
+            | { githubSubscriptionFlow?: boolean }
+            | undefined;
+          const isSubscriptionFlow = session?.githubSubscriptionFlow;
+
+          if (isSubscriptionFlow) {
+            const appSlug =
+              process.env.GITHUB_APP_SLUG || 'area-cafe-sur-cours';
+            const userId = (req.auth as { id: number })?.id || 'unknown';
+            const installUrl = `https://github.com/apps/${appSlug}/installations/new?state=${userId}`;
+
+            if (session) {
+              delete session.githubSubscriptionFlow;
+            }
+            return res.redirect(installUrl);
+          } else {
+            const frontendUrl = process.env.FRONTEND_URL || '';
+            return res.redirect(`${frontendUrl}?github_connected=true`);
+          }
         }
 
-        res.redirect(`${process.env.FRONTEND_URL || ''}`);
+        res.redirect(`${process.env.FRONTEND_URL || ''}?token=${user.token}`);
       } else {
+        await createLog(
+          500,
+          'github',
+          `Failed to authenticate with GitHub: No token received`
+        );
         res.status(500).json({ error: 'Authentication failed' });
       }
     } catch (err) {
       console.error('GitHub OAuth callback error:', err);
+      await createLog(
+        500,
+        'github',
+        `Failed to authenticate with GitHub: ${err}`
+      );
       res.status(500).json({ error: 'Failed to authenticate with GitHub' });
     }
   }
 );
+
 /**
  * @swagger
  * /api/auth/github/subscribe:
@@ -578,6 +680,11 @@ router.get(
   token,
   async (req: Request, res: Response, next) => {
     if (!req.auth) {
+      await createLog(
+        401,
+        'github',
+        `Authentication required to subscribe to GitHub`
+      );
       return res.status(401).json({ error: 'Authentication required' });
     }
 
@@ -586,12 +693,19 @@ router.get(
       const existingToken = await githubOAuth.getUserToken(userId);
 
       if (existingToken) {
-        const appSlug = process.env.GITHUB_APP_SLUG || '';
+        const appSlug = process.env.GITHUB_APP_SLUG || 'area-cafe-sur-cours';
         const installUrl = `https://github.com/apps/${appSlug}/installations/new?state=${userId}`;
         return res.redirect(installUrl);
       }
     } catch {
       console.log('No existing token found, proceeding with OAuth...');
+    }
+
+    const session = req.session as
+      | { githubSubscriptionFlow?: boolean }
+      | undefined;
+    if (session) {
+      session.githubSubscriptionFlow = true;
     }
 
     passport.authenticate('github-subscribe', { session: false })(
@@ -601,6 +715,7 @@ router.get(
     );
   }
 );
+
 /**
  * @swagger
  * /api/auth/google/login:
@@ -647,6 +762,11 @@ router.get(
  */
 router.get('/google/subscribe', async (req: Request, res: Response, next) => {
   if (!req.auth) {
+    await createLog(
+      401,
+      'google',
+      `Authentication required to subscribe to Google`
+    );
     return res.status(401).json({ error: 'Authentication required' });
   }
   passport.authenticate('google-subscribe', {
@@ -725,6 +845,11 @@ router.get(
       }
     } catch (err) {
       console.error('Google OAuth callback error:', err);
+      await createLog(
+        500,
+        'google',
+        `Failed to authenticate with Google: ${err}`
+      );
       res.status(500).json({ error: 'Failed to authenticate with Google' });
     }
   },
@@ -735,14 +860,26 @@ router.get(
         res.cookie('auth_token', user.token, {
           maxAge: 86400000,
           httpOnly: true,
-          sameSite: 'strict',
+          secure: true,
+          domain: process.env.DOMAIN,
+          sameSite: 'none',
         });
         res.redirect(`${process.env.FRONTEND_URL || ''}`);
       } else {
+        await createLog(
+          500,
+          'google',
+          `Failed to authenticate with Google: No token received`
+        );
         res.status(500).json({ error: 'Authentication failed' });
       }
     } catch (err) {
       console.error('Google OAuth callback error:', err);
+      await createLog(
+        500,
+        'google',
+        `Failed to authenticate with Google: ${err}`
+      );
       res.status(500).json({ error: 'Failed to authenticate with Google' });
     }
   }
@@ -831,27 +968,44 @@ router.post('/forgot-password', async (req: Request, res: Response) => {
   try {
     const { email } = req.body;
     if (!email) {
+      await createLog(
+        400,
+        'other',
+        'Failed password reset request: missing email'
+      );
       return res.status(400).json({ error: 'Email is required' });
     }
 
     const token = await auth.requestReset(email);
     if (!token) {
+      await createLog(404, 'other', `Email doesn't exist: ${email}`);
       return res.status(200).json({
         message:
           'If that email is registered, you will receive a password reset link.',
       });
     }
 
-    const sentFrom = new Sender(
-      process.env.MAILERSEND_SENDER_EMAIL || 'no-reply@example.com',
-      process.env.MAILERSEND_SENDER_NAME || 'AREA App'
-    );
-    const recipients = [new Recipient(email)];
+    const transporter = nodemailer.createTransport({
+      service: 'SMTP',
+      host: process.env.SMTP_HOST || '',
+      port: parseInt(process.env.SMTP_PORT || '587'),
+      secure: process.env.SMTP_SECURE === 'true',
+      auth: {
+        user: process.env.SMTP_USER || '',
+        pass: process.env.SMTP_PASSWORD || '',
+      },
+    });
 
-    const emailParams = new EmailParams()
-      .setFrom(sentFrom)
-      .setTo(recipients)
-      .setSubject('🔐 Reset Your Password').setHtml(`
+    transporter
+      .verify()
+      .then(() => console.log('SMTP prêt !'))
+      .catch(err => console.error('Erreur SMTP :', err));
+
+    const mailOptions = {
+      from: '"AREA dev Team" <no-reply@yourapp.com>',
+      to: email,
+      subject: '🔐 Reset Your Password',
+      html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #648BA0; border-radius: 10px; background-color: #e4e2dd;">
           <style>
           @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Open+Sans&display=swap');
@@ -884,17 +1038,25 @@ router.post('/forgot-password', async (req: Request, res: Response) => {
           © ${new Date().getFullYear()} Café sur Cour - AREA - All rights reserved
           </p>
           </div>
-          `);
+          `,
+    };
 
-    await mailerSend.email.send(emailParams);
-    res.status(200).json({
+    await transporter.sendMail(mailOptions);
+    await createLog(201, 'other', `Password reset email sent to: ${email}`);
+    return res.status(201).json({
       message:
         'If that email is registered, you will receive a password reset link.',
     });
-    return;
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ error: 'Internal Server Error' });
+    await createLog(
+      500,
+      'other',
+      `Error during password reset: ${error instanceof Error ? error.message : String(error)}`
+    );
+    return res
+      .status(500)
+      .json({ error: 'Internal Server Error in forgot password' });
   }
 });
 
@@ -1003,6 +1165,7 @@ router.post('/forgot-password', async (req: Request, res: Response) => {
  */
 router.post('/reset-password', mail, async (req: Request, res: Response) => {
   if (!req.token) {
+    await createLog(400, 'other', 'Token is required to reset password');
     return res.status(400).json({ error: 'Token is required' });
   }
 
@@ -1014,11 +1177,21 @@ router.post('/reset-password', mail, async (req: Request, res: Response) => {
       decoded: string | jwt.JwtPayload | undefined
     ) => {
       if (err || !decoded || typeof decoded === 'string') {
+        await createLog(
+          400,
+          'other',
+          'Invalid or expired token used for password reset'
+        );
         return res.status(400).json({ error: 'Invalid or expired token' });
       }
 
       const { newPassword } = req.body;
       if (!newPassword) {
+        await createLog(
+          400,
+          'other',
+          'New password is required for password reset'
+        );
         return res.status(400).json({ error: 'New password is required' });
       }
 
@@ -1027,9 +1200,18 @@ router.post('/reset-password', mail, async (req: Request, res: Response) => {
         newPassword
       );
       if (!result) {
+        await createLog(
+          400,
+          'other',
+          'Failed password reset: invalid or expired token'
+        );
         return res.status(400).json({ error: 'Invalid or expired token' });
       }
-
+      await createLog(
+        200,
+        'other',
+        `Password reset successfully for: ${decoded.email}`
+      );
       return res
         .status(200)
         .json({ message: 'Password has been reset successfully' });

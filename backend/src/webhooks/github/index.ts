@@ -10,16 +10,21 @@ class GitHubWebhookHandler implements WebhookHandler {
 
   async handle(req: Request, res: Response): Promise<Response> {
     try {
-      console.log('Received a webhook request');
+      console.log(
+        `\n🎣 [GITHUB WEBHOOK] ${req.headers['x-github-event']} event received (${req.headers['x-github-delivery']})`
+      );
+
       const signature = req.headers['x-hub-signature-256'] as string;
       const event = req.headers['x-github-event'] as string;
       const deliveryId = req.headers['x-github-delivery'] as string;
 
       if (!signature || !event) {
+        console.error('❌ [GITHUB WEBHOOK] Missing required headers');
         return res.status(400).json({ error: 'Missing required headers' });
       }
 
-      const webhookUrl = `${req.protocol}://${req.get('host')}${req.originalUrl}`;
+      const webhookUrl = `${process.env.WEBHOOK_BASE_URL || ''}${req.originalUrl}`;
+
       const externalWebhook = await AppDataSource.getRepository(
         ExternalWebhooks
       ).findOne({
@@ -31,8 +36,15 @@ class GitHubWebhookHandler implements WebhookHandler {
       });
 
       if (!externalWebhook) {
+        console.error(
+          `❌ [GITHUB WEBHOOK] No webhook found for URL: ${webhookUrl}`
+        );
         return res.status(404).json({ error: 'Webhook not found' });
       }
+
+      console.log(
+        `✅ [GITHUB WEBHOOK] Found webhook for ${externalWebhook.repository} (user: ${externalWebhook.user_id})`
+      );
 
       const { serviceSubscriptionManager } = await import(
         '../../services/ServiceSubscriptionManager'
@@ -44,7 +56,7 @@ class GitHubWebhookHandler implements WebhookHandler {
 
       if (!isSubscribed) {
         console.log(
-          `⚠️  [GitHub Webhook] User ${externalWebhook.user_id} is no longer subscribed to GitHub service. Ignoring webhook.`
+          `⚠️  [GitHub Webhook] User ${externalWebhook.user_id} not subscribed - ignoring`
         );
         return res
           .status(200)
@@ -76,38 +88,19 @@ class GitHubWebhookHandler implements WebhookHandler {
         return res.status(200).json({ message: 'Event type not supported' });
       }
 
-      console.log(
-        `🎣 [GitHub Webhook] Received ${event} event - Action: ${actionType}`
-      );
+      console.log(`🎣 [GitHub Webhook] Processing ${event} → ${actionType}`);
 
       if (event === 'push') {
         const { repository, ref, commits, pusher } = req.body;
-        console.log(`� [PUSH WEBHOOK DETECTED] New push received!`);
-        console.log(`�📦 Repository: ${repository?.full_name || 'Unknown'}`);
+        const branch = ref?.replace('refs/heads/', '') || 'unknown';
         console.log(
-          `🌿 Branch: ${ref?.replace('refs/heads/', '') || 'Unknown'}`
+          `� Push on ${repository?.full_name}/${branch} by ${pusher?.name} (${commits?.length || 0} commits)`
         );
-        console.log(`👤 Pusher: ${pusher?.name || 'Unknown'}`);
-        console.log(`📝 Commits: ${commits?.length || 0}`);
-        console.log(`🕐 Timestamp: ${new Date().toISOString()}`);
-
-        if (commits && commits.length > 0) {
-          console.log(`📋 Commit details:`);
-          commits.forEach((commit: Record<string, unknown>, index: number) => {
-            console.log(
-              `  ${index + 1}. ${String(commit.id)?.substring(0, 7)} - "${commit.message}"`
-            );
-          });
-        }
       } else if (event === 'pull_request') {
         const { action, number, pull_request, repository } = req.body;
-        console.log(`📦 Repository: ${repository?.full_name || 'Unknown'}`);
-        console.log(`🔢 PR #${number}: ${pull_request?.title || 'No title'}`);
-        console.log(`📋 Action: ${action}`);
-        console.log(`👤 Author: ${pull_request?.user?.login || 'Unknown'}`);
-        if (pull_request?.merged) {
-          console.log(`✅ PR merged at: ${pull_request.merged_at}`);
-        }
+        console.log(
+          `📦 PR #${number} ${action} on ${repository?.full_name} by ${pull_request?.user?.login}`
+        );
       }
 
       const webhookEvent = new WebhookEvents();
@@ -126,10 +119,7 @@ class GitHubWebhookHandler implements WebhookHandler {
       await AppDataSource.getRepository(ExternalWebhooks).save(externalWebhook);
 
       console.log(
-        `✅ [GitHub Webhook] Event stored successfully - ID: ${webhookEvent.id}`
-      );
-      console.log(
-        `🔄 [GitHub Webhook] Processing event through ExecutionService...\n`
+        `✅ [GitHub Webhook] Event processed successfully (ID: ${webhookEvent.id})`
       );
 
       return res

@@ -9,6 +9,7 @@ export interface Action {
 export interface Reaction {
   type: string;
   config: Record<string, unknown>;
+  delay?: number;
 }
 
 export interface ActionReactionMapping {

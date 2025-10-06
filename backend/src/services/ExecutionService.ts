@@ -3,7 +3,8 @@ import { WebhookConfigs } from '../config/entity/WebhookConfigs';
 import { WebhookEvents } from '../config/entity/WebhookEvents';
 import { WebhookReactions } from '../config/entity/WebhookReactions';
 import { WebhookFailures } from '../config/entity/WebhookFailures';
-import type { Action, Reaction } from '../types/mapping';
+import { Raw } from 'typeorm';
+import type { Reaction } from '../types/mapping';
 import { serviceRegistry } from './ServiceRegistry';
 import { reactionExecutorRegistry } from './ReactionExecutorRegistry';
 import { UserServiceConfigService } from './UserServiceConfigService';
@@ -13,6 +14,7 @@ export class ExecutionService {
   private isRunning = false;
   private processingInterval: NodeJS.Timeout | undefined;
   private userServiceConfigService = new UserServiceConfigService();
+  private scheduledReactions = new Map<string, NodeJS.Timeout>();
 
   async start(): Promise<void> {
     if (this.isRunning) {
@@ -44,7 +46,32 @@ export class ExecutionService {
       this.processingInterval = undefined;
     }
 
+    for (const [reactionId, timeoutId] of this.scheduledReactions.entries()) {
+      clearTimeout(timeoutId);
+      console.log(
+        `🚫 [ExecutionService] Cancelled scheduled reaction ${reactionId} due to service stop`
+      );
+    }
+    this.scheduledReactions.clear();
+
     console.log('AREA execution service stopped');
+  }
+
+  public cancelScheduledReaction(reactionId: string): boolean {
+    const timeoutId = this.scheduledReactions.get(reactionId);
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+      this.scheduledReactions.delete(reactionId);
+      console.log(
+        `🚫 [ExecutionService] Cancelled scheduled reaction ${reactionId}`
+      );
+      return true;
+    }
+    return false;
+  }
+
+  public getScheduledReactions(): string[] {
+    return Array.from(this.scheduledReactions.keys());
   }
 
   private async processPendingEvents(): Promise<void> {
@@ -74,7 +101,7 @@ export class ExecutionService {
 
     try {
       console.log(
-        `🔄 [ExecutionService] Processing event ${event.id} - Action: ${event.action_type}`
+        `🔄 [ExecutionService] Processing event ${event.id} - Action: ${event.action_type}, mapping_id: ${event.mapping_id}`
       );
 
       const actionDefinition = serviceRegistry.getActionByType(
@@ -92,9 +119,14 @@ export class ExecutionService {
         );
         return;
       }
+      console.log(
+        `🚀 [ExecutionService] Processing event ${event.id} - Action: ${event.action_type}`
+      );
+
       const mappings = await this.loadMappingsForAction(
         event.action_type,
-        event.user_id
+        event.user_id,
+        event.mapping_id ?? undefined
       );
 
       console.log(
@@ -103,10 +135,18 @@ export class ExecutionService {
 
       if (mappings.length === 0) {
         console.log(
-          `ℹ️  [ExecutionService] No active mappings found, marking event as completed`
+          `ℹ️  [ExecutionService] No active mappings found for action type '${event.action_type}', marking event as completed`
         );
         await this.markEventProcessed(event, 'completed', startTime);
         return;
+      }
+
+      console.log(
+        `🎯 [ExecutionService] Starting execution of ${mappings.length} mapping(s)...`
+      );
+
+      for (const mapping of mappings) {
+        await this.ensureExternalWebhooksForMapping(mapping, event.user_id);
       }
 
       for (const mapping of mappings) {
@@ -145,27 +185,126 @@ export class ExecutionService {
 
   private async loadMappingsForAction(
     actionType: string,
-    userId: number
+    userId: number,
+    mappingId?: number
   ): Promise<WebhookConfigs[]> {
+    console.log(
+      `🔍 [ExecutionService] Loading mappings for action: ${actionType}, user: ${userId}${mappingId ? `, specific mapping: ${mappingId}` : ''}`
+    );
+
     const mappingRepository = AppDataSource.getRepository(WebhookConfigs);
 
-    return await mappingRepository.find({
+    if (mappingId) {
+      const mapping = await mappingRepository.findOne({
+        where: {
+          id: mappingId,
+          created_by: userId,
+          is_active: true,
+        },
+      });
+      const result = mapping ? [mapping] : [];
+      console.log(
+        `📊 [ExecutionService] Loaded specific mapping: ${result.length} found`
+      );
+      if (result.length > 0 && result[0]) {
+        console.log(`📋 [ExecutionService] Mapping details:`, {
+          id: result[0].id,
+          name: result[0].name,
+          action_type: result[0].action.type,
+          reactions_count: result[0].reactions.length,
+        });
+      }
+      return result;
+    }
+
+    console.log(
+      `🔍 [ExecutionService] Searching for mappings with action type: ${actionType}`
+    );
+
+    const result = await mappingRepository.find({
       where: {
         is_active: true,
         created_by: userId,
-        action: {
+        action: Raw(alias => `${alias} ->> 'type' = :type`, {
           type: actionType,
-        } as Partial<Action>,
+        }),
       },
     });
+
+    console.log(
+      `📊 [ExecutionService] Found ${result.length} active mappings for user ${userId}`
+    );
+
+    if (result.length > 0) {
+      console.log(
+        `📋 [ExecutionService] Mappings found:`,
+        result.map(m => ({
+          id: m.id,
+          name: m.name,
+          action_type: m.action.type,
+          reactions_count: m.reactions.length,
+          is_active: m.is_active,
+        }))
+      );
+    } else {
+      const allUserMappings = await mappingRepository.find({
+        where: { created_by: userId },
+        select: ['id', 'name', 'action', 'is_active'],
+      });
+      console.log(
+        `🔍 [ExecutionService] All mappings for user ${userId}:`,
+        allUserMappings.map(m => ({
+          id: m.id,
+          name: m.name,
+          action_type: m.action?.type || 'undefined',
+          is_active: m.is_active,
+        }))
+      );
+    }
+
+    return result;
   }
 
   private async executeMappingReactions(
     event: WebhookEvents,
     mapping: WebhookConfigs
   ): Promise<void> {
-    for (const reaction of mapping.reactions) {
-      await this.executeReaction(event, mapping, reaction);
+    for (const [index, reaction] of mapping.reactions.entries()) {
+      if (reaction.delay && reaction.delay > 0) {
+        const reactionId = `${event.id}-${mapping.id}-${index}`;
+
+        console.log(
+          `⏰ [ExecutionService] Scheduling reaction ${reaction.type} with ${reaction.delay}s delay (ID: ${reactionId})`
+        );
+
+        const timeoutId = setTimeout(async () => {
+          try {
+            console.log(
+              `🚀 [ExecutionService] Executing delayed reaction ${reaction.type} after ${reaction.delay}s (ID: ${reactionId})`
+            );
+            await this.executeReaction(event, mapping, reaction);
+
+            this.scheduledReactions.delete(reactionId);
+
+            console.log(
+              `✅ [ExecutionService] Successfully executed delayed reaction ${reaction.type} (ID: ${reactionId})`
+            );
+          } catch (error) {
+            console.error(
+              `❌ [ExecutionService] Failed to execute delayed reaction ${reaction.type} (ID: ${reactionId}):`,
+              error
+            );
+            this.scheduledReactions.delete(reactionId);
+          }
+        }, reaction.delay * 1000);
+
+        this.scheduledReactions.set(reactionId, timeoutId);
+      } else {
+        console.log(
+          `⚡ [ExecutionService] Executing immediate reaction ${reaction.type}`
+        );
+        await this.executeReaction(event, mapping, reaction);
+      }
     }
   }
 
@@ -183,6 +322,10 @@ export class ExecutionService {
         return;
       } catch (error) {
         attempt++;
+        console.error(
+          `❌ [ExecutionService] Reaction attempt ${attempt} failed for ${reaction.type}:`,
+          (error as Error).message
+        );
         if (attempt >= maxRetries) {
           await this.recordReactionFailure(
             event,
@@ -361,6 +504,16 @@ export class ExecutionService {
     }
 
     try {
+      const service = serviceRegistry.getService(serviceName);
+      if (service?.getCredentials) {
+        const credentials = await service.getCredentials(userId);
+        return {
+          credentials,
+          settings: {},
+          env: process.env,
+        };
+      }
+
       const userConfig =
         await this.userServiceConfigService.getUserServiceConfig(
           userId,
@@ -383,6 +536,24 @@ export class ExecutionService {
       settings: {},
       env: process.env,
     };
+  }
+
+  async ensureExternalWebhooksForMapping(
+    mapping: WebhookConfigs,
+    userId: number
+  ): Promise<void> {
+    const actionDefinition = serviceRegistry.getActionByType(
+      mapping.action.type
+    );
+    if (!actionDefinition || !actionDefinition.metadata?.webhookPattern) {
+      return;
+    }
+
+    const serviceId = mapping.action.type.split('.')[0];
+    if (serviceId === 'github') {
+      const { ensureWebhookForMapping } = await import('./services/github');
+      await ensureWebhookForMapping(mapping, userId, actionDefinition);
+    }
   }
 }
 

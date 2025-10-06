@@ -17,6 +17,9 @@ export class WebhookEvents extends BaseEntity {
   @Column({ type: 'int' })
   user_id!: number;
 
+  @Column({ type: 'int', nullable: true })
+  mapping_id?: number | null;
+
   @Column({ type: 'varchar', length: 100, nullable: true })
   source?: string | null;
 
