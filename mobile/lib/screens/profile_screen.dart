@@ -24,14 +24,23 @@ class ProfileScreenState extends State<ProfileScreen> {
   late IconData _userProfileIcon;
   final TextEditingController _backendServerController = TextEditingController();
 
-  bool _justInitialized = false;
-
   @override
   void initState() {
     super.initState();
     _backendServerController.text = "";
     _loadProfileIfConnected();
-    _justInitialized = true;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeBackendAddress();
+    });
+  }
+
+  void _initializeBackendAddress() {
+    final backendAddressNotifier = Provider.of<BackendAddressNotifier>(context, listen: false);
+    if (backendAddressNotifier.backendAddress == null) {
+      backendAddressNotifier.setBackendAddress(AppConfig.backendUrl);
+    }
+    _backendServerController.text = backendAddressNotifier.backendAddress ?? "";
   }
 
   void _loadProfileIfConnected() async {
@@ -211,15 +220,7 @@ class ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final localeNotifier = Provider.of<LocaleNotifier>(context);
-    final backendAddressNotifier = Provider.of<BackendAddressNotifier>(context);
 
-    if (_justInitialized) {
-      if (backendAddressNotifier.backendAddress == null) {
-        backendAddressNotifier.setBackendAddress(AppConfig.backendUrl);
-      }
-      _backendServerController.text = backendAddressNotifier.backendAddress ?? "";
-      _justInitialized = false;
-    }
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -314,7 +315,9 @@ class ProfileScreenState extends State<ProfileScreen> {
                       children: [
                         if (_isConnected) ...[
                           Icon(_userProfileIcon, size: 80),
+
                           const SizedBox(width: 16),
+
                           Flexible(
                             child: Text(
                               _userName,
@@ -325,7 +328,9 @@ class ProfileScreenState extends State<ProfileScreen> {
                           ),
                         ] else ...[
                           const Icon(Icons.account_circle, size: 80),
+
                           const SizedBox(width: 16),
+
                           Flexible(
                             child: Text(
                               AppLocalizations.of(context)!.not_connected,
