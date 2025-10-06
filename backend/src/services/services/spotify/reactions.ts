@@ -60,14 +60,18 @@ export const spotifyReactions: ReactionDefinition[] = [
   {
     id: 'spotify.add_song_to_playlist',
     name: 'Add Song to Playlist',
-    description: 'Adds the current or specified track to a chosen playlist',
+    description: 'Adds the current or specified track to a chosen playlist (or to Liked Songs if no playlist specified)',
     configSchema: spotifyAddSongToPlaylistSchema,
     outputSchema: {
       type: 'object',
       properties: {
         playlist_id: {
           type: 'string',
-          description: 'The ID of the playlist the track was added to',
+          description: 'The ID of the playlist the track was added to (null if added to Liked Songs)',
+        },
+        added_to_liked: {
+          type: 'boolean',
+          description: 'Whether the track was added to Liked Songs',
         },
         track_uri: {
           type: 'string',
@@ -78,7 +82,7 @@ export const spotifyReactions: ReactionDefinition[] = [
           description: 'Whether the add operation was successful',
         },
       },
-      required: ['playlist_id', 'track_uri', 'success'],
+      required: ['added_to_liked', 'track_uri', 'success'],
     },
     metadata: {
       category: 'Spotify',

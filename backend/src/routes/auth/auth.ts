@@ -918,7 +918,6 @@ router.get(
       return res.status(401).json({ error: 'Authentication required' });
     }
     passport.authenticate('spotify-subscribe', {
-      scope: 'user-read-email user-read-private',
       session: false,
     })(req, res, next);
   }

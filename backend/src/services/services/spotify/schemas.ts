@@ -15,13 +15,13 @@ export const spotifyPauseResumePlaybackSchema: ActionReactionSchema = {
 
 export const spotifyAddSongToPlaylistSchema: ActionReactionSchema = {
   name: 'Add Song to Playlist',
-  description: 'Adds the current or specified track to a chosen playlist',
+  description: 'Adds the current or specified track to a chosen playlist (or to Liked Songs if no playlist specified)',
   fields: [
     {
       name: 'playlist_id',
       type: 'text',
-      label: 'Playlist ID',
-      required: true,
+      label: 'Playlist ID (optional, adds to Liked Songs if empty)',
+      required: false,
       placeholder: 'spotify:playlist:37i9dQZF1DXcBWIGoYBM5M',
     },
     {

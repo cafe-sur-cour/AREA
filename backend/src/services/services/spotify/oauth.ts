@@ -53,7 +53,7 @@ export class SpotifyOAuth {
       client_id: this.clientId,
       response_type: 'code',
       redirect_uri: this.redirectUri,
-      scope: 'user-read-email user-read-private user-modify-playback-state playlist-modify-public playlist-modify-private user-read-playback-state',
+      scope: 'user-read-email user-read-private user-modify-playback-state playlist-modify-public playlist-modify-private user-read-playback-state user-library-modify',
       state: state,
     });
     return `${this.spotifyAuthBaseUrl}/authorize?${params.toString()}`;

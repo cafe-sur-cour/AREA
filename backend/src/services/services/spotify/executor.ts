@@ -31,7 +31,7 @@ export class SpotifyReactionExecutor implements ReactionExecutor {
   private apiBaseUrl: string;
 
   constructor() {
-    this.apiBaseUrl = process.env.SERVICE_SPOTIFY_API_BASE_URL || 'https://api.spotify.com/v1';
+    this.apiBaseUrl = (process.env.SERVICE_SPOTIFY_API_BASE_URL || 'https://api.spotify.com') + '/v1';
   }
 
   async execute(
@@ -213,16 +213,9 @@ export class SpotifyReactionExecutor implements ReactionExecutor {
     accessToken: string
   ): Promise<ReactionExecutionResult> {
     const { playlist_id, track_uri } = config as {
-      playlist_id: string;
+      playlist_id?: string;
       track_uri?: string;
     };
-
-    if (!playlist_id) {
-      return {
-        success: false,
-        error: 'Playlist ID is required',
-      };
-    }
 
     let finalTrackUri = track_uri;
 
@@ -261,19 +254,39 @@ export class SpotifyReactionExecutor implements ReactionExecutor {
     }
 
     try {
-      const response = await fetch(
-        `${this.apiBaseUrl}/playlists/${playlist_id}/tracks`,
-        {
-          method: 'POST',
+      let response: Response;
+      let addedToLiked = false;
+
+      if (!playlist_id) {
+        // Add to Liked Songs
+        const trackId = finalTrackUri.split(':').pop(); // Extract ID from URI
+        response = await fetch(`${this.apiBaseUrl}/me/tracks`, {
+          method: 'PUT',
           headers: {
             Authorization: `Bearer ${accessToken}`,
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            uris: [finalTrackUri],
+            ids: [trackId],
           }),
-        }
-      );
+        });
+        addedToLiked = true;
+      } else {
+        // Add to specific playlist
+        response = await fetch(
+          `${this.apiBaseUrl}/playlists/${playlist_id}/tracks`,
+          {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              uris: [finalTrackUri],
+            }),
+          }
+        );
+      }
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
@@ -286,7 +299,8 @@ export class SpotifyReactionExecutor implements ReactionExecutor {
       return {
         success: true,
         output: {
-          playlist_id,
+          playlist_id: playlist_id || null,
+          added_to_liked: addedToLiked,
           track_uri: finalTrackUri,
           success: true,
         },
@@ -294,7 +308,7 @@ export class SpotifyReactionExecutor implements ReactionExecutor {
     } catch (error) {
       return {
         success: false,
-        error: `Network error while adding song to playlist: ${(error as Error).message}`,
+        error: `Network error while adding song: ${(error as Error).message}`,
       };
     }
   }
