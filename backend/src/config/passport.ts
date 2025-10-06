@@ -6,12 +6,14 @@ import {
   Strategy as GoogleStrategy,
   Profile as GoogleProfile,
 } from 'passport-google-oauth20';
+import { Strategy as OAuth2Strategy } from 'passport-oauth2';
 import { Strategy as CustomStrategy } from 'passport-custom';
 import { Request } from 'express';
 import jwt from 'jsonwebtoken';
 import { oauthLogin, connectOAuthProvider } from '../routes/auth/auth.service';
 import { githubOAuth } from '../services/services/github/oauth';
 import { googleOAuth } from '../services/services/google/oauth';
+import { spotifyOAuth } from '../services/services/spotify/oauth';
 import { microsoftOAuth } from '../services/services/microsoft/oauth';
 import { JWT_SECRET } from '../../index';
 
@@ -30,6 +32,13 @@ export interface GoogleUser {
 }
 
 export interface MicrosoftUser {
+  id: string;
+  name: string;
+  email: string;
+  token: string;
+}
+
+export interface SpotifyUser {
   id: string;
   name: string;
   email: string;
@@ -368,6 +377,152 @@ passport.use(
             profile.name?.givenName + ' ' + profile.name?.familyName ||
             '',
           email: profile.emails?.[0]?.value || '',
+          token: userToken,
+        });
+      } catch (error) {
+        return doneCallback(error as Error, null);
+      }
+    }
+  )
+);
+
+passport.use(
+  'spotify-login',
+  new OAuth2Strategy(
+    {
+      authorizationURL: `${process.env.SERVICE_SPOTIFY_AUTH_BASE_URL || ''}/authorize`,
+      tokenURL: `${process.env.SERVICE_SPOTIFY_AUTH_BASE_URL || ''}/api/token`,
+      clientID: process.env.SERVICE_SPOTIFY_CLIENT_ID || '',
+      clientSecret: process.env.SERVICE_SPOTIFY_CLIENT_SECRET || '',
+      callbackURL: process.env.SERVICE_SPOTIFY_REDIRECT_URI || '',
+      scope: 'user-read-email user-read-private',
+      passReqToCallback: true,
+    },
+    async (
+      req: Request,
+      accessToken: string,
+      refreshToken: string,
+      params: { expires_in?: number },
+      profile: unknown,
+      done: unknown
+    ) => {
+      const doneCallback = done as (
+        error: Error | null,
+        user?: SpotifyUser | null
+      ) => void;
+      try {
+        const userInfo = await spotifyOAuth.getUserInfo(accessToken);
+
+        const userToken = await oauthLogin(
+          'spotify',
+          userInfo.id,
+          userInfo.email,
+          userInfo.display_name
+        );
+
+        if (userToken instanceof Error) {
+          return doneCallback(userToken, null);
+        }
+
+        const tokenData = {
+          access_token: accessToken,
+          token_type: 'bearer',
+          scope: 'user-read-email user-read-private',
+          expires_in: params.expires_in || 3600,
+          refresh_token: refreshToken,
+        };
+
+        const decoded = jwt.verify(userToken, JWT_SECRET as string) as {
+          id: number;
+        };
+        await spotifyOAuth.storeUserToken(decoded.id, tokenData);
+
+        return doneCallback(null, {
+          id: userInfo.id,
+          name: userInfo.display_name,
+          email: userInfo.email,
+          token: userToken,
+        });
+      } catch (error) {
+        return doneCallback(error as Error, null);
+      }
+    }
+  )
+);
+
+passport.use(
+  'spotify-subscribe',
+  new OAuth2Strategy(
+    {
+      authorizationURL: `${process.env.SERVICE_SPOTIFY_AUTH_BASE_URL || 'https://accounts.spotify.com'}/authorize`,
+      tokenURL: `${process.env.SERVICE_SPOTIFY_AUTH_BASE_URL || 'https://accounts.spotify.com'}/api/token`,
+      clientID: process.env.SERVICE_SPOTIFY_CLIENT_ID || '',
+      clientSecret: process.env.SERVICE_SPOTIFY_CLIENT_SECRET || '',
+      callbackURL: process.env.SERVICE_SPOTIFY_REDIRECT_URI || '',
+      scope: 'user-read-email user-read-private',
+      passReqToCallback: true,
+    },
+    async (
+      req: Request,
+      accessToken: string,
+      refreshToken: string,
+      params: { expires_in?: number },
+      profile: unknown,
+      done: unknown
+    ) => {
+      const doneCallback = done as (
+        error: Error | null,
+        user?: SpotifyUser | null
+      ) => void;
+      try {
+        const currentUser = await getCurrentUser(req);
+        if (!currentUser) {
+          return doneCallback(new Error('User not authenticated'), null);
+        }
+
+        const userInfo = await spotifyOAuth.getUserInfo(accessToken);
+
+        const userToken = await connectOAuthProvider(
+          currentUser.id,
+          'spotify',
+          userInfo.id,
+          userInfo.email,
+          userInfo.display_name
+        );
+
+        if (userToken instanceof Error) {
+          return doneCallback(userToken, null);
+        }
+
+        const tokenData = {
+          access_token: accessToken,
+          token_type: 'bearer',
+          scope: 'user-read-email user-read-private',
+          expires_in: params.expires_in || 3600,
+          refresh_token: refreshToken,
+        };
+
+        const decoded = jwt.verify(userToken, JWT_SECRET as string) as {
+          id: number;
+        };
+        await spotifyOAuth.storeUserToken(decoded.id, tokenData);
+
+        try {
+          const { serviceSubscriptionManager } = await import(
+            '../services/ServiceSubscriptionManager'
+          );
+          await serviceSubscriptionManager.subscribeUser(decoded.id, 'spotify');
+        } catch (subscriptionError) {
+          console.error(
+            'Error auto-subscribing user to Spotify service:',
+            subscriptionError
+          );
+        }
+
+        return doneCallback(null, {
+          id: userInfo.id,
+          name: userInfo.display_name,
+          email: userInfo.email,
           token: userToken,
         });
       } catch (error) {

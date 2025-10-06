@@ -166,7 +166,9 @@ void main() {
       await tester.pumpAndSettle();
 
       await tester.tap(find.byIcon(Icons.person_outline));
-      await tester.pumpAndSettle();
+      await tester.pump();
+
+      await tester.pump(const Duration(milliseconds: 100));
 
       final bottomNavBar = find.byType(BottomNavigationBar);
       final BottomNavigationBar navBar = tester.widget(bottomNavBar);

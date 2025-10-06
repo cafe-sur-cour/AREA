@@ -2,6 +2,11 @@
 FROM ghcr.io/cirruslabs/flutter:3.35.4 AS builder
 
 ARG SKIP_APK_BUILD=false
+ARG FRONTEND_URL
+
+RUN if [ -z "$FRONTEND_URL" ]; \
+        then echo "FRONTEND_URL is required" && exit 1; \
+    fi
 
 WORKDIR /app
 
@@ -12,7 +17,7 @@ RUN flutter clean
 RUN flutter pub get
 
 RUN if [ "$SKIP_APK_BUILD" != "true" ]; then \
-        flutter build apk --release; \
+        flutter build apk --release --dart-define=FRONTEND_URL="$FRONTEND_URL"; \
     else \
         echo "Skipping APK build for development"; \
         mkdir -p /app/build/app/outputs/flutter-apk/; \
@@ -27,3 +32,6 @@ RUN mkdir -p /app/build
 COPY --from=builder /app/build/app/outputs/flutter-apk/app-release.apk /app/build/area.apk
 
 WORKDIR /app
+
+# Copy the APK to the volume when container starts
+CMD ["sh", "-c", "cp /app/build/area.apk /app/build/area.apk && sleep infinity"]

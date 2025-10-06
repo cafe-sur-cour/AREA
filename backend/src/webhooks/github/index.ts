@@ -23,7 +23,7 @@ class GitHubWebhookHandler implements WebhookHandler {
         return res.status(400).json({ error: 'Missing required headers' });
       }
 
-      const webhookUrl = `${req.protocol}://${req.get('host')}${req.originalUrl}`;
+      const webhookUrl = `${process.env.WEBHOOK_BASE_URL || ''}${req.originalUrl}`;
 
       const externalWebhook = await AppDataSource.getRepository(
         ExternalWebhooks

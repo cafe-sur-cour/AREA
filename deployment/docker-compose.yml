@@ -13,7 +13,7 @@ services:
       - FRONTEND_URL=${FRONTEND_URL}
       - NODE_PORT=${NODE_PORT}
     volumes:
-      - mobile_build:/usr/share/nginx/html/mobile
+      - mobile_build:/app/mobile
     depends_on:
       - client_mobile
       - server
@@ -64,6 +64,7 @@ services:
       dockerfile: deployment/Dockerfile.mobile
       args:
         - SKIP_APK_BUILD=${SKIP_APK_BUILD:-false}
+        - FRONTEND_URL=${FRONTEND_URL}
     container_name: area_mobile
     volumes:
       - mobile_build:/app/build

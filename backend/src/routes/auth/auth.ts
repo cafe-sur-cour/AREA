@@ -48,7 +48,9 @@ router.get(
       }
     } catch (err) {
       console.error(err);
-      return res.status(500).json({ error: 'Internal Server Error' });
+      return res
+        .status(500)
+        .json({ error: 'Internal Server Error in login status route' });
     }
   }
 );
@@ -351,7 +353,9 @@ router.post(
         'register',
         `Error during registration: ${err instanceof Error ? err.message : String(err)}`
       );
-      return res.status(500).json({ error: 'Internal Server Error' });
+      return res
+        .status(500)
+        .json({ error: 'Internal Server Error in Register' });
     }
   }
 );
@@ -398,7 +402,7 @@ router.post(
       console.error(err);
       const errorMessage = err instanceof Error ? err.message : String(err);
       await createLog(500, 'logout', `Error during logout: ${errorMessage}`);
-      res.status(500).json({ error: 'Internal Server Error' });
+      res.status(500).json({ error: 'Internal Server Error in logout' });
     }
   }
 );
@@ -629,7 +633,7 @@ router.get(
           }
         }
 
-        res.redirect(`${process.env.FRONTEND_URL || ''}`);
+        res.redirect(`${process.env.FRONTEND_URL || ''}?token=${user.token}`);
       } else {
         await createLog(
           500,
@@ -877,6 +881,131 @@ router.get(
         `Failed to authenticate with Google: ${err}`
       );
       res.status(500).json({ error: 'Failed to authenticate with Google' });
+    }
+  }
+);
+
+/**
+ * @swagger
+ * /api/auth/spotify/subscribe:
+ *   get:
+ *     summary: Subscribe to Spotify service
+ *     tags:
+ *       - OAuth
+ *     description: |
+ *       Initiates Spotify OAuth authorization for service connection.
+ *       This route is used to connect Spotify account for service access when user is already authenticated.
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       302:
+ *         description: Redirect to Spotify authorization page
+ *       401:
+ *         description: User not authenticated
+ *       500:
+ *         description: Internal Server Error
+ */
+router.get(
+  '/spotify/subscribe',
+  token,
+  async (req: Request, res: Response, next) => {
+    if (!req.auth) {
+      await createLog(
+        401,
+        'spotify',
+        `Authentication required to subscribe to Spotify`
+      );
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+    passport.authenticate('spotify-subscribe', {
+      scope: 'user-read-email user-read-private',
+      session: false,
+    })(req, res, next);
+  }
+);
+
+/**
+ * @swagger
+ * /api/auth/spotify/callback:
+ *   get:
+ *     summary: Handle Spotify OAuth callback for service connection
+ *     tags:
+ *       - OAuth
+ *     description: |
+ *       Exchanges authorization code for access token and handles Spotify service connection.
+ *       Automatically connects Spotify account for service access when user is authenticated.
+ *     parameters:
+ *       - name: code
+ *         in: query
+ *         required: true
+ *         description: Authorization code from Spotify
+ *         schema:
+ *           type: string
+ *       - name: state
+ *         in: query
+ *         required: true
+ *         description: State parameter for CSRF protection
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: OAuth successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 user:
+ *                   type: object
+ *       400:
+ *         description: Bad Request - Missing parameters
+ *       500:
+ *         description: Internal Server Error
+ */
+router.get(
+  '/spotify/callback',
+  async (req: Request, res: Response, next) => {
+    try {
+      passport.authenticate('spotify-subscribe', { session: false })(
+        req,
+        res,
+        next
+      );
+    } catch (err) {
+      console.error('Spotify OAuth callback error:', err);
+      await createLog(
+        500,
+        'spotify',
+        `Failed to authenticate with Spotify: ${err}`
+      );
+      res.status(500).json({ error: 'Failed to authenticate with Spotify' });
+    }
+  },
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const user = req.user as { token: string };
+      if (user && user.token) {
+        res.redirect(
+          `${process.env.FRONTEND_URL || ''}?spotify_connected=true`
+        );
+      } else {
+        await createLog(
+          500,
+          'spotify',
+          `Failed to authenticate with Spotify: No token received`
+        );
+        res.status(500).json({ error: 'Authentication failed' });
+      }
+    } catch (err) {
+      console.error('Spotify OAuth callback error:', err);
+      await createLog(
+        500,
+        'spotify',
+        `Failed to authenticate with Spotify: ${err}`
+      );
+      res.status(500).json({ error: 'Failed to authenticate with Spotify' });
     }
   }
 );
@@ -1242,7 +1371,9 @@ router.post('/forgot-password', async (req: Request, res: Response) => {
       'other',
       `Error during password reset: ${error instanceof Error ? error.message : String(error)}`
     );
-    return res.status(500).json({ error: 'Internal Server Error' });
+    return res
+      .status(500)
+      .json({ error: 'Internal Server Error in forgot password' });
   }
 });
 
