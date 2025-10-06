@@ -302,8 +302,7 @@ jobs:
         if: steps.check_dockerfile.outputs.dockerfile_exists == 'true'
         uses: docker/build-push-action@v5
         with:
-          context: ./deployment
-          file: Dockerfile.${{ matrix.component }}
+          file: ./deployment/Dockerfile.${{ matrix.component }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
