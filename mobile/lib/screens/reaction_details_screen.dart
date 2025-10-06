@@ -27,7 +27,6 @@ class ReactionDetailsScreenState extends State<ReactionDetailsScreen> {
   void _selectReaction(BuildContext context) {
     final automationBuilder = Provider.of<AutomationBuilderNotifier>(context, listen: false);
 
-    // Add the new reaction with delay
     automationBuilder.addReaction(
       ReactionWithDelayModel(
         reaction: widget.reaction,
@@ -36,7 +35,6 @@ class ReactionDetailsScreenState extends State<ReactionDetailsScreen> {
       ),
     );
 
-    // Navigate back to main screen
     Navigator.of(context).pushNamedAndRemoveUntil('/', (Route<dynamic> route) => false);
   }
 

@@ -70,7 +70,6 @@ class _AddAutomationScreenState extends State<AddAutomationScreen> {
   }
 
   void _clearReaction(int index) {
-    // Context is available from the widget's build method closure
     final automationBuilder = Provider.of<AutomationBuilderNotifier>(context, listen: false);
     automationBuilder.removeReaction(index);
   }
@@ -104,10 +103,10 @@ class _AddAutomationScreenState extends State<AddAutomationScreen> {
     );
   }
 
-  void _createAutomation() {
+  void _createAutomation() async {
     final automationBuilder = Provider.of<AutomationBuilderNotifier>(context, listen: false);
 
-    if (!automationBuilder.isComplete) {
+    if (!automationBuilder.hasAction || !automationBuilder.hasReactions) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -120,19 +119,9 @@ class _AddAutomationScreenState extends State<AddAutomationScreen> {
       return;
     }
 
-    // TODO: Implement actual automation creation API call
-    // For now, just clear the builder and show success
-    automationBuilder.clearAll();
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'Automation created successfully!',
-          style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
-        ),
-        backgroundColor: AppColors.areaBlue3,
-      ),
-    );
+    if (mounted) {
+      Navigator.pushNamed(context, '/automation-configuration');
+    }
   }
 
   @override

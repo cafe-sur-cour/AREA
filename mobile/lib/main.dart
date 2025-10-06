@@ -5,6 +5,7 @@ import 'package:area/screens/reaction_services_screen.dart';
 import 'package:area/screens/forgot_password_screen.dart';
 import 'package:area/screens/register_screen.dart';
 import 'package:area/screens/login_screen.dart';
+import 'package:area/screens/automation_configuration_screen.dart';
 import 'package:area/navigation/main_navigation.dart';
 import 'package:area/core/themes/app_theme.dart';
 import 'package:area/core/notifiers/backend_address_notifier.dart';
@@ -58,6 +59,7 @@ class MyApp extends StatelessWidget {
         '/forgot-password': (context) => const ForgotPasswordScreen(),
         '/action-services': (context) => const ActionServicesScreen(),
         '/reaction-services': (context) => const ReactionServicesScreen(),
+        '/automation-configuration': (context) => const AutomationConfigurationScreen(),
       },
     );
   }
