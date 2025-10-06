@@ -21,6 +21,9 @@ class AppRoutes {
   // Service-specific routes
   static String actionsFromService(String serviceId) => "api/services/$serviceId/actions";
   static String reactionsFromService(String serviceId) => "api/services/$serviceId/reactions";
+
+  // Action Reaction mapping
+  static String createAutomation = "api/mappings";
 }
 
 class AppDimensions {
