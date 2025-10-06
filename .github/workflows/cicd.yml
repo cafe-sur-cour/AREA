@@ -257,6 +257,7 @@ jobs:
   build-and-push:
     needs: [backend-test, web-linter, mobile-test]
     name: Build and Push Docker Images
+    if: ${{ (github.event_name == 'pull_request' && github.event.pull_request.merged == true && github.base_ref == 'main') || (github.event_name == 'push' && contains(github.event.head_commit.message, 'Merge pull request') && github.base_ref == 'main') }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
