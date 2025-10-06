@@ -2,12 +2,14 @@ import type { Service } from '../../../types/service';
 import { githubActions } from './actions';
 import { githubReactions } from './reactions';
 import { githubReactionExecutor } from './executor';
+import { getIconSvg } from '../../../utils/iconMapping';
 
 const githubService: Service = {
   id: 'github',
   name: 'GitHub',
   description: 'GitHub service for repository events and actions',
   version: '1.0.0',
+  icon: getIconSvg('FaGithub'),
   actions: githubActions,
   reactions: githubReactions,
   getCredentials: async (userId: number) => {

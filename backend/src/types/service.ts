@@ -5,6 +5,7 @@ export interface Service {
   name: string;
   description: string;
   version: string;
+  icon?: string; // SVG string representation of the icon
   actions: ActionDefinition[];
   reactions: ReactionDefinition[];
   getCredentials?: (userId: number) => Promise<Record<string, string>>;

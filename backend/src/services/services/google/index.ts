@@ -1,10 +1,12 @@
 import type { Service } from '../../../types/service';
+import { getIconSvg } from '../../../utils/iconMapping';
 
 const googleService: Service = {
   id: 'google',
   name: 'Google',
   description: 'Google OAuth service for authentication',
   version: '1.0.0',
+  icon: getIconSvg('FaGoogle'),
   actions: [],
   reactions: [],
 };

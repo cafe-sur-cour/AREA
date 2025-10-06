@@ -2,12 +2,14 @@ import type { Service } from '../../../types/service';
 import { TimerScheduler } from './TimerScheduler';
 import { timerActions } from './actions';
 import { timerReactions } from './reactions';
+import { getIconSvg } from '../../../utils/iconMapping';
 
 const timerService: Service = {
   id: 'timer',
   name: 'Timer',
   description: 'Internal timer service for scheduled actions',
   version: '1.0.0',
+  icon: getIconSvg('FaClock'),
   actions: timerActions,
   reactions: timerReactions,
 };
