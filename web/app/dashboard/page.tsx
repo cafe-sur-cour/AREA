@@ -5,22 +5,21 @@ import { useRouter } from 'next/navigation';
 import {
   Plus,
   Zap,
-  Activity,
   Users,
   Settings,
-  Pause,
   ChevronRight,
-  Clock,
-  CheckCircle2,
-  XCircle,
   Github,
   Calendar,
   Mail,
   MessageSquare,
+  Power,
+  PowerOff,
+  Timer,
+  HandPlatter,
 } from 'lucide-react';
 
 import Navigation from '@/components/header';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
@@ -40,15 +39,19 @@ interface Automation {
 interface DashboardStats {
   totalAutomations: number;
   activeAutomations: number;
+  inactiveAutomations: number;
+  totalServices: number;
 }
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { user, isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
   const [automations, setAutomations] = useState<Automation[]>([]);
   const [stats, setStats] = useState<DashboardStats>({
     totalAutomations: 0,
     activeAutomations: 0,
+    inactiveAutomations: 0,
+    totalServices: 0,
   });
   const [isLoadingData, setIsLoadingData] = useState(true);
 
@@ -66,100 +69,48 @@ export default function DashboardPage() {
   const fetchDashboardData = async () => {
     try {
       setIsLoadingData(true);
-      const mockAutomations: Automation[] = [
-        {
-          id: 1,
-          name: 'GitHub to Discord',
-          description: 'Send Discord notification when new commit is pushed',
-          isActive: true,
-          trigger: 'GitHub Push',
-          action: ['Discord Message'],
-          created_at: '2024-01-15T10:30:00Z',
-        },
-        {
-          id: 2,
-          name: 'Email to Calendar',
-          description: 'Create calendar event from important emails',
-          isActive: true,
-          trigger: 'Gmail New Email',
-          action: ['Google Calendar Event'],
-          created_at: '2024-01-10T14:20:00Z',
-        },
-        {
-          id: 3,
-          name: 'Tweet Backup',
-          description: 'Save tweets to Google Drive',
-          isActive: false,
-          trigger: 'Twitter New Tweet',
-          action: ['Google Drive File'],
-          created_at: '2024-01-05T09:15:00Z',
-        },
-      ];
-
       try {
         const response = await api.get<{ mappings: Mapping[] }>({
           endpoint: '/mappings',
         });
-        const rawMapping : Mapping[] | undefined = response.data?.mappings;
-        if (!rawMapping || rawMapping === undefined)
+        const resService = (
+          await api.get<{
+            configs: { id: number; service: string; is_active: boolean }[];
+          }>({ endpoint: '/services/configs' })
+        ).data?.configs;
+        const rawMapping: Mapping[] | undefined = response.data?.mappings;
+        if (
+          !rawMapping ||
+          rawMapping === undefined ||
+          !resService ||
+          resService === undefined
+        )
           return;
-        console.log(rawMapping);
-        setAutomations(rawMapping.map(mapping => ({
-          id: mapping.id,
-          name: mapping.name,
-          description: mapping.description,
-          isActive: mapping.is_active,
-          trigger: mapping.action.type,
-          action: mapping.reactions.map(r => r.type),
-          created_at: mapping.created_at,
-        })));
+        console.log(resService);
+        setAutomations(
+          rawMapping.map(mapping => ({
+            id: mapping.id,
+            name: mapping.name,
+            description: mapping.description,
+            isActive: mapping.is_active,
+            trigger: mapping.action.type,
+            action: mapping.reactions.map(r => r.type),
+            created_at: mapping.created_at,
+          }))
+        );
         setStats({
           totalAutomations: rawMapping.length,
           activeAutomations: rawMapping.filter(a => a.is_active).length,
+          inactiveAutomations: rawMapping.filter(a => !a.is_active).length,
+          totalServices: resService.length,
         });
       } catch (error) {
         console.error(error);
       }
-
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
     } finally {
       setIsLoadingData(false);
-    }
-  };
-
-  const toggleAutomationStatus = async (id: number, currentStatus: string) => {
-    const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
-    setAutomations(prev =>
-      prev.map(automation =>
-        automation.id === id
-          ? {
-              ...automation,
-              status: newStatus as 'active' | 'inactive' | 'error',
-            }
-          : automation
-      )
-    );
-  };
-
-  const deleteAutomation = async (id: number) => {
-    setAutomations(prev => prev.filter(automation => automation.id !== id));
-    setStats(prev => ({
-      ...prev,
-      totalAutomations: prev.totalAutomations - 1,
-    }));
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'active':
-        return <CheckCircle2 className='h-4 w-4 text-green-500' />;
-      case 'inactive':
-        return <Pause className='h-4 w-4 text-yellow-500' />;
-      case 'error':
-        return <XCircle className='h-4 w-4 text-red-500' />;
-      default:
-        return <Clock className='h-4 w-4 text-gray-500' />;
     }
   };
 
@@ -181,11 +132,12 @@ export default function DashboardPage() {
   };
 
   const getTriggerIcon = (trigger: string) => {
-    if (trigger.includes('GitHub')) return <Github className='h-4 w-4' />;
-    if (trigger.includes('Gmail')) return <Mail className='h-4 w-4' />;
-    if (trigger.includes('Calendar')) return <Calendar className='h-4 w-4' />;
-    if (trigger.includes('Discord') || trigger.includes('Twitter'))
+    if (trigger.startsWith('github')) return <Github className='h-4 w-4' />;
+    if (trigger.startsWith('gmail')) return <Mail className='h-4 w-4' />;
+    if (trigger.startsWith('calendar')) return <Calendar className='h-4 w-4' />;
+    if (trigger.startsWith('discord') || trigger.startsWith('twitter'))
       return <MessageSquare className='h-4 w-4' />;
+    if (trigger.startsWith('timer')) return <Timer className='h-4 w-4' />;
     return <Zap className='h-4 w-4' />;
   };
 
@@ -203,6 +155,8 @@ export default function DashboardPage() {
     );
   }
 
+  const AreaGridCols = automations.length >= 3 ? 3 : automations.length;
+
   return (
     <div className='min-h-screen bg-background'>
       <Navigation />
@@ -215,7 +169,7 @@ export default function DashboardPage() {
               Dashboard
             </h1>
             <p className='text-muted-foreground mt-1'>
-              Manage your automations and monitor their performance
+              Manage your Area and monitor their performance
             </p>
           </div>
           <Button
@@ -223,23 +177,37 @@ export default function DashboardPage() {
             className='bg-primary hover:bg-primary/90'
           >
             <Plus className='h-4 w-4 mr-2' />
-            New Automation
+            New Area
           </Button>
         </div>
 
         {/* Stats Cards */}
-        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 mb-8'>
+        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8'>
+          <Card>
+            <CardContent className='p-6'>
+              <div className='flex items-center justify-between'>
+                <div>
+                  <p className='text-sm text-muted-foreground'>Total Areas</p>
+                  <p className='text-2xl font-bold'>{stats.totalAutomations}</p>
+                </div>
+                <div className='p-3 rounded-lg'>
+                  <Zap className='h-6 w-6 text-blue-600' />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           <Card>
             <CardContent className='p-6'>
               <div className='flex items-center justify-between'>
                 <div>
                   <p className='text-sm text-muted-foreground'>
-                    Total Automations
+                    Connected Services
                   </p>
-                  <p className='text-2xl font-bold'>{stats.totalAutomations}</p>
+                  <p className='text-2xl font-bold'>{stats.totalServices}</p>
                 </div>
-                <div className='bg-blue-100 p-3 rounded-lg'>
-                  <Zap className='h-6 w-6 text-blue-600' />
+                <div className='p-3 rounded-lg'>
+                  <HandPlatter className='h-6 w-6 text-blue-600' />
                 </div>
               </div>
             </CardContent>
@@ -254,16 +222,31 @@ export default function DashboardPage() {
                     {stats.activeAutomations}
                   </p>
                 </div>
-                <div className='bg-green-100 p-3 rounded-lg'>
-                  <Activity className='h-6 w-6 text-green-600' />
+                <div className='p-3 rounded-lg'>
+                  <Power className='h-6 w-6 text-green-600' />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className='p-6'>
+              <div className='flex items-center justify-between'>
+                <div>
+                  <p className='text-sm text-muted-foreground'>Inactive</p>
+                  <p className='text-2xl font-bold text-red-600'>
+                    {stats.inactiveAutomations}
+                  </p>
+                </div>
+                <div className='p-3 rounded-lg'>
+                  <PowerOff className='h-6 w-6 text-red-600' />
                 </div>
               </div>
             </CardContent>
           </Card>
         </div>
 
-        <section>
-          <h1>Quick actions</h1>
+        <section className='mt-10 mb-8'>
+          <h1 className='text-2xl font-semibold mb-4'>Quick actions</h1>
           <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
             <Button
               variant='outline'
@@ -288,7 +271,7 @@ export default function DashboardPage() {
               <div className='text-left'>
                 <div className='font-medium'>Browse Templates</div>
                 <div className='text-xs text-muted-foreground'>
-                  Pre-made automations
+                  Pre-made Area
                 </div>
               </div>
             </Button>
@@ -310,28 +293,28 @@ export default function DashboardPage() {
         </section>
 
         {/* Automations List */}
-        <section>
-          <h1>Your Automations</h1>
+        <section className='mt-12 mb-8'>
+          <h1 className='text-2xl font-semibold mb-6'>Your Areas</h1>
           {automations.length === 0 ? (
             <div className='text-center py-12'>
               <Zap className='h-12 w-12 text-muted-foreground mx-auto mb-4' />
-              <h3 className='text-lg font-semibold mb-2'>
-                No automations yet
-              </h3>
+              <h3 className='text-lg font-semibold mb-2'>No Area yet</h3>
               <p className='text-muted-foreground mb-6'>
-                Create your first automation to get started
+                Create your first Area to get started
               </p>
               <Button onClick={() => router.push('/my-areas')}>
                 <Plus className='h-4 w-4 mr-2' />
-                Create Automation
+                Create Area
               </Button>
             </div>
           ) : (
-            <div className={`grid gap-2 lg:grid-cols-${automations.length >= 3 ? 3 : automations.length}`}>
+            <div
+              className={`grid gap-4 ${AreaGridCols >= 3 ? 'lg:grid-cols-3' : 'lg:grid-cols-' + AreaGridCols}`}
+            >
               {automations.map(automation => (
                 <div
                   key={automation.id}
-                  className='flex items-center justify-between p-4 border border-border rounded-lg hover:border-primary/50 transition-colors'
+                  className='items-center justify-between p-4 border border-border rounded-lg hover:border-primary/50 transition-colors'
                 >
                   <div className='flex items-center gap-4 flex-1'>
                     <div className='flex items-center gap-2'>
@@ -343,7 +326,9 @@ export default function DashboardPage() {
                         <h3 className='font-semibold text-foreground truncate'>
                           {automation.name}
                         </h3>
-                        {getStatusBadge(automation.isActive ? 'active' : 'inactive')}
+                        {getStatusBadge(
+                          automation.isActive ? 'active' : 'inactive'
+                        )}
                       </div>
                       <p className='text-sm text-muted-foreground mb-2 line-clamp-1'>
                         {automation.description}
@@ -357,7 +342,6 @@ export default function DashboardPage() {
                       </div>
                     </div>
                   </div>
-
                 </div>
               ))}
             </div>

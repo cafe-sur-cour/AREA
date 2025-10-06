@@ -160,48 +160,50 @@ export default function ServicesPage() {
 
       setIsLoading(true);
       try {
-      const updatedServices = await Promise.all(
-        services.map(async service => {
-          try {
-            const [oauthResponse, subscribeResponse] = await Promise.allSettled(
-              [
-                api.get<{ connected?: boolean }>({
-                  endpoint: service.loginStatusEndpoint!,
-                }),
-                api.get<{ subscribed?: boolean; oauth_connected?: boolean }>({
-                  endpoint: service.statusEndpoint,
-                }),
-              ]
-            );
+        const updatedServices = await Promise.all(
+          services.map(async service => {
+            try {
+              const [oauthResponse, subscribeResponse] =
+                await Promise.allSettled([
+                  api.get<{ connected?: boolean }>({
+                    endpoint: service.loginStatusEndpoint!,
+                  }),
+                  api.get<{ subscribed?: boolean; oauth_connected?: boolean }>({
+                    endpoint: service.statusEndpoint,
+                  }),
+                ]);
 
-            const oauthConnected =
-              (oauthResponse.status === 'fulfilled' &&
-                oauthResponse.value.data?.connected) ||
-              false;
-            const subscribed =
-              (subscribeResponse.status === 'fulfilled' &&
-                subscribeResponse.value.data?.subscribed) ||
-              false;
+              const oauthConnected =
+                (oauthResponse.status === 'fulfilled' &&
+                  oauthResponse.value.data?.connected) ||
+                false;
+              const subscribed =
+                (subscribeResponse.status === 'fulfilled' &&
+                  subscribeResponse.value.data?.subscribed) ||
+                false;
 
-            if (oauthResponse.status === 'rejected' || subscribeResponse.status === 'rejected') {
-              console.log(`User not connected to ${service.name}`);
+              if (
+                oauthResponse.status === 'rejected' ||
+                subscribeResponse.status === 'rejected'
+              ) {
+                console.log(`User not connected to ${service.name}`);
+              }
+
+              return {
+                ...service,
+                isConnected: subscribed,
+                oauthConnected,
+                subscribed,
+              };
+            } catch (error) {
+              console.log(`User not connected to ${service.name}, `, error);
+              return service;
             }
-
-            return {
-              ...service,
-              isConnected: subscribed,
-              oauthConnected,
-              subscribed,
-            };
-          } catch (error) {
-            console.log(`User not connected to ${service.name}`);
-            return service;
-          }
-        })
-      );
-      setServices(updatedServices);
+          })
+        );
+        setServices(updatedServices);
       } catch (error) {
-        console.log('Error updating services');
+        console.log('Error updating services: ', error);
       } finally {
         setIsLoading(false);
       }
@@ -239,7 +241,7 @@ export default function ServicesPage() {
           )
         );
       } catch (error) {
-        console.log(`User not connected to ${service.name}`);
+        console.log(`User not connected to ${service.name}, `, error);
       }
     }
   };
@@ -259,7 +261,7 @@ export default function ServicesPage() {
         )
       );
     } catch (error) {
-      console.log(`User not connected to ${service.name}`);
+      console.log(`User not connected to ${service.name}, `, error);
     }
   };
 
