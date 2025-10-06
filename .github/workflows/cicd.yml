@@ -2,8 +2,8 @@ name: CI/CD Pipeline
 
 on:
   push: {}
-  pull_request: {}
-
+  pull_request:
+    types: [opened]
 
 jobs:
   check_repository:
