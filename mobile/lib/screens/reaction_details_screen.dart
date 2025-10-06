@@ -4,6 +4,8 @@ import 'package:area/models/service_models.dart';
 import 'package:area/models/reaction_with_delay_model.dart';
 import 'package:area/core/constants/app_colors.dart';
 import 'package:area/core/utils/color_utils.dart';
+import 'package:area/core/notifiers/automation_builder_notifier.dart';
+import 'package:provider/provider.dart';
 
 class ReactionDetailsScreen extends StatefulWidget {
   final ReactionModel reaction;
@@ -23,16 +25,10 @@ class ReactionDetailsScreenState extends State<ReactionDetailsScreen> {
   }
 
   void _selectReaction(BuildContext context) {
-    final currentArgs = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    final automationBuilder = Provider.of<AutomationBuilderNotifier>(context, listen: false);
 
-    List<ReactionWithDelayModel> existingReactionsWithDelay = [];
-    if (currentArgs?['selectedReactionsWithDelay'] != null) {
-      existingReactionsWithDelay = List<ReactionWithDelayModel>.from(
-        currentArgs!['selectedReactionsWithDelay'],
-      );
-    }
-
-    existingReactionsWithDelay.add(
+    // Add the new reaction with delay
+    automationBuilder.addReaction(
       ReactionWithDelayModel(
         reaction: widget.reaction,
         service: widget.service,
@@ -40,15 +36,8 @@ class ReactionDetailsScreenState extends State<ReactionDetailsScreen> {
       ),
     );
 
-    Navigator.of(context).pushNamedAndRemoveUntil(
-      '/',
-      (Route<dynamic> route) => false,
-      arguments: {
-        'selectedAction': currentArgs?['selectedAction'],
-        'selectedService': currentArgs?['selectedService'],
-        'selectedReactionsWithDelay': existingReactionsWithDelay,
-      },
-    );
+    // Navigate back to main screen
+    Navigator.of(context).pushNamedAndRemoveUntil('/', (Route<dynamic> route) => false);
   }
 
   void _showDelayPicker() {
@@ -274,129 +263,6 @@ class ReactionDetailsScreenState extends State<ReactionDetailsScreen> {
       ),
       body: Column(
         children: [
-          Container(
-            width: double.infinity,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [serviceColor, serviceColor.withValues(alpha: 0.8)],
-              ),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        width: 32,
-                        height: 32,
-                        decoration: BoxDecoration(
-                          color: AppColors.areaLightGray.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: widget.service.icon != null
-                            ? ClipRRect(
-                                borderRadius: BorderRadius.circular(6),
-                                child: Image.network(
-                                  widget.service.icon!,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return const Icon(
-                                      Icons.web,
-                                      color: AppColors.areaLightGray,
-                                      size: 20,
-                                    );
-                                  },
-                                ),
-                              )
-                            : const Icon(Icons.web, color: AppColors.areaLightGray, size: 20),
-                      ),
-
-                      const SizedBox(width: 12),
-
-                      Text(
-                        widget.service.name,
-                        style: TextStyle(
-                          fontFamily: 'Montserrat',
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.areaLightGray.withValues(alpha: 0.9),
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  Row(
-                    children: [
-                      Container(
-                        width: 48,
-                        height: 48,
-                        decoration: BoxDecoration(
-                          color: AppColors.areaLightGray.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: widget.reaction.metadata?.icon != null
-                            ? ClipRRect(
-                                borderRadius: BorderRadius.circular(8),
-                                child: Image.network(
-                                  widget.reaction.metadata!.icon!,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return const Icon(
-                                      Icons.replay,
-                                      color: AppColors.areaLightGray,
-                                      size: 28,
-                                    );
-                                  },
-                                ),
-                              )
-                            : const Icon(
-                                Icons.replay,
-                                color: AppColors.areaLightGray,
-                                size: 28,
-                              ),
-                      ),
-
-                      const SizedBox(width: 16),
-
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              widget.reaction.name,
-                              style: const TextStyle(
-                                fontFamily: 'Montserrat',
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.areaLightGray,
-                              ),
-                            ),
-
-                            const SizedBox(height: 4),
-
-                            Text(
-                              'Reaction',
-                              style: TextStyle(
-                                fontFamily: 'Montserrat',
-                                fontSize: 14,
-                                color: AppColors.areaLightGray.withValues(alpha: 0.8),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(24.0),
@@ -510,40 +376,6 @@ class ReactionDetailsScreenState extends State<ReactionDetailsScreen> {
 
                     const SizedBox(height: 24),
                   ],
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.grey.withValues(alpha: 0.3), width: 1),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Reaction ID',
-                          style: TextStyle(
-                            fontFamily: 'Montserrat',
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.areaDarkGray,
-                          ),
-                        ),
-
-                        const SizedBox(height: 4),
-
-                        Text(
-                          widget.reaction.id,
-                          style: const TextStyle(
-                            fontFamily: 'monospace',
-                            fontSize: 14,
-                            color: AppColors.areaDarkGray,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
                 ],
               ),
             ),

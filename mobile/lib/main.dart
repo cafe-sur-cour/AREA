@@ -9,6 +9,7 @@ import 'package:area/navigation/main_navigation.dart';
 import 'package:area/core/themes/app_theme.dart';
 import 'package:area/core/notifiers/backend_address_notifier.dart';
 import 'package:area/core/notifiers/locale_notifier.dart';
+import 'package:area/core/notifiers/automation_builder_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
@@ -18,7 +19,11 @@ void main() {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => LocaleNotifier()),
-        ChangeNotifierProvider(create: (context) => BackendAddressNotifier()),
+        ChangeNotifierProvider(
+          create: (context) =>
+              BackendAddressNotifier()..setBackendAddress(AppConfig.backendUrl),
+        ),
+        ChangeNotifierProvider(create: (context) => AutomationBuilderNotifier()),
       ],
       child: const MyApp(),
     ),
@@ -31,11 +36,6 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final locale = Provider.of<LocaleNotifier>(context).locale;
-
-    final backendAddressProvider = Provider.of<BackendAddressNotifier>(context);
-    if (backendAddressProvider.backendAddress == null) {
-      backendAddressProvider.setBackendAddress(AppConfig.backendUrl);
-    }
 
     return MaterialApp(
       localizationsDelegates: const [
@@ -52,14 +52,7 @@ class MyApp extends StatelessWidget {
       themeMode: ThemeMode.system,
       initialRoute: '/',
       routes: {
-        '/': (context) {
-          final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
-          return MainNavigation(
-            selectedAction: args?['selectedAction'],
-            selectedService: args?['selectedService'],
-            selectedReactionsWithDelay: args?['selectedReactionsWithDelay'],
-          );
-        },
+        '/': (context) => const MainNavigation(),
         '/login': (context) => const LoginScreen(),
         '/register': (context) => const RegisterScreen(),
         '/forgot-password': (context) => const ForgotPasswordScreen(),

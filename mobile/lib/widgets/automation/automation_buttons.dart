@@ -25,10 +25,6 @@ class AutomationButtons extends StatelessWidget {
     required this.onCreateAutomation,
   });
 
-  Color get _actionColor => selectedService != null
-      ? ColorUtils.getServiceColor(selectedService!)
-      : AppColors.areaBlue3;
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -42,7 +38,7 @@ class AutomationButtons extends StatelessWidget {
             ElevatedButton(
               onPressed: onAddAction,
               style: ElevatedButton.styleFrom(
-                backgroundColor: hasAction ? _actionColor : AppColors.areaBlue3,
+                backgroundColor: hasAction ? AppColors.areaBlue3 : AppColors.areaBlue1,
                 padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 40),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
               ),
@@ -55,7 +51,7 @@ class AutomationButtons extends StatelessWidget {
                   children: [
                     Flexible(
                       child: Text(
-                        hasAction ? "Change Action" : "Action",
+                        "Action",
                         style: const TextStyle(
                           fontFamily: 'Montserrat',
                           color: AppColors.areaLightGray,
@@ -80,7 +76,7 @@ class AutomationButtons extends StatelessWidget {
               onPressed: hasAction ? onAddReaction : null,
               style: ElevatedButton.styleFrom(
                 backgroundColor: hasAction
-                    ? (hasReactions ? _actionColor : AppColors.areaBlue3)
+                    ? (hasReactions ? AppColors.areaBlue3 : AppColors.areaBlue1)
                     : AppColors.areaDarkGray,
                 padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 40),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
@@ -94,9 +90,7 @@ class AutomationButtons extends StatelessWidget {
                   children: [
                     Flexible(
                       child: Text(
-                        hasReactions
-                            ? "Add Another REAction"
-                            : (hasAction ? "Add REAction" : "REAction"),
+                        "REAction",
                         style: const TextStyle(
                           fontFamily: 'Montserrat',
                           color: AppColors.areaLightGray,
@@ -186,9 +180,7 @@ class AutomationButtons extends StatelessWidget {
                   const SizedBox(width: 16),
 
                   Text(
-                    reactionsCount > 1
-                        ? 'Create Multi-Automation ($reactionsCount)'
-                        : 'Create Automation',
+                    'Create Automation',
                     style: const TextStyle(
                       fontFamily: 'Montserrat',
                       fontSize: 18,

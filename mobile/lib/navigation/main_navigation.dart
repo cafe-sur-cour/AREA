@@ -1,10 +1,10 @@
 import 'package:area/core/constants/app_colors.dart';
 import 'package:area/core/constants/app_constants.dart';
 import 'package:area/l10n/app_localizations.dart';
-import 'package:area/models/action_models.dart';
-import 'package:area/models/service_models.dart';
-import 'package:area/models/reaction_with_delay_model.dart';
+
+import 'package:area/core/notifiers/automation_builder_notifier.dart';
 import 'package:area/screens/home_screen.dart';
+import 'package:provider/provider.dart';
 import 'package:area/screens/catalogue_screen.dart';
 import 'package:area/screens/add_automation_screen.dart';
 import 'package:area/screens/automations_screen.dart';
@@ -28,16 +28,7 @@ class NavigationItem {
 }
 
 class MainNavigation extends StatefulWidget {
-  final ActionModel? selectedAction;
-  final ServiceModel? selectedService;
-  final List<ReactionWithDelayModel>? selectedReactionsWithDelay;
-
-  const MainNavigation({
-    super.key,
-    this.selectedAction,
-    this.selectedService,
-    this.selectedReactionsWithDelay,
-  });
+  const MainNavigation({super.key});
 
   @override
   MainNavigationState createState() => MainNavigationState();
@@ -49,7 +40,8 @@ class MainNavigationState extends State<MainNavigation> {
   @override
   void initState() {
     super.initState();
-    if (widget.selectedAction != null || widget.selectedReactionsWithDelay != null) {
+    final automationBuilder = Provider.of<AutomationBuilderNotifier>(context, listen: false);
+    if (automationBuilder.hasAction || automationBuilder.hasReactions) {
       _currentIndex = 2;
     } else {
       _currentIndex = 0;
@@ -74,11 +66,7 @@ class MainNavigationState extends State<MainNavigation> {
       NavigationItem(
         label: AppLocalizations.of(context)!.label_add,
         icon: Icons.add_circle_outline,
-        screenBuilder: () => AddAutomationScreen(
-          selectedAction: widget.selectedAction,
-          selectedService: widget.selectedService,
-          selectedReactionsWithDelay: widget.selectedReactionsWithDelay,
-        ),
+        screenBuilder: () => const AddAutomationScreen(),
         selectedIcon: Icons.add_circle,
       ),
       NavigationItem(
