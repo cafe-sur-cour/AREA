@@ -901,20 +901,24 @@ router.get(
  *       500:
  *         description: Internal Server Error
  */
-router.get('/spotify/subscribe', token, async (req: Request, res: Response, next) => {
-  if (!req.auth) {
-    await createLog(
-      401,
-      'spotify',
-      `Authentication required to subscribe to Spotify`
-    );
-    return res.status(401).json({ error: 'Authentication required' });
+router.get(
+  '/spotify/subscribe',
+  token,
+  async (req: Request, res: Response, next) => {
+    if (!req.auth) {
+      await createLog(
+        401,
+        'spotify',
+        `Authentication required to subscribe to Spotify`
+      );
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+    passport.authenticate('spotify-subscribe', {
+      scope: 'user-read-email user-read-private',
+      session: false,
+    })(req, res, next);
   }
-  passport.authenticate('spotify-subscribe', {
-    scope: 'user-read-email user-read-private',
-    session: false,
-  })(req, res, next);
-});
+);
 
 /**
  * @swagger

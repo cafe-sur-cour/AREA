@@ -402,7 +402,6 @@ passport.use(
         user?: SpotifyUser | null
       ) => void;
       try {
-        // Get user profile from Spotify API
         const userInfo = await spotifyOAuth.getUserInfo(accessToken);
 
         const userToken = await oauthLogin(
@@ -472,7 +471,6 @@ passport.use(
           return doneCallback(new Error('User not authenticated'), null);
         }
 
-        // Get user profile from Spotify API
         const userInfo = await spotifyOAuth.getUserInfo(accessToken);
 
         const userToken = await connectOAuthProvider(

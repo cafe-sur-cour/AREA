@@ -295,8 +295,8 @@ export default function ServicesPage() {
                       {service.id === 'spotify'
                         ? 'Not Connected'
                         : service.oauthConnected
-                        ? 'Not Subscribed'
-                        : 'Not Connected'}
+                          ? 'Not Subscribed'
+                          : 'Not Connected'}
                     </Badge>
                   )}
                 </div>
@@ -327,8 +327,8 @@ export default function ServicesPage() {
                         {service.id === 'spotify'
                           ? 'Connect & Subscribe'
                           : service.oauthConnected
-                          ? 'Subscribe'
-                          : 'Connect & Subscribe'}
+                            ? 'Subscribe'
+                            : 'Connect & Subscribe'}
                       </Button>
                     )}
                     <Button

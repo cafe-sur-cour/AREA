@@ -210,7 +210,6 @@ export class SpotifyOAuth {
     });
 
     if (token && token.expires_at && token.expires_at < new Date()) {
-      // Try to refresh the token
       const refreshToken = await tokenRepository.findOne({
         where: {
           user_id: userId,
@@ -225,7 +224,6 @@ export class SpotifyOAuth {
             refreshToken.token_value
           );
           await this.storeUserToken(userId, newTokenData);
-          // Return the updated token
           return await tokenRepository.findOne({
             where: {
               user_id: userId,

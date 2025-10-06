@@ -180,7 +180,6 @@ router.post(
         });
       }
 
-      // TODO: Implement Spotify subscription logic
       const subscription = await serviceSubscriptionManager.subscribeUser(
         userId,
         'spotify'

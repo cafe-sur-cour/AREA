@@ -1,5 +1,5 @@
 import type { ActionDefinition } from '../../../types/service';
 
 // Spotify actions
-// TODO: Add Spotify actions here when implementing specific features
+// TODO: Add Spotify actions
 export const spotifyActions: ActionDefinition[] = [];
