@@ -11,6 +11,9 @@ class AppRoutes {
   // Profile
   static const String me = "api/user/me";
 
+  // OAuth2
+  static const String github = "api/auth/github/login";
+
   // Services
   static const String servicesWithActions = "api/services/actions";
   static const String servicesWithReactions = "api/services/reactions";

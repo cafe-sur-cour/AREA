@@ -64,6 +64,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
           const resp = await api.get<User>({ endpoint: '/user/me' });
           if (!resp.data) {
+            document.cookie =
+              'auth_token=; Max-Age=0; path=/; domain=' +
+              window.location.hostname;
             throw new Error('Invalid user data received');
           }
 
