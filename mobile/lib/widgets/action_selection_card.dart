@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:area/models/reaction_models.dart';
+import 'package:area/models/action_models.dart';
 import 'package:area/core/constants/app_colors.dart';
 import 'package:area/core/utils/color_utils.dart';
 
-class ReactionCard extends StatelessWidget {
-  final ReactionModel reaction;
+class ActionSelectionCard extends StatelessWidget {
+  final ActionModel action;
   final VoidCallback? onTap;
 
-  const ReactionCard({super.key, required this.reaction, this.onTap});
+  const ActionSelectionCard({super.key, required this.action, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -29,34 +29,36 @@ class ReactionCard extends StatelessWidget {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: ColorUtils.getReactionColor(reaction).withValues(alpha: 0.1),
+                      color: ColorUtils.getActionColor(action).withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: reaction.metadata?.icon != null
+                    child: action.metadata?.icon != null
                         ? ClipRRect(
                             borderRadius: BorderRadius.circular(8),
                             child: Image.network(
-                              reaction.metadata!.icon!,
+                              action.metadata!.icon!,
                               fit: BoxFit.cover,
                               errorBuilder: (context, error, stackTrace) {
                                 return Icon(
-                                  Icons.replay,
-                                  color: ColorUtils.getReactionColor(reaction),
+                                  Icons.flash_on,
+                                  color: ColorUtils.getActionColor(action),
                                   size: 24,
                                 );
                               },
                             ),
                           )
                         : Icon(
-                            Icons.replay,
-                            color: ColorUtils.getReactionColor(reaction),
+                            Icons.flash_on,
+                            color: ColorUtils.getActionColor(action),
                             size: 24,
                           ),
                   ),
+
                   const SizedBox(width: 12),
+
                   Expanded(
                     child: Text(
-                      reaction.name,
+                      action.name,
                       style: const TextStyle(
                         fontFamily: 'Montserrat',
                         fontSize: 16,
@@ -70,10 +72,12 @@ class ReactionCard extends StatelessWidget {
                   const Icon(Icons.arrow_forward_ios, color: AppColors.areaDarkGray, size: 16),
                 ],
               ),
+
               const SizedBox(height: 12),
-              if (reaction.description.isNotEmpty)
+
+              if (action.description.isNotEmpty)
                 Text(
-                  reaction.description,
+                  action.description,
                   style: const TextStyle(
                     fontFamily: 'Montserrat',
                     fontSize: 14,
@@ -83,8 +87,9 @@ class ReactionCard extends StatelessWidget {
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
                 ),
-              if (reaction.configSchema?.fields != null &&
-                  reaction.configSchema!.fields.isNotEmpty)
+
+              if (action.configSchema?.fields != null &&
+                  action.configSchema!.fields.isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: Row(
@@ -94,9 +99,11 @@ class ReactionCard extends StatelessWidget {
                         size: 16,
                         color: AppColors.areaDarkGray.withValues(alpha: 0.7),
                       ),
+
                       const SizedBox(width: 4),
+
                       Text(
-                        '${reaction.configSchema!.fields.length} parameter${reaction.configSchema!.fields.length == 1 ? '' : 's'}',
+                        '${action.configSchema!.fields.length} parameter${action.configSchema!.fields.length == 1 ? '' : 's'}',
                         style: TextStyle(
                           fontFamily: 'Montserrat',
                           fontSize: 12,
