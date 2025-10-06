@@ -75,9 +75,9 @@ export default function DashboardPage() {
         });
         const resService = (
           await api.get<{
-            configs: { id: number; service: string; is_active: boolean }[];
-          }>({ endpoint: '/services/configs' })
-        ).data?.configs;
+            services: { id: string; name: string; description: boolean }[];
+          }>({ endpoint: '/services/subscribed' })
+        ).data?.services;
         const rawMapping: Mapping[] | undefined = response.data?.mappings;
         if (
           !rawMapping ||
