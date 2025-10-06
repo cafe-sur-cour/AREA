@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:area/core/config/app_config.dart';
 import 'package:area/core/constants/app_colors.dart';
 import 'package:area/core/constants/app_constants.dart';
 import 'package:area/core/notifiers/backend_address_notifier.dart';
@@ -54,6 +55,7 @@ class ProfileScreenState extends State<ProfileScreen> {
     late Color color;
 
     final appLocalizations = AppLocalizations.of(context);
+    final backendAddressNotifier = Provider.of<BackendAddressNotifier>(context, listen: false);
 
     try {
       final client = SecureHttpClient.getClient();
@@ -70,9 +72,11 @@ class ProfileScreenState extends State<ProfileScreen> {
 
       message = appLocalizations!.valid_backend_server_address;
       color = AppColors.success;
+      backendAddressNotifier.setBackendAddress(address);
     } catch (e) {
       message = appLocalizations!.invalid_backend_server_address;
       color = AppColors.error;
+      _backendServerController.text = backendAddressNotifier.backendAddress ?? "";
     }
 
     if (mounted) {
@@ -210,6 +214,9 @@ class ProfileScreenState extends State<ProfileScreen> {
     final backendAddressNotifier = Provider.of<BackendAddressNotifier>(context);
 
     if (_justInitialized) {
+      if (backendAddressNotifier.backendAddress == null) {
+        backendAddressNotifier.setBackendAddress(AppConfig.backendUrl);
+      }
       _backendServerController.text = backendAddressNotifier.backendAddress ?? "";
       _justInitialized = false;
     }
@@ -341,12 +348,6 @@ class ProfileScreenState extends State<ProfileScreen> {
                       border: OutlineInputBorder(),
                     ),
                     keyboardType: TextInputType.url,
-                    onChanged: (value) {
-                      if (!value.endsWith("/")) {
-                        value += "/";
-                      }
-                      backendAddressNotifier.setBackendAddress(value);
-                    },
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return AppLocalizations.of(context)!.empty_backend_server_address;
@@ -360,9 +361,7 @@ class ProfileScreenState extends State<ProfileScreen> {
                       FocusScope.of(context).unfocus();
                       _testApiAddress(_backendServerController.text);
                     },
-                    onFieldSubmitted: (value) async {
-                      await _testApiAddress(value);
-                    },
+                    onFieldSubmitted: (value) => _testApiAddress(value),
                   ),
                 ],
               ),
