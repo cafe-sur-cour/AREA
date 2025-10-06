@@ -24,7 +24,7 @@ import aboutRoutes from './src/routes/about/about';
 import webhookRoutes from './src/webhooks';
 import githubRoutes from './src/routes/github/github';
 import googleRoutes from './src/routes/google/google';
-import serviceConfigRoutes from './src/routes/services/configs';
+import spotifyRoutes from './src/routes/spotify/spotify';
 import servicesRoutes from './src/routes/services';
 import mappingsRoutes from './src/routes/services/mappings';
 
@@ -137,7 +137,7 @@ setupSignal();
     app.use('/api/user', userRoutes);
     app.use('/api/github', githubRoutes);
     app.use('/api/google', googleRoutes);
-    app.use('/api/services', serviceConfigRoutes);
+    app.use('/api/spotify', spotifyRoutes);
     app.use('/api/services', servicesRoutes);
     app.use('/api/mappings', mappingsRoutes);
     app.use('/api/info', apiRoutes);

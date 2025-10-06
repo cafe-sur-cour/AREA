@@ -13,7 +13,7 @@ services:
       - FRONTEND_URL=${FRONTEND_URL}
       - NODE_PORT=${NODE_PORT}
     volumes:
-      - mobile_build:/usr/share/nginx/html/mobile
+      - mobile_build:/app/mobile
     depends_on:
       - client_mobile
       - server
