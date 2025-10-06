@@ -901,7 +901,7 @@ router.get(
  *       500:
  *         description: Internal Server Error
  */
-router.get('/spotify/subscribe', async (req: Request, res: Response, next) => {
+router.get('/spotify/subscribe', token, async (req: Request, res: Response, next) => {
   if (!req.auth) {
     await createLog(
       401,
