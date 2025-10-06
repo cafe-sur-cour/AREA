@@ -24,6 +24,7 @@ import aboutRoutes from './src/routes/about/about';
 import webhookRoutes from './src/webhooks';
 import githubRoutes from './src/routes/github/github';
 import googleRoutes from './src/routes/google/google';
+import microsoftRoutes from './src/routes/microsoft/microsoft';
 import serviceConfigRoutes from './src/routes/services/configs';
 import servicesRoutes from './src/routes/services';
 import mappingsRoutes from './src/routes/services/mappings';
@@ -39,7 +40,7 @@ import { Session } from './src/config/entity/Session';
 import { TypeormStore } from 'connect-typeorm';
 
 const app = express();
-export const JWT_SECRET = crypto.randomBytes(64).toString('hex');
+export const JWT_SECRET = process.env.JWT_SECRET || crypto.randomBytes(64).toString('hex');
 
 const FRONTEND_ORIGIN = process.env.FRONTEND_URL || '';
 const BACKEND_ORIGIN = process.env.BACKEND_URL || '';
@@ -137,6 +138,7 @@ setupSignal();
     app.use('/api/user', userRoutes);
     app.use('/api/github', githubRoutes);
     app.use('/api/google', googleRoutes);
+    app.use('/api/microsoft', microsoftRoutes);
     app.use('/api/services', serviceConfigRoutes);
     app.use('/api/services', servicesRoutes);
     app.use('/api/mappings', mappingsRoutes);

@@ -16,7 +16,7 @@ export class Logger extends BaseEntity {
 
   @Column({
     type: 'enum',
-    enum: ['login', 'logout', 'register', 'user', 'github', 'google', 'other'],
+    enum: ['login', 'logout', 'register', 'user', 'github', 'google', 'microsoft', 'other'],
   })
   kind!:
     | 'login'
@@ -25,6 +25,7 @@ export class Logger extends BaseEntity {
     | 'user'
     | 'github'
     | 'google'
+    | 'microsoft'
     | 'other';
 
   @CreateDateColumn({ type: 'timestamp' })

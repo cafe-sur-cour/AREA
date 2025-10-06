@@ -7,11 +7,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { FaGithub, FaGoogle } from 'react-icons/fa';
-import { FaMeta } from 'react-icons/fa6';
+import { FaGithub, FaGoogle, FaMicrosoft } from 'react-icons/fa';
 import api from '@/lib/api';
 import Image from 'next/image';
 import { toast } from 'sonner';
+import { getAPIUrl } from '@/lib/config';
 
 export function RegisterForm({
   className,
@@ -51,6 +51,18 @@ export function RegisterForm({
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const signInWithGithub = async () => {
+    window.location.href = `${await getAPIUrl()}/auth/github/login`;
+  };
+
+  const signInWithGoogle = async () => {
+    window.location.href = `${await getAPIUrl()}/auth/google/login`;
+  };
+
+  const signInWithMicrosoft = async () => {
+    window.location.href = `${await getAPIUrl()}/auth/microsoft/login`;
   };
 
   return (
@@ -114,17 +126,32 @@ export function RegisterForm({
                 </span>
               </div>
               <div className='grid grid-cols-3 gap-4'>
-                <Button variant='outline' type='button' className='w-full'>
+                <Button
+                  variant='outline'
+                  type='button'
+                  className='w-full'
+                  onClick={async () => await signInWithGithub()}
+                >
                   <FaGithub />
                   <span className='sr-only'>Login with Github</span>
                 </Button>
-                <Button variant='outline' type='button' className='w-full'>
+                <Button
+                  variant='outline'
+                  type='button'
+                  className='w-full'
+                  onClick={async () => await signInWithGoogle()}
+                >
                   <FaGoogle />
                   <span className='sr-only'>Login with Google</span>
                 </Button>
-                <Button variant='outline' type='button' className='w-full'>
-                  <FaMeta />
-                  <span className='sr-only'>Login with Meta</span>
+                <Button
+                  variant='outline'
+                  type='button'
+                  className='w-full'
+                  onClick={async () => await signInWithMicrosoft()}
+                >
+                  <FaMicrosoft />
+                  <span className='sr-only'>Login with Microsoft 365</span>
                 </Button>
               </div>
             </div>
