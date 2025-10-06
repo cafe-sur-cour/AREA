@@ -1,6 +1,6 @@
 import { DataSource } from 'typeorm';
 import { User } from './entity/User';
-import { UserServiceConfigs } from './entity/UserServiceConfigs';
+import { UserServiceSubscriptions } from './entity/UserServiceSubscriptions';
 import { WebhookConfigs } from './entity/WebhookConfigs';
 import { WebhookStats } from './entity/WebhookStats';
 import { UserActivityLogs } from './entity/UserActivityLogs';
@@ -43,7 +43,7 @@ export class DashboardService {
   async getDashboardData(): Promise<DashboardData> {
     try {
       const userRepo = this.dataSource.getRepository(User);
-      const serviceRepo = this.dataSource.getRepository(UserServiceConfigs);
+      const subscriptionRepo = this.dataSource.getRepository(UserServiceSubscriptions);
       const webhookRepo = this.dataSource.getRepository(WebhookConfigs);
       const webhookStatsRepo = this.dataSource.getRepository(WebhookStats);
       const activityRepo = this.dataSource.getRepository(UserActivityLogs);
@@ -81,8 +81,8 @@ export class DashboardService {
 
       try {
         [totalServices, activeServices] = await Promise.all([
-          serviceRepo.count(),
-          serviceRepo.count({ where: { is_active: true } }),
+          subscriptionRepo.count(),
+          subscriptionRepo.count({ where: { subscribed: true } }),
         ]);
       } catch (error) {
         console.error('Error fetching service statistics:', error);
@@ -91,11 +91,12 @@ export class DashboardService {
       let serviceDistribution: unknown[] = [];
 
       try {
-        serviceDistribution = await serviceRepo
-          .createQueryBuilder('service')
-          .select('service.service', 'service')
+        serviceDistribution = await subscriptionRepo
+          .createQueryBuilder('subscription')
+          .select('subscription.service', 'service')
           .addSelect('COUNT(*)', 'count')
-          .groupBy('service.service')
+          .where('subscription.subscribed = true')
+          .groupBy('subscription.service')
           .orderBy('count', 'DESC')
           .limit(10)
           .getRawMany();
