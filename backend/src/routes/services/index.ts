@@ -3,7 +3,6 @@ import token from '../../middleware/token';
 import { serviceRegistry } from '../../services/ServiceRegistry';
 import { serviceSubscriptionManager } from '../../services/ServiceSubscriptionManager';
 
-// Service endpoints mapping
 const serviceEndpoints: Record<
   string,
   {
@@ -29,14 +28,14 @@ const serviceEndpoints: Record<
     unsubscribe: '/google/unsubscribe',
   },
   spotify: {
-    auth: '/auth/spotify/subscribe', // Spotify only supports subscription
+    auth: '/auth/spotify/subscribe',
     status: '/spotify/subscribe/status',
     loginStatus: '/spotify/login/status',
     subscribe: '/spotify/subscribe',
     unsubscribe: '/spotify/unsubscribe',
   },
   timer: {
-    auth: '', // Timer doesn't need auth
+    auth: '',
     status: '',
     loginStatus: '',
     subscribe: '',
