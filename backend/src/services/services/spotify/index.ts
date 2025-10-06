@@ -1,6 +1,7 @@
 import type { Service } from '../../../types/service';
 import { spotifyActions } from './actions';
 import { spotifyReactions } from './reactions';
+import { spotifyReactionExecutor } from './executor';
 
 const spotifyService: Service = {
   id: 'spotify',
@@ -17,6 +18,8 @@ const spotifyService: Service = {
 };
 
 export default spotifyService;
+
+export const executor = spotifyReactionExecutor;
 
 export async function initialize(): Promise<void> {
   console.log('Initializing Spotify service...');
