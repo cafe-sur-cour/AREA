@@ -10,6 +10,7 @@ export const createLog = async (
     | 'user'
     | 'github'
     | 'google'
+    | 'spotify'
     | 'other',
   message: string | null
 ): Promise<Logger> => {
