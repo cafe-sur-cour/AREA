@@ -40,6 +40,10 @@ class ProfileScreenState extends State<ProfileScreen> {
     if (backendAddressNotifier.backendAddress == null) {
       backendAddressNotifier.setBackendAddress(AppConfig.backendUrl);
     }
+    if (backendAddressNotifier.backendAddress != null &&
+        !backendAddressNotifier.backendAddress!.endsWith("/")) {
+      backendAddressNotifier.setBackendAddress("${backendAddressNotifier.backendAddress!}/");
+    }
     _backendServerController.text = backendAddressNotifier.backendAddress ?? "";
   }
 
