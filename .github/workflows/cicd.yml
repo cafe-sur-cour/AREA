@@ -255,6 +255,7 @@ jobs:
         run: docker ps
 
   build-and-push:
+    # needs: [backend-test, web-linter, mobile-test]
     name: Build and Push Docker Images
     runs-on: ubuntu-latest
     strategy:
@@ -268,7 +269,7 @@ jobs:
       - name: Check if Dockerfile exists
         id: check_dockerfile
         run: |
-          if [ -f "${{ matrix.component }}/Dockerfile" ]; then
+          if [ -f "./deployment/Dockerfile.${{ matrix.component }}" ]; then
             echo "dockerfile_exists=true" >> $GITHUB_OUTPUT
           else
             echo "dockerfile_exists=false" >> $GITHUB_OUTPUT
