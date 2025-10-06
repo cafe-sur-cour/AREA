@@ -255,7 +255,7 @@ jobs:
         run: docker ps
 
   build-and-push:
-    # needs: [backend-test, web-linter, mobile-test]
+    needs: [backend-test, web-linter, mobile-test]
     name: Build and Push Docker Images
     runs-on: ubuntu-latest
     strategy:
