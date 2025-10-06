@@ -15,10 +15,16 @@ class ActionDetailsScreen extends StatelessWidget {
   }
 
   void _selectAction(BuildContext context) {
+    final currentArgs = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+
     Navigator.of(context).pushNamedAndRemoveUntil(
       '/',
       (Route<dynamic> route) => false,
-      arguments: {'selectedAction': action, 'selectedService': service},
+      arguments: {
+        'selectedAction': action,
+        'selectedService': service,
+        'selectedReactionsWithDelay': currentArgs?['selectedReactionsWithDelay'],
+      },
     );
   }
 
@@ -78,7 +84,9 @@ class ActionDetailsScreen extends StatelessWidget {
                               )
                             : const Icon(Icons.web, color: AppColors.areaLightGray, size: 20),
                       ),
+
                       const SizedBox(width: 12),
+
                       Text(
                         service.name,
                         style: TextStyle(
@@ -90,7 +98,9 @@ class ActionDetailsScreen extends StatelessWidget {
                       ),
                     ],
                   ),
+
                   const SizedBox(height: 16),
+
                   Row(
                     children: [
                       Container(
@@ -121,7 +131,9 @@ class ActionDetailsScreen extends StatelessWidget {
                                 size: 28,
                               ),
                       ),
+
                       const SizedBox(width: 16),
+
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -135,7 +147,9 @@ class ActionDetailsScreen extends StatelessWidget {
                                 color: AppColors.areaLightGray,
                               ),
                             ),
+
                             const SizedBox(height: 4),
+
                             Text(
                               'Action',
                               style: TextStyle(
@@ -169,7 +183,9 @@ class ActionDetailsScreen extends StatelessWidget {
                         color: AppColors.areaBlack,
                       ),
                     ),
+
                     const SizedBox(height: 12),
+
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.all(16),
@@ -191,6 +207,7 @@ class ActionDetailsScreen extends StatelessWidget {
                         ),
                       ),
                     ),
+
                     const SizedBox(height: 24),
                   ],
                   if (action.configSchema?.fields != null &&
@@ -204,7 +221,9 @@ class ActionDetailsScreen extends StatelessWidget {
                         color: AppColors.areaBlack,
                       ),
                     ),
+
                     const SizedBox(height: 12),
+
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.all(16),
@@ -225,7 +244,9 @@ class ActionDetailsScreen extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Icon(Icons.settings, size: 16, color: serviceColor),
+
                                 const SizedBox(width: 8),
+
                                 Expanded(
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -256,6 +277,7 @@ class ActionDetailsScreen extends StatelessWidget {
                         }).toList(),
                       ),
                     ),
+
                     const SizedBox(height: 24),
                   ],
                   Container(
@@ -278,7 +300,9 @@ class ActionDetailsScreen extends StatelessWidget {
                             color: AppColors.areaDarkGray,
                           ),
                         ),
+
                         const SizedBox(height: 4),
+
                         Text(
                           action.id,
                           style: const TextStyle(
@@ -320,7 +344,9 @@ class ActionDetailsScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Icon(Icons.check_circle_outline, size: 24),
+
                   const SizedBox(width: 12),
+
                   const Text(
                     'Choose this Action',
                     style: TextStyle(
