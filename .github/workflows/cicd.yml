@@ -304,6 +304,8 @@ jobs:
         if: steps.check_dockerfile.outputs.dockerfile_exists == 'true'
         uses: docker/build-push-action@v5
         with:
+          build-args: |
+            FRONTEND_URL=${FRONTEND_URL}
           file: ./deployment/Dockerfile.${{ matrix.component }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
