@@ -136,7 +136,7 @@ export default function ServicesPage() {
       description: 'Manage your Spotify playlists and listening activity',
       icon: <FaSpotify className='w-8 h-8 text-green-500' />,
       isConnected: false,
-      authEndpoint: '/auth/spotify/login',
+      authEndpoint: '/auth/spotify/subscribe', // Spotify only supports subscription, not login
       statusEndpoint: '/spotify/subscribe/status',
       loginStatusEndpoint: '/spotify/login/status',
       subscribeEndpoint: '/spotify/subscribe',
@@ -206,6 +206,12 @@ export default function ServicesPage() {
 
   const handleConnect = async (service: Service) => {
     const apiUrl = await getAPIUrl();
+
+    // Special case for Spotify: only subscription is supported, no separate login
+    if (service.id === 'spotify') {
+      window.location.href = `${apiUrl}${service.authEndpoint}`;
+      return;
+    }
 
     if (!service.oauthConnected) {
       window.location.href = `${apiUrl}${service.authEndpoint}`;
@@ -286,9 +292,11 @@ export default function ServicesPage() {
                       variant='outline'
                       className='border-app-border-light text-app-text-secondary'
                     >
-                      {service.oauthConnected
-                        ? 'Not Subscribed'
-                        : 'Not Connected'}
+                      {service.id === 'spotify'
+                        ? 'Not Connected'
+                        : service.oauthConnected
+                          ? 'Not Subscribed'
+                          : 'Not Connected'}
                     </Badge>
                   )}
                 </div>
@@ -316,9 +324,11 @@ export default function ServicesPage() {
                         onClick={() => handleConnect(service)}
                         className='w-full bg-area-primary hover:bg-area-hover text-white'
                       >
-                        {service.oauthConnected
-                          ? 'Subscribe'
-                          : 'Connect & Subscribe'}
+                        {service.id === 'spotify'
+                          ? 'Connect & Subscribe'
+                          : service.oauthConnected
+                            ? 'Subscribe'
+                            : 'Connect & Subscribe'}
                       </Button>
                     )}
                     <Button
