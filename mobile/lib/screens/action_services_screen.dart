@@ -103,6 +103,7 @@ class ActionServicesScreenState extends State<ActionServicesScreen> {
             const Icon(Icons.error_outline, size: 64, color: AppColors.error),
 
             const SizedBox(height: 16),
+
             Text(
               'Error loading services',
               style: const TextStyle(

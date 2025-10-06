@@ -6,7 +6,7 @@ import 'package:area/core/notifiers/backend_address_notifier.dart';
 import 'package:area/models/service_models.dart';
 import 'package:area/models/action_models.dart';
 import 'package:area/services/api_service.dart';
-import 'package:area/widgets/action_card.dart';
+import 'package:area/widgets/action_selection_card.dart';
 import 'package:area/screens/action_details_screen.dart';
 import 'package:area/l10n/app_localizations.dart';
 
@@ -152,7 +152,9 @@ class ServiceActionsScreenState extends State<ServiceActionsScreen> {
                           )
                         : const Icon(Icons.web, color: AppColors.areaLightGray, size: 32),
                   ),
+
                   const SizedBox(width: 16),
+
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -203,7 +205,9 @@ class ServiceActionsScreenState extends State<ServiceActionsScreen> {
             CircularProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(_getServiceColor()),
             ),
+
             const SizedBox(height: 16),
+
             Text(
               'Loading actions...',
               style: TextStyle(
@@ -225,7 +229,9 @@ class ServiceActionsScreenState extends State<ServiceActionsScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Icon(Icons.error_outline, size: 64, color: AppColors.error),
+
               const SizedBox(height: 16),
+
               const Text(
                 'Error loading actions',
                 style: TextStyle(
@@ -234,13 +240,17 @@ class ServiceActionsScreenState extends State<ServiceActionsScreen> {
                   color: AppColors.areaBlack,
                 ),
               ),
+
               const SizedBox(height: 8),
+
               Text(
                 _error!.replaceAll('Exception: ', ''),
                 textAlign: TextAlign.center,
                 style: const TextStyle(fontSize: 14, color: AppColors.areaDarkGray),
               ),
+
               const SizedBox(height: 24),
+
               ElevatedButton(
                 onPressed: _fetchActions,
                 style: ElevatedButton.styleFrom(
@@ -263,7 +273,9 @@ class ServiceActionsScreenState extends State<ServiceActionsScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(Icons.flash_off, size: 64, color: AppColors.areaDarkGray),
+
               const SizedBox(height: 16),
+
               const Text(
                 'No actions available',
                 style: TextStyle(
@@ -272,7 +284,9 @@ class ServiceActionsScreenState extends State<ServiceActionsScreen> {
                   color: AppColors.areaBlack,
                 ),
               ),
+
               const SizedBox(height: 8),
+
               Text(
                 'This service doesn\'t have any available actions at the moment.',
                 textAlign: TextAlign.center,
@@ -294,7 +308,7 @@ class ServiceActionsScreenState extends State<ServiceActionsScreen> {
           final action = _actions[index];
           return Padding(
             padding: const EdgeInsets.only(bottom: 12.0),
-            child: ActionCard(action: action, onTap: () => _onActionTap(action)),
+            child: ActionSelectionCard(action: action, onTap: () => _onActionTap(action)),
           );
         },
       ),

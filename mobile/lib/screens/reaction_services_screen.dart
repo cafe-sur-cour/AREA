@@ -101,7 +101,9 @@ class ReactionServicesScreenState extends State<ReactionServicesScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Icon(Icons.error_outline, size: 64, color: AppColors.error),
+
             const SizedBox(height: 16),
+
             const Text(
               'Error loading services',
               style: TextStyle(
@@ -110,7 +112,9 @@ class ReactionServicesScreenState extends State<ReactionServicesScreen> {
                 color: AppColors.areaBlack,
               ),
             ),
+
             const SizedBox(height: 8),
+
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 32),
               child: Text(
@@ -119,7 +123,9 @@ class ReactionServicesScreenState extends State<ReactionServicesScreen> {
                 style: const TextStyle(fontSize: 14, color: AppColors.areaDarkGray),
               ),
             ),
+
             const SizedBox(height: 24),
+
             ElevatedButton(
               onPressed: _fetchServices,
               style: ElevatedButton.styleFrom(
@@ -139,7 +145,9 @@ class ReactionServicesScreenState extends State<ReactionServicesScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(Icons.cloud_off, size: 64, color: AppColors.areaDarkGray),
+
             SizedBox(height: 16),
+
             Text(
               'No services available',
               style: TextStyle(
@@ -148,7 +156,9 @@ class ReactionServicesScreenState extends State<ReactionServicesScreen> {
                 color: AppColors.areaBlack,
               ),
             ),
+
             SizedBox(height: 8),
+
             Text(
               'There are no services with reactions available at the moment.',
               textAlign: TextAlign.center,

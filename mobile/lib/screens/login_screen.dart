@@ -292,7 +292,9 @@ class LoginScreenState extends State<LoginScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(IonIcons.logo_github, color: AppColors.areaLightGray),
+
                         SizedBox(width: 8),
+
                         Text('Github', style: TextStyle(color: AppColors.areaLightGray)),
                       ],
                     ),
@@ -309,7 +311,9 @@ class LoginScreenState extends State<LoginScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(IonIcons.logo_microsoft, color: AppColors.areaLightGray),
+
                         SizedBox(width: 8),
+
                         Text('Microsoft', style: TextStyle(color: AppColors.areaLightGray)),
                       ],
                     ),
@@ -326,7 +330,9 @@ class LoginScreenState extends State<LoginScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(IonIcons.logo_google, color: AppColors.areaLightGray),
+
                         SizedBox(width: 8),
+
                         Text('Google', style: TextStyle(color: AppColors.areaLightGray)),
                       ],
                     ),

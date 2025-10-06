@@ -314,7 +314,9 @@ class OAuthWebViewState extends State<OAuthWebView> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     CircularProgressIndicator(),
+
                     SizedBox(height: 16),
+
                     Text('Loading authentication...', style: TextStyle(fontSize: 16)),
                   ],
                 ),
@@ -325,19 +327,25 @@ class OAuthWebViewState extends State<OAuthWebView> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Icon(Icons.error_outline, size: 64, color: Colors.red),
+
                     const SizedBox(height: 16),
+
                     const Text(
                       'Authentication Error',
                       style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
+
                     const SizedBox(height: 8),
+
                     Text(
                       _retryCount > 0
                           ? 'Retrying... ($_retryCount/$_maxRetries)'
                           : 'Failed to load authentication',
                       style: const TextStyle(fontSize: 16),
                     ),
+
                     const SizedBox(height: 24),
+
                     ElevatedButton(
                       onPressed: _retryCount < _maxRetries ? _retryLoad : null,
                       child: Text(_retryCount < _maxRetries ? 'Retry' : 'Max retries reached'),

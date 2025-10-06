@@ -6,7 +6,7 @@ import 'package:area/core/notifiers/backend_address_notifier.dart';
 import 'package:area/models/service_models.dart';
 import 'package:area/models/reaction_models.dart';
 import 'package:area/services/api_service.dart';
-import 'package:area/widgets/reaction_card.dart';
+import 'package:area/widgets/reaction_selection_card.dart';
 import 'package:area/screens/reaction_details_screen.dart';
 import 'package:area/l10n/app_localizations.dart';
 
@@ -153,7 +153,9 @@ class ServiceReactionsScreenState extends State<ServiceReactionsScreen> {
                           )
                         : const Icon(Icons.web, color: AppColors.areaLightGray, size: 32),
                   ),
+
                   const SizedBox(width: 16),
+
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -170,7 +172,9 @@ class ServiceReactionsScreenState extends State<ServiceReactionsScreen> {
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
+
                         const SizedBox(height: 4),
+
                         Text(
                           '${_reactions.length} available reaction${_reactions.length == 1 ? '' : 's'}',
                           style: TextStyle(
@@ -201,7 +205,9 @@ class ServiceReactionsScreenState extends State<ServiceReactionsScreen> {
             CircularProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(_getServiceColor()),
             ),
+
             const SizedBox(height: 16),
+
             const Text(
               'Loading reactions...',
               style: TextStyle(
@@ -223,7 +229,9 @@ class ServiceReactionsScreenState extends State<ServiceReactionsScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Icon(Icons.error_outline, size: 64, color: AppColors.error),
+
               const SizedBox(height: 16),
+
               const Text(
                 'Error loading reactions',
                 style: TextStyle(
@@ -232,13 +240,17 @@ class ServiceReactionsScreenState extends State<ServiceReactionsScreen> {
                   color: AppColors.areaBlack,
                 ),
               ),
+
               const SizedBox(height: 8),
+
               Text(
                 _error!.replaceAll('Exception: ', ''),
                 textAlign: TextAlign.center,
                 style: const TextStyle(fontSize: 14, color: AppColors.areaDarkGray),
               ),
+
               const SizedBox(height: 24),
+
               ElevatedButton(
                 onPressed: _fetchReactions,
                 style: ElevatedButton.styleFrom(
@@ -261,7 +273,9 @@ class ServiceReactionsScreenState extends State<ServiceReactionsScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(Icons.replay_outlined, size: 64, color: AppColors.areaDarkGray),
+
               SizedBox(height: 16),
+
               Text(
                 'No reactions available',
                 style: TextStyle(
@@ -270,7 +284,9 @@ class ServiceReactionsScreenState extends State<ServiceReactionsScreen> {
                   color: AppColors.areaBlack,
                 ),
               ),
+
               SizedBox(height: 8),
+
               Text(
                 'This service doesn\'t have any available reactions at the moment.',
                 textAlign: TextAlign.center,
@@ -292,7 +308,10 @@ class ServiceReactionsScreenState extends State<ServiceReactionsScreen> {
           final reaction = _reactions[index];
           return Padding(
             padding: const EdgeInsets.only(bottom: 12.0),
-            child: ReactionCard(reaction: reaction, onTap: () => _onReactionTap(reaction)),
+            child: ReactionSelectionCard(
+              reaction: reaction,
+              onTap: () => _onReactionTap(reaction),
+            ),
           );
         },
       ),
