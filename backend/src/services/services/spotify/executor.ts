@@ -31,7 +31,9 @@ export class SpotifyReactionExecutor implements ReactionExecutor {
   private apiBaseUrl: string;
 
   constructor() {
-    this.apiBaseUrl = (process.env.SERVICE_SPOTIFY_API_BASE_URL || 'https://api.spotify.com') + '/v1';
+    this.apiBaseUrl =
+      (process.env.SERVICE_SPOTIFY_API_BASE_URL || 'https://api.spotify.com') +
+      '/v1';
   }
 
   async execute(
@@ -85,7 +87,9 @@ export class SpotifyReactionExecutor implements ReactionExecutor {
     }
   }
 
-  private async skipTrack(accessToken: string): Promise<ReactionExecutionResult> {
+  private async skipTrack(
+    accessToken: string
+  ): Promise<ReactionExecutionResult> {
     try {
       const response = await fetch(`${this.apiBaseUrl}/me/player/next`, {
         method: 'POST',
@@ -105,7 +109,8 @@ export class SpotifyReactionExecutor implements ReactionExecutor {
       if (response.status === 403) {
         return {
           success: false,
-          error: 'No active device found. Please start Spotify on a device first.',
+          error:
+            'No active device found. Please start Spotify on a device first.',
         };
       }
 
@@ -129,7 +134,9 @@ export class SpotifyReactionExecutor implements ReactionExecutor {
     }
   }
 
-  private async pauseResumePlayback(accessToken: string): Promise<ReactionExecutionResult> {
+  private async pauseResumePlayback(
+    accessToken: string
+  ): Promise<ReactionExecutionResult> {
     try {
       // First get current playback state
       const stateResponse = await fetch(`${this.apiBaseUrl}/me/player`, {
@@ -181,7 +188,8 @@ export class SpotifyReactionExecutor implements ReactionExecutor {
       if (response.status === 403) {
         return {
           success: false,
-          error: 'No active device found. Please start Spotify on a device first.',
+          error:
+            'No active device found. Please start Spotify on a device first.',
         };
       }
 
@@ -361,7 +369,8 @@ export class SpotifyReactionExecutor implements ReactionExecutor {
       if (response.status === 403) {
         return {
           success: false,
-          error: 'No active device found. Please start Spotify on a device first.',
+          error:
+            'No active device found. Please start Spotify on a device first.',
         };
       }
 
@@ -405,7 +414,11 @@ export class SpotifyReactionExecutor implements ReactionExecutor {
       device_id?: string;
     };
 
-    if (volume_percent === undefined || volume_percent < 0 || volume_percent > 100) {
+    if (
+      volume_percent === undefined ||
+      volume_percent < 0 ||
+      volume_percent > 100
+    ) {
       return {
         success: false,
         error: 'Volume percent must be between 0 and 100',
@@ -446,7 +459,8 @@ export class SpotifyReactionExecutor implements ReactionExecutor {
       if (response.status === 403) {
         return {
           success: false,
-          error: 'No active device found. Please start Spotify on a device first.',
+          error:
+            'No active device found. Please start Spotify on a device first.',
         };
       }
 

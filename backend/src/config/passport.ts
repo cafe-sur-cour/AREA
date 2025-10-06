@@ -450,7 +450,8 @@ passport.use(
       clientID: process.env.SERVICE_SPOTIFY_CLIENT_ID || '',
       clientSecret: process.env.SERVICE_SPOTIFY_CLIENT_SECRET || '',
       callbackURL: process.env.SERVICE_SPOTIFY_REDIRECT_URI || '',
-      scope: 'user-read-email user-read-private user-modify-playback-state playlist-modify-public playlist-modify-private user-read-playback-state user-library-modify',
+      scope:
+        'user-read-email user-read-private user-modify-playback-state playlist-modify-public playlist-modify-private user-read-playback-state user-library-modify',
       passReqToCallback: true,
     },
     async (
@@ -488,7 +489,9 @@ passport.use(
         const tokenData = {
           access_token: accessToken,
           token_type: 'bearer',
-          scope: params.scope || 'user-read-email user-read-private user-modify-playback-state playlist-modify-public playlist-modify-private user-read-playback-state user-library-modify',
+          scope:
+            params.scope ||
+            'user-read-email user-read-private user-modify-playback-state playlist-modify-public playlist-modify-private user-read-playback-state user-library-modify',
           expires_in: params.expires_in || 3600,
           refresh_token: refreshToken,
         };

@@ -12,7 +12,7 @@ export const spotifyReactions: ReactionDefinition[] = [
   {
     id: 'spotify.skip_track',
     name: 'Skip Current Track',
-    description: 'Skips to the next track in the user\'s current playback',
+    description: "Skips to the next track in the user's current playback",
     configSchema: spotifySkipTrackSchema,
     outputSchema: {
       type: 'object',
@@ -60,14 +60,16 @@ export const spotifyReactions: ReactionDefinition[] = [
   {
     id: 'spotify.add_song_to_playlist',
     name: 'Add Song to Playlist',
-    description: 'Adds the current or specified track to a chosen playlist (or to Liked Songs if no playlist specified)',
+    description:
+      'Adds the current or specified track to a chosen playlist (or to Liked Songs if no playlist specified)',
     configSchema: spotifyAddSongToPlaylistSchema,
     outputSchema: {
       type: 'object',
       properties: {
         playlist_id: {
           type: 'string',
-          description: 'The ID of the playlist the track was added to (null if added to Liked Songs)',
+          description:
+            'The ID of the playlist the track was added to (null if added to Liked Songs)',
         },
         added_to_liked: {
           type: 'boolean',

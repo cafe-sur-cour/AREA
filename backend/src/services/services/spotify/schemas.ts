@@ -3,7 +3,7 @@ import type { ActionReactionSchema } from '../../../types/mapping';
 
 export const spotifySkipTrackSchema: ActionReactionSchema = {
   name: 'Skip Current Track',
-  description: 'Skips to the next track in the user\'s current playback',
+  description: "Skips to the next track in the user's current playback",
   fields: [],
 };
 
@@ -15,7 +15,8 @@ export const spotifyPauseResumePlaybackSchema: ActionReactionSchema = {
 
 export const spotifyAddSongToPlaylistSchema: ActionReactionSchema = {
   name: 'Add Song to Playlist',
-  description: 'Adds the current or specified track to a chosen playlist (or to Liked Songs if no playlist specified)',
+  description:
+    'Adds the current or specified track to a chosen playlist (or to Liked Songs if no playlist specified)',
   fields: [
     {
       name: 'playlist_id',
