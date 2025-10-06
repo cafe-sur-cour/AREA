@@ -1,3 +1,4 @@
+import 'package:area/core/config/app_config.dart';
 import 'package:area/l10n/app_localizations.dart';
 import 'package:area/screens/action_services_screen.dart';
 import 'package:area/screens/reaction_services_screen.dart';
@@ -31,6 +32,11 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final locale = Provider.of<LocaleNotifier>(context).locale;
 
+    final backendAddressProvider = Provider.of<BackendAddressNotifier>(context);
+    if (backendAddressProvider.backendAddress == null) {
+      backendAddressProvider.setBackendAddress(AppConfig.backendUrl);
+    }
+
     return MaterialApp(
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
@@ -51,8 +57,7 @@ class MyApp extends StatelessWidget {
           return MainNavigation(
             selectedAction: args?['selectedAction'],
             selectedService: args?['selectedService'],
-            selectedReaction: args?['selectedReaction'],
-            selectedReactionService: args?['selectedReactionService'],
+            selectedReactionsWithDelay: args?['selectedReactionsWithDelay'],
           );
         },
         '/login': (context) => const LoginScreen(),

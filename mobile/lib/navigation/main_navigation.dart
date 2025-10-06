@@ -2,8 +2,8 @@ import 'package:area/core/constants/app_colors.dart';
 import 'package:area/core/constants/app_constants.dart';
 import 'package:area/l10n/app_localizations.dart';
 import 'package:area/models/action_models.dart';
-import 'package:area/models/reaction_models.dart';
 import 'package:area/models/service_models.dart';
+import 'package:area/models/reaction_with_delay_model.dart';
 import 'package:area/screens/home_screen.dart';
 import 'package:area/screens/catalogue_screen.dart';
 import 'package:area/screens/add_automation_screen.dart';
@@ -30,15 +30,13 @@ class NavigationItem {
 class MainNavigation extends StatefulWidget {
   final ActionModel? selectedAction;
   final ServiceModel? selectedService;
-  final ReactionModel? selectedReaction;
-  final ServiceModel? selectedReactionService;
+  final List<ReactionWithDelayModel>? selectedReactionsWithDelay;
 
   const MainNavigation({
     super.key,
     this.selectedAction,
     this.selectedService,
-    this.selectedReaction,
-    this.selectedReactionService,
+    this.selectedReactionsWithDelay,
   });
 
   @override
@@ -51,7 +49,7 @@ class MainNavigationState extends State<MainNavigation> {
   @override
   void initState() {
     super.initState();
-    if (widget.selectedAction != null || widget.selectedReaction != null) {
+    if (widget.selectedAction != null || widget.selectedReactionsWithDelay != null) {
       _currentIndex = 2;
     } else {
       _currentIndex = 0;
@@ -79,8 +77,7 @@ class MainNavigationState extends State<MainNavigation> {
         screenBuilder: () => AddAutomationScreen(
           selectedAction: widget.selectedAction,
           selectedService: widget.selectedService,
-          selectedReaction: widget.selectedReaction,
-          selectedReactionService: widget.selectedReactionService,
+          selectedReactionsWithDelay: widget.selectedReactionsWithDelay,
         ),
         selectedIcon: Icons.add_circle,
       ),
