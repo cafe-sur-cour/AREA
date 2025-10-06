@@ -8,10 +8,7 @@ import {
   Activity,
   Users,
   Settings,
-  Play,
   Pause,
-  Trash2,
-  Edit3,
   ChevronRight,
   Clock,
   CheckCircle2,
@@ -27,24 +24,22 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
+import api from '@/lib/api';
+import { Mapping } from '@/types/mapping';
 
 interface Automation {
   id: number;
   name: string;
   description: string;
-  status: 'active' | 'inactive' | 'error';
+  isActive: boolean;
   trigger: string;
-  action: string;
-  lastRun: string;
-  runCount: number;
+  action: string[];
   created_at: string;
 }
 
 interface DashboardStats {
   totalAutomations: number;
   activeAutomations: number;
-  totalRuns: number;
-  successRate: number;
 }
 
 export default function DashboardPage() {
@@ -54,8 +49,6 @@ export default function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats>({
     totalAutomations: 0,
     activeAutomations: 0,
-    totalRuns: 0,
-    successRate: 0,
   });
   const [isLoadingData, setIsLoadingData] = useState(true);
 
@@ -78,45 +71,56 @@ export default function DashboardPage() {
           id: 1,
           name: 'GitHub to Discord',
           description: 'Send Discord notification when new commit is pushed',
-          status: 'active',
+          isActive: true,
           trigger: 'GitHub Push',
-          action: 'Discord Message',
-          lastRun: '2 minutes ago',
-          runCount: 145,
+          action: ['Discord Message'],
           created_at: '2024-01-15T10:30:00Z',
         },
         {
           id: 2,
           name: 'Email to Calendar',
           description: 'Create calendar event from important emails',
-          status: 'active',
+          isActive: true,
           trigger: 'Gmail New Email',
-          action: 'Google Calendar Event',
-          lastRun: '1 hour ago',
-          runCount: 23,
+          action: ['Google Calendar Event'],
           created_at: '2024-01-10T14:20:00Z',
         },
         {
           id: 3,
           name: 'Tweet Backup',
           description: 'Save tweets to Google Drive',
-          status: 'error',
+          isActive: false,
           trigger: 'Twitter New Tweet',
-          action: 'Google Drive File',
-          lastRun: '2 days ago',
-          runCount: 67,
+          action: ['Google Drive File'],
           created_at: '2024-01-05T09:15:00Z',
         },
       ];
 
-      setAutomations(mockAutomations);
-      setStats({
-        totalAutomations: mockAutomations.length,
-        activeAutomations: mockAutomations.filter(a => a.status === 'active')
-          .length,
-        totalRuns: mockAutomations.reduce((sum, a) => sum + a.runCount, 0),
-        successRate: 94.2,
-      });
+      try {
+        const response = await api.get<{ mappings: Mapping[] }>({
+          endpoint: '/mappings',
+        });
+        const rawMapping : Mapping[] | undefined = response.data?.mappings;
+        if (!rawMapping || rawMapping === undefined)
+          return;
+        console.log(rawMapping);
+        setAutomations(rawMapping.map(mapping => ({
+          id: mapping.id,
+          name: mapping.name,
+          description: mapping.description,
+          isActive: mapping.is_active,
+          trigger: mapping.action.type,
+          action: mapping.reactions.map(r => r.type),
+          created_at: mapping.created_at,
+        })));
+        setStats({
+          totalAutomations: rawMapping.length,
+          activeAutomations: rawMapping.filter(a => a.is_active).length,
+        });
+      } catch (error) {
+        console.error(error);
+      }
+
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
     } finally {
@@ -215,7 +219,7 @@ export default function DashboardPage() {
             </p>
           </div>
           <Button
-            onClick={() => router.push('/create-automation')}
+            onClick={() => router.push('/my-areas')}
             className='bg-primary hover:bg-primary/90'
           >
             <Plus className='h-4 w-4 mr-2' />
@@ -224,7 +228,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Stats Cards */}
-        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8'>
+        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 mb-8'>
           <Card>
             <CardContent className='p-6'>
               <div className='flex items-center justify-between'>
@@ -256,201 +260,109 @@ export default function DashboardPage() {
               </div>
             </CardContent>
           </Card>
-
-          <Card>
-            <CardContent className='p-6'>
-              <div className='flex items-center justify-between'>
-                <div>
-                  <p className='text-sm text-muted-foreground'>Total Runs</p>
-                  <p className='text-2xl font-bold'>
-                    {stats.totalRuns.toLocaleString()}
-                  </p>
-                </div>
-                <div className='bg-purple-100 p-3 rounded-lg'>
-                  <Play className='h-6 w-6 text-purple-600' />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className='p-6'>
-              <div className='flex items-center justify-between'>
-                <div>
-                  <p className='text-sm text-muted-foreground'>Success Rate</p>
-                  <p className='text-2xl font-bold text-green-600'>
-                    {stats.successRate}%
-                  </p>
-                </div>
-                <div className='bg-green-100 p-3 rounded-lg'>
-                  <CheckCircle2 className='h-6 w-6 text-green-600' />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
         </div>
 
-        {/* Quick Actions */}
-        <Card className='mb-8'>
-          <CardHeader>
-            <CardTitle className='flex items-center gap-2'>
-              <Settings className='h-5 w-5' />
-              Quick Actions
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'>
-              <Button
-                variant='outline'
-                className='justify-start h-auto p-4 flex-col items-start gap-2'
-                onClick={() => router.push('/services')}
-              >
-                <Users className='h-5 w-5 text-blue-600' />
-                <div className='text-left'>
-                  <div className='font-medium'>Connect Services</div>
-                  <div className='text-xs text-muted-foreground'>
-                    Link new platforms
-                  </div>
+        <section>
+          <h1>Quick actions</h1>
+          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
+            <Button
+              variant='outline'
+              className='justify-start h-auto p-4 flex-col items-start gap-2'
+              onClick={() => router.push('/services')}
+            >
+              <Users className='h-5 w-5 text-blue-600' />
+              <div className='text-left'>
+                <div className='font-medium'>Connect Services</div>
+                <div className='text-xs text-muted-foreground'>
+                  Link new platforms
                 </div>
-              </Button>
+              </div>
+            </Button>
 
-              <Button
-                variant='outline'
-                className='justify-start h-auto p-4 flex-col items-start gap-2'
-                onClick={() => router.push('/catalogue')}
-              >
-                <Zap className='h-5 w-5 text-purple-600' />
-                <div className='text-left'>
-                  <div className='font-medium'>Browse Templates</div>
-                  <div className='text-xs text-muted-foreground'>
-                    Pre-made automations
-                  </div>
+            <Button
+              variant='outline'
+              className='justify-start h-auto p-4 flex-col items-start gap-2'
+              onClick={() => router.push('/catalogue')}
+            >
+              <Zap className='h-5 w-5 text-purple-600' />
+              <div className='text-left'>
+                <div className='font-medium'>Browse Templates</div>
+                <div className='text-xs text-muted-foreground'>
+                  Pre-made automations
                 </div>
-              </Button>
+              </div>
+            </Button>
 
-              <Button
-                variant='outline'
-                className='justify-start h-auto p-4 flex-col items-start gap-2'
-                onClick={() => router.push('/profile')}
-              >
-                <Settings className='h-5 w-5 text-green-600' />
-                <div className='text-left'>
-                  <div className='font-medium'>Account Settings</div>
-                  <div className='text-xs text-muted-foreground'>
-                    Manage your profile
-                  </div>
+            <Button
+              variant='outline'
+              className='justify-start h-auto p-4 flex-col items-start gap-2'
+              onClick={() => router.push('/profile')}
+            >
+              <Settings className='h-5 w-5 text-green-600' />
+              <div className='text-left'>
+                <div className='font-medium'>Account Settings</div>
+                <div className='text-xs text-muted-foreground'>
+                  Manage your profile
                 </div>
-              </Button>
-
-              <Button
-                variant='outline'
-                className='justify-start h-auto p-4 flex-col items-start gap-2'
-              >
-                <Activity className='h-5 w-5 text-orange-600' />
-                <div className='text-left'>
-                  <div className='font-medium'>View Analytics</div>
-                  <div className='text-xs text-muted-foreground'>
-                    Performance insights
-                  </div>
-                </div>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+              </div>
+            </Button>
+          </div>
+        </section>
 
         {/* Automations List */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Your Automations</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {automations.length === 0 ? (
-              <div className='text-center py-12'>
-                <Zap className='h-12 w-12 text-muted-foreground mx-auto mb-4' />
-                <h3 className='text-lg font-semibold mb-2'>
-                  No automations yet
-                </h3>
-                <p className='text-muted-foreground mb-6'>
-                  Create your first automation to get started
-                </p>
-                <Button onClick={() => router.push('/create-automation')}>
-                  <Plus className='h-4 w-4 mr-2' />
-                  Create Automation
-                </Button>
-              </div>
-            ) : (
-              <div className='space-y-4'>
-                {automations.map(automation => (
-                  <div
-                    key={automation.id}
-                    className='flex items-center justify-between p-4 border border-border rounded-lg hover:border-primary/50 transition-colors'
-                  >
-                    <div className='flex items-center gap-4 flex-1'>
-                      <div className='flex items-center gap-2'>
-                        {getStatusIcon(automation.status)}
-                        {getTriggerIcon(automation.trigger)}
-                      </div>
-
-                      <div className='flex-1 min-w-0'>
-                        <div className='flex items-center gap-2 mb-1'>
-                          <h3 className='font-semibold text-foreground truncate'>
-                            {automation.name}
-                          </h3>
-                          {getStatusBadge(automation.status)}
-                        </div>
-                        <p className='text-sm text-muted-foreground mb-2 line-clamp-1'>
-                          {automation.description}
-                        </p>
-                        <div className='flex items-center gap-4 text-xs text-muted-foreground'>
-                          <span>{automation.trigger}</span>
-                          <ChevronRight className='h-3 w-3' />
-                          <span>{automation.action}</span>
-                          <span>•</span>
-                          <span>Last run: {automation.lastRun}</span>
-                          <span>•</span>
-                          <span>{automation.runCount} runs</span>
-                        </div>
-                      </div>
+        <section>
+          <h1>Your Automations</h1>
+          {automations.length === 0 ? (
+            <div className='text-center py-12'>
+              <Zap className='h-12 w-12 text-muted-foreground mx-auto mb-4' />
+              <h3 className='text-lg font-semibold mb-2'>
+                No automations yet
+              </h3>
+              <p className='text-muted-foreground mb-6'>
+                Create your first automation to get started
+              </p>
+              <Button onClick={() => router.push('/my-areas')}>
+                <Plus className='h-4 w-4 mr-2' />
+                Create Automation
+              </Button>
+            </div>
+          ) : (
+            <div className={`grid gap-2 lg:grid-cols-${automations.length >= 3 ? 3 : automations.length}`}>
+              {automations.map(automation => (
+                <div
+                  key={automation.id}
+                  className='flex items-center justify-between p-4 border border-border rounded-lg hover:border-primary/50 transition-colors'
+                >
+                  <div className='flex items-center gap-4 flex-1'>
+                    <div className='flex items-center gap-2'>
+                      {getTriggerIcon(automation.trigger)}
                     </div>
 
-                    <div className='flex items-center gap-2'>
-                      <Button
-                        variant='ghost'
-                        size='sm'
-                        onClick={() =>
-                          toggleAutomationStatus(
-                            automation.id,
-                            automation.status
-                          )
-                        }
-                        disabled={automation.status === 'error'}
-                      >
-                        {automation.status === 'active' ? (
-                          <Pause className='h-4 w-4' />
-                        ) : (
-                          <Play className='h-4 w-4' />
-                        )}
-                      </Button>
-
-                      <Button variant='ghost' size='sm'>
-                        <Edit3 className='h-4 w-4' />
-                      </Button>
-
-                      <Button
-                        variant='ghost'
-                        size='sm'
-                        onClick={() => deleteAutomation(automation.id)}
-                        className='text-red-600 hover:text-red-700'
-                      >
-                        <Trash2 className='h-4 w-4' />
-                      </Button>
+                    <div className='flex-1 min-w-0'>
+                      <div className='flex items-center gap-2 mb-1'>
+                        <h3 className='font-semibold text-foreground truncate'>
+                          {automation.name}
+                        </h3>
+                        {getStatusBadge(automation.isActive ? 'active' : 'inactive')}
+                      </div>
+                      <p className='text-sm text-muted-foreground mb-2 line-clamp-1'>
+                        {automation.description}
+                      </p>
+                      <div className='flex items-center gap-4 text-xs text-muted-foreground'>
+                        <span>Action: {automation.trigger}</span>
+                        <ChevronRight className='h-3 w-3' />
+                        {automation.action.map((action, index) => (
+                          <span key={index}>{action}</span>
+                        ))}
+                      </div>
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
       </main>
     </div>
   );
