@@ -3,6 +3,47 @@ import token from '../../middleware/token';
 import { serviceRegistry } from '../../services/ServiceRegistry';
 import { serviceSubscriptionManager } from '../../services/ServiceSubscriptionManager';
 
+// Service endpoints mapping
+const serviceEndpoints: Record<
+  string,
+  {
+    auth: string;
+    status: string;
+    loginStatus: string;
+    subscribe: string;
+    unsubscribe: string;
+  }
+> = {
+  github: {
+    auth: '/auth/github/login',
+    status: '/github/subscribe/status',
+    loginStatus: '/github/login/status',
+    subscribe: '/github/subscribe',
+    unsubscribe: '/github/unsubscribe',
+  },
+  google: {
+    auth: '/auth/google/login',
+    status: '/google/subscribe/status',
+    loginStatus: '/google/login/status',
+    subscribe: '/google/subscribe',
+    unsubscribe: '/google/unsubscribe',
+  },
+  spotify: {
+    auth: '/auth/spotify/subscribe', // Spotify only supports subscription
+    status: '/spotify/subscribe/status',
+    loginStatus: '/spotify/login/status',
+    subscribe: '/spotify/subscribe',
+    unsubscribe: '/spotify/unsubscribe',
+  },
+  timer: {
+    auth: '', // Timer doesn't need auth
+    status: '',
+    loginStatus: '',
+    subscribe: '',
+    unsubscribe: '',
+  },
+};
+
 const router = express.Router();
 
 /**
@@ -45,6 +86,24 @@ const router = express.Router();
  *                       isSubscribed:
  *                         type: boolean
  *                         description: Whether the user is subscribed to this service
+ *                       endpoints:
+ *                         type: object
+ *                         properties:
+ *                           auth:
+ *                             type: string
+ *                             description: Authentication endpoint URL
+ *                           status:
+ *                             type: string
+ *                             description: Subscription status endpoint URL
+ *                           loginStatus:
+ *                             type: string
+ *                             description: Login status endpoint URL
+ *                           subscribe:
+ *                             type: string
+ *                             description: Subscribe endpoint URL
+ *                           unsubscribe:
+ *                             type: string
+ *                             description: Unsubscribe endpoint URL
  *       500:
  *         description: Internal server error
  */
@@ -66,6 +125,14 @@ router.get(
               service.id
             );
 
+          const endpoints = serviceEndpoints[service.id] || {
+            auth: '',
+            status: '',
+            loginStatus: '',
+            subscribe: '',
+            unsubscribe: '',
+          };
+
           return {
             id: service.id,
             name: service.name,
@@ -73,6 +140,7 @@ router.get(
             version: service.version,
             icon: service.icon || '',
             isSubscribed,
+            endpoints,
           };
         })
       );
@@ -117,6 +185,9 @@ router.get(
  *                       name:
  *                         type: string
  *                         description: Human-readable name of the service
+ *                       description:
+ *                         type: string
+ *                         description: Description of the service
  *       401:
  *         description: Unauthorized - missing or invalid token
  *       500:
@@ -143,6 +214,7 @@ router.get(
               ? service.name
               : subscription.service.charAt(0).toUpperCase() +
                 subscription.service.slice(1),
+            description: service ? service.description : '',
           };
         });
 
