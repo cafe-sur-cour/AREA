@@ -46,8 +46,123 @@ const FRONTEND_ORIGIN = process.env.FRONTEND_URL || '';
 const BACKEND_ORIGIN = process.env.BACKEND_URL || '';
 const allowedOrigins = [FRONTEND_ORIGIN, BACKEND_ORIGIN];
 
+// console.log('🚀 Starting middleware setup...');
+
+// app.use((req, res, next) => {
+//   if (req.path.startsWith('/admin')) return next();
+//   express.json()(req, res, next);
+// });
+
+// app.use((req, res, next) => {
+//   if (req.path.startsWith('/admin')) return next();
+//   express.urlencoded({ extended: true })(req, res, next);
+// });
+
+// app.use(cookieParser());
+
+// app.use(
+//   cors({
+//     origin: (origin, callback) => {
+//       if (!origin) return callback(null, true);
+//       if (allowedOrigins.includes(origin)) {
+//         callback(null, true);
+//       } else {
+//         callback(new Error('Not allowed by CORS'));
+//       }
+//     },
+//     credentials: true,
+//   })
+// );
+
+// app.use((req, res, next) => {
+//   const origin = req.headers.origin;
+//   if (origin && allowedOrigins.includes(origin)) {
+//     res.setHeader('Access-Control-Allow-Origin', origin);
+//   }
+//   res.setHeader('Access-Control-Allow-Credentials', 'true');
+//   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+//   res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+//   if (req.method === 'OPTIONS') return res.sendStatus(204);
+//   next();
+// });
+
+// const sessionRepo = AppDataSource.getRepository(Session);
+
+// const sessionOptions: session.SessionOptions = {
+//   secret: process.env.SESSION_SECRET || 'super-secret-pass',
+//   resave: false,
+//   saveUninitialized: false,
+//   store: new TypeormStore({ cleanupLimit: 2 }).connect(sessionRepo),
+//   cookie: {
+//     maxAge: 1000 * 60 * 60 * 24,
+//   },
+// };
+
+// app.use(session(sessionOptions));
+// app.use(passport.initialize());
+// app.use(passport.session());
+
+// setupSwagger(app);
+// setupSignal();
+
+// (async function start() {
+//   try {
+//     console.log('Initializing i18n...');
+//     await initI18n();
+//     app.use(i18nextMiddleware.handle(i18next));
+//     console.log('i18n initialized');
+
+//     console.log('Waiting for Postgres to be ready...');
+//     await waitForPostgres({ retries: 12, delayMs: 2000 });
+//     await AppDataSource.initialize();
+//     console.log('Database connection established');
+
+//     console.log('Loading services...');
+//     await serviceLoader.loadAllServices();
+//     console.log('Loading webhooks...');
+//     await webhookLoader.loadAllWebhooks();
+//     await executionService.start();
+
+//     console.log('🔧 Setting up AdminJS...');
+//     const { admin, adminRouter } = await AdminRouter(
+//       AppDataSource,
+//       sessionOptions
+//     );
+
+//     app.use(admin.options.rootPath, adminRouter);
+//     console.log(
+//       `✅ Admin panel available at http://localhost:8080${admin.options.rootPath}`
+//     );
+
+//     app.use('/api/auth', authRoutes);
+//     app.use('/api/user', userRoutes);
+//     app.use('/api/github', githubRoutes);
+//     app.use('/api/google', googleRoutes);
+//     app.use('/api/spotify', spotifyRoutes);
+//     app.use('/api/services', serviceConfigRoutes);
+//     app.use('/api/services', servicesRoutes);
+//     app.use('/api/mappings', mappingsRoutes);
+//     app.use('/api/info', apiRoutes);
+//     app.use('/about.json', aboutRoutes);
+//     app.use('/api/webhooks', webhookRoutes);
+
+//     app.listen(3000, () => {
+//       console.log('🚀 Server running on port 3000 (mapped to 8080 via Docker)');
+//       console.log('📊 Admin panel: http://localhost:8080/admin');
+//       console.log('🔑 Login with: albane / admin');
+//     });
+
+//     await saveData();
+//   } catch (err) {
+//     console.error('❌ Failed to start application:', (err as Error).message);
+//     console.error(err);
+//     process.exit(1);
+//   }
+// })();
+
 console.log('🚀 Starting middleware setup...');
 
+// JSON and URL-encoded parsers (skip for /admin)
 app.use((req, res, next) => {
   if (req.path.startsWith('/admin')) return next();
   express.json()(req, res, next);
@@ -86,21 +201,51 @@ app.use((req, res, next) => {
   next();
 });
 
+// SESSION SETUP - Create separate configs
 const sessionRepo = AppDataSource.getRepository(Session);
 
-const sessionOptions: session.SessionOptions = {
+// Passport session (for API routes)
+const passportSessionOptions: session.SessionOptions = {
+  name: 'passport.sid', // Different cookie name
   secret: process.env.SESSION_SECRET || 'super-secret-pass',
   resave: false,
   saveUninitialized: false,
   store: new TypeormStore({ cleanupLimit: 2 }).connect(sessionRepo),
   cookie: {
     maxAge: 1000 * 60 * 60 * 24,
+    path: '/', // Available for all routes except /admin
   },
 };
 
-app.use(session(sessionOptions));
-app.use(passport.initialize());
-app.use(passport.session());
+// AdminJS session (for admin panel)
+const adminSessionOptions: session.SessionOptions = {
+  name: 'adminjs.sid', // Different cookie name
+  secret: process.env.ADMIN_SESSION_SECRET || 'admin-secret-pass',
+  resave: false,
+  saveUninitialized: false,
+  store: new TypeormStore({ cleanupLimit: 2 }).connect(sessionRepo),
+  cookie: {
+    maxAge: 1000 * 60 * 60 * 24,
+    path: '/admin', // Only available for /admin routes
+  },
+};
+
+// Apply Passport session ONLY to non-admin routes
+app.use((req, res, next) => {
+  if (req.path.startsWith('/admin')) return next();
+  session(passportSessionOptions)(req, res, next);
+});
+
+// Initialize Passport ONLY for non-admin routes
+app.use((req, res, next) => {
+  if (req.path.startsWith('/admin')) return next();
+  passport.initialize()(req, res, next);
+});
+
+app.use((req, res, next) => {
+  if (req.path.startsWith('/admin')) return next();
+  passport.session()(req, res, next);
+});
 
 setupSwagger(app);
 setupSignal();
@@ -109,7 +254,10 @@ setupSignal();
   try {
     console.log('Initializing i18n...');
     await initI18n();
-    app.use(i18nextMiddleware.handle(i18next));
+    app.use((req, res, next) => {
+      if (req.path.startsWith('/admin')) return next();
+      i18nextMiddleware.handle(i18next)(req, res, next);
+    });
     console.log('i18n initialized');
 
     console.log('Waiting for Postgres to be ready...');
@@ -126,14 +274,16 @@ setupSignal();
     console.log('🔧 Setting up AdminJS...');
     const { admin, adminRouter } = await AdminRouter(
       AppDataSource,
-      sessionOptions
+      adminSessionOptions // Pass admin session config here
     );
 
+    // AdminJS will handle its own session middleware
     app.use(admin.options.rootPath, adminRouter);
     console.log(
       `✅ Admin panel available at http://localhost:8080${admin.options.rootPath}`
     );
 
+    // API routes (use Passport authentication)
     app.use('/api/auth', authRoutes);
     app.use('/api/user', userRoutes);
     app.use('/api/github', githubRoutes);

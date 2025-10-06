@@ -15,6 +15,16 @@ import { googleOAuth } from '../services/services/google/oauth';
 import { spotifyOAuth } from '../services/services/spotify/oauth';
 import { JWT_SECRET } from '../../index';
 
+
+passport.serializeUser((user: any, done) => {
+  done(null, user);
+});
+
+passport.deserializeUser((user: any, done) => {
+  done(null, user);
+});
+
+
 export interface GitHubUser {
   id: string;
   name: string;

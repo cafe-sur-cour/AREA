@@ -35,10 +35,8 @@ const myCustomTheme = {
       primary60: '#648BA0',
       primary40: '#e4e2DD',
       primary20: '#45433E',
-
       accent: '#3e6172',
       hoverBg: '#648BA0',
-
       bg: '#ffffff',
       defaultText: '#333333',
     },
@@ -46,7 +44,6 @@ const myCustomTheme = {
 };
 
 const componentLoader = new ComponentLoader();
-
 const Components = {
   Dashboard: componentLoader.add('Dashboard', './dashboard'),
 };
@@ -85,26 +82,25 @@ const AdminRouter = async (
     {
       authenticate: async (email, password) => {
         const userRepo = AppDataSource.getRepository(User);
-
         const user = await userRepo.findOne({
           where: { email, is_admin: true },
         });
         if (!user) return null;
-
+        
         const valid = await bcrypt.compare(password, user.password_hash);
         if (!valid) return null;
-
+        
         return { id: user.id, email: user.email };
       },
-      cookieName: 'adminjs',
-      cookiePassword: 'super-secret-pass',
+      cookieName: 'adminjs.sid', // Match the session name!
+      cookiePassword: String(sessionOptions.secret), // Use the session secret!
     },
     null,
-    sessionOptions
+    sessionOptions // Pass the session options
   );
 
   const dashboardService = new DashboardService(AppDataSource);
-
+  
   router.get('/api/dashboard-stats', async (req, res) => {
     try {
       const stats = await dashboardService.getDashboardData();
