@@ -1,14 +1,20 @@
 name: CI/CD Pipeline
 
 on:
-  push: {}
+  push:
+    branches:
+      - main
   pull_request:
-    types: [opened]
+    types: [opened, synchronize, reopened]
 
 jobs:
   check_repository:
     name: Check repository to start jobs
     runs-on: ubuntu-latest
+    if: >
+      github.event_name == 'pull_request' ||
+      (github.event_name == 'push' && github.event.pull_request == null &&
+      github.event.base_ref == null)
     outputs:
       target: ${{ steps.new_output.outputs.value }}
       backend_changed: ${{ steps.new_output.outputs.backend_changed }}
