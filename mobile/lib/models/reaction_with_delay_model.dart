@@ -5,11 +5,13 @@ class ReactionWithDelayModel {
   final ReactionModel reaction;
   final ServiceModel service;
   final int delayInSeconds;
+  final Map<String, dynamic> config;
 
   ReactionWithDelayModel({
     required this.reaction,
     required this.service,
     this.delayInSeconds = 0,
+    this.config = const {},
   });
 
   int get days => delayInSeconds ~/ 86400;
@@ -62,11 +64,13 @@ class ReactionWithDelayModel {
     ReactionModel? reaction,
     ServiceModel? service,
     int? delayInSeconds,
+    Map<String, dynamic>? config,
   }) {
     return ReactionWithDelayModel(
       reaction: reaction ?? this.reaction,
       service: service ?? this.service,
       delayInSeconds: delayInSeconds ?? this.delayInSeconds,
+      config: config ?? this.config,
     );
   }
 
@@ -75,6 +79,7 @@ class ReactionWithDelayModel {
       'reaction': reaction.toJson(),
       'service': service.toJson(),
       'delayInSeconds': delayInSeconds,
+      'config': config,
     };
   }
 
@@ -83,6 +88,19 @@ class ReactionWithDelayModel {
       reaction: ReactionModel.fromJson(json['reaction']),
       service: ServiceModel.fromJson(json['service']),
       delayInSeconds: json['delayInSeconds'] as int? ?? 0,
+      config: Map<String, dynamic>.from(json['config'] ?? {}),
     );
+  }
+
+  bool get hasConfig => config.isNotEmpty;
+
+  bool get isConfigValid => reaction.validateConfig(config);
+
+  dynamic getConfigValue(String fieldName) => config[fieldName];
+
+  ReactionWithDelayModel setConfigValue(String fieldName, dynamic value) {
+    final newConfig = Map<String, dynamic>.from(config);
+    newConfig[fieldName] = value;
+    return copyWith(config: newConfig);
   }
 }

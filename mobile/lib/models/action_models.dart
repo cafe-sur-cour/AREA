@@ -5,7 +5,8 @@ class ConfigField {
   final bool required;
   final String? placeholder;
   final List<ConfigOption>? options;
-  final String? defaultValue;
+  final dynamic defaultValue;
+  final String? description;
 
   ConfigField({
     required this.name,
@@ -15,6 +16,7 @@ class ConfigField {
     this.placeholder,
     this.options,
     this.defaultValue,
+    this.description,
   });
 
   factory ConfigField.fromJson(Map<String, dynamic> json) {
@@ -27,7 +29,8 @@ class ConfigField {
       options: json['options'] != null
           ? (json['options'] as List).map((option) => ConfigOption.fromJson(option)).toList()
           : null,
-      defaultValue: json['default'] as String?,
+      defaultValue: json['default'],
+      description: json['description'] as String?,
     );
   }
 
@@ -40,7 +43,25 @@ class ConfigField {
       'placeholder': placeholder,
       'options': options?.map((option) => option.toJson()).toList(),
       'default': defaultValue,
+      'description': description,
     };
+  }
+
+  bool get requiresOptions => type == 'select';
+
+  bool get isNumericField => type == 'number';
+
+  bool get isBooleanField => type == 'checkbox';
+
+  bool get isMultilineText => type == 'textarea';
+
+  bool get isEmailField => type == 'email';
+
+  bool get isValid {
+    if (requiresOptions && (options == null || options!.isEmpty)) {
+      return false;
+    }
+    return name.isNotEmpty && type.isNotEmpty && label.isNotEmpty;
   }
 }
 
@@ -82,6 +103,54 @@ class ConfigSchema {
       'description': description,
       'fields': fields.map((field) => field.toJson()).toList(),
     };
+  }
+
+  bool get hasFields => fields.isNotEmpty;
+
+  List<ConfigField> getFieldsByType(String type) {
+    return fields.where((field) => field.type == type).toList();
+  }
+
+  List<ConfigField> get requiredFields {
+    return fields.where((field) => field.required).toList();
+  }
+
+  List<ConfigField> get optionalFields {
+    return fields.where((field) => !field.required).toList();
+  }
+
+  ConfigField? getField(String name) {
+    try {
+      return fields.firstWhere((field) => field.name == name);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  bool validateConfig(Map<String, dynamic> config) {
+    for (final field in requiredFields) {
+      if (!config.containsKey(field.name) || config[field.name] == null) {
+        return false;
+      }
+
+      final value = config[field.name];
+
+      if (field.isNumericField && value is String) {
+        if (num.tryParse(value) == null) {
+          return false;
+        }
+      } else if (field.isBooleanField && value is String) {
+        final lowerValue = value.toLowerCase();
+        if (lowerValue != 'true' && lowerValue != 'false') {
+          return false;
+        }
+      } else if (field.isNumericField && value is! num) {
+        return false;
+      } else if (field.isBooleanField && value is! bool) {
+        return false;
+      }
+    }
+    return true;
   }
 }
 
@@ -164,5 +233,51 @@ class ActionModel {
       'inputSchema': inputSchema,
       'metadata': metadata?.toJson(),
     };
+  }
+
+  bool get hasConfigFields => configSchema != null && configSchema!.fields.isNotEmpty;
+
+  List<ConfigField> get configFields => configSchema?.fields ?? [];
+
+  ConfigField? getConfigField(String fieldName) {
+    return configFields.firstWhere(
+      (field) => field.name == fieldName,
+      orElse: () => throw StateError('Field $fieldName not found'),
+    );
+  }
+
+  List<ConfigField> get requiredConfigFields {
+    return configFields.where((field) => field.required).toList();
+  }
+
+  bool validateConfig(Map<String, dynamic> config) {
+    if (!hasConfigFields) return true;
+
+    for (final field in requiredConfigFields) {
+      if (!config.containsKey(field.name) || config[field.name] == null) {
+        return false;
+      }
+
+      final value = config[field.name];
+
+      // Handle type validation with string conversion for API data
+      if (field.isNumericField && value is String) {
+        if (num.tryParse(value) == null) {
+          return false;
+        }
+      } else if (field.isBooleanField && value is String) {
+        // Accept string representations of booleans from API
+        final lowerValue = value.toLowerCase();
+        if (lowerValue != 'true' && lowerValue != 'false') {
+          return false;
+        }
+      } else if (field.isNumericField && value is! num) {
+        return false;
+      } else if (field.isBooleanField && value is! bool) {
+        return false;
+      }
+    }
+
+    return true;
   }
 }
