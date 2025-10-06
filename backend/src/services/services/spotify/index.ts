@@ -2,12 +2,14 @@ import type { Service } from '../../../types/service';
 import { spotifyActions } from './actions';
 import { spotifyReactions } from './reactions';
 import { spotifyReactionExecutor } from './executor';
+import { getIconSvg } from '../../../utils/iconMapping';
 
 const spotifyService: Service = {
   id: 'spotify',
   name: 'Spotify',
   description: 'Spotify service for music streaming integration',
   version: '1.0.0',
+  icon: getIconSvg('FaSpotify'),
   actions: spotifyActions,
   reactions: spotifyReactions,
   getCredentials: async (userId: number) => {
