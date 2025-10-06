@@ -43,7 +43,9 @@ export class DashboardService {
   async getDashboardData(): Promise<DashboardData> {
     try {
       const userRepo = this.dataSource.getRepository(User);
-      const subscriptionRepo = this.dataSource.getRepository(UserServiceSubscriptions);
+      const subscriptionRepo = this.dataSource.getRepository(
+        UserServiceSubscriptions
+      );
       const webhookRepo = this.dataSource.getRepository(WebhookConfigs);
       const webhookStatsRepo = this.dataSource.getRepository(WebhookStats);
       const activityRepo = this.dataSource.getRepository(UserActivityLogs);
