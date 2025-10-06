@@ -1,0 +1,20 @@
+name: Deploy via SSH
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    environment: PIPELINE
+    steps:
+      - name: Execute remote SSH commands using password
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SSS_HOST }}
+          username: ${{ secrets.SSS_USERNAME }}
+          password: ${{ secrets.SSS_PASSWORD }}
+          port: ${{ secrets.SSS_PORT }}
+          script: whoami
