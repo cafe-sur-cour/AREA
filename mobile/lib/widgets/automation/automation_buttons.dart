@@ -1,5 +1,4 @@
 import 'package:area/core/constants/app_colors.dart';
-import 'package:area/core/utils/color_utils.dart';
 import 'package:area/models/service_models.dart';
 import 'package:flutter/material.dart';
 
