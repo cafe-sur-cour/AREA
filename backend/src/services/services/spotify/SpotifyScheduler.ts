@@ -57,7 +57,7 @@ export class SpotifyScheduler {
   private readonly MAX_REQUESTS_PER_WINDOW = 180;
   private readonly RATE_LIMIT_WINDOW = 30 * 1000; // 30 seconds
   private readonly SPOTIFY_API_BASE_URL =
-    process.env.SERVICE_SPOTIFY_API_BASE_URL || '';
+    (process.env.SERVICE_SPOTIFY_API_BASE_URL || '') + '/v1';
   private readonly MAX_CONCURRENT_USERS = 5;
 
   async start(): Promise<void> {
@@ -69,7 +69,7 @@ export class SpotifyScheduler {
     console.log('Starting Spotify scheduler...');
     this.isRunning = true;
 
-    const pollJob = cron.schedule('*/30 * * * * *', async () => {
+    const pollJob = cron.schedule('*/10 * * * * *', async () => {
       await this.pollActiveUsers();
     });
 
