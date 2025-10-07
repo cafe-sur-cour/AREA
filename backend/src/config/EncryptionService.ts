@@ -1,4 +1,4 @@
-import crypto from "crypto";
+import crypto from 'crypto';
 
 interface EncryptedData {
   encrypted: string;
@@ -7,7 +7,7 @@ interface EncryptedData {
 }
 
 export class StringEncryption {
-  private readonly algorithm = "aes-256-gcm";
+  private readonly algorithm = 'aes-256-gcm';
   private readonly key: Buffer;
   private readonly keyLength = 32;
 
@@ -18,16 +18,16 @@ export class StringEncryption {
 
     if (!envKey) {
       throw new Error(
-        "Encryption key is required. Set ENCRYPTION_KEY environment variable ENCRYPTION_KEY.",
+        'Encryption key is required. Set ENCRYPTION_KEY environment variable ENCRYPTION_KEY.'
       );
     }
 
     this.key = crypto.pbkdf2Sync(
       envKey,
-      "encryption-salt",
+      'encryption-salt',
       100000,
       this.keyLength,
-      "sha256",
+      'sha256'
     );
   }
 
@@ -37,21 +37,21 @@ export class StringEncryption {
    * @returns Object containing encrypted data, IV, and authentication tag
    */
   encrypt(text: string): EncryptedData {
-    if (typeof text !== "string") {
-      throw new Error("Input must be a string");
+    if (typeof text !== 'string') {
+      throw new Error('Input must be a string');
     }
 
     const iv = crypto.randomBytes(16);
     const cipher = crypto.createCipheriv(this.algorithm, this.key, iv);
-    cipher.setAAD(Buffer.from("string-encryption", "utf8"));
-    let encrypted = cipher.update(text, "utf8", "hex");
-    encrypted += cipher.final("hex");
+    cipher.setAAD(Buffer.from('string-encryption', 'utf8'));
+    let encrypted = cipher.update(text, 'utf8', 'hex');
+    encrypted += cipher.final('hex');
     const tag = cipher.getAuthTag();
 
     return {
       encrypted,
-      iv: iv.toString("hex"),
-      tag: tag.toString("hex"),
+      iv: iv.toString('hex'),
+      tag: tag.toString('hex'),
     };
   }
 
@@ -64,7 +64,7 @@ export class StringEncryption {
     const { encrypted, iv, tag } = encryptedData;
 
     if (!encrypted || !iv || !tag) {
-      throw new Error("Invalid encrypted data format");
+      throw new Error('Invalid encrypted data format');
     }
 
     try {
@@ -72,18 +72,18 @@ export class StringEncryption {
       const decipher = crypto.createDecipheriv(
         this.algorithm,
         this.key,
-        Buffer.from(iv, "hex"),
+        Buffer.from(iv, 'hex')
       );
-      decipher.setAAD(Buffer.from("string-encryption", "utf8"));
-      decipher.setAuthTag(Buffer.from(tag, "hex"));
+      decipher.setAAD(Buffer.from('string-encryption', 'utf8'));
+      decipher.setAuthTag(Buffer.from(tag, 'hex'));
 
       // Decrypt the data
-      let decrypted = decipher.update(encrypted, "hex", "utf8");
-      decrypted += decipher.final("utf8");
+      let decrypted = decipher.update(encrypted, 'hex', 'utf8');
+      decrypted += decipher.final('utf8');
 
       return decrypted;
     } catch (error) {
-      throw new Error("Failed to decrypt data. : " + (error as Error).message);
+      throw new Error('Failed to decrypt data. : ' + (error as Error).message);
     }
   }
 
@@ -96,7 +96,7 @@ export class StringEncryption {
   encryptToString(text: string): string {
     const encrypted = this.encrypt(text);
     const combined = JSON.stringify(encrypted);
-    return Buffer.from(combined).toString("base64");
+    return Buffer.from(combined).toString('base64');
   }
 
   /**
@@ -106,12 +106,12 @@ export class StringEncryption {
    */
   decryptFromString(encryptedString: string): string {
     try {
-      const combined = Buffer.from(encryptedString, "base64").toString("utf8");
+      const combined = Buffer.from(encryptedString, 'base64').toString('utf8');
       const encryptedData: EncryptedData = JSON.parse(combined);
       return this.decrypt(encryptedData);
     } catch (error) {
       throw new Error(
-        "Invalid encrypted string format: " + (error as Error).message,
+        'Invalid encrypted string format: ' + (error as Error).message
       );
     }
   }
@@ -122,6 +122,6 @@ export class StringEncryption {
    * @returns A secure random key as base64 string
    */
   static generateKey(): string {
-    return crypto.randomBytes(32).toString("base64");
+    return crypto.randomBytes(32).toString('base64');
   }
 }

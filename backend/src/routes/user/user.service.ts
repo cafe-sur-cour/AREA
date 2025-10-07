@@ -14,14 +14,16 @@ export const getAllUsers = async (): Promise<User[]> => {
         user.bio = encryption.decryptFromString(user.bio);
       }
     } catch (error) {
-      throw new Error(`Failed to decrypt user data: ${(error as Error).message}`);
+      throw new Error(
+        `Failed to decrypt user data: ${(error as Error).message}`
+      );
     }
   }
   return users;
 };
 
 export const getUserByID = async (id: number): Promise<User | null> => {
-  const user =  await AppDataSource.manager.findOneBy(User, { id });
+  const user = await AppDataSource.manager.findOneBy(User, { id });
   if (!user) return null;
   try {
     user.name = encryption.decryptFromString(user.name);

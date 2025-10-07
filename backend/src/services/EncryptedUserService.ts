@@ -59,7 +59,10 @@ export class EncryptedUserService {
    * Create a hash for email lookup (deterministic)
    */
   private createEmailHash(email: string): string {
-    return crypto.createHash('sha256').update(email.toLowerCase()).digest('hex');
+    return crypto
+      .createHash('sha256')
+      .update(email.toLowerCase())
+      .digest('hex');
   }
 
   /**
@@ -82,14 +85,16 @@ export class EncryptedUserService {
       encrypted_bio?: string;
     } = {
       encrypted_name: this.encryption.encryptToString(userData.name),
-      encrypted_email: this.encryption.encryptToString(userData.email.toLowerCase()),
+      encrypted_email: this.encryption.encryptToString(
+        userData.email.toLowerCase()
+      ),
       email_hash: this.createEmailHash(userData.email),
     };
-    
+
     if (userData.bio) {
       result.encrypted_bio = this.encryption.encryptToString(userData.bio);
     }
-    
+
     return result;
   }
 
@@ -105,7 +110,9 @@ export class EncryptedUserService {
         bio: user.bio ? this.encryption.decryptFromString(user.bio) : null,
       };
     } catch (error) {
-      throw new Error(`Failed to decrypt user data: ${(error as Error).message}`);
+      throw new Error(
+        `Failed to decrypt user data: ${(error as Error).message}`
+      );
     }
   }
 
@@ -132,7 +139,7 @@ export class EncryptedUserService {
   async getUserByEmail(email: string): Promise<DecryptedUser | null> {
     const emailHash = this.createEmailHash(email);
     const user = await this.userRepository.findOne({
-      where: { email_hash: emailHash }
+      where: { email_hash: emailHash },
     });
     if (!user) return null;
     return this.decryptUser(user);
@@ -173,7 +180,7 @@ export class EncryptedUserService {
     user.email_hash = encryptedData.email_hash;
     user.password_hash = userData.password_hash;
     user.bio = encryptedData.encrypted_bio || '';
-    
+
     if (userData.email_verified !== undefined) {
       user.email_verified = userData.email_verified;
     }
@@ -188,7 +195,10 @@ export class EncryptedUserService {
   /**
    * Update user with encrypted data
    */
-  async updateUser(id: number, userData: UpdateUserDTO): Promise<DecryptedUser | null> {
+  async updateUser(
+    id: number,
+    userData: UpdateUserDTO
+  ): Promise<DecryptedUser | null> {
     const user = await this.userRepository.findOneBy({ id });
     if (!user) return null;
 
@@ -199,7 +209,9 @@ export class EncryptedUserService {
     }
 
     if (userData.bio !== undefined) {
-      updateData.bio = userData.bio ? this.encryption.encryptToString(userData.bio) : '';
+      updateData.bio = userData.bio
+        ? this.encryption.encryptToString(userData.bio)
+        : '';
     }
 
     if (userData.picture !== undefined) {
@@ -222,7 +234,7 @@ export class EncryptedUserService {
   async updateUserPassword(id: number, new_password: string): Promise<boolean> {
     const user = await this.userRepository.findOneBy({ id });
     if (!user) return false;
-    
+
     await this.userRepository.update({ id }, { password_hash: new_password });
     return true;
   }
@@ -233,7 +245,7 @@ export class EncryptedUserService {
   async updateUserName(id: number, new_name: string): Promise<boolean> {
     const user = await this.userRepository.findOneBy({ id });
     if (!user) return false;
-    
+
     const encrypted_name = this.encryption.encryptToString(new_name);
     await this.userRepository.update({ id }, { name: encrypted_name });
     return true;
@@ -245,7 +257,7 @@ export class EncryptedUserService {
   async deleteUserById(id: number): Promise<boolean> {
     const user = await this.userRepository.findOneBy({ id });
     if (!user) return false;
-    
+
     await this.userRepository.delete({ id });
     return true;
   }
@@ -260,10 +272,13 @@ export class EncryptedUserService {
   /**
    * Update user email verification status
    */
-  async updateUserEmailVerified(id: number, email_verified: boolean): Promise<boolean> {
+  async updateUserEmailVerified(
+    id: number,
+    email_verified: boolean
+  ): Promise<boolean> {
     const user = await this.userRepository.findOneBy({ id });
     if (!user) return false;
-    
+
     await this.userRepository.update({ id }, { email_verified });
     return true;
   }
@@ -274,7 +289,7 @@ export class EncryptedUserService {
   async updateUserLastLogin(id: number): Promise<boolean> {
     const user = await this.userRepository.findOneBy({ id });
     if (!user) return false;
-    
+
     await this.userRepository.update({ id }, { last_login_at: new Date() });
     return true;
   }
@@ -292,7 +307,7 @@ export class EncryptedUserService {
   async getRawUserByEmailHash(email: string): Promise<User | null> {
     const emailHash = this.createEmailHash(email);
     return this.userRepository.findOne({
-      where: { email_hash: emailHash }
+      where: { email_hash: emailHash },
     });
   }
 }

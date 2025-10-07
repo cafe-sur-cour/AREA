@@ -84,25 +84,31 @@ const AdminRouter = async (
     {
       authenticate: async (email, password) => {
         console.log('AdminJS login attempt for:', email);
-        
+
         // Get all admin users and decrypt their emails to find a match
         const userRepo = AppDataSource.getRepository(User);
         const adminUsers = await userRepo.find({ where: { is_admin: true } });
-        
+
         let user: User | null = null;
         for (const adminUser of adminUsers) {
           try {
-            const decryptedEmail = encryption.decryptFromString(adminUser.email);
+            const decryptedEmail = encryption.decryptFromString(
+              adminUser.email
+            );
             if (decryptedEmail === email) {
               user = adminUser;
               break;
             }
           } catch (error) {
-            console.error('Error decrypting email for user:', adminUser.id, error);
+            console.error(
+              'Error decrypting email for user:',
+              adminUser.id,
+              error
+            );
             continue;
           }
         }
-        
+
         if (!user) return null;
 
         const valid = await bcrypt.compare(password, user.password_hash);
