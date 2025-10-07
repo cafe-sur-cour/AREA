@@ -52,11 +52,36 @@ async function getCurrentUser(
 
     const cookieToken = req.cookies?.auth_token;
     if (cookieToken) {
-      const decoded = jwt.verify(cookieToken, JWT_SECRET as string) as {
-        id: number;
-        email: string;
-      };
-      return decoded;
+      // Show unverified decoded payload for debugging (does not verify signature)
+      try {
+        const unverified = jwt.decode(cookieToken, { complete: true });
+      } catch (err) {
+        console.warn('Failed to decode token (unverified):', err);
+      }
+
+      try {
+        const decoded = jwt.verify(cookieToken, JWT_SECRET as string) as {
+          id: number;
+          email: string;
+        };
+        return decoded;
+      } catch (err: unknown) {
+        // Log verification error to aid debugging (expired, invalid signature, etc.)
+        console.error('JWT verification error:',
+          err && typeof err === 'object' && 'name' in err
+            ? `${(err as { name?: string }).name}: ${(err as Error).message}`
+            : err
+        );
+
+        // If it's a signature error, the token was signed with a different secret
+        // For now, we'll return null but in production you might want to clear the cookie
+        if (err && typeof err === 'object' && 'name' in err &&
+            (err as { name?: string }).name === 'JsonWebTokenError') {
+          console.warn('Token signature invalid - user needs to re-authenticate');
+          // TODO: Consider clearing the invalid cookie here
+        }
+        return null;
+      }
     }
 
     return null;
@@ -102,14 +127,12 @@ passport.use(
             console.warn('Failed to fetch GitHub user emails:', error);
           }
         }
-
         const userToken = await oauthLogin(
           'github',
           profile.id,
           userEmail,
           profile.displayName || profile.username || ''
         );
-
         if (userToken instanceof Error) {
           return doneCallback(userToken, null);
         }
@@ -119,12 +142,10 @@ passport.use(
           token_type: 'bearer',
           scope: 'user:email',
         };
-
         const decoded = jwt.verify(userToken, JWT_SECRET as string) as {
           id: number;
         };
         await githubOAuth.storeUserToken(decoded.id, tokenData);
-
         return doneCallback(null, {
           id: profile.id,
           name: profile.displayName || profile.username || '',
