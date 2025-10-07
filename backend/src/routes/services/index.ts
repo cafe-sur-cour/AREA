@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express';
 import token from '../../middleware/token';
 import { serviceRegistry } from '../../services/ServiceRegistry';
 import { serviceSubscriptionManager } from '../../services/ServiceSubscriptionManager';
+import subscriptionRoutes from './subscription';
 
 const serviceEndpoints: Record<
   string,
@@ -17,33 +18,34 @@ const serviceEndpoints: Record<
     auth: '/auth/github/login',
     status: '/github/subscribe/status',
     loginStatus: '/github/login/status',
-    subscribe: '/github/subscribe',
+    subscribe: '/auth/github/subscribe',
     unsubscribe: '/github/unsubscribe',
   },
   google: {
     auth: '/auth/google/login',
     status: '/google/subscribe/status',
     loginStatus: '/google/login/status',
-    subscribe: '/google/subscribe',
+    subscribe: '/auth/google/subscribe',
     unsubscribe: '/google/unsubscribe',
   },
   spotify: {
     auth: '/auth/spotify/subscribe',
     status: '/spotify/subscribe/status',
     loginStatus: '/spotify/login/status',
-    subscribe: '/spotify/subscribe',
+    subscribe: '/auth/spotify/subscribe',
     unsubscribe: '/spotify/unsubscribe',
   },
   timer: {
     auth: '',
     status: '',
     loginStatus: '',
-    subscribe: '',
+    subscribe: '/auth/timer/subscribe',
     unsubscribe: '',
   },
 };
 
 const router = express.Router();
+router.use('/auth', subscriptionRoutes);
 
 /**
  * @swagger

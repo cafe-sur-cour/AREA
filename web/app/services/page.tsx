@@ -18,6 +18,7 @@ import {
   FaSpotify,
 } from 'react-icons/fa6';
 import { FaDeezer } from 'react-icons/fa';
+import { MdTimer } from 'react-icons/md';
 import { useAuth } from '@/contexts/AuthContext';
 import api from '@/lib/api';
 import { getAPIUrl } from '@/lib/config';
@@ -83,7 +84,7 @@ export default function ServicesPage() {
       authEndpoint: '/auth/google/login',
       statusEndpoint: '/google/subscribe/status',
       loginStatusEndpoint: '/google/login/status',
-      subscribeEndpoint: '/google/subscribe',
+      subscribeEndpoint: '/auth/google/subscribe',
       unsubscribeEndpoint: '/google/unsubscribe',
       oauthConnected: false,
       subscribed: false,
@@ -111,7 +112,7 @@ export default function ServicesPage() {
       authEndpoint: '/auth/github/login',
       statusEndpoint: '/github/subscribe/status',
       loginStatusEndpoint: '/github/login/status',
-      subscribeEndpoint: '/github/subscribe',
+      subscribeEndpoint: '/auth/github/subscribe',
       unsubscribeEndpoint: '/github/unsubscribe',
       oauthConnected: false,
       subscribed: false,
@@ -136,12 +137,26 @@ export default function ServicesPage() {
       description: 'Manage your Spotify playlists and listening activity',
       icon: <FaSpotify className='w-8 h-8 text-green-500' />,
       isConnected: false,
-      authEndpoint: '/auth/spotify/subscribe', // Spotify only supports subscription, not login
+      authEndpoint: '/auth/spotify/subscribe',
       statusEndpoint: '/spotify/subscribe/status',
       loginStatusEndpoint: '/spotify/login/status',
-      subscribeEndpoint: '/spotify/subscribe',
+      subscribeEndpoint: '/auth/spotify/subscribe',
       unsubscribeEndpoint: '/spotify/unsubscribe',
       oauthConnected: false,
+      subscribed: false,
+    },
+    {
+      id: 'timer',
+      name: 'Timer',
+      description: 'Create time-based automations and scheduled triggers',
+      icon: <MdTimer className='w-8 h-8 text-blue-500' />,
+      isConnected: false,
+      authEndpoint: '',
+      statusEndpoint: '',
+      loginStatusEndpoint: '',
+      subscribeEndpoint: '/auth/timer/subscribe',
+      unsubscribeEndpoint: '',
+      oauthConnected: true,
       subscribed: false,
     },
   ];
@@ -162,6 +177,32 @@ export default function ServicesPage() {
       const updatedServices = await Promise.all(
         services.map(async service => {
           try {
+            if (service.id === 'timer') {
+              try {
+                const response = await api.get({
+                  endpoint: '/api/services',
+                });
+                const servicesData = response.data as { services: Array<{ id: string; isSubscribed: boolean }> };
+                const timerService = servicesData.services.find(
+                  (s) => s.id === 'timer'
+                );
+                return {
+                  ...service,
+                  isConnected: timerService?.isSubscribed || false,
+                  oauthConnected: true,
+                  subscribed: timerService?.isSubscribed || false,
+                };
+              } catch (error) {
+                console.error('Error checking timer status:', error);
+                return {
+                  ...service,
+                  isConnected: false,
+                  oauthConnected: true,
+                  subscribed: false,
+                };
+              }
+            }
+
             const [oauthResponse, subscribeResponse] = await Promise.allSettled(
               [
                 api.get<{ connected?: boolean }>({
@@ -207,7 +248,26 @@ export default function ServicesPage() {
   const handleConnect = async (service: Service) => {
     const apiUrl = await getAPIUrl();
 
-    // Special case for Spotify: only subscription is supported, no separate login
+    if (service.id === 'timer') {
+      try {
+        await api.get({ endpoint: service.subscribeEndpoint! });
+        setServices(
+          services.map(s =>
+            s.id === service.id
+              ? {
+                  ...s,
+                  isConnected: true,
+                  subscribed: true,
+                }
+              : s
+          )
+        );
+      } catch (error) {
+        console.error(`Error subscribing to ${service.name}:`, error);
+      }
+      return;
+    }
+
     if (service.id === 'spotify') {
       window.location.href = `${apiUrl}${service.authEndpoint}`;
       return;
@@ -217,7 +277,7 @@ export default function ServicesPage() {
       window.location.href = `${apiUrl}${service.authEndpoint}`;
     } else if (service.oauthConnected && !service.subscribed) {
       try {
-        await api.post(service.subscribeEndpoint!, {});
+        await api.get({ endpoint: service.subscribeEndpoint! });
         setServices(
           services.map(s =>
             s.id === service.id

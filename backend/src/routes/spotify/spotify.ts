@@ -145,65 +145,6 @@ router.get(
 
 /**
  * @swagger
- * /api/spotify/subscribe:
- *   post:
- *     summary: Subscribe to Spotify events
- *     tags:
- *       - Spotify Service
- *     description: |
- *       Subscribe user to Spotify events. Requires OAuth to be connected first.
- *       NOTE: Spotify webhook implementation is not yet complete.
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Successfully subscribed
- *       400:
- *         description: OAuth required first
- *       501:
- *         description: Not implemented yet
- *       500:
- *         description: Internal Server Error
- */
-router.post(
-  '/subscribe',
-  token,
-  async (req: Request, res: Response): Promise<Response> => {
-    try {
-      const userId = (req.auth as { id: number }).id;
-
-      const userToken = await spotifyOAuth.getUserToken(userId);
-      if (!userToken) {
-        return res.status(400).json({
-          error:
-            'Spotify OAuth required first. Please connect your Spotify account.',
-        });
-      }
-
-      const subscription = await serviceSubscriptionManager.subscribeUser(
-        userId,
-        'spotify'
-      );
-
-      return res.status(200).json({
-        message:
-          'Successfully subscribed to Spotify events (webhook implementation pending)',
-        subscription: {
-          subscribed: subscription.subscribed,
-          subscribed_at: subscription.subscribed_at,
-          service: subscription.service,
-        },
-        note: 'Spotify webhook integration is not yet implemented',
-      });
-    } catch (err) {
-      console.error(err);
-      return res.status(500).json({ error: 'Internal Server Error' });
-    }
-  }
-);
-
-/**
- * @swagger
  * /api/spotify/unsubscribe:
  *   post:
  *     summary: Unsubscribe from Spotify events

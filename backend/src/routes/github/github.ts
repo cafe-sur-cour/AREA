@@ -150,62 +150,6 @@ router.get(
 
 /**
  * @swagger
- * /api/github/subscribe:
- *   post:
- *     summary: Subscribe to GitHub events
- *     tags:
- *       - GitHub Service
- *     description: |
- *       Subscribe user to GitHub events. Requires OAuth to be connected first.
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Successfully subscribed
- *       400:
- *         description: OAuth required first
- *       500:
- *         description: Internal Server Error
- */
-router.post(
-  '/subscribe',
-  token,
-  async (req: Request, res: Response): Promise<Response> => {
-    try {
-      const userId = (req.auth as { id: number }).id;
-
-      const userToken = await githubOAuth.getUserToken(userId);
-      if (!userToken) {
-        return res.status(400).json({
-          error:
-            'GitHub OAuth required first. Please connect your GitHub account.',
-        });
-      }
-
-      const subscription = await serviceSubscriptionManager.subscribeUser(
-        userId,
-        'github'
-      );
-
-      return res.status(200).json({
-        message: 'Successfully subscribed to GitHub events',
-        subscription: {
-          subscribed: subscription.subscribed,
-          subscribed_at: subscription.subscribed_at,
-          service: subscription.service,
-        },
-      });
-    } catch (err) {
-      console.error(err);
-      return res
-        .status(500)
-        .json({ error: 'Internal Server Error in github subscribe' });
-    }
-  }
-);
-
-/**
- * @swagger
  * /api/github/unsubscribe:
  *   post:
  *     summary: Unsubscribe from GitHub events

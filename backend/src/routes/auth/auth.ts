@@ -7,8 +7,8 @@ import mail from '../../middleware/mail';
 import passport from 'passport';
 import token from '../../middleware/token';
 import nodemailer from 'nodemailer';
-import { githubOAuth } from '../../services/services/github/oauth';
 import { createLog } from '../logs/logs.service';
+import subscriptionRouter from '../services/subscription';
 
 interface TokenPayload extends jwt.JwtPayload {
   email: string;
@@ -656,68 +656,6 @@ router.get(
 
 /**
  * @swagger
- * /api/auth/github/subscribe:
- *   get:
- *     summary: Subscribe to GitHub service (OAuth + App Installation)
- *     tags:
- *       - OAuth
- *     description: |
- *       Complete subscription to GitHub service including OAuth authorization
- *       and GitHub App installation. This handles the full flow to enable
- *       webhook creation on user repositories.
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       302:
- *         description: Redirect to GitHub for OAuth or App installation
- *       401:
- *         description: User not authenticated
- *       500:
- *         description: Internal Server Error
- */
-router.get(
-  '/github/subscribe',
-  token,
-  async (req: Request, res: Response, next) => {
-    if (!req.auth) {
-      await createLog(
-        401,
-        'github',
-        `Authentication required to subscribe to GitHub`
-      );
-      return res.status(401).json({ error: 'Authentication required' });
-    }
-
-    try {
-      const userId = (req.auth as { id: number }).id;
-      const existingToken = await githubOAuth.getUserToken(userId);
-
-      if (existingToken) {
-        const appSlug = process.env.GITHUB_APP_SLUG || 'area-cafe-sur-cours';
-        const installUrl = `https://github.com/apps/${appSlug}/installations/new?state=${userId}`;
-        return res.redirect(installUrl);
-      }
-    } catch {
-      console.log('No existing token found, proceeding with OAuth...');
-    }
-
-    const session = req.session as
-      | { githubSubscriptionFlow?: boolean }
-      | undefined;
-    if (session) {
-      session.githubSubscriptionFlow = true;
-    }
-
-    passport.authenticate('github-subscribe', { session: false })(
-      req,
-      res,
-      next
-    );
-  }
-);
-
-/**
- * @swagger
  * /api/auth/google/login:
  *   get:
  *     summary: Initiate Google OAuth authorization for login/register
@@ -739,41 +677,6 @@ router.get(
     session: false,
   })
 );
-
-/**
- * @swagger
- * /api/auth/google/subscribe:
- *   get:
- *     summary: Initiate Google OAuth authorization for service connection
- *     tags:
- *       - OAuth
- *     description: |
- *       Redirects user to Google for OAuth authorization.
- *       This route is used to connect Google account for service access when user is already authenticated.
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       302:
- *         description: Redirect to Google authorization page
- *       401:
- *         description: User not authenticated
- *       500:
- *         description: Internal Server Error
- */
-router.get('/google/subscribe', async (req: Request, res: Response, next) => {
-  if (!req.auth) {
-    await createLog(
-      401,
-      'google',
-      `Authentication required to subscribe to Google`
-    );
-    return res.status(401).json({ error: 'Authentication required' });
-  }
-  passport.authenticate('google-subscribe', {
-    scope: ['openid', 'email', 'profile'],
-    session: false,
-  })(req, res, next);
-});
 
 /**
  * @swagger
@@ -882,44 +785,6 @@ router.get(
       );
       res.status(500).json({ error: 'Failed to authenticate with Google' });
     }
-  }
-);
-
-/**
- * @swagger
- * /api/auth/spotify/subscribe:
- *   get:
- *     summary: Subscribe to Spotify service
- *     tags:
- *       - OAuth
- *     description: |
- *       Initiates Spotify OAuth authorization for service connection.
- *       This route is used to connect Spotify account for service access when user is already authenticated.
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       302:
- *         description: Redirect to Spotify authorization page
- *       401:
- *         description: User not authenticated
- *       500:
- *         description: Internal Server Error
- */
-router.get(
-  '/spotify/subscribe',
-  token,
-  async (req: Request, res: Response, next) => {
-    if (!req.auth) {
-      await createLog(
-        401,
-        'spotify',
-        `Authentication required to subscribe to Spotify`
-      );
-      return res.status(401).json({ error: 'Authentication required' });
-    }
-    passport.authenticate('spotify-subscribe', {
-      session: false,
-    })(req, res, next);
   }
 );
 
@@ -1342,5 +1207,8 @@ router.post('/reset-password', mail, async (req: Request, res: Response) => {
     }
   );
 });
+
+// Use subscription routes
+router.use('/', subscriptionRouter);
 
 export default router;
