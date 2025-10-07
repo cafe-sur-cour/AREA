@@ -231,17 +231,15 @@ export default function ServicesPage() {
               if (service.id === 'timer') {
                 try {
                   const response = await api.get({
-                    endpoint: '/api/services/subscribed',
+                    endpoint: service.statusEndpoint,
                   });
-                  const servicesData = response.data as { services: Array<{ id: string }> };
-                  const timerService = servicesData.services.find(
-                    (s) => s.id === 'timer'
-                  );
+                  const timerData = response.data as { subscribed?: boolean };
+                  const isSubscribed = timerData.subscribed || false;
                   return {
                     ...service,
-                    isConnected: !!timerService,
+                    isConnected: isSubscribed,
                     oauthConnected: true,
-                    subscribed: !!timerService,
+                    subscribed: isSubscribed,
                   };
                 } catch (error) {
                   console.error('Error checking timer status:', error);
