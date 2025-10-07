@@ -6,7 +6,5 @@ class AppConfig {
     defaultValue: _defaultFrontendUrl,
   );
 
-  static String getOAuthRedirectUrl() {
-    return frontendUrl;
-  }
+  static const String callBackUrl = 'mobileApp://callback';
 }

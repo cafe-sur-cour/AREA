@@ -1,4 +1,5 @@
 import 'package:area/core/constants/app_colors.dart';
+import 'package:area/services/deep_link_service.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
@@ -7,12 +8,14 @@ class OAuthWebView extends StatefulWidget {
   final String oauthUrl;
   final String redirectUrl;
   final String providerName;
+  final bool Function(String)? onNavigationRequest;
 
   const OAuthWebView({
     super.key,
     required this.oauthUrl,
     required this.redirectUrl,
     required this.providerName,
+    this.onNavigationRequest,
   });
 
   @override
@@ -27,10 +30,12 @@ class OAuthWebViewState extends State<OAuthWebView> {
   Timer? _timeoutTimer;
   int _retryCount = 0;
   static const int _maxRetries = 2;
+  StreamSubscription<String>? _deepLinkSubscription;
 
   @override
   void initState() {
     super.initState();
+    _setupDeepLinkListener();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         _initializeWebViewController();
@@ -39,9 +44,18 @@ class OAuthWebViewState extends State<OAuthWebView> {
     });
   }
 
+  void _setupDeepLinkListener() {
+    _deepLinkSubscription = DeepLinkService.instance.deepLinkStream.listen((link) {
+      if (mounted && link.startsWith(widget.redirectUrl)) {
+        _handleRedirect(link);
+      }
+    });
+  }
+
   @override
   void dispose() {
     _timeoutTimer?.cancel();
+    _deepLinkSubscription?.cancel();
     super.dispose();
   }
 
@@ -83,6 +97,13 @@ class OAuthWebViewState extends State<OAuthWebView> {
               }
             },
             onNavigationRequest: (NavigationRequest request) {
+              if (widget.onNavigationRequest != null) {
+                final shouldNavigate = widget.onNavigationRequest!(request.url);
+                if (!shouldNavigate) {
+                  return NavigationDecision.prevent;
+                }
+              }
+
               if (request.url.startsWith(widget.redirectUrl)) {
                 if (!_isHandlingRedirect) {
                   _handleRedirect(request.url);
@@ -149,17 +170,30 @@ class OAuthWebViewState extends State<OAuthWebView> {
     try {
       final uri = Uri.parse(url);
 
-      String? token = uri.queryParameters['token'] ?? uri.queryParameters['auth_token'];
+      // Try various token parameter names
+      String? token =
+          uri.queryParameters['token'] ??
+          uri.queryParameters['auth_token'] ??
+          uri.queryParameters['jwt'] ??
+          uri.queryParameters['access_token'];
 
+      // Check fragment parameters (used by some OAuth providers)
       if (token == null && uri.fragment.isNotEmpty) {
         final fragmentParams = Uri.splitQueryString(uri.fragment);
-        token = fragmentParams['token'] ?? fragmentParams['auth_token'];
+        token =
+            fragmentParams['token'] ??
+            fragmentParams['auth_token'] ??
+            fragmentParams['jwt'] ??
+            fragmentParams['access_token'];
       }
 
+      // Check path segments
       if (token == null) {
         final pathSegments = uri.pathSegments;
         for (int i = 0; i < pathSegments.length; i++) {
-          if ((pathSegments[i] == 'token' || pathSegments[i] == 'auth_token') &&
+          if ((pathSegments[i] == 'token' ||
+                  pathSegments[i] == 'auth_token' ||
+                  pathSegments[i] == 'jwt') &&
               i + 1 < pathSegments.length) {
             token = pathSegments[i + 1];
             break;
@@ -167,9 +201,17 @@ class OAuthWebViewState extends State<OAuthWebView> {
         }
       }
 
+      // Check for success/error parameters
+      final hasError = uri.queryParameters['error'] != null;
+      if (hasError) {
+        final error = uri.queryParameters['error'];
+        final errorDescription = uri.queryParameters['error_description'] ?? error;
+        throw Exception('OAuth error: $errorDescription');
+      }
+
       return token;
     } catch (e) {
-      return null;
+      rethrow;
     }
   }
 

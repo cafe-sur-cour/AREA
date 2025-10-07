@@ -124,7 +124,7 @@ class LoginScreenState extends State<LoginScreen> {
       return;
     }
 
-    final address = "${backendAddressNotifier.backendAddress}$route";
+    final address = "${backendAddressNotifier.backendAddress}$route?is_mobile=true";
 
     final appLocalizations = AppLocalizations.of(context);
     final scaffoldMessenger = ScaffoldMessenger.of(context);
@@ -135,7 +135,7 @@ class LoginScreenState extends State<LoginScreen> {
       MaterialPageRoute(
         builder: (context) => OAuthWebView(
           oauthUrl: address,
-          redirectUrl: AppConfig.getOAuthRedirectUrl(),
+          redirectUrl: AppConfig.callBackUrl,
           providerName: provider,
         ),
       ),
@@ -165,15 +165,15 @@ class LoginScreenState extends State<LoginScreen> {
   }
 
   void _goToGithub(BuildContext context) async {
-    await _goToOAuth(context, 'GitHub', AppRoutes.github);
+    await _goToOAuth(context, 'GitHub', AppRoutes.githubLogin);
   }
 
   void _goToMicrosoft(BuildContext context) async {
-    // await _goToOAuth(context, 'Microsoft', 'api/auth/microsoft');
+    // await _goToOAuth(context, 'Microsoft', AppRoutes.microsoftLogin);
   }
 
   void _goToGoogle(BuildContext context) async {
-    // await _goToOAuth(context, 'Google', 'api/auth/google');
+    await _goToOAuth(context, 'Google', AppRoutes.googleLogin);
   }
 
   @override
@@ -269,58 +269,72 @@ class LoginScreenState extends State<LoginScreen> {
 
               const SizedBox(height: 16),
 
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              Column(
                 children: [
-                  ElevatedButton(
-                    onPressed: () => _goToGithub(context),
-                    style: ElevatedButton.styleFrom(
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                      backgroundColor: AppColors.primary,
-                      padding: EdgeInsets.symmetric(horizontal: 16),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(IonIcons.logo_github, color: AppColors.areaLightGray),
-                        SizedBox(width: 8),
-                        Text('Github', style: TextStyle(color: AppColors.areaLightGray)),
-                      ],
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () => _goToGithub(context),
+                          style: ElevatedButton.styleFrom(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            backgroundColor: AppColors.primary,
+                            padding: EdgeInsets.symmetric(vertical: 12),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(IonIcons.logo_github, color: AppColors.areaLightGray),
+                              SizedBox(width: 8),
+                              Text('GitHub', style: TextStyle(color: AppColors.areaLightGray)),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () => _goToGoogle(context),
+                          style: ElevatedButton.styleFrom(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            backgroundColor: Colors.red,
+                            padding: EdgeInsets.symmetric(vertical: 12),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(IonIcons.logo_google, color: AppColors.areaLightGray),
+                              SizedBox(width: 8),
+                              Text('Google', style: TextStyle(color: AppColors.areaLightGray)),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  ElevatedButton(
-                    onPressed: () => _goToMicrosoft(context),
-                    style: ElevatedButton.styleFrom(
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                      backgroundColor: AppColors.primary,
-                      padding: EdgeInsets.symmetric(horizontal: 16),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(IonIcons.logo_microsoft, color: AppColors.areaLightGray),
-                        SizedBox(width: 8),
-                        Text('Microsoft', style: TextStyle(color: AppColors.areaLightGray)),
-                      ],
-                    ),
-                  ),
-                  ElevatedButton(
-                    onPressed: () => _goToGoogle(context),
-                    style: ElevatedButton.styleFrom(
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                      backgroundColor: AppColors.primary,
-                      padding: EdgeInsets.symmetric(horizontal: 16),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(IonIcons.logo_google, color: AppColors.areaLightGray),
-                        SizedBox(width: 8),
-                        Text('Google', style: TextStyle(color: AppColors.areaLightGray)),
-                      ],
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () => _goToMicrosoft(context),
+                      style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        backgroundColor: Colors.blue,
+                        padding: EdgeInsets.symmetric(vertical: 12),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(IonIcons.logo_microsoft, color: AppColors.areaLightGray),
+                          SizedBox(width: 8),
+                          Text('Microsoft', style: TextStyle(color: AppColors.areaLightGray)),
+                        ],
+                      ),
                     ),
                   ),
                 ],

@@ -103,4 +103,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get logged_out => 'Déconnexion réussie';
+
+  @override
+  String get services => 'Services';
 }
