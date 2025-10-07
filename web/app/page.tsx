@@ -70,21 +70,21 @@ export default function Home() {
           <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16'>
             <div className='grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12'>
               <div className='text-center md:text-left'>
-                <div className='text-4xl font-heading font-bold text-foreground mb-2' aria-label='10 million active automations'>
+                <h2 className='text-4xl font-heading font-bold text-foreground mb-2'>
                   10M+
-                </div>
+                </h2>
                 <div className='text-muted-foreground'>Active automations</div>
               </div>
               <div className='text-center md:text-left'>
-                <div className='text-4xl font-heading font-bold text-foreground mb-2' aria-label='500 connected services'>
+                <h2 className='text-4xl font-heading font-bold text-foreground mb-2'>
                   500+
-                </div>
+                </h2>
                 <div className='text-muted-foreground'>Connected services</div>
               </div>
               <div className='text-center md:text-left'>
-                <div className='text-4xl font-heading font-bold text-foreground mb-2' aria-label='2 million happy users'>
+                <h2 className='text-4xl font-heading font-bold text-foreground mb-2'>
                   2M+
-                </div>
+                </h2>
                 <div className='text-muted-foreground'>Happy users</div>
               </div>
             </div>
@@ -98,8 +98,8 @@ export default function Home() {
                 Availables services
               </h2>
               <p className='text-lg text-muted-foreground max-w-2xl mx-auto'>
-                Discover the apps and platforms you can connect to create powerful
-                automations.
+                Discover the apps and platforms you can connect to create
+                powerful automations.
               </p>
             </div>
             <div className='m-5x w-4xl max-w-full mx-auto'>
@@ -112,23 +112,30 @@ export default function Home() {
         <section className='px-4 sm:px-6 lg:px-8 py-24 bg-muted/30'>
           <div className='max-w-7xl mx-auto'>
             <div className='text-center mb-16'>
-              <h2 className='text-3xl sm:text-4xl lg:text-5xl font-heading font-bold text-foreground mb-4'>
+              <h2
+                id='how-it-works-heading'
+                className='text-3xl sm:text-4xl lg:text-5xl font-heading font-bold text-foreground mb-4'
+              >
                 How it works
               </h2>
-              <p className='text-lg text-muted-foreground max-w-2xl mx-auto'>
+              <h2
+                className='text-lg text-muted-foreground max-w-2xl mx-auto'
+                aria-labelledby='how-it-works-heading'
+                aria-hidden='false'
+              >
                 Create powerful automations in three simple steps
-              </p>
+              </h2>
             </div>
 
             <div className='grid grid-cols-1 md:grid-cols-3 gap-8'>
               {/* Step 1 */}
               <div className='bg-card border border-border rounded-lg p-8 text-center'>
-                <div className='inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary text-primary-foreground mb-6 text-2xl font-heading font-bold'>
+                <h3 className='inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary text-primary-foreground mb-6 text-2xl font-heading font-bold'>
                   1
-                </div>
-                <h3 className='text-xl font-heading font-semibold text-foreground mb-3'>
-                  Choose a trigger
                 </h3>
+                <h4 className='text-xl font-heading font-semibold text-foreground mb-3'>
+                  Choose a trigger
+                </h4>
                 <p className='text-muted-foreground'>
                   Select an app and event that starts your automation
                 </p>
@@ -136,12 +143,12 @@ export default function Home() {
 
               {/* Step 2 */}
               <div className='bg-card border border-border rounded-lg p-8 text-center'>
-                <div className='inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary text-primary-foreground mb-6 text-2xl font-heading font-bold'>
+                <h3 className='inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary text-primary-foreground mb-6 text-2xl font-heading font-bold'>
                   2
-                </div>
-                <h3 className='text-xl font-heading font-semibold text-foreground mb-3'>
-                  Add an action
                 </h3>
+                <h4 className='text-xl font-heading font-semibold text-foreground mb-3'>
+                  Add an action
+                </h4>
                 <p className='text-muted-foreground'>
                   Choose what happens when your trigger fires
                 </p>
@@ -149,12 +156,12 @@ export default function Home() {
 
               {/* Step 3 */}
               <div className='bg-card border border-border rounded-lg p-8 text-center'>
-                <div className='inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary text-primary-foreground mb-6 text-2xl font-heading font-bold'>
+                <h3 className='inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary text-primary-foreground mb-6 text-2xl font-heading font-bold'>
                   3
-                </div>
-                <h3 className='text-xl font-heading font-semibold text-foreground mb-3'>
-                  Activate & relax
                 </h3>
+                <h4 className='text-xl font-heading font-semibold text-foreground mb-3'>
+                  Activate & relax
+                </h4>
                 <p className='text-muted-foreground'>
                   Your automation runs automatically in the background
                 </p>
@@ -167,12 +174,19 @@ export default function Home() {
         <section className='px-4 sm:px-6 lg:px-8 py-24'>
           <div className='max-w-7xl mx-auto'>
             <div className='text-center mb-16'>
-              <h2 className='text-3xl sm:text-4xl lg:text-5xl font-heading font-bold text-foreground mb-4'>
+              <h2
+                id='popular-automations-heading'
+                className='text-3xl sm:text-4xl lg:text-5xl font-heading font-bold text-foreground mb-4'
+              >
                 Popular automations
               </h2>
-              <p className='text-lg text-muted-foreground max-w-2xl mx-auto'>
+              <h2
+                className='text-lg text-muted-foreground max-w-2xl mx-auto'
+                aria-labelledby='popular-automations-heading'
+                aria-hidden='false'
+              >
                 Get inspired by what others are building
-              </p>
+              </h2>
             </div>
 
             <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
@@ -213,7 +227,13 @@ export default function Home() {
                   key={index}
                   className='bg-card border border-border rounded-lg p-6 hover:border-primary/50 transition-colors cursor-pointer group'
                 >
-                  <div role='img' aria-label={automation.title} className='text-4xl mb-4'>{automation.icon}</div>
+                  <span
+                    className='text-4xl mb-4 block'
+                    role='presentation'
+                    aria-hidden='true'
+                  >
+                    {automation.icon}
+                  </span>
                   <h3 className='text-lg font-heading font-semibold text-foreground mb-2 group-hover:text-primary transition-colors'>
                     {automation.title}
                   </h3>
@@ -238,8 +258,8 @@ export default function Home() {
                   Lightning fast
                 </h3>
                 <p className='text-muted-foreground'>
-                  Your automations run instantly when triggered, with no delays or
-                  waiting.
+                  Your automations run instantly when triggered, with no delays
+                  or waiting.
                 </p>
               </div>
 
@@ -283,14 +303,22 @@ export default function Home() {
               automations.
             </p>
             {isAuthenticated ? (
-              <Button asChild size='lg' className='text-base px-8 cursor-pointer'>
+              <Button
+                asChild
+                size='lg'
+                className='text-base px-8 cursor-pointer'
+              >
                 <Link href='/my-areas'>
                   Go to My AREAs
                   <ArrowRight className='ml-2 h-5 w-5' />
                 </Link>
               </Button>
             ) : (
-              <Button asChild size='lg' className='text-base px-8 cursor-pointer'>
+              <Button
+                asChild
+                size='lg'
+                className='text-base px-8 cursor-pointer'
+              >
                 <Link href='/register'>
                   Start for free
                   <ArrowRight className='ml-2 h-5 w-5' />
