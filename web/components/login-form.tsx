@@ -2,6 +2,7 @@
 
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import ButtonWithLoading from '@/components/ui/button-with-loading';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,6 +12,8 @@ import Image from 'next/image';
 import { FaMeta } from 'react-icons/fa6';
 import { FaGithub, FaGoogle } from 'react-icons/fa';
 import { getAPIUrl } from '@/lib/config';
+import InputPassword from './ui/input-password';
+import { toast } from 'sonner';
 
 export function LoginForm({
   className,
@@ -35,11 +38,11 @@ export function LoginForm({
       if (response && response.data) {
         window.location.href = '/';
       } else {
-        alert('Login failed');
+        toast.error('Login failed');
       }
     } catch (error) {
       console.error('Login error:', error);
-      alert('Login failed');
+      toast.error('Login failed');
     } finally {
       setIsLoading(false);
     }
@@ -89,13 +92,7 @@ export function LoginForm({
                     Forgot your password?
                   </a>
                 </div>
-                <Input
-                  id='password'
-                  name='password'
-                  type='password'
-                  placeholder='password'
-                  required
-                />
+                <InputPassword name='password' />
               </div>
               <Button type='submit' className='w-full' disabled={isLoading}>
                 {isLoading ? 'Logging in...' : 'Login'}
@@ -106,33 +103,27 @@ export function LoginForm({
                 </span>
               </div>
               <div className='grid grid-cols-3 gap-4'>
-                <Button
-                  variant='outline'
+                <ButtonWithLoading
                   onClick={async () => await signInWithGithub()}
-                  type='button'
                   className='w-full'
                 >
                   <FaGithub />
                   <span className='sr-only'>Login with Github</span>
-                </Button>
-                <Button
-                  variant='outline'
+                </ButtonWithLoading>
+                <ButtonWithLoading
                   onClick={async () => await signInWithGoogle()}
-                  type='button'
                   className='w-full'
                 >
                   <FaGoogle />
                   <span className='sr-only'>Login with Google</span>
-                </Button>
-                <Button
-                  variant='outline'
+                </ButtonWithLoading>
+                <ButtonWithLoading
                   onClick={async () => await signInWithMeta()}
-                  type='button'
                   className='w-full'
                 >
                   <FaMeta />
                   <span className='sr-only'>Login with Meta</span>
-                </Button>
+                </ButtonWithLoading>
               </div>
               <div className='text-center text-sm'>
                 Don&apos;t have an account?{' '}

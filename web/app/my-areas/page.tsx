@@ -33,6 +33,7 @@ import { Trash2, Plus, Power, PowerOff } from 'lucide-react';
 import ActionForm from '@/components/action-form';
 import ReactionForm from '@/components/reaction-form';
 import { TbLoader3 } from 'react-icons/tb';
+import { toast } from 'sonner';
 
 export default function MyAreasPage() {
   const router = useRouter();
@@ -105,7 +106,7 @@ export default function MyAreasPage() {
       fetchData();
     } catch (error) {
       console.error('Error creating mapping:', error);
-      alert('Failed to create mapping. Please check your input.');
+      toast.error('Failed to create mapping. Please check your input.');
     }
   };
 
@@ -117,7 +118,7 @@ export default function MyAreasPage() {
       fetchData();
     } catch (error) {
       console.error('Error deleting mapping:', error);
-      alert('Failed to delete mapping.');
+      toast.error('Failed to delete mapping.');
     }
   };
 
