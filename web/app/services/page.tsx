@@ -152,7 +152,7 @@ export default function ServicesPage() {
       icon: <MdTimer className='w-8 h-8 text-blue-500' />,
       isConnected: false,
       authEndpoint: '',
-      statusEndpoint: '',
+      statusEndpoint: '/services/timer/subscribe/status',
       loginStatusEndpoint: '',
       subscribeEndpoint: '/auth/timer/subscribe',
       unsubscribeEndpoint: '',

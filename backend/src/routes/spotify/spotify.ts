@@ -110,6 +110,7 @@ router.get(
     try {
       const userId = (req.auth as { id: number }).id;
 
+      console.log(`🔄 [STATUS] Checking Spotify subscription status for user ${userId}`);
       const userToken = await spotifyOAuth.getUserToken(userId);
       const oauthConnected = !!userToken;
 
@@ -118,6 +119,8 @@ router.get(
         'spotify'
       );
       const isSubscribed = subscription?.subscribed || false;
+
+      console.log(`✅ [STATUS] Spotify status for user ${userId}: subscribed=${isSubscribed}, oauth=${oauthConnected}`);
 
       if (!isSubscribed) {
         return res.status(404).json({
@@ -137,7 +140,7 @@ router.get(
         scopes: userToken?.scopes || null,
       });
     } catch (err) {
-      console.error(err);
+      console.error(`❌ [STATUS] Error fetching Spotify subscription status for user ${(req.auth as { id: number }).id}:`, err);
       return res.status(500).json({ error: 'Internal Server Error' });
     }
   }

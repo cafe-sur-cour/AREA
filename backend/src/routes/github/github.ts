@@ -113,6 +113,7 @@ router.get(
     try {
       const userId = (req.auth as { id: number }).id;
 
+      console.log(`🔄 [STATUS] Checking GitHub subscription status for user ${userId}`);
       const userToken = await githubOAuth.getUserToken(userId);
       const oauthConnected = !!userToken;
 
@@ -121,6 +122,8 @@ router.get(
         'github'
       );
       const isSubscribed = subscription?.subscribed || false;
+
+      console.log(`✅ [STATUS] GitHub status for user ${userId}: subscribed=${isSubscribed}, oauth=${oauthConnected}`);
 
       if (!isSubscribed) {
         return res.status(404).json({
@@ -140,7 +143,7 @@ router.get(
         scopes: userToken?.scopes || null,
       });
     } catch (err) {
-      console.error(err);
+      console.error(`❌ [STATUS] Error fetching GitHub subscription status for user ${(req.auth as { id: number }).id}:`, err);
       return res
         .status(500)
         .json({ error: 'Internal Server Error in github subscribe status' });

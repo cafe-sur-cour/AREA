@@ -37,7 +37,7 @@ const serviceEndpoints: Record<
   },
   timer: {
     auth: '',
-    status: '',
+    status: '/services/timer/subscribe/status',
     loginStatus: '',
     subscribe: '/auth/timer/subscribe',
     unsubscribe: '',
@@ -227,6 +227,63 @@ router.get(
       return res
         .status(500)
         .json({ error: 'Internal Server Error in get subscribed services' });
+    }
+  }
+);
+
+/**
+ * @swagger
+ * /api/services/timer/subscribe/status:
+ *   get:
+ *     summary: Get timer subscription status
+ *     tags:
+ *       - Services
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Timer subscription status
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 subscribed:
+ *                   type: boolean
+ *                   description: Whether the user is subscribed to timer
+ *                 oauth_connected:
+ *                   type: boolean
+ *                   description: Always true for timer (no OAuth required)
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
+router.get(
+  '/timer/subscribe/status',
+  token,
+  async (req: Request, res: Response): Promise<Response> => {
+    try {
+      const userId = (req.auth as { id: number }).id;
+
+      console.log(`🔄 [STATUS] Checking timer subscription status for user ${userId}`);
+      const subscription = await serviceSubscriptionManager.getUserSubscription(
+        userId,
+        'timer'
+      );
+
+      const isSubscribed = subscription?.subscribed || false;
+      console.log(`✅ [STATUS] Timer subscription status for user ${userId}: subscribed=${isSubscribed}`);
+
+      return res.status(200).json({
+        subscribed: isSubscribed,
+        oauth_connected: true, // Timer doesn't require OAuth
+      });
+    } catch (err) {
+      console.error(`❌ [STATUS] Error fetching timer subscription status for user ${(req.auth as { id: number }).id}:`, err);
+      return res
+        .status(500)
+        .json({ error: 'Internal Server Error in timer subscribe status' });
     }
   }
 );

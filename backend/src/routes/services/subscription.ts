@@ -34,6 +34,7 @@ async function handleTimerSubscription(
 async function handleGithubSubscription(
   userId: number,
   service: string,
+  serviceSubscriptionManager: ServiceSubscriptionManager,
   req: Request,
   res: Response,
   next: express.NextFunction
@@ -43,16 +44,25 @@ async function handleGithubSubscription(
   const githubToken = await githubOAuth.getUserToken(userId);
 
   if (githubToken) {
-    console.log(`✅ [SUBSCRIBE] GitHub OAuth found for user ${userId}, redirecting to app installation`);
-    const appSlug = process.env.GITHUB_APP_SLUG || '';
-    const installUrl = `https://github.com/apps/${appSlug}/installations/new?state=${userId}`;
-    await createLog(
-      302,
-      'other',
-      `Redirecting user ${userId} to GitHub app installation`
+    console.log(`✅ [SUBSCRIBE] GitHub OAuth found for user ${userId}, creating subscription`);
+    const githubSubscription = await serviceSubscriptionManager.subscribeUser(
+      userId,
+      service
     );
-    res.redirect(installUrl);
-    return null;
+    console.log(`✅ [SUBSCRIBE] GitHub subscription successful for user ${userId}:`, githubSubscription);
+    await createLog(200, 'other', `User ${userId} subscribed to ${service}`);
+    return {
+      status: 200,
+      response: {
+        message: `Successfully subscribed to ${service}`,
+        subscription: {
+          subscribed: githubSubscription.subscribed,
+          subscribed_at: githubSubscription.subscribed_at,
+          service: githubSubscription.service,
+        },
+        note: 'GitHub app installation will be handled separately for webhooks',
+      },
+    };
   }
 
   console.log(`🔄 [SUBSCRIBE] No GitHub OAuth found for user ${userId}, starting OAuth flow`);
@@ -334,6 +344,7 @@ router.get(
           result = await handleGithubSubscription(
             userId,
             service,
+            serviceSubscriptionManager,
             req,
             res,
             next
