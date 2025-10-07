@@ -54,7 +54,8 @@ class AppLocalizationsFr extends AppLocalizations {
   String get empty_password => 'Entrez votre mot de passe';
 
   @override
-  String get invalid_password => 'Le mot de passe doit contenir au moins 6 caractères';
+  String get invalid_password =>
+      'Le mot de passe doit contenir au moins 6 caractères';
 
   @override
   String get forgot_password_question => 'Mot de passe oublié ?';
@@ -84,10 +85,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String get confirm_password => 'Confirmer le mot de passe';
 
   @override
-  String get confirm_password_differs => 'Les mots de passe ne correspondent pas';
+  String get confirm_password_differs =>
+      'Les mots de passe ne correspondent pas';
 
   @override
-  String get empty_backend_server_address => 'Entrez une adresse du serveur backend';
+  String get empty_backend_server_address =>
+      'Entrez une adresse du serveur backend';
 
   @override
   String get invalid_backend_server_address => 'L\'adresse n\'est pas valide';

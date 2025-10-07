@@ -87,7 +87,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get confirm_password_differs => 'Passwords differ';
 
   @override
-  String get empty_backend_server_address => 'Please enter a backend server address';
+  String get empty_backend_server_address =>
+      'Please enter a backend server address';
 
   @override
   String get invalid_backend_server_address => 'The address is not valid';

@@ -37,7 +37,7 @@ class ProfileScreenState extends State<ProfileScreen> {
   void _loadProfileIfConnected() async {
     final jwt = await getJwt();
     if (jwt != null && jwt.isNotEmpty) {
-      _updateProfile();
+      await _updateProfile();
     } else {
       setState(() {
         _isLoading = false;
@@ -165,7 +165,7 @@ class ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  void _updateProfile() async {
+  Future<void> _updateProfile() async {
     final backendAddressNotifier = Provider.of<BackendAddressNotifier>(context, listen: false);
 
     if (backendAddressNotifier.backendAddress == null) {
@@ -178,6 +178,10 @@ class ProfileScreenState extends State<ProfileScreen> {
           backgroundColor: AppColors.error,
         ),
       );
+      // Ensure loading flag is cleared so the UI doesn't stay stuck on initial load
+      setState(() {
+        _isLoading = false;
+      });
       return;
     }
     final address = "${backendAddressNotifier.backendAddress}${AppRoutes.me}";
@@ -354,17 +358,22 @@ class ProfileScreenState extends State<ProfileScreen> {
                     ),
                     keyboardType: TextInputType.url,
                     onChanged: (value) {
-                      if (!value.endsWith("/")) {
-                        value += "/";
+                      String normalized = value.trim();
+                      if (normalized.isEmpty) {
+                        backendAddressNotifier.setBackendAddress(null);
+                        return;
                       }
-                      backendAddressNotifier.setBackendAddress(value);
+                      if (!normalized.startsWith('http://') && !normalized.startsWith('https://')) {
+                        normalized = 'https://$normalized';
+                      }
+                      if (!normalized.endsWith('/')) {
+                        normalized = '$normalized/';
+                      }
+                      backendAddressNotifier.setBackendAddress(normalized);
                     },
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return AppLocalizations.of(context)!.empty_backend_server_address;
-                      }
-                      if (!value.endsWith("/")) {
-                        value += "/";
                       }
                       return null;
                     },

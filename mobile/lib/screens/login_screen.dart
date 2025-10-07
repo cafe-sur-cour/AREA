@@ -10,6 +10,7 @@ import 'package:area/widgets/widget_oauth_webview.dart';
 import 'package:flutter/material.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:provider/provider.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 import 'package:http/http.dart' as http;
 
 class LoginScreen extends StatefulWidget {
@@ -109,6 +110,7 @@ class LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _goToOAuth(BuildContext context, String provider, String route) async {
+    debugPrint('[OAuth] enter _goToOAuth provider=$provider');
     final backendAddressNotifier = Provider.of<BackendAddressNotifier>(context, listen: false);
 
     if (backendAddressNotifier.backendAddress == null) {
@@ -124,11 +126,26 @@ class LoginScreenState extends State<LoginScreen> {
       return;
     }
 
-    final address = "${backendAddressNotifier.backendAddress}$route?is_mobile=true";
+    // Normalize backend address: ensure scheme and trailing slash so the
+    // OAuth URL is valid (WebView requires an absolute URL)
+    String base = backendAddressNotifier.backendAddress!.trim();
+    debugPrint('[OAuth] backendAddress raw="$base"');
+    if (!base.startsWith('http://') && !base.startsWith('https://')) {
+      // Default to https if the scheme is missing
+      base = 'https://$base';
+    }
+    if (!base.endsWith('/')) {
+      base = '$base/';
+    }
 
+    final address = "$base$route?is_mobile=true";
+    debugPrint('[OAuth] OAuth address: $address');
     final appLocalizations = AppLocalizations.of(context);
     final scaffoldMessenger = ScaffoldMessenger.of(context);
     final navigator = Navigator.of(context);
+
+    final cookieManager = WebViewCookieManager();
+    await cookieManager.clearCookies();
 
     final result = await Navigator.push(
       context,
@@ -140,7 +157,7 @@ class LoginScreenState extends State<LoginScreen> {
         ),
       ),
     );
-
+    debugPrint('[OAUTH] Result value :  $result');
     if (!mounted) return;
 
     if (result == null || result is! String) {
@@ -165,9 +182,20 @@ class LoginScreenState extends State<LoginScreen> {
   }
 
   void _goToGithub(BuildContext context) async {
-    await _goToOAuth(context, 'GitHub', AppRoutes.githubLogin);
+    debugPrint('[OAuth] GitHub button pressed');
+    try {
+      await _goToOAuth(context, 'GitHub', AppRoutes.githubLogin);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('GitHub login failed: ${e.toString()}'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
   }
-
   void _goToMicrosoft(BuildContext context) async {
     // await _goToOAuth(context, 'Microsoft', AppRoutes.microsoftLogin);
   }
