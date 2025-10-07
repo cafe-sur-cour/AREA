@@ -650,7 +650,9 @@ router.get(
               );
             } else {
               const frontendUrl = process.env.FRONTEND_URL || '';
-              return res.redirect(`${frontendUrl}/services?github_subscribed=true`);
+              return res.redirect(
+                `${frontendUrl}/services?github_subscribed=true`
+              );
             }
           }
         } else {
