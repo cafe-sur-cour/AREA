@@ -210,11 +210,7 @@ export default function ServicesPage() {
                       variant='outline'
                       className='border-app-border-light text-app-text-secondary'
                     >
-                      {service.id === 'spotify'
-                        ? 'Not Connected'
-                        : service.isSubscribed
-                          ? 'Not Subscribed'
-                          : 'Not Connected'}
+                      Not Subscribed
                     </Badge>
                   )}
                 </div>
@@ -242,11 +238,7 @@ export default function ServicesPage() {
                         onClick={() => handleConnect(service)}
                         className='w-full bg-area-primary hover:bg-area-hover text-white'
                       >
-                        {service.id === 'spotify'
-                          ? 'Connect & Subscribe'
-                          : service.isSubscribed
-                            ? 'Subscribe'
-                            : 'Connect & Subscribe'}
+                        Subscribe
                       </Button>
                     )}
                     <Button
