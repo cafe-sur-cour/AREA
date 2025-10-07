@@ -104,7 +104,26 @@ export default function ServicesPage() {
   const handleConnect = async (service: Service) => {
     const apiUrl = await getAPIUrl();
 
-    // Special case for Spotify: only subscription is supported, no separate login
+    if (service.id === 'timer') {
+      try {
+        await api.get({ endpoint: service.subscribeEndpoint! });
+        setServices(
+          services.map(s =>
+            s.id === service.id
+              ? {
+                  ...s,
+                  isConnected: true,
+                  subscribed: true,
+                }
+              : s
+          )
+        );
+      } catch (error) {
+        console.error(`Error subscribing to ${service.name}:`, error);
+      }
+      return;
+    }
+
     if (service.id === 'spotify') {
       window.location.href = `${apiUrl}${service.endpoints.auth}`;
       return;
