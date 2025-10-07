@@ -1,9 +1,10 @@
-"use client";
+'use client';
 import { Button } from '@/components/ui/button';
 import { TbLoader3 } from 'react-icons/tb';
 import { useState } from 'react';
 
-interface ButtonWithLoadingProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface ButtonWithLoadingProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
 }
 
@@ -13,7 +14,7 @@ export default function ButtonWithLoading({
   ...props
 }: ButtonWithLoadingProps) {
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const handleClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
     try {
       setIsLoading(true);
@@ -28,12 +29,7 @@ export default function ButtonWithLoading({
   };
 
   return (
-    <Button
-      variant='outline'
-      {...props}
-      onClick={handleClick}
-      type='button'
-    >
+    <Button variant='outline' {...props} onClick={handleClick} type='button'>
       {isLoading ? <TbLoader3 className='animate-spin' /> : children}
     </Button>
   );

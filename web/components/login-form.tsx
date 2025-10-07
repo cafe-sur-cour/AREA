@@ -9,9 +9,8 @@ import { Label } from '@/components/ui/label';
 import { useState } from 'react';
 import api from '@/lib/api';
 import Image from 'next/image';
-import { FaE, FaMeta } from 'react-icons/fa6';
-import { FaGithub, FaGoogle} from 'react-icons/fa';
-import { LuEye, LuEyeClosed } from "react-icons/lu";
+import { FaMeta } from 'react-icons/fa6';
+import { FaGithub, FaGoogle } from 'react-icons/fa';
 import { getAPIUrl } from '@/lib/config';
 import InputPassword from './ui/input-password';
 import { toast } from 'sonner';
@@ -21,7 +20,6 @@ export function LoginForm({
   ...props
 }: React.ComponentProps<'div'>) {
   const [isLoading, setIsLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -94,7 +92,7 @@ export function LoginForm({
                     Forgot your password?
                   </a>
                 </div>
-                <InputPassword name='password'/>
+                <InputPassword name='password' />
               </div>
               <Button type='submit' className='w-full' disabled={isLoading}>
                 {isLoading ? 'Logging in...' : 'Login'}
