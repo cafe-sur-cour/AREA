@@ -106,9 +106,9 @@ export default function ServicesPage() {
 
     if (service.id === 'timer') {
       try {
-        await api.get({ endpoint: service.subscribeEndpoint! });
+        await api.get({ endpoint: service.endpoints.subscribe! });
         setServices(
-          services.map(s =>
+          services?.map(s =>
             s.id === service.id
               ? {
                   ...s,
@@ -135,7 +135,7 @@ export default function ServicesPage() {
       try {
         await api.post(service.endpoints.subscribe!, {});
         setServices(
-          services.map(s =>
+          services?.map(s =>
             s.id === service.id
               ? {
                   ...s,
