@@ -133,6 +133,20 @@ export class YourServiceOAuth {
 export const yourServiceOAuth = new YourServiceOAuth();
 ```
 
+### Passport.js Integration
+
+AREA uses **Passport.js** for OAuth flow management. The unified subscription system automatically handles Passport strategies:
+
+```typescript
+// In subscription.ts, Passport strategies are loaded dynamically:
+const strategyName = `${service}-subscribe`;
+return passport.authenticate(strategyName, { session: false })(req, res, next);
+```
+
+**You don't need to configure Passport strategies manually** - the system detects your OAuth class and creates the appropriate strategy. Just ensure your OAuth class follows the standard interface with `getAuthorizationUrl()` and `exchangeCodeForToken()` methods.
+
+For advanced OAuth flows, you can create custom Passport strategies in `backend/src/passport/{service}.ts` if needed.
+
 ### Environment Variables
 
 Add to your `.env`:
@@ -417,131 +431,92 @@ export default yourService;
 export { yourServiceExecutor as executor };
 ```
 
-## Step 8: OAuth and API Routes
+## Step 8: Unified Subscription Integration
 
-### Unified Subscription Routes in `auth.ts`
+With the unified subscription system, your service is automatically supported by the centralized subscription routes. No additional route implementation is required!
 
-Add to `backend/src/routes/auth/auth.ts`:
+### How It Works
+
+The system uses parameterized routes in `backend/src/routes/services/subscription.ts`:
 
 ```typescript
-/**
- * @swagger
- * /api/auth/yourservice/subscribe:
- *   get:
- *     summary: Subscribe to YourService (OAuth + Subscription)
- *     tags:
- *       - OAuth
- *     description: |
- *       Complete subscription to YourService including OAuth authorization.
- *       This handles the full flow to enable YourService API access.
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Successfully subscribed to YourService
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                 already_subscribed:
- *                   type: boolean
- *       302:
- *         description: Redirect to YourService for OAuth
- *       401:
- *         description: User not authenticated
- *       500:
- *         description: Internal Server Error
- */
-router.get(
-  '/yourservice/subscribe',
-  token,
-  async (req: Request, res: Response, next) => {
-    if (!req.auth) {
-      await createLog(
-        401,
-        'yourservice',
-        `Authentication required to subscribe to YourService`
-      );
-      return res.status(401).json({ error: 'Authentication required' });
-    }
-
-    try {
-      const userId = (req.auth as { id: number }).id;
-
-      // Check if user is already subscribed
-      const { serviceSubscriptionManager } = await import(
-        '../../services/ServiceSubscriptionManager'
-      );
-      const existingSubscription = await serviceSubscriptionManager.getUserSubscription(
-        userId,
-        'yourservice'
-      );
-
-      if (existingSubscription?.subscribed) {
-        await createLog(
-          200,
-          'yourservice',
-          `User ${userId} already subscribed to YourService`
-        );
-        return res.status(200).json({
-          message: 'Already subscribed to YourService',
-          already_subscribed: true,
-        });
-      }
-
-      // Check if user has OAuth token
-      const { yourServiceOAuth } = await import(
-        '../../services/services/yourservice/oauth'
-      );
-      const existingToken = await yourServiceOAuth.getUserToken(userId);
-
-      if (existingToken) {
-        // User has OAuth but not subscribed - perform subscription
-        const subscription = await serviceSubscriptionManager.subscribeUser(
-          userId,
-          'yourservice'
-        );
-        await createLog(
-          200,
-          'yourservice',
-          `User ${userId} subscribed to YourService`
-        );
-        return res.status(200).json({
-          message: 'Successfully subscribed to YourService',
-          subscription: {
-            subscribed: subscription.subscribed,
-            subscribed_at: subscription.subscribed_at,
-            service: subscription.service,
-          },
-        });
-      }
-
-      // User has no OAuth - start OAuth flow
-      await createLog(
-        302,
-        'yourservice',
-        `Starting OAuth flow for user ${userId} to subscribe to YourService`
-      );
-      // Implement OAuth redirect logic here
-      // This depends on your OAuth implementation
-      return res.redirect('https://yourservice.com/oauth/authorize?...');
-    } catch (error) {
-      console.error('Error in YourService subscribe route:', error);
-      await createLog(
-        500,
-        'yourservice',
-        `Error in YourService subscribe route: ${error instanceof Error ? error.message : String(error)}`
-      );
-      return res.status(500).json({ error: 'Internal Server Error in yourservice subscribe' });
-    }
-  }
-);
+// Single route handles all services
+router.get('/:service/subscribe', token, async (req, res, next) => {
+  const service = req.params.service.toLowerCase();
+  // Service-specific logic handled here
+});
 ```
 
-### Service-Specific Routes (`yourservice/yourservice.ts`)
+### Automatic Service Detection
+
+When you create your service following Steps 1-7, the subscription system will:
+
+1. **Detect your service** by attempting to load `../../services/services/{service}/oauth`
+2. **Handle OAuth flow** using your `YourServiceOAuth` class
+3. **Perform subscription** using the `ServiceSubscriptionManager`
+4. **Support dynamic loading** for future services
+
+### Legacy Route Compatibility
+
+For backward compatibility, legacy routes redirect to the unified endpoint:
+
+```typescript
+// These routes automatically redirect to /auth/{service}/subscribe
+router.get('/github/subscribe', (req, res) => res.redirect('/auth/github/subscribe'));
+router.get('/google/subscribe', (req, res) => res.redirect('/auth/google/subscribe'));
+// ... etc
+```
+
+### Service-Specific Routes (Optional)
+
+You may still want to add service-specific routes for advanced functionality. Create `backend/src/routes/{service}/{service}.ts` for:
+
+- Custom OAuth callbacks
+- Service-specific API endpoints
+- Advanced configuration options
+
+Example service-specific routes:
+
+```typescript
+import express, { Request, Response } from 'express';
+import token from '../../middleware/token';
+import { yourServiceOAuth } from '../../services/services/yourservice/oauth';
+
+const router = express.Router();
+
+// Service-specific status endpoints
+router.get('/login/status', token, async (req: Request, res: Response) => {
+  const userId = (req.auth as { id: number }).id;
+  const token = await yourServiceOAuth.getUserToken(userId);
+  return res.json({ connected: !!token });
+});
+
+export default router;
+```
+
+## Step 9: Configuration and Integration
+
+### Automatic Route Registration
+
+With the unified subscription system, your service routes are **automatically available** at:
+
+- **Subscription**: `/auth/yourservice/subscribe` (handled by unified route)
+- **Status**: `/yourservice/subscribe/status` (if you create service-specific routes)
+- **OAuth Status**: `/yourservice/login/status` (if you create service-specific routes)
+- **Unsubscribe**: `/yourservice/unsubscribe` (if you create service-specific routes)
+
+### Service Registry Integration
+
+Your service is automatically registered when you create the service files. The system will:
+
+1. **Load your service** from `backend/src/services/services/yourservice/index.ts`
+2. **Register actions/reactions** in the ServiceRegistry
+3. **Enable subscription routes** through the unified system
+4. **Mount service-specific routes** if you create them
+
+### Optional: Service-Specific Routes
+
+If you need custom endpoints beyond basic subscription, create `backend/src/routes/yourservice/yourservice.ts`:
 
 ```typescript
 import express, { Request, Response } from 'express';
@@ -551,165 +526,44 @@ import { serviceSubscriptionManager } from '../../services/ServiceSubscriptionMa
 
 const router = express.Router();
 
-/**
- * @swagger
- * /api/yourservice/login/status:
- *   get:
- *     summary: Check YourService OAuth login status
- *     tags:
- *       - YourService OAuth
- */
-router.get(
-  '/login/status',
-  token,
-  async (req: Request, res: Response): Promise<Response> => {
-    try {
-      const userId = (req.auth as { id: number }).id;
-      const userToken = await yourServiceOAuth.getUserToken(userId);
+// OAuth status check
+router.get('/login/status', token, async (req: Request, res: Response) => {
+  const userId = (req.auth as { id: number }).id;
+  const token = await yourServiceOAuth.getUserToken(userId);
+  return res.json({
+    connected: !!token,
+    expires_at: token?.expires_at
+  });
+});
 
-      if (!userToken) {
-        return res.status(404).json({
-          connected: false,
-          message: 'YourService OAuth not completed',
-        });
-      }
+// Subscription status
+router.get('/subscribe/status', token, async (req: Request, res: Response) => {
+  const userId = (req.auth as { id: number }).id;
+  const subscription = await serviceSubscriptionManager.getUserSubscription(userId, 'yourservice');
+  return res.json({
+    subscribed: subscription?.subscribed || false,
+    subscribed_at: subscription?.subscribed_at
+  });
+});
 
-      return res.status(200).json({
-        connected: true,
-        token_expires_at: userToken.expires_at,
-        scopes: userToken.scope?.split(',') || [],
-      });
-    } catch (err) {
-      console.error(err);
-      return res.status(500).json({ error: 'Internal Server Error' });
-    }
-  }
-);
-
-/**
- * @swagger
- * /api/yourservice/subscribe/status:
- *   get:
- *     summary: Check YourService service subscription status
- *     tags:
- *       - YourService Service
- */
-router.get(
-  '/subscribe/status',
-  token,
-  async (req: Request, res: Response): Promise<Response> => {
-    try {
-      const userId = (req.auth as { id: number }).id;
-
-      const userToken = await yourServiceOAuth.getUserToken(userId);
-      const oauthConnected = !!userToken;
-
-      const subscription = await serviceSubscriptionManager.getUserSubscription(
-        userId,
-        'yourservice'
-      );
-      const isSubscribed = subscription?.subscribed || false;
-
-      if (!isSubscribed) {
-        return res.status(404).json({
-          subscribed: false,
-          oauth_connected: oauthConnected,
-          can_create_webhooks: false,
-          message: 'Not subscribed to YourService',
-        });
-      }
-
-      return res.status(200).json({
-        subscribed: true,
-        oauth_connected: oauthConnected,
-        can_create_webhooks: isSubscribed && oauthConnected,
-        subscribed_at: subscription?.subscribed_at || null,
-        unsubscribed_at: subscription?.unsubscribed_at || null,
-      });
-    } catch (err) {
-      console.error(err);
-      return res.status(500).json({ error: 'Internal Server Error' });
-    }
-  }
-);
-
-/**
- * @swagger
- * /api/yourservice/unsubscribe:
- *   post:
- *     summary: Unsubscribe from YourService events
- *     tags:
- *       - YourService Service
- */
-router.post(
-  '/unsubscribe',
-  token,
-  async (req: Request, res: Response): Promise<Response> => {
-    try {
-      const userId = (req.auth as { id: number }).id;
-
-      const subscription = await serviceSubscriptionManager.unsubscribeUser(
-        userId,
-        'yourservice'
-      );
-
-      if (!subscription) {
-        return res.status(404).json({
-          error: 'No active subscription found',
-        });
-      }
-
-      return res.status(200).json({
-        message: 'Successfully unsubscribed from YourService',
-        subscription: {
-          subscribed: subscription.subscribed,
-          unsubscribed_at: subscription.unsubscribed_at,
-          service: subscription.service,
-        },
-      });
-    } catch (err) {
-      console.error(err);
-      return res.status(500).json({ error: 'Internal Server Error' });
-    }
-  }
-);
+// Unsubscribe
+router.post('/unsubscribe', token, async (req: Request, res: Response) => {
+  const userId = (req.auth as { id: number }).id;
+  const subscription = await serviceSubscriptionManager.unsubscribeUser(userId, 'yourservice');
+  return res.json({ message: 'Unsubscribed successfully' });
+});
 
 export default router;
 ```
 
-## Step 9: Configuration and Integration
+### Mount Service Routes (if created)
 
-### Update Endpoints in `services/index.ts`
-
-```typescript
-const serviceEndpoints: Record<
-  string,
-  {
-    auth: string;
-    status: string;
-    loginStatus: string;
-    subscribe: string;
-    unsubscribe: string;
-  }
-> = {
-  // ... other services ...
-  yourservice: {
-    auth: '/auth/yourservice/subscribe',
-    status: '/yourservice/subscribe/status',
-    loginStatus: '/yourservice/login/status',
-    subscribe: '/auth/yourservice/subscribe',
-    unsubscribe: '/yourservice/unsubscribe',
-  },
-  // ... other services ...
-};
-```
-
-### Mount Routes in `index.ts`
+If you create service-specific routes, mount them in `backend/src/app.ts`:
 
 ```typescript
-import yourserviceRoutes from './src/routes/yourservice/yourservice';
+import yourserviceRoutes from './routes/yourservice/yourservice';
 
-// In the routes section:
+// Add to your routes section:
 app.use('/api/yourservice', yourserviceRoutes);
 ```
 
@@ -789,9 +643,21 @@ describe('YourService Executor', () => {
 ### Integration Tests
 
 ```typescript
-describe('YourService Routes', () => {
-  it('should handle unified subscribe route', async () => {
-    // Unified subscription route tests
+describe('YourService Integration', () => {
+  it('should be supported by unified subscription route', async () => {
+    // Test that /auth/yourservice/subscribe works
+    const response = await request(app)
+      .get('/api/auth/yourservice/subscribe')
+      .set('Authorization', `Bearer ${testToken}`);
+    expect(response.status).toBe(302); // Redirect to OAuth
+  });
+
+  it('should handle service-specific routes if implemented', async () => {
+    // Test service-specific routes if you created them
+    const response = await request(app)
+      .get('/api/yourservice/login/status')
+      .set('Authorization', `Bearer ${testToken}`);
+    expect(response.status).toBe(200);
   });
 });
 ```
