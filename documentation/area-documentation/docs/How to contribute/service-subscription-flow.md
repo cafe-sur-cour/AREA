@@ -121,9 +121,135 @@ GET /api/services/reactions
 
 ## Mobile App Flow
 
-For mobile apps, use WebView or external browser for OAuth:
+For mobile apps, the subscription flow has been optimized to work seamlessly without requiring external browsers for callbacks. Use the `is_mobile=true` query parameter to enable mobile-specific redirects.
 
-1. Open OAuth URL in external browser
-2. Handle callback URL scheme (e.g., `area://oauth/callback`)
-3. Exchange code for token on backend
-4. Check subscription status
+### Mobile Subscription Flow
+
+1. **Open OAuth URL with mobile parameter**
+```javascript
+// For mobile apps, add is_mobile=true to enable deep link redirects
+const subscribeUrl = `/api/auth/github/subscribe?is_mobile=true`;
+```
+
+2. **Handle different callback types**
+```javascript
+// Configure your mobile app to handle these callback types:
+//
+// For services WITHOUT app installation (Spotify, Google):
+// - mobileApp://callback?spotify_subscribed=true
+// - mobileApp://callback?google_subscribed=true
+//
+// For services WITH app installation (GitHub):
+// - GitHub redirects to: https://github.com/apps/.../installations/new
+// - After installation, GitHub redirects back to your backend callback
+// - Backend then redirects to: mobileApp://callback?github_subscribed=true
+```
+
+3. **Handle external browser redirects**
+```javascript
+// For services requiring app installation (like GitHub),
+// the backend will redirect to external URLs that must be opened in browser
+function handleSubscriptionRedirect(url) {
+  if (url.includes('github.com/apps/')) {
+    // Open in external browser for app installation
+    openExternalBrowser(url);
+  } else if (url.startsWith('mobileApp://')) {
+    // Handle deep link directly in app
+    handleDeepLink(url);
+  }
+}
+```
+
+### Important Notes for Mobile Apps
+
+**GitHub App Installation:**
+- GitHub requires app installation for webhook functionality
+- Even with `is_mobile=true`, GitHub subscription redirects to installation URL
+- Mobile app must open this URL in external browser
+- After installation, GitHub redirects back to backend, which then sends deep link
+
+**Service Differences:**
+- **GitHub**: Requires app installation → external browser → deep link
+- **Spotify/Google**: Direct OAuth → deep link
+- **Timer**: No OAuth required → direct API response
+
+### Mobile Authentication Flow
+
+For user authentication from mobile apps:
+
+```javascript
+// 1. Start OAuth login with mobile parameter
+const loginUrl = `${API_BASE_URL}/api/auth/github/login?is_mobile=true`;
+
+// 2. Handle callback
+// mobileApp://callback?token=jwt_token_here
+
+// 3. Store token and proceed with authenticated requests
+```
+
+### Mobile vs Web Differences
+
+| Aspect | Web App | Mobile App |
+|--------|---------|------------|
+| OAuth Initiation | Direct browser redirect | WebView with `?is_mobile=true` |
+| Callback Handling | Frontend route handling | Deep links `mobileApp://callback` |
+| Token Storage | HTTP-only cookies | Secure storage in app |
+| User Experience | Same tab/window | Seamless app transition |
+| **GitHub Installation** | **Same flow** | **External browser required** |
+| **Service Connection** | **Direct redirect** | **Deep link after OAuth** |
+
+### Configuration Requirements
+
+**Mobile App Configuration:**
+- Register `mobileApp://callback` URL scheme
+- Handle deep links in app delegate/router
+- Parse query parameters from callback URLs
+- **Handle external browser redirects** for services requiring app installation (GitHub)
+
+**Backend Configuration:**
+- Set `MOBILE_CALLBACK_URL=mobileApp://callback` in environment variables
+- Ensure mobile callback URL is properly configured for production
+
+**External Browser Handling:**
+```javascript
+// Mobile apps must detect and handle external URLs differently
+function handleRedirect(url) {
+  if (url.startsWith('mobileApp://')) {
+    // Handle as deep link
+    handleDeepLink(url);
+  } else if (url.includes('github.com/apps/')) {
+    // Open in external browser for app installation
+    openExternalBrowser(url);
+  } else {
+    // Other external URLs
+    openExternalBrowser(url);
+  }
+}
+```
+
+### Error Handling for Mobile
+
+```javascript
+function handleRedirect(url) {
+  try {
+    if (url.startsWith('mobileApp://')) {
+      // Success callbacks
+      handleDeepLink(url);
+    } else if (url.includes('github.com/apps/')) {
+      // GitHub app installation - open in external browser
+      openExternalBrowser(url);
+      showMessage('Please complete GitHub app installation in your browser');
+    } else if (url.includes('google.com') || url.includes('spotify.com')) {
+      // OAuth providers - these should be handled in WebView
+      openWebView(url);
+    } else {
+      // Unexpected redirect
+      console.error('Unexpected redirect URL:', url);
+      showError('Unexpected redirect occurred');
+    }
+  } catch (error) {
+    console.error('Failed to handle redirect:', error);
+    showError('Failed to process redirect');
+  }
+}
+```
