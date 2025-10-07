@@ -382,18 +382,6 @@ router.post(
   token,
   async (req: Request, res: Response): Promise<void> => {
     try {
-      if (!req.auth) {
-        await createLog(
-          403,
-          'logout',
-          `Logout attempt with no authenticated user`
-        );
-        res
-          .status(403)
-          .json({ message: 'Logout failed: No authenticated user' });
-        return;
-      }
-
       const email = (req.auth as { email: string })?.email;
       res.clearCookie('auth_token', { path: '/', domain: process.env.DOMAIN });
       await createLog(200, 'logout', `User logged out: ${email || 'unknown'}`);
@@ -657,36 +645,31 @@ router.get(
             } & typeof req.session;
             if (session.is_mobile) {
               delete session.is_mobile;
-              res.redirect(
+              return res.redirect(
                 `${process.env.MOBILE_CALLBACK_URL || 'mobileApp://callback'}?github_subscribed=true`
               );
             } else {
               const frontendUrl = process.env.FRONTEND_URL || '';
-              res.redirect(`${frontendUrl}?github_subscribed=true`);
+              return res.redirect(
+                `${frontendUrl}/services?github_subscribed=true`
+              );
             }
           }
-          res.redirect(`${process.env.FRONTEND_URL || ''}?token=${user.token}`);
         } else {
           const session = req.session as {
             is_mobile?: boolean;
           } & typeof req.session;
           if (session.is_mobile) {
             delete session.is_mobile;
-            res.redirect(
+            return res.redirect(
               `${process.env.MOBILE_CALLBACK_URL || ''}?token=${user.token}`
             );
           } else {
-            res.redirect(
+            return res.redirect(
               `${process.env.FRONTEND_URL || ''}?token=${user.token}`
             );
           }
         }
-        await createLog(
-          500,
-          'github',
-          `Failed to authenticate with GitHub: No token received`
-        );
-        res.status(500).json({ error: 'Authentication failed' });
       }
     } catch (err) {
       console.error('GitHub OAuth callback error:', err);
@@ -834,11 +817,11 @@ router.get(
         } & typeof req.session;
         if (session.is_mobile) {
           delete session.is_mobile;
-          res.redirect(
+          return res.redirect(
             `${process.env.MOBILE_CALLBACK_URL || 'mobileApp://callback'}?token=${user.token}`
           );
         } else {
-          res.redirect(`${process.env.FRONTEND_URL || ''}`);
+          return res.redirect(`${process.env.FRONTEND_URL || ''}/services`);
         }
       } else {
         await createLog(
@@ -928,12 +911,12 @@ router.get(
         } & typeof req.session;
         if (session.is_mobile) {
           delete session.is_mobile;
-          res.redirect(
+          return res.redirect(
             `${process.env.MOBILE_CALLBACK_URL || ''}?spotify_subscribed=true`
           );
         } else {
-          res.redirect(
-            `${process.env.FRONTEND_URL || ''}?spotify_subscribed=true`
+          return res.redirect(
+            `${process.env.FRONTEND_URL || ''}/services?spotify_subscribed=true`
           );
         }
       } else {

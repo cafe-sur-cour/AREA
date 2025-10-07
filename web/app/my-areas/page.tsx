@@ -33,6 +33,7 @@ import { Trash2, Plus, Power, PowerOff } from 'lucide-react';
 import ActionForm from '@/components/action-form';
 import ReactionForm from '@/components/reaction-form';
 import { TbLoader3 } from 'react-icons/tb';
+import { toast } from 'sonner';
 
 export default function MyAreasPage() {
   const router = useRouter();
@@ -80,7 +81,7 @@ export default function MyAreasPage() {
       formData.reaction = selectedReactions.map((reaction, index) => ({
         type: reaction.id,
         config: reactionsConfig[index] || {},
-        delay: 0,
+        delay: reaction.delay,
       }));
       console.log('Creating mapping with data:', formData);
       const payload = {
@@ -105,7 +106,7 @@ export default function MyAreasPage() {
       fetchData();
     } catch (error) {
       console.error('Error creating mapping:', error);
-      alert('Failed to create mapping. Please check your input.');
+      toast.error('Failed to create mapping. Please check your input.');
     }
   };
 
@@ -117,7 +118,7 @@ export default function MyAreasPage() {
       fetchData();
     } catch (error) {
       console.error('Error deleting mapping:', error);
-      alert('Failed to delete mapping.');
+      toast.error('Failed to delete mapping.');
     }
   };
 
@@ -158,7 +159,7 @@ export default function MyAreasPage() {
             direction='right'
           >
             <DrawerTrigger asChild>
-              <Button className='gap-2'>
+              <Button className='gap-2 cursor-pointer'>
                 <Plus className='w-4 h-4' />
                 New Area
               </Button>
@@ -230,9 +231,16 @@ export default function MyAreasPage() {
               </div>
 
               <DrawerFooter>
-                <Button onClick={handleCreateAutomation}>Create Area</Button>
+                <Button
+                  className='cursor-pointer'
+                  onClick={handleCreateAutomation}
+                >
+                  Create Area
+                </Button>
                 <DrawerClose asChild>
-                  <Button variant='outline'>Cancel</Button>
+                  <Button className=' cursor-pointer' variant='outline'>
+                    Cancel
+                  </Button>
                 </DrawerClose>
               </DrawerFooter>
             </DrawerContent>
@@ -318,7 +326,7 @@ export default function MyAreasPage() {
                         variant='ghost'
                         size='sm'
                         onClick={() => handleDeleteMapping(mapping.id)}
-                        className='text-destructive hover:text-destructive hover:bg-destructive/10'
+                        className='text-destructive hover:text-destructive hover:bg-destructive/10 cursor-pointer'
                       >
                         <Trash2 className='w-4 h-4' />
                       </Button>

@@ -7,12 +7,14 @@ class OAuthWebView extends StatefulWidget {
   final String oauthUrl;
   final String redirectUrl;
   final String providerName;
+  final bool Function(String)? onNavigationRequest;
 
   const OAuthWebView({
     super.key,
     required this.oauthUrl,
     required this.redirectUrl,
     required this.providerName,
+    this.onNavigationRequest,
   });
 
   @override
@@ -60,7 +62,7 @@ class OAuthWebViewState extends State<OAuthWebView> {
         ..setUserAgent(
           'Mozilla/5.0 (Linux; Android 10; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Mobile Safari/537.36',
         )
-        ..enableZoom(false)
+        ..enableZoom(true)
         ..setBackgroundColor(Colors.white)
         ..setNavigationDelegate(
           NavigationDelegate(
@@ -77,12 +79,15 @@ class OAuthWebViewState extends State<OAuthWebView> {
                   isLoading = false;
                 });
               }
-
-              if (!_isHandlingRedirect && url.startsWith(widget.redirectUrl)) {
-                _handleRedirect(url);
-              }
             },
             onNavigationRequest: (NavigationRequest request) {
+              if (widget.onNavigationRequest != null) {
+                final shouldNavigate = widget.onNavigationRequest!(request.url);
+                if (!shouldNavigate) {
+                  return NavigationDecision.prevent;
+                }
+              }
+
               if (request.url.startsWith(widget.redirectUrl)) {
                 if (!_isHandlingRedirect) {
                   _handleRedirect(request.url);
@@ -149,17 +154,27 @@ class OAuthWebViewState extends State<OAuthWebView> {
     try {
       final uri = Uri.parse(url);
 
-      String? token = uri.queryParameters['token'] ?? uri.queryParameters['auth_token'];
+      String? token =
+          uri.queryParameters['token'] ??
+          uri.queryParameters['auth_token'] ??
+          uri.queryParameters['jwt'] ??
+          uri.queryParameters['access_token'];
 
       if (token == null && uri.fragment.isNotEmpty) {
         final fragmentParams = Uri.splitQueryString(uri.fragment);
-        token = fragmentParams['token'] ?? fragmentParams['auth_token'];
+        token =
+            fragmentParams['token'] ??
+            fragmentParams['auth_token'] ??
+            fragmentParams['jwt'] ??
+            fragmentParams['access_token'];
       }
 
       if (token == null) {
         final pathSegments = uri.pathSegments;
         for (int i = 0; i < pathSegments.length; i++) {
-          if ((pathSegments[i] == 'token' || pathSegments[i] == 'auth_token') &&
+          if ((pathSegments[i] == 'token' ||
+                  pathSegments[i] == 'auth_token' ||
+                  pathSegments[i] == 'jwt') &&
               i + 1 < pathSegments.length) {
             token = pathSegments[i + 1];
             break;
@@ -167,9 +182,16 @@ class OAuthWebViewState extends State<OAuthWebView> {
         }
       }
 
+      final hasError = uri.queryParameters['error'] != null;
+      if (hasError) {
+        final error = uri.queryParameters['error'];
+        final errorDescription = uri.queryParameters['error_description'] ?? error;
+        throw Exception('OAuth error: $errorDescription');
+      }
+
       return token;
     } catch (e) {
-      return null;
+      rethrow;
     }
   }
 
