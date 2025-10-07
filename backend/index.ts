@@ -40,8 +40,7 @@ import { Session } from './src/config/entity/Session';
 import { TypeormStore } from 'connect-typeorm';
 
 const app = express();
-export const JWT_SECRET =
-  process.env.JWT_SECRET || crypto.randomBytes(64).toString('hex');
+export const JWT_SECRET = crypto.randomBytes(64).toString('hex');
 
 const FRONTEND_ORIGIN = process.env.FRONTEND_URL || '';
 const BACKEND_ORIGIN = process.env.BACKEND_URL || '';
@@ -141,6 +140,8 @@ setupSignal();
     app.use('/api/google', googleRoutes);
     app.use('/api/services', servicesRoutes);
     app.use('/api/mappings', mappingsRoutes);
+    app.use('/api/spotify', spotifyRoutes);
+    app.use('/api/microsoft', microsoftRoutes);
     app.use('/api/info', apiRoutes);
     app.use('/about.json', aboutRoutes);
     app.use('/api/webhooks', webhookRoutes);
