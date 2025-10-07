@@ -1,5 +1,4 @@
 import 'package:area/core/constants/app_colors.dart';
-import 'package:area/services/deep_link_service.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
@@ -30,12 +29,10 @@ class OAuthWebViewState extends State<OAuthWebView> {
   Timer? _timeoutTimer;
   int _retryCount = 0;
   static const int _maxRetries = 2;
-  StreamSubscription<String>? _deepLinkSubscription;
 
   @override
   void initState() {
     super.initState();
-    _setupDeepLinkListener();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         _initializeWebViewController();
@@ -44,18 +41,9 @@ class OAuthWebViewState extends State<OAuthWebView> {
     });
   }
 
-  void _setupDeepLinkListener() {
-    _deepLinkSubscription = DeepLinkService.instance.deepLinkStream.listen((link) {
-      if (mounted && link.startsWith(widget.redirectUrl)) {
-        _handleRedirect(link);
-      }
-    });
-  }
-
   @override
   void dispose() {
     _timeoutTimer?.cancel();
-    _deepLinkSubscription?.cancel();
     super.dispose();
   }
 
@@ -90,10 +78,6 @@ class OAuthWebViewState extends State<OAuthWebView> {
                 setState(() {
                   isLoading = false;
                 });
-              }
-
-              if (!_isHandlingRedirect && url.startsWith(widget.redirectUrl)) {
-                _handleRedirect(url);
               }
             },
             onNavigationRequest: (NavigationRequest request) {
@@ -301,9 +285,11 @@ class OAuthWebViewState extends State<OAuthWebView> {
 
   void _handleRedirect(String url) {
     if (_isHandlingRedirect) {
+      print('OAuthWebView: Already handling redirect, ignoring');
       return;
     }
 
+    print('OAuthWebView: Processing redirect: $url');
     _isHandlingRedirect = true;
     _timeoutTimer?.cancel();
 
@@ -311,14 +297,17 @@ class OAuthWebViewState extends State<OAuthWebView> {
       final token = _extractTokenFromUrl(url);
 
       if (token != null && token.isNotEmpty) {
+        print('OAuthWebView: Token extracted successfully');
         if (mounted) {
           Navigator.pop(context, token);
         }
         return;
       }
 
+      print('OAuthWebView: No token found in URL');
       _showError('No authentication token found. Please try again.');
     } catch (e) {
+      print('OAuthWebView: Error extracting token: $e');
       _showError('Authentication failed: ${e.toString()}');
     }
   }
