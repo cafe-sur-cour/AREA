@@ -268,6 +268,104 @@
           "description": "The minute that triggered (0, 15, 30, or 45)"
         }
       }
+    },
+    "google": {
+      "name": "Google",
+      "description": "Google OAuth service for authentication"
+    },
+    "spotify": {
+      "name": "Spotify",
+      "description": "Spotify service for music streaming integration",
+      "reactions": {
+        "spotify.skip_track": {
+          "name": "Skip Current Track",
+          "description": "Skips to the next track in the user's current playback",
+          "schema": {
+            "fields": {}
+          }
+        },
+        "spotify.pause_resume_playback": {
+          "name": "Pause / Resume Playback",
+          "description": "Toggles playback pause or resume depending on current state",
+          "schema": {
+            "fields": {}
+          }
+        },
+        "spotify.add_song_to_playlist": {
+          "name": "Add Song to Playlist",
+          "description": "Adds the current or specified track to a chosen playlist (or to Liked Songs if no playlist specified)",
+          "schema": {
+            "fields": {
+              "playlist_id": {
+                "label": "Playlist ID (optional, adds to Liked Songs if empty)",
+                "placeholder": "spotify:playlist:37i9dQZF1DXcBWIGoYBM5M"
+              },
+              "track_uri": {
+                "label": "Track URI (optional, uses currently playing track if empty)",
+                "placeholder": "spotify:track:4iV5W9uYEdYUVa79Axb7Rh"
+              }
+            }
+          }
+        },
+        "spotify.play_specific_track": {
+          "name": "Play Specific Track",
+          "description": "Starts playback of a given track or playlist URI",
+          "schema": {
+            "fields": {
+              "uri": {
+                "label": "Spotify URI (track, album, playlist, or artist)",
+                "placeholder": "spotify:track:4iV5W9uYEdYUVa79Axb7Rh"
+              },
+              "device_id": {
+                "label": "Device ID (optional, uses active device if empty)",
+                "placeholder": "device_id_here"
+              }
+            }
+          }
+        },
+        "spotify.set_volume": {
+          "name": "Set Volume",
+          "description": "Adjusts the playback volume to a specified level",
+          "schema": {
+            "fields": {
+              "volume_percent": {
+                "label": "Volume Level (0-100)",
+                "placeholder": "50"
+              },
+              "device_id": {
+                "label": "Device ID (optional, uses active device if empty)",
+                "placeholder": "device_id_here"
+              }
+            }
+          }
+        }
+      },
+      "properties": {
+        "success": {
+          "description": "Whether the operation was successful"
+        },
+        "action": {
+          "description": "The action performed (pause or resume)"
+        },
+        "playlist_id": {
+          "description": "The ID of the playlist the track was added to (null if added to Liked Songs)"
+        },
+        "added_to_liked": {
+          "description": "Whether the track was added to Liked Songs"
+        },
+        "track_uri": {
+          "description": "The URI of the track that was added"
+        },
+        "uri": {
+          "description": "The URI that was played"
+        },
+        "device_id": {
+          "description": "The device ID used for playback"
+        },
+        "volume_percent": {
+          "description": "The volume level that was set"
+        }
+      }
     }
   }
 }
