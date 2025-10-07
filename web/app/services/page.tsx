@@ -9,164 +9,34 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle2 } from 'lucide-react';
-import {
-  FaTwitch,
-  FaGithub,
-  FaGoogle,
-  FaMeta,
-  FaMicrosoft,
-  FaSpotify,
-} from 'react-icons/fa6';
-import { FaDeezer } from 'react-icons/fa';
-import { MdTimer } from 'react-icons/md';
+import { Service } from '@/types/service';
 import { useAuth } from '@/contexts/AuthContext';
 import api from '@/lib/api';
 import { getAPIUrl } from '@/lib/config';
 import { TbLoader3 } from 'react-icons/tb';
 
-interface Service {
-  id: string;
-  name: string;
-  description: string;
-  icon: React.ReactNode;
-  isConnected: boolean;
-  authEndpoint: string;
-  statusEndpoint: string;
-  loginStatusEndpoint?: string;
-  subscribeEndpoint?: string;
-  unsubscribeEndpoint?: string;
-  oauthConnected?: boolean;
-  subscribed?: boolean;
-}
-
 export default function ServicesPage() {
   const router = useRouter();
   const { user, isLoading: authLoading } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
+  const [services, setServices] = useState<Service[]>();
 
-  const initialServices: Service[] = [
-    {
-      id: 'twitch',
-      name: 'Twitch',
-      description:
-        'Connect your Twitch account to automate streaming workflows',
-      icon: <FaTwitch className='w-8 h-8 text-purple-500' />,
-      isConnected: false,
-      authEndpoint: '/auth/twitch/login',
-      statusEndpoint: '/twitch/subscribe/status',
-      loginStatusEndpoint: '/twitch/login/status',
-      subscribeEndpoint: '/twitch/subscribe',
-      unsubscribeEndpoint: '/twitch/unsubscribe',
-      oauthConnected: false,
-      subscribed: false,
-    },
-    {
-      id: 'meta',
-      name: 'Meta',
-      description:
-        'Integrate with Facebook and Instagram for social automation',
-      icon: <FaMeta className='w-8 h-8 text-blue-600' />,
-      isConnected: false,
-      authEndpoint: '/auth/meta/login',
-      statusEndpoint: '/meta/subscribe/status',
-      loginStatusEndpoint: '/meta/login/status',
-      subscribeEndpoint: '/meta/subscribe',
-      unsubscribeEndpoint: '/meta/unsubscribe',
-      oauthConnected: false,
-      subscribed: false,
-    },
-    {
-      id: 'google',
-      name: 'Google',
-      description: 'Access Gmail, Drive, Calendar and other Google services',
-      icon: <FaGoogle className='w-8 h-8 text-red-500' />,
-      isConnected: false,
-      authEndpoint: '/auth/google/login',
-      statusEndpoint: '/google/subscribe/status',
-      loginStatusEndpoint: '/google/login/status',
-      subscribeEndpoint: '/auth/google/subscribe',
-      unsubscribeEndpoint: '/google/unsubscribe',
-      oauthConnected: false,
-      subscribed: false,
-    },
-    {
-      id: 'microsoft',
-      name: 'Microsoft 365',
-      description: 'Connect to Outlook, OneDrive, Teams and Office apps',
-      icon: <FaMicrosoft className='w-8 h-8 text-blue-500' />,
-      isConnected: false,
-      authEndpoint: '/auth/microsoft/login',
-      statusEndpoint: '/microsoft/subscribe/status',
-      loginStatusEndpoint: '/microsoft/login/status',
-      subscribeEndpoint: '/microsoft/subscribe',
-      unsubscribeEndpoint: '/microsoft/unsubscribe',
-      oauthConnected: false,
-      subscribed: false,
-    },
-    {
-      id: 'github',
-      name: 'GitHub',
-      description: 'Automate your development workflow with GitHub integration',
-      icon: <FaGithub className='w-8 h-8 text-gray-800 dark:text-white' />,
-      isConnected: false,
-      authEndpoint: '/auth/github/login',
-      statusEndpoint: '/github/subscribe/status',
-      loginStatusEndpoint: '/github/login/status',
-      subscribeEndpoint: '/auth/github/subscribe',
-      unsubscribeEndpoint: '/github/unsubscribe',
-      oauthConnected: false,
-      subscribed: false,
-    },
-    {
-      id: 'deezer',
-      name: 'Deezer',
-      description: 'Control your music and playlists on Deezer',
-      icon: <FaDeezer className='w-8 h-8 text-orange-500' />,
-      isConnected: false,
-      authEndpoint: '/auth/deezer/login',
-      statusEndpoint: '/deezer/subscribe/status',
-      loginStatusEndpoint: '/deezer/login/status',
-      subscribeEndpoint: '/deezer/subscribe',
-      unsubscribeEndpoint: '/deezer/unsubscribe',
-      oauthConnected: false,
-      subscribed: false,
-    },
-    {
-      id: 'spotify',
-      name: 'Spotify',
-      description: 'Manage your Spotify playlists and listening activity',
-      icon: <FaSpotify className='w-8 h-8 text-green-500' />,
-      isConnected: false,
-      authEndpoint: '/auth/spotify/subscribe',
-      statusEndpoint: '/spotify/subscribe/status',
-      loginStatusEndpoint: '/spotify/login/status',
-      subscribeEndpoint: '/auth/spotify/subscribe',
-      unsubscribeEndpoint: '/spotify/unsubscribe',
-      oauthConnected: false,
-      subscribed: false,
-    },
-    {
-      id: 'timer',
-      name: 'Timer',
-      description: 'Create time-based automations and scheduled triggers',
-      icon: <MdTimer className='w-8 h-8 text-blue-500' />,
-      isConnected: false,
-      authEndpoint: '',
-      statusEndpoint: '/services/timer/subscribe/status',
-      loginStatusEndpoint: '',
-      subscribeEndpoint: '/auth/timer/subscribe',
-      unsubscribeEndpoint: '',
-      oauthConnected: true,
-      subscribed: false,
-    },
-  ];
+  const fetchApiServices = async () => {
+    const res = (
+      await api.get<{ services: Service[] }>({ endpoint: '/services' })
+    ).data?.services;
 
-  const [services, setServices] = useState<Service[]>(initialServices);
+    if (!res || res === undefined) return;
+
+    console.log(res);
+    setServices(res);
+  };
 
   useEffect(() => {
     if (!user && !authLoading) {
       router.push('/login');
     }
+    fetchApiServices();
   }, [user, authLoading, router]);
 
   useEffect(() => {
@@ -175,90 +45,17 @@ export default function ServicesPage() {
 
       setIsLoading(true);
       try {
-        const servicesResponse = await api.get({
-          endpoint: '/api/services/subscribed',
-        });
-        const servicesData = servicesResponse.data as {
-          services: Array<{ id: string }>;
-        };
-        const subscribedServices = servicesData.services;
-        const subscribedServiceIds = new Set(subscribedServices.map(s => s.id));
-
+        if (services === undefined) return;
         const updatedServices = await Promise.all(
           services.map(async service => {
             try {
-              if (service.id === 'timer') {
-                return {
-                  ...service,
-                  isConnected: subscribedServiceIds.has(service.id),
-                  oauthConnected: true,
-                  subscribed: subscribedServiceIds.has(service.id),
-                };
-              }
-
-              const oauthResponse = await api.get<{ connected?: boolean }>({
-                endpoint: service.loginStatusEndpoint!,
-              });
-
-              const oauthConnected = oauthResponse.data?.connected || false;
-
-              return {
-                ...service,
-                isConnected: subscribedServiceIds.has(service.id),
-                oauthConnected,
-                subscribed: subscribedServiceIds.has(service.id),
-              };
-            } catch (error) {
-              console.error(
-                `Error checking ${service.name} OAuth status:`,
-                error
-              );
-              return {
-                ...service,
-                isConnected: subscribedServiceIds.has(service.id),
-                oauthConnected: false,
-                subscribed: subscribedServiceIds.has(service.id),
-              };
-            }
-          })
-        );
-        setServices(updatedServices);
-      } catch (error) {
-        console.error('Error checking services status:', error);
-        const updatedServices = await Promise.all(
-          services.map(async service => {
-            try {
-              if (service.id === 'timer') {
-                try {
-                  const response = await api.get({
-                    endpoint: service.statusEndpoint,
-                  });
-                  const timerData = response.data as { subscribed?: boolean };
-                  const isSubscribed = timerData.subscribed || false;
-                  return {
-                    ...service,
-                    isConnected: isSubscribed,
-                    oauthConnected: true,
-                    subscribed: isSubscribed,
-                  };
-                } catch (error) {
-                  console.error('Error checking timer status:', error);
-                  return {
-                    ...service,
-                    isConnected: false,
-                    oauthConnected: true,
-                    subscribed: false,
-                  };
-                }
-              }
-
               const [oauthResponse, subscribeResponse] =
                 await Promise.allSettled([
                   api.get<{ connected?: boolean }>({
-                    endpoint: service.loginStatusEndpoint!,
+                    endpoint: service.endpoints.auth!,
                   }),
                   api.get<{ subscribed?: boolean; oauth_connected?: boolean }>({
-                    endpoint: service.statusEndpoint,
+                    endpoint: service.endpoints.status,
                   }),
                 ]);
 
@@ -271,6 +68,13 @@ export default function ServicesPage() {
                   subscribeResponse.value.data?.subscribed) ||
                 false;
 
+              if (
+                oauthResponse.status === 'rejected' ||
+                subscribeResponse.status === 'rejected'
+              ) {
+                console.log(`User not connected to ${service.name}`);
+              }
+
               return {
                 ...service,
                 isConnected: subscribed,
@@ -278,14 +82,17 @@ export default function ServicesPage() {
                 subscribed,
               };
             } catch (error) {
-              console.error(`Error checking ${service.name} status:`, error);
+              console.log(`User not connected to ${service.name}, `, error);
               return service;
             }
           })
         );
         setServices(updatedServices);
+      } catch (error) {
+        console.log('Error updating services: ', error);
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     };
 
     if (user) {
@@ -299,9 +106,9 @@ export default function ServicesPage() {
 
     if (service.id === 'timer') {
       try {
-        await api.get({ endpoint: service.subscribeEndpoint! });
+        await api.get({ endpoint: service.endpoints.subscribe! });
         setServices(
-          services.map(s =>
+          services?.map(s =>
             s.id === service.id
               ? {
                   ...s,
@@ -318,17 +125,17 @@ export default function ServicesPage() {
     }
 
     if (service.id === 'spotify') {
-      window.location.href = `${apiUrl}${service.authEndpoint}`;
+      window.location.href = `${apiUrl}${service.endpoints.auth}`;
       return;
     }
 
     if (!service.oauthConnected) {
-      window.location.href = `${apiUrl}${service.authEndpoint}`;
-    } else if (service.oauthConnected && !service.subscribed) {
+      window.location.href = `${apiUrl}${service.endpoints.auth}`;
+    } else if (service.oauthConnected && !service.isSubscribed) {
       try {
-        await api.get({ endpoint: service.subscribeEndpoint! });
+        await api.post(service.endpoints.subscribe!, {});
         setServices(
-          services.map(s =>
+          services?.map(s =>
             s.id === service.id
               ? {
                   ...s,
@@ -339,16 +146,16 @@ export default function ServicesPage() {
           )
         );
       } catch (error) {
-        console.error(`Error subscribing to ${service.name}:`, error);
+        console.log(`User not connected to ${service.name}, `, error);
       }
     }
   };
 
   const handleDisconnect = async (service: Service) => {
     try {
-      await api.post(service.unsubscribeEndpoint!, {});
+      await api.post(service.endpoints.unsubscribe!, {});
       setServices(
-        services.map(s =>
+        services?.map(s =>
           s.id === service.id
             ? {
                 ...s,
@@ -358,8 +165,9 @@ export default function ServicesPage() {
             : s
         )
       );
+      window.location.reload();
     } catch (error) {
-      console.error(`Error disconnecting ${service.name}:`, error);
+      console.log(`User not connected to ${service.name}, `, error);
     }
   };
 
@@ -381,17 +189,18 @@ export default function ServicesPage() {
       <main className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
         {/* Services Grid */}
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
-          {services.map(service => (
+          {services?.map(service => (
             <Card
               key={service.id}
               className='bg-app-surface border-app-border-light hover:border-area-primary transition-all duration-300 hover:shadow-lg'
             >
               <CardContent className='p-6'>
                 <div className='flex items-start justify-between mb-4'>
-                  <div className='p-3 bg-app-background rounded-lg'>
-                    {service.icon}
-                  </div>
-                  {service.isConnected ? (
+                  <div
+                    className='p-3 bg-app-background rounded-lg'
+                    dangerouslySetInnerHTML={{ __html: service.icon }}
+                  ></div>
+                  {service.isSubscribed ? (
                     <Badge className='bg-app-green-light text-app-green-primary border-app-green-primary'>
                       <CheckCircle2 className='w-3 h-3 mr-1' />
                       Subscribed
@@ -401,11 +210,7 @@ export default function ServicesPage() {
                       variant='outline'
                       className='border-app-border-light text-app-text-secondary'
                     >
-                      {service.id === 'spotify'
-                        ? 'Not Connected'
-                        : service.oauthConnected
-                          ? 'Not Subscribed'
-                          : 'Not Connected'}
+                      Not Subscribed
                     </Badge>
                   )}
                 </div>
@@ -420,7 +225,7 @@ export default function ServicesPage() {
 
                 <div className='grid gap-2'>
                   <>
-                    {service.isConnected ? (
+                    {service.isSubscribed ? (
                       <Button
                         onClick={() => handleDisconnect(service)}
                         variant='outline'
@@ -433,11 +238,7 @@ export default function ServicesPage() {
                         onClick={() => handleConnect(service)}
                         className='w-full bg-area-primary hover:bg-area-hover text-white'
                       >
-                        {service.id === 'spotify'
-                          ? 'Connect & Subscribe'
-                          : service.oauthConnected
-                            ? 'Subscribe'
-                            : 'Connect & Subscribe'}
+                        Subscribe
                       </Button>
                     )}
                     <Button

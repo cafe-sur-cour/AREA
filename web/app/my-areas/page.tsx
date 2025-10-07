@@ -80,7 +80,7 @@ export default function MyAreasPage() {
       formData.reaction = selectedReactions.map((reaction, index) => ({
         type: reaction.id,
         config: reactionsConfig[index] || {},
-        delay: 0,
+        delay: reaction.delay,
       }));
       console.log('Creating mapping with data:', formData);
       const payload = {

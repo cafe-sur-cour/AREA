@@ -20,6 +20,7 @@ interface ReactionInstance {
   id: string;
   reaction: Reaction | null;
   config: Record<string, unknown>;
+  delay: number | null;
   selectedService: string | null;
 }
 
@@ -49,6 +50,7 @@ export default function ReactionForm({
       id: `reaction-${Date.now()}`,
       reaction: null,
       config: {},
+      delay: 0,
       selectedService: null,
     },
   ]);
@@ -80,6 +82,7 @@ export default function ReactionForm({
       id: `reaction-${Date.now()}`,
       reaction: null,
       config: {},
+      delay: null,
       selectedService: null,
     };
     setReactionInstances([...reactionInstances, newReaction]);
@@ -111,9 +114,19 @@ export default function ReactionForm({
 
     const reactions = updatedInstances
       .filter(instance => instance.reaction)
-      .map(instance => instance.reaction!);
+      .map(instance => {
+        if (instance.reaction) {
+          // Attacher le delay à la réaction avant de l'envoyer au parent
+          return {
+            ...instance.reaction,
+            delay: instance.delay || 0,
+          };
+        }
+        return instance.reaction!;
+      });
     const configs = updatedInstances.map(instance => instance.config);
 
+    console.log('Updated reactions with delays:', reactions);
     onReactionsChange(reactions);
     onConfigChange(configs);
   };
@@ -252,6 +265,25 @@ export default function ReactionForm({
                 ))}
               </div>
             )}
+            <div>
+              <label className='block text-sm font-medium text-gray-700 mb-1'>
+                Delay in seconds
+              </label>
+              <input
+                type='number'
+                name='delay'
+                placeholder='Delay (in sec)'
+                value={
+                  instance.delay !== null ? instance.delay.toString() : '0'
+                }
+                onChange={e => {
+                  updateReactionInstance(instance.id, {
+                    delay: Number(e.target.value),
+                  });
+                }}
+                className='mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 text-sm'
+              />
+            </div>
           </CardContent>
         </Card>
       ))}
