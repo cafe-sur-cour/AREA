@@ -363,7 +363,8 @@ class ProfileScreenState extends State<ProfileScreen> {
                         backendAddressNotifier.setBackendAddress(null);
                         return;
                       }
-                      if (!normalized.startsWith('http://') && !normalized.startsWith('https://')) {
+                      if (!normalized.startsWith('http://') &&
+                          !normalized.startsWith('https://')) {
                         normalized = 'https://$normalized';
                       }
                       if (!normalized.endsWith('/')) {

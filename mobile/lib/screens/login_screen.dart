@@ -125,11 +125,8 @@ class LoginScreenState extends State<LoginScreen> {
       return;
     }
 
-    // Normalize backend address: ensure scheme and trailing slash so the
-    // OAuth URL is valid (WebView requires an absolute URL)
     String base = backendAddressNotifier.backendAddress!.trim();
     if (!base.startsWith('http://') && !base.startsWith('https://')) {
-      // Default to https if the scheme is missing
       base = 'https://$base';
     }
     if (!base.endsWith('/')) {
@@ -192,6 +189,7 @@ class LoginScreenState extends State<LoginScreen> {
       }
     }
   }
+
   void _goToMicrosoft(BuildContext context) async {
     // await _goToOAuth(context, 'Microsoft', AppRoutes.microsoftLogin);
   }
