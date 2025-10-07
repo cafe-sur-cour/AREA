@@ -11,7 +11,9 @@ import { FaGithub, FaGoogle, FaMicrosoft } from 'react-icons/fa';
 import api from '@/lib/api';
 import Image from 'next/image';
 import { toast } from 'sonner';
+import InputPassword from './ui/input-password';
 import { getAPIUrl } from '@/lib/config';
+import ButtonWithLoading from './ui/button-with-loading';
 
 export function RegisterForm({
   className,
@@ -30,7 +32,7 @@ export function RegisterForm({
     const password = formData.get('password') as string;
     const confirmPassword = formData.get('confirm-password') as string;
     if (password !== confirmPassword) {
-      alert('Passwords do not match');
+      toast.error('Passwords do not match');
       setIsLoading(false);
       return;
     }
@@ -99,22 +101,14 @@ export function RegisterForm({
               </div>
               <div className='grid gap-3'>
                 <Label htmlFor='password'>Password</Label>
-                <Input
-                  id='password'
-                  name='password'
-                  type='password'
-                  placeholder='Password'
-                  required
-                />
+                <InputPassword name='password' />
               </div>
               <div className='grid gap-3'>
                 <Label htmlFor='confirm-password'>Confirm password</Label>
-                <Input
+                <InputPassword
                   id='confirm-password'
                   name='confirm-password'
-                  type='password'
                   placeholder='Confirm password'
-                  required
                 />
               </div>
               <Button type='submit' className='w-full' disabled={isLoading}>
@@ -126,33 +120,27 @@ export function RegisterForm({
                 </span>
               </div>
               <div className='grid grid-cols-3 gap-4'>
-                <Button
-                  variant='outline'
-                  type='button'
+                <ButtonWithLoading
                   className='w-full'
                   onClick={async () => await signInWithGithub()}
                 >
                   <FaGithub />
                   <span className='sr-only'>Login with Github</span>
-                </Button>
-                <Button
-                  variant='outline'
-                  type='button'
+                </ButtonWithLoading>
+                <ButtonWithLoading
                   className='w-full'
                   onClick={async () => await signInWithGoogle()}
                 >
                   <FaGoogle />
                   <span className='sr-only'>Login with Google</span>
-                </Button>
-                <Button
-                  variant='outline'
-                  type='button'
+                </ButtonWithLoading>
+                <ButtonWithLoading
                   className='w-full'
                   onClick={async () => await signInWithMicrosoft()}
                 >
                   <FaMicrosoft />
                   <span className='sr-only'>Login with Microsoft 365</span>
-                </Button>
+                </ButtonWithLoading>
               </div>
             </div>
           </form>
