@@ -12,7 +12,13 @@ class AppRoutes {
   static const String me = "api/user/me";
 
   // OAuth2
-  static const String github = "api/auth/github/login";
+  static const String githubLogin = "api/auth/github/login";
+  static const String microsoftLogin = "api/auth/microsoft/login";
+  static const String googleLogin = "api/auth/google/login";
+
+  // Service
+  static const String services = "api/services";
+  static const String servicesSubscribed = "api/services/subscribed";
 }
 
 class AppDimensions {

@@ -16,6 +16,7 @@ import i18next from 'i18next';
 import * as i18nextMiddleware from 'i18next-http-middleware';
 import passport from 'passport';
 import './src/config/passport';
+import { StringEncryption } from './src/config/EncryptionService';
 
 import authRoutes from './src/routes/auth/auth';
 import userRoutes from './src/routes/user/user';
@@ -103,7 +104,7 @@ app.use(passport.session());
 
 setupSwagger(app);
 setupSignal();
-
+const encryption = new StringEncryption();
 (async function start() {
   try {
     console.log('Initializing i18n...');
@@ -157,3 +158,5 @@ setupSignal();
     process.exit(1);
   }
 })();
+
+export { encryption };

@@ -103,6 +103,12 @@ export default function ServicesPage() {
 
   const handleConnect = async (service: Service) => {
     const apiUrl = await getAPIUrl();
+    // Special-case: GitHub should first redirect users to the GitHub App
+    if (service.id === 'github') {
+      window.location.href =
+        'https://github.com/apps/area-cafe-sur-cours/installations/new/';
+      return;
+    }
 
     if (service.id === 'timer') {
       try {
@@ -129,17 +135,24 @@ export default function ServicesPage() {
       return;
     }
 
+    // If user hasn't connected OAuth yet, start the OAuth flow
     if (!service.oauthConnected) {
       window.location.href = `${apiUrl}${service.endpoints.auth}`;
-    } else if (service.oauthConnected && !service.isSubscribed) {
+      return;
+    }
+
+    // If user is connected via OAuth but not subscribed, call subscribe API
+    if (service.oauthConnected && !service.subscribed) {
       try {
         await api.post(service.endpoints.subscribe!, {});
+        // Ensure oauthConnected is set to true alongside subscribed/isConnected
         setServices(
           services?.map(s =>
             s.id === service.id
               ? {
                   ...s,
                   isConnected: true,
+                  oauthConnected: true,
                   subscribed: true,
                 }
               : s
@@ -161,6 +174,7 @@ export default function ServicesPage() {
                 ...s,
                 isConnected: false,
                 subscribed: false,
+                oauthConnected: false,
               }
             : s
         )

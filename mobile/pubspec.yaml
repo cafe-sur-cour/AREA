@@ -48,6 +48,15 @@ dependencies:
 
   icons_plus: ^5.0.0
 
+  # SVG support for service icons
+  flutter_svg: ^2.0.10+1
+
+  # URL launcher for opening external browsers
+  url_launcher: ^6.2.1
+
+  # Deep link handling
+  app_links: ^6.1.4
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
