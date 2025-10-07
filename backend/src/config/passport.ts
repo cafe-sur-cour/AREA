@@ -55,6 +55,7 @@ async function getCurrentUser(
       // Show unverified decoded payload for debugging (does not verify signature)
       try {
         const unverified = jwt.decode(cookieToken, { complete: true });
+        void unverified; // Avoid unused variable warning
       } catch (err) {
         console.warn('Failed to decode token (unverified):', err);
       }
@@ -67,7 +68,8 @@ async function getCurrentUser(
         return decoded;
       } catch (err: unknown) {
         // Log verification error to aid debugging (expired, invalid signature, etc.)
-        console.error('JWT verification error:',
+        console.error(
+          'JWT verification error:',
           err && typeof err === 'object' && 'name' in err
             ? `${(err as { name?: string }).name}: ${(err as Error).message}`
             : err
@@ -75,9 +77,15 @@ async function getCurrentUser(
 
         // If it's a signature error, the token was signed with a different secret
         // For now, we'll return null but in production you might want to clear the cookie
-        if (err && typeof err === 'object' && 'name' in err &&
-            (err as { name?: string }).name === 'JsonWebTokenError') {
-          console.warn('Token signature invalid - user needs to re-authenticate');
+        if (
+          err &&
+          typeof err === 'object' &&
+          'name' in err &&
+          (err as { name?: string }).name === 'JsonWebTokenError'
+        ) {
+          console.warn(
+            'Token signature invalid - user needs to re-authenticate'
+          );
           // TODO: Consider clearing the invalid cookie here
         }
         return null;
