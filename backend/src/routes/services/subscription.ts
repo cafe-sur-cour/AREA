@@ -286,8 +286,17 @@ async function handleDynamicServiceSubscription(
  */
 router.get(
   '/:service/subscribe',
+  (req, res, next) => {
+    if (req.query.is_mobile === 'true') {
+      const session = req.session as {
+        is_mobile?: boolean;
+      } & typeof req.session;
+      session.is_mobile = true;
+    }
+    next();
+  },
   token,
-  async (req: Request, res: Response, next) => {
+  async (req, res, next) => {
     if (!req.auth) {
       await createLog(
         401,
