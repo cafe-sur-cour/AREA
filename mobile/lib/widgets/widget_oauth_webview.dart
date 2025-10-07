@@ -62,7 +62,7 @@ class OAuthWebViewState extends State<OAuthWebView> {
         ..setUserAgent(
           'Mozilla/5.0 (Linux; Android 10; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Mobile Safari/537.36',
         )
-        ..enableZoom(false)
+        ..enableZoom(true)
         ..setBackgroundColor(Colors.white)
         ..setNavigationDelegate(
           NavigationDelegate(
@@ -285,11 +285,9 @@ class OAuthWebViewState extends State<OAuthWebView> {
 
   void _handleRedirect(String url) {
     if (_isHandlingRedirect) {
-      print('OAuthWebView: Already handling redirect, ignoring');
       return;
     }
 
-    print('OAuthWebView: Processing redirect: $url');
     _isHandlingRedirect = true;
     _timeoutTimer?.cancel();
 
@@ -297,17 +295,14 @@ class OAuthWebViewState extends State<OAuthWebView> {
       final token = _extractTokenFromUrl(url);
 
       if (token != null && token.isNotEmpty) {
-        print('OAuthWebView: Token extracted successfully');
         if (mounted) {
           Navigator.pop(context, token);
         }
         return;
       }
 
-      print('OAuthWebView: No token found in URL');
       _showError('No authentication token found. Please try again.');
     } catch (e) {
-      print('OAuthWebView: Error extracting token: $e');
       _showError('Authentication failed: ${e.toString()}');
     }
   }
