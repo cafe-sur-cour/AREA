@@ -512,13 +512,32 @@ router.post('/verify', mail, (req: Request, res: Response) => {
  *     description: |
  *       Redirects user to GitHub for OAuth authorization.
  *       This route is used for login/register when user is not authenticated.
+ *     parameters:
+ *       - name: is_mobile
+ *         in: query
+ *         required: false
+ *         description: Indicates if the request originates from mobile client
+ *         schema:
+ *           type: boolean
  *     responses:
  *       302:
  *         description: Redirect to GitHub authorization page
  *       500:
  *         description: Internal Server Error
  */
-router.get('/github/login', passport.authenticate('github-login'));
+router.get(
+  '/github/login',
+  (req, res, next) => {
+    if (req.query.is_mobile === 'true') {
+      const session = req.session as {
+        is_mobile?: boolean;
+      } & typeof req.session;
+      session.is_mobile = true;
+    }
+    next();
+  },
+  passport.authenticate('github-login')
+);
 
 /**
  * @swagger
@@ -618,6 +637,10 @@ router.get(
           const isSubscriptionFlow = session?.githubSubscriptionFlow;
 
           if (isSubscriptionFlow) {
+            const session = req.session as {
+              is_mobile?: boolean;
+              githubSubscriptionFlow?: boolean;
+            } & typeof req.session;
             const appSlug =
               process.env.GITHUB_APP_SLUG || 'area-cafe-sur-cours';
             const userId = (req.auth as { id: number })?.id || 'unknown';
@@ -625,16 +648,39 @@ router.get(
 
             if (session) {
               delete session.githubSubscriptionFlow;
+              delete session.is_mobile;
             }
             return res.redirect(installUrl);
           } else {
-            const frontendUrl = process.env.FRONTEND_URL || '';
-            return res.redirect(`${frontendUrl}?github_connected=true`);
+            const session = req.session as {
+              is_mobile?: boolean;
+            } & typeof req.session;
+            if (session.is_mobile) {
+              delete session.is_mobile;
+              res.redirect(
+                `${process.env.MOBILE_CALLBACK_URL || 'mobileApp://callback'}?github_subscribed=true`
+              );
+            } else {
+              const frontendUrl = process.env.FRONTEND_URL || '';
+              res.redirect(`${frontendUrl}?github_subscribed=true`);
+            }
+          }
+          res.redirect(`${process.env.FRONTEND_URL || ''}?token=${user.token}`);
+        } else {
+          const session = req.session as {
+            is_mobile?: boolean;
+          } & typeof req.session;
+          if (session.is_mobile) {
+            delete session.is_mobile;
+            res.redirect(
+              `${process.env.MOBILE_CALLBACK_URL || ''}?token=${user.token}`
+            );
+          } else {
+            res.redirect(
+              `${process.env.FRONTEND_URL || ''}?token=${user.token}`
+            );
           }
         }
-
-        res.redirect(`${process.env.FRONTEND_URL || ''}?token=${user.token}`);
-      } else {
         await createLog(
           500,
           'github',
@@ -664,6 +710,13 @@ router.get(
  *     description: |
  *       Redirects user to Google for OAuth authorization.
  *       This route is used for login/register when user is not authenticated.
+ *     parameters:
+ *       - name: is_mobile
+ *         in: query
+ *         required: false
+ *         description: Indicates if the request originates from mobile client
+ *         schema:
+ *           type: boolean
  *     responses:
  *       302:
  *         description: Redirect to Google authorization page
@@ -672,6 +725,15 @@ router.get(
  */
 router.get(
   '/google/login',
+  (req, res, next) => {
+    if (req.query.is_mobile === 'true') {
+      const session = req.session as {
+        is_mobile?: boolean;
+      } & typeof req.session;
+      session.is_mobile = true;
+    }
+    next();
+  },
   passport.authenticate('google-login', {
     scope: ['openid', 'email', 'profile'],
     session: false,
@@ -767,7 +829,17 @@ router.get(
           domain: process.env.DOMAIN,
           sameSite: 'none',
         });
-        res.redirect(`${process.env.FRONTEND_URL || ''}`);
+        const session = req.session as {
+          is_mobile?: boolean;
+        } & typeof req.session;
+        if (session.is_mobile) {
+          delete session.is_mobile;
+          res.redirect(
+            `${process.env.MOBILE_CALLBACK_URL || 'mobileApp://callback'}?token=${user.token}`
+          );
+        } else {
+          res.redirect(`${process.env.FRONTEND_URL || ''}`);
+        }
       } else {
         await createLog(
           500,
@@ -851,9 +923,19 @@ router.get(
     try {
       const user = req.user as { token: string };
       if (user && user.token) {
-        res.redirect(
-          `${process.env.FRONTEND_URL || ''}?spotify_connected=true`
-        );
+        const session = req.session as {
+          is_mobile?: boolean;
+        } & typeof req.session;
+        if (session.is_mobile) {
+          delete session.is_mobile;
+          res.redirect(
+            `${process.env.MOBILE_CALLBACK_URL || ''}?spotify_subscribed=true`
+          );
+        } else {
+          res.redirect(
+            `${process.env.FRONTEND_URL || ''}?spotify_subscribed=true`
+          );
+        }
       } else {
         await createLog(
           500,
