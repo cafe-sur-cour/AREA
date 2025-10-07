@@ -170,14 +170,12 @@ class OAuthWebViewState extends State<OAuthWebView> {
     try {
       final uri = Uri.parse(url);
 
-      // Try various token parameter names
       String? token =
           uri.queryParameters['token'] ??
           uri.queryParameters['auth_token'] ??
           uri.queryParameters['jwt'] ??
           uri.queryParameters['access_token'];
 
-      // Check fragment parameters (used by some OAuth providers)
       if (token == null && uri.fragment.isNotEmpty) {
         final fragmentParams = Uri.splitQueryString(uri.fragment);
         token =
@@ -187,7 +185,6 @@ class OAuthWebViewState extends State<OAuthWebView> {
             fragmentParams['access_token'];
       }
 
-      // Check path segments
       if (token == null) {
         final pathSegments = uri.pathSegments;
         for (int i = 0; i < pathSegments.length; i++) {
@@ -201,7 +198,6 @@ class OAuthWebViewState extends State<OAuthWebView> {
         }
       }
 
-      // Check for success/error parameters
       final hasError = uri.queryParameters['error'] != null;
       if (hasError) {
         final error = uri.queryParameters['error'];
