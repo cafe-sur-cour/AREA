@@ -1,4 +1,4 @@
-"use client"
+'use client';
 
 import type React from 'react';
 
@@ -9,16 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle2 } from 'lucide-react';
-import {Service} from '@/types/service'
-import {
-  FaTwitch,
-  FaGithub,
-  FaGoogle,
-  FaMeta,
-  FaMicrosoft,
-  FaSpotify,
-} from 'react-icons/fa6';
-import { FaDeezer } from 'react-icons/fa';
+import { Service } from '@/types/service';
 import { useAuth } from '@/contexts/AuthContext';
 import api from '@/lib/api';
 import { getAPIUrl } from '@/lib/config';
@@ -30,17 +21,16 @@ export default function ServicesPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [services, setServices] = useState<Service[]>();
 
-
   const fetchApiServices = async () => {
-    const res = (await api.get<{services: Service[]}>({endpoint: "/services"})).data?.services;
+    const res = (
+      await api.get<{ services: Service[] }>({ endpoint: '/services' })
+    ).data?.services;
 
-    if (!res || res === undefined)
-      return;
+    if (!res || res === undefined) return;
 
     console.log(res);
     setServices(res);
-  }
-
+  };
 
   useEffect(() => {
     if (!user && !authLoading) {
@@ -55,8 +45,7 @@ export default function ServicesPage() {
 
       setIsLoading(true);
       try {
-        if (services === undefined)
-          return
+        if (services === undefined) return;
         const updatedServices = await Promise.all(
           services.map(async service => {
             try {
@@ -189,7 +178,7 @@ export default function ServicesPage() {
               <CardContent className='p-6'>
                 <div className='flex items-start justify-between mb-4'>
                   <div
-                    className="p-3 bg-app-background rounded-lg"
+                    className='p-3 bg-app-background rounded-lg'
                     dangerouslySetInnerHTML={{ __html: service.icon }}
                   ></div>
                   {service.isSubscribed ? (
