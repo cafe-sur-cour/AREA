@@ -1208,7 +1208,6 @@ router.post('/reset-password', mail, async (req: Request, res: Response) => {
   );
 });
 
-// Use subscription routes
 router.use('/', subscriptionRouter);
 
 export default router;
