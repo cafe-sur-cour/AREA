@@ -182,7 +182,6 @@ class ProfileScreenState extends State<ProfileScreen> {
           backgroundColor: AppColors.error,
         ),
       );
-      // Ensure loading flag is cleared so the UI doesn't stay stuck on initial load
       setState(() {
         _isLoading = false;
       });
