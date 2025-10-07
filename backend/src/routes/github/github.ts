@@ -113,6 +113,9 @@ router.get(
     try {
       const userId = (req.auth as { id: number }).id;
 
+      console.log(
+        `🔄 [STATUS] Checking GitHub subscription status for user ${userId}`
+      );
       const userToken = await githubOAuth.getUserToken(userId);
       const oauthConnected = !!userToken;
 
@@ -121,6 +124,10 @@ router.get(
         'github'
       );
       const isSubscribed = subscription?.subscribed || false;
+
+      console.log(
+        `✅ [STATUS] GitHub status for user ${userId}: subscribed=${isSubscribed}, oauth=${oauthConnected}`
+      );
 
       if (!isSubscribed) {
         return res.status(404).json({
@@ -140,66 +147,13 @@ router.get(
         scopes: userToken?.scopes || null,
       });
     } catch (err) {
-      console.error(err);
+      console.error(
+        `❌ [STATUS] Error fetching GitHub subscription status for user ${(req.auth as { id: number }).id}:`,
+        err
+      );
       return res
         .status(500)
         .json({ error: 'Internal Server Error in github subscribe status' });
-    }
-  }
-);
-
-/**
- * @swagger
- * /api/github/subscribe:
- *   post:
- *     summary: Subscribe to GitHub events
- *     tags:
- *       - GitHub Service
- *     description: |
- *       Subscribe user to GitHub events. Requires OAuth to be connected first.
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Successfully subscribed
- *       400:
- *         description: OAuth required first
- *       500:
- *         description: Internal Server Error
- */
-router.post(
-  '/subscribe',
-  token,
-  async (req: Request, res: Response): Promise<Response> => {
-    try {
-      const userId = (req.auth as { id: number }).id;
-
-      const userToken = await githubOAuth.getUserToken(userId);
-      if (!userToken) {
-        return res.status(400).json({
-          error:
-            'GitHub OAuth required first. Please connect your GitHub account.',
-        });
-      }
-
-      const subscription = await serviceSubscriptionManager.subscribeUser(
-        userId,
-        'github'
-      );
-
-      return res.status(200).json({
-        message: 'Successfully subscribed to GitHub events',
-        subscription: {
-          subscribed: subscription.subscribed,
-          subscribed_at: subscription.subscribed_at,
-          service: subscription.service,
-        },
-      });
-    } catch (err) {
-      console.error(err);
-      return res
-        .status(500)
-        .json({ error: 'Internal Server Error in github subscribe' });
     }
   }
 );
@@ -241,6 +195,9 @@ router.post(
         });
       }
 
+      console.log(
+        `✅ [UNSUBSCRIBE] GitHub unsubscription successful for user ${userId}`
+      );
       return res.status(200).json({
         message: 'Successfully unsubscribed from GitHub events',
         subscription: {
@@ -250,7 +207,10 @@ router.post(
         },
       });
     } catch (err) {
-      console.error(err);
+      console.error(
+        `❌ [UNSUBSCRIBE] Error in GitHub unsubscription for user ${(req.auth as { id: number }).id}:`,
+        err
+      );
       return res
         .status(500)
         .json({ error: 'Internal Server Error in github unsubscribe' });

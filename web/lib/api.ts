@@ -104,8 +104,7 @@ export const api = {
       const json = await response.json();
       return { data: json };
     } catch (error) {
-      console.error(error);
-      return { data: null };
+      throw error;
     }
   },
 

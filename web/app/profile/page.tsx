@@ -101,7 +101,7 @@ export default function ProfilePage() {
   const saveName = () => {
     console.log('Saving name:', editedName);
     if (editedName.trim() === '') {
-      alert('Name cannot be empty');
+      toast.error('Name cannot be empty');
       return;
     }
     if (userData) {
@@ -119,7 +119,7 @@ export default function ProfilePage() {
 
   const saveEmail = () => {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(editedEmail)) {
-      alert('Invalid email address');
+      toast.error('Invalid email address');
       return;
     }
     if (userData) {
@@ -142,7 +142,7 @@ export default function ProfilePage() {
   const savePassword = () => {
     console.log('Saving password:', editedPassword);
     if (editedPassword.trim() === '') {
-      alert('Password cannot be empty');
+      toast.error('Password cannot be empty');
       return;
     }
     if (userData) {
