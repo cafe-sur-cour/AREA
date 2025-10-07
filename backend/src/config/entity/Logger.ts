@@ -25,7 +25,7 @@ export class Logger extends BaseEntity {
       'google',
       'spotify',
       'microsoft',
-      'other'
+      'other',
     ],
   })
   kind!:

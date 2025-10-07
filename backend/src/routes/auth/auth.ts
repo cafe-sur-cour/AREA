@@ -960,25 +960,24 @@ router.get(
  *       500:
  *         description: Internal Server Error
  */
-router.get(
-  '/microsoft/login',
-  async (req: Request, res: Response) => {
-    try {
-      const { microsoftOAuth } = await import('../../services/services/microsoft/oauth');
-      const state = Math.random().toString(36).substring(2, 15);
-      const authUrl = microsoftOAuth.getAuthorizationUrl(state);
-      res.redirect(authUrl);
-    } catch (error) {
-      console.error('Microsoft OAuth login error:', error);
-      await createLog(
-        500,
-        'microsoft',
-        `Failed to initiate Microsoft OAuth: ${error}`
-      );
-      res.status(500).json({ error: 'Failed to initiate Microsoft OAuth' });
-    }
+router.get('/microsoft/login', async (req: Request, res: Response) => {
+  try {
+    const { microsoftOAuth } = await import(
+      '../../services/services/microsoft/oauth'
+    );
+    const state = Math.random().toString(36).substring(2, 15);
+    const authUrl = microsoftOAuth.getAuthorizationUrl(state);
+    res.redirect(authUrl);
+  } catch (error) {
+    console.error('Microsoft OAuth login error:', error);
+    await createLog(
+      500,
+      'microsoft',
+      `Failed to initiate Microsoft OAuth: ${error}`
+    );
+    res.status(500).json({ error: 'Failed to initiate Microsoft OAuth' });
   }
-);
+});
 
 /**
  * @swagger
@@ -1011,7 +1010,9 @@ router.get('/microsoft/subscribe', async (req: Request, res: Response) => {
   }
 
   try {
-    const { microsoftOAuth } = await import('../../services/services/microsoft/oauth');
+    const { microsoftOAuth } = await import(
+      '../../services/services/microsoft/oauth'
+    );
     const state = Math.random().toString(36).substring(2, 15);
     const authUrl = microsoftOAuth.getAuthorizationUrl(state);
     res.redirect(authUrl);
@@ -1022,7 +1023,9 @@ router.get('/microsoft/subscribe', async (req: Request, res: Response) => {
       'microsoft',
       `Failed to initiate Microsoft OAuth subscription: ${error}`
     );
-    res.status(500).json({ error: 'Failed to initiate Microsoft OAuth subscription' });
+    res
+      .status(500)
+      .json({ error: 'Failed to initiate Microsoft OAuth subscription' });
   }
 });
 

@@ -52,11 +52,18 @@ export class MicrosoftOAuth {
     this.redirectUri = process.env.SERVICE_MICROSOFT_REDIRECT_URI || '';
     this.tenantId = process.env.SERVICE_MICROSOFT_TENANT_ID || 'common';
     this.microsoftApiBaseUrl =
-      process.env.SERVICE_MICROSOFT_API_BASE_URL || 'https://graph.microsoft.com';
+      process.env.SERVICE_MICROSOFT_API_BASE_URL ||
+      'https://graph.microsoft.com';
     this.microsoftAuthBaseUrl =
-      process.env.SERVICE_MICROSOFT_AUTH_BASE_URL || 'https://login.microsoftonline.com';
+      process.env.SERVICE_MICROSOFT_AUTH_BASE_URL ||
+      'https://login.microsoftonline.com';
 
-    if (!this.clientId || !this.clientSecret || !this.redirectUri || !this.tenantId) {
+    if (
+      !this.clientId ||
+      !this.clientSecret ||
+      !this.redirectUri ||
+      !this.tenantId
+    ) {
       throw new Error('Microsoft OAuth configuration missing');
     }
 
@@ -102,7 +109,10 @@ export class MicrosoftOAuth {
     });
 
     console.log('Microsoft OAuth - Response status:', response.status);
-    console.log('Microsoft OAuth - Response headers:', Object.fromEntries(response.headers.entries()));
+    console.log(
+      'Microsoft OAuth - Response headers:',
+      Object.fromEntries(response.headers.entries())
+    );
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -126,18 +136,17 @@ export class MicrosoftOAuth {
 
   async getUserInfo(accessToken: string): Promise<MicrosoftUser> {
     this.ensureInitialized();
-    const response = await fetch(
-      `${this.microsoftApiBaseUrl}/v1.0/me`,
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          Accept: 'application/json',
-        },
-      }
-    );
+    const response = await fetch(`${this.microsoftApiBaseUrl}/v1.0/me`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        Accept: 'application/json',
+      },
+    });
 
     if (!response.ok) {
-      throw new Error(`Failed to get Microsoft user info: ${response.statusText}`);
+      throw new Error(
+        `Failed to get Microsoft user info: ${response.statusText}`
+      );
     }
 
     return (await response.json()) as MicrosoftUser;
