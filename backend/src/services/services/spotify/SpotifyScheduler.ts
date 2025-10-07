@@ -49,12 +49,16 @@ export class SpotifyScheduler {
     number,
     { count: number; windowStart: number }
   >();
+  private activeUserIdsCache: number[] = [];
+  private lastCacheUpdate = 0;
+  private readonly CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
   private readonly MIN_REQUEST_INTERVAL = 1000; // 1 second
   private readonly MAX_REQUESTS_PER_WINDOW = 180;
   private readonly RATE_LIMIT_WINDOW = 30 * 1000; // 30 seconds
   private readonly SPOTIFY_API_BASE_URL =
     process.env.SERVICE_SPOTIFY_API_BASE_URL || '';
+  private readonly MAX_CONCURRENT_USERS = 5;
 
   async start(): Promise<void> {
     if (this.isRunning) {
@@ -65,7 +69,7 @@ export class SpotifyScheduler {
     console.log('Starting Spotify scheduler...');
     this.isRunning = true;
 
-    const pollJob = cron.schedule('*/10 * * * * *', async () => {
+    const pollJob = cron.schedule('*/30 * * * * *', async () => {
       await this.pollActiveUsers();
     });
 
@@ -94,35 +98,54 @@ export class SpotifyScheduler {
 
   private async pollActiveUsers(): Promise<void> {
     try {
-      const mappingRepository = AppDataSource.getRepository(WebhookConfigs);
-      const activeMappings = await mappingRepository.find({
-        where: {
-          is_active: true,
-          action: Raw(alias => `${alias} ->> 'type' LIKE :type`, {
-            type: 'spotify.%',
-          }),
-        },
-        select: ['created_by'],
-      });
+      const now = Date.now();
 
-      const userIds = [
-        ...new Set(
-          activeMappings
-            .map(mapping => mapping.created_by)
-            .filter((id): id is number => id != null)
-        ),
-      ];
+      let userIds: number[];
+      if (
+        now - this.lastCacheUpdate < this.CACHE_TTL &&
+        this.activeUserIdsCache.length > 0
+      ) {
+        userIds = this.activeUserIdsCache;
+      } else {
+        const mappingRepository = AppDataSource.getRepository(WebhookConfigs);
+        const activeMappings = await mappingRepository.find({
+          where: {
+            is_active: true,
+            action: Raw(alias => `${alias} ->> 'type' LIKE :type`, {
+              type: 'spotify.%',
+            }),
+          },
+          select: ['created_by'],
+        });
+
+        userIds = [
+          ...new Set(
+            activeMappings
+              .map(mapping => mapping.created_by)
+              .filter((id): id is number => id != null)
+          ),
+        ];
+
+        this.activeUserIdsCache = userIds;
+        this.lastCacheUpdate = now;
+      }
 
       console.log(
         `Polling ${userIds.length} users with active Spotify mappings`
       );
 
-      for (const userId of userIds) {
-        try {
-          await this.pollUser(userId);
-        } catch (error) {
-          console.error(`Error polling user ${userId}:`, error);
-        }
+      if (userIds.length === 0) {
+        return;
+      }
+
+      const chunks = this.chunkArray(userIds, this.MAX_CONCURRENT_USERS);
+      for (const chunk of chunks) {
+        const promises = chunk.map((userId: number) =>
+          this.pollUser(userId).catch(error => {
+            console.error(`Error polling user ${userId}:`, error);
+          })
+        );
+        await Promise.allSettled(promises);
       }
     } catch (error) {
       console.error('Error polling active users:', error);
@@ -249,7 +272,11 @@ export class SpotifyScheduler {
 
     if (timeSinceLastRequest < this.MIN_REQUEST_INTERVAL) {
       const waitTime = this.MIN_REQUEST_INTERVAL - timeSinceLastRequest;
-      await new Promise(resolve => setTimeout(resolve, waitTime));
+      await new Promise<void>(resolve => {
+        setImmediate(() => {
+          setTimeout(() => resolve(), Math.min(waitTime, 100));
+        });
+      });
     }
 
     this.lastRequestTime.set(userId, Date.now());
@@ -286,9 +313,11 @@ export class SpotifyScheduler {
         if (retryAfter) {
           const waitTime = parseInt(retryAfter) * 1000;
           console.log(`Waiting ${waitTime}ms before retry`);
-          await new Promise(resolve =>
-            setTimeout(resolve, Math.min(waitTime, 60000))
-          );
+          await new Promise<void>(resolve => {
+            setImmediate(() => {
+              setTimeout(() => resolve(), Math.min(waitTime, 5000));
+            });
+          });
           return this.makeSpotifyRequest(userId, url);
         }
         return null;
@@ -336,6 +365,14 @@ export class SpotifyScheduler {
     } else {
       userRequests.count++;
     }
+  }
+
+  private chunkArray<T>(array: T[], size: number): T[][] {
+    const chunks: T[][] = [];
+    for (let i = 0; i < array.length; i += size) {
+      chunks.push(array.slice(i, i + size));
+    }
+    return chunks;
   }
 
   private getUserState(userId: number) {
