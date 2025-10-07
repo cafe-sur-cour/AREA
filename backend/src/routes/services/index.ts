@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express';
 import token from '../../middleware/token';
 import { serviceRegistry } from '../../services/ServiceRegistry';
 import { serviceSubscriptionManager } from '../../services/ServiceSubscriptionManager';
+import subscriptionRoutes from './subscription';
 
 const serviceEndpoints: Record<
   string,
@@ -17,33 +18,34 @@ const serviceEndpoints: Record<
     auth: '/auth/github/login',
     status: '/github/subscribe/status',
     loginStatus: '/github/login/status',
-    subscribe: '/github/subscribe',
+    subscribe: '/auth/github/subscribe',
     unsubscribe: '/github/unsubscribe',
   },
   google: {
     auth: '/auth/google/login',
     status: '/google/subscribe/status',
     loginStatus: '/google/login/status',
-    subscribe: '/google/subscribe',
+    subscribe: '/auth/google/subscribe',
     unsubscribe: '/google/unsubscribe',
   },
   spotify: {
     auth: '/auth/spotify/subscribe',
     status: '/spotify/subscribe/status',
     loginStatus: '/spotify/login/status',
-    subscribe: '/spotify/subscribe',
+    subscribe: '/auth/spotify/subscribe',
     unsubscribe: '/spotify/unsubscribe',
   },
   timer: {
     auth: '',
-    status: '',
+    status: '/services/timer/subscribe/status',
     loginStatus: '',
-    subscribe: '',
+    subscribe: '/auth/timer/subscribe',
     unsubscribe: '',
   },
 };
 
 const router = express.Router();
+router.use('/auth', subscriptionRoutes);
 
 /**
  * @swagger
@@ -225,6 +227,82 @@ router.get(
       return res
         .status(500)
         .json({ error: 'Internal Server Error in get subscribed services' });
+    }
+  }
+);
+
+/**
+ * @swagger
+ * /api/services/timer/subscribe/status:
+ *   get:
+ *     summary: Get timer subscription status
+ *     tags:
+ *       - Services
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Timer subscription status
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 subscribed:
+ *                   type: boolean
+ *                   description: Whether the user is subscribed to timer
+ *                 oauth_connected:
+ *                   type: boolean
+ *                   description: Always true for timer (no OAuth required)
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
+router.get(
+  '/timer/subscribe/status',
+  token,
+  async (req: Request, res: Response): Promise<Response> => {
+    try {
+      const userId = (req.auth as { id: number }).id;
+
+      console.log(
+        `🔄 [STATUS] Checking timer subscription status for user ${userId}`
+      );
+      const subscription = await serviceSubscriptionManager.getUserSubscription(
+        userId,
+        'timer'
+      );
+
+      const isSubscribed = subscription?.subscribed || false;
+      console.log(
+        `✅ [STATUS] Timer subscription status for user ${userId}: subscribed=${isSubscribed}`
+      );
+
+      if (!isSubscribed) {
+        return res.status(404).json({
+          subscribed: false,
+          oauth_connected: true,
+          can_create_webhooks: false,
+          message: 'Not subscribed to Timer events',
+        });
+      }
+
+      return res.status(200).json({
+        subscribed: true,
+        oauth_connected: true,
+        can_create_webhooks: true,
+        subscribed_at: subscription?.subscribed_at || null,
+        unsubscribed_at: subscription?.unsubscribed_at || null,
+      });
+    } catch (err) {
+      console.error(
+        `❌ [STATUS] Error fetching timer subscription status for user ${(req.auth as { id: number }).id}:`,
+        err
+      );
+      return res
+        .status(500)
+        .json({ error: 'Internal Server Error in timer subscribe status' });
     }
   }
 );
