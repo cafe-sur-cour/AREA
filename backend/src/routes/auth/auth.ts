@@ -645,36 +645,29 @@ router.get(
             } & typeof req.session;
             if (session.is_mobile) {
               delete session.is_mobile;
-              res.redirect(
+              return res.redirect(
                 `${process.env.MOBILE_CALLBACK_URL || 'mobileApp://callback'}?github_subscribed=true`
               );
             } else {
               const frontendUrl = process.env.FRONTEND_URL || '';
-              res.redirect(`${frontendUrl}?github_subscribed=true`);
+              return res.redirect(`${frontendUrl}?github_subscribed=true`);
             }
           }
-          res.redirect(`${process.env.FRONTEND_URL || ''}?token=${user.token}`);
         } else {
           const session = req.session as {
             is_mobile?: boolean;
           } & typeof req.session;
           if (session.is_mobile) {
             delete session.is_mobile;
-            res.redirect(
+            return res.redirect(
               `${process.env.MOBILE_CALLBACK_URL || ''}?token=${user.token}`
             );
           } else {
-            res.redirect(
+            return res.redirect(
               `${process.env.FRONTEND_URL || ''}?token=${user.token}`
             );
           }
         }
-        await createLog(
-          500,
-          'github',
-          `Failed to authenticate with GitHub: No token received`
-        );
-        res.status(500).json({ error: 'Authentication failed' });
       }
     } catch (err) {
       console.error('GitHub OAuth callback error:', err);
@@ -822,11 +815,11 @@ router.get(
         } & typeof req.session;
         if (session.is_mobile) {
           delete session.is_mobile;
-          res.redirect(
+          return res.redirect(
             `${process.env.MOBILE_CALLBACK_URL || 'mobileApp://callback'}?token=${user.token}`
           );
         } else {
-          res.redirect(`${process.env.FRONTEND_URL || ''}`);
+          return res.redirect(`${process.env.FRONTEND_URL || ''}`);
         }
       } else {
         await createLog(
@@ -916,11 +909,11 @@ router.get(
         } & typeof req.session;
         if (session.is_mobile) {
           delete session.is_mobile;
-          res.redirect(
+          return res.redirect(
             `${process.env.MOBILE_CALLBACK_URL || ''}?spotify_subscribed=true`
           );
         } else {
-          res.redirect(
+          return res.redirect(
             `${process.env.FRONTEND_URL || ''}?spotify_subscribed=true`
           );
         }
