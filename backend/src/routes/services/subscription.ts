@@ -297,15 +297,6 @@ router.get(
   },
   token,
   async (req, res, next) => {
-    if (!req.auth) {
-      await createLog(
-        401,
-        'other',
-        `Authentication required to subscribe to ${req.params.service || 'unknown service'}`
-      );
-      return res.status(401).json({ error: 'Authentication required' });
-    }
-
     const service = req.params.service?.toLowerCase();
     if (!service) {
       await createLog(400, 'other', 'Service parameter is required');

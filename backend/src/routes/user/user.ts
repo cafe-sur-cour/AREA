@@ -146,10 +146,6 @@ router.get(
   token,
   async (req: Request, res: Response): Promise<Response | void> => {
     try {
-      if (!req.auth) {
-        return res.status(403).json({ msg: 'Forbidden' });
-      }
-
       const auth = req.auth as { id: number; email: string; is_admin: boolean };
       const { is_admin, id, email } = auth;
       const { data } = req.params;
@@ -254,17 +250,6 @@ router.put(
           error: 'Bad Request',
           message: 'At least one field is required: name, bio, or picture',
         });
-      }
-
-      if (!req.auth) {
-        await createLog(
-          403,
-          'user',
-          'Forbidden: Authentication required to update profile'
-        );
-        return res
-          .status(403)
-          .json({ error: 'Forbidden', message: 'Authentication required' });
       }
 
       const auth = req.auth as { id: number; email: string; is_admin: boolean };
