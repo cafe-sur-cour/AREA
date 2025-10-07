@@ -1,6 +1,33 @@
 // Spotify service schemas
 import type { ActionReactionSchema } from '../../../types/mapping';
 
+// Action schemas (no configuration needed - triggered automatically)
+export const spotifyTrackChangedSchema: ActionReactionSchema = {
+  name: 'Track Changed',
+  description: 'Triggered when the currently playing track changes',
+  fields: [],
+};
+
+export const spotifyPlaybackStartedSchema: ActionReactionSchema = {
+  name: 'Playback Started',
+  description: 'Triggered when playback transitions from paused to playing',
+  fields: [],
+};
+
+export const spotifyPlaybackPausedSchema: ActionReactionSchema = {
+  name: 'Playback Paused',
+  description: 'Triggered when playback transitions from playing to paused',
+  fields: [],
+};
+
+export const spotifyLikedSongAddedSchema: ActionReactionSchema = {
+  name: 'Liked Song Added',
+  description:
+    "Triggered when a new song is added to the user's Liked Songs library",
+  fields: [],
+};
+
+// Reaction schemas (existing)
 export const spotifySkipTrackSchema: ActionReactionSchema = {
   name: 'Skip Current Track',
   description: "Skips to the next track in the user's current playback",

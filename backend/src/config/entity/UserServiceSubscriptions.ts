@@ -29,6 +29,9 @@ export class UserServiceSubscriptions extends BaseEntity {
   @Column({ type: 'timestamp', nullable: true })
   unsubscribed_at?: Date | null;
 
+  @Column({ type: 'jsonb', default: {} })
+  state_data!: Record<string, unknown>;
+
   @CreateDateColumn({ type: 'timestamp' })
   created_at!: Date;
 

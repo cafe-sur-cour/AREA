@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS user_service_subscriptions (
     subscribed BOOLEAN DEFAULT false,
     subscribed_at TIMESTAMP NULL,
     unsubscribed_at TIMESTAMP NULL,
+    state_data JSONB DEFAULT '{}'::jsonb,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
