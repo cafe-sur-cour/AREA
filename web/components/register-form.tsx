@@ -112,7 +112,11 @@ export function RegisterForm({
                   placeholder='Confirm password'
                 />
               </div>
-              <Button type='submit' className='w-full cursor-pointer' disabled={isLoading}>
+              <Button
+                type='submit'
+                className='w-full cursor-pointer'
+                disabled={isLoading}
+              >
                 {isLoading ? 'Registering...' : 'Register'}
               </Button>
               <div className='after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t'>

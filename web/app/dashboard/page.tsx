@@ -302,7 +302,10 @@ export default function DashboardPage() {
               <p className='text-muted-foreground mb-6'>
                 Create your first Area to get started
               </p>
-              <Button className='cursor-pointer' onClick={() => router.push('/my-areas')}>
+              <Button
+                className='cursor-pointer'
+                onClick={() => router.push('/my-areas')}
+              >
                 <Plus className='h-4 w-4 mr-2' />
                 Create Area
               </Button>

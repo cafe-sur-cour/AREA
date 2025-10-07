@@ -231,9 +231,16 @@ export default function MyAreasPage() {
               </div>
 
               <DrawerFooter>
-                <Button className='cursor-pointer' onClick={handleCreateAutomation}>Create Area</Button>
+                <Button
+                  className='cursor-pointer'
+                  onClick={handleCreateAutomation}
+                >
+                  Create Area
+                </Button>
                 <DrawerClose asChild>
-                  <Button className=' cursor-pointer' variant='outline'>Cancel</Button>
+                  <Button className=' cursor-pointer' variant='outline'>
+                    Cancel
+                  </Button>
                 </DrawerClose>
               </DrawerFooter>
             </DrawerContent>

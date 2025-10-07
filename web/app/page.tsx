@@ -28,7 +28,11 @@ export default function Home() {
             <div className='flex flex-col sm:flex-row gap-4 justify-center items-center'>
               {!isAuthenticated ? (
                 <>
-                  <Button asChild size='lg' className='text-base px-8 cursor-pointer'>
+                  <Button
+                    asChild
+                    size='lg'
+                    className='text-base px-8 cursor-pointer'
+                  >
                     <Link href='/register'>
                       Get started free
                       <ArrowRight className='ml-2 h-5 w-5' />
@@ -44,7 +48,11 @@ export default function Home() {
                   </Button>
                 </>
               ) : (
-                <Button asChild size='lg' className='text-base px-8 cursor-pointer'>
+                <Button
+                  asChild
+                  size='lg'
+                  className='text-base px-8 cursor-pointer'
+                >
                   <Link href='/dashboard'>
                     Go to Dashboard
                     <ArrowRight className='ml-2 h-5 w-5' />
