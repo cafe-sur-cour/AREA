@@ -2,6 +2,7 @@
 
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import ButtonWithLoading from '@/components/ui/button-with-loading';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -104,33 +105,27 @@ export function LoginForm({
                 </span>
               </div>
               <div className='grid grid-cols-3 gap-4'>
-                <Button
-                  variant='outline'
+                <ButtonWithLoading
                   onClick={async () => await signInWithGithub()}
-                  type='button'
                   className='w-full'
                 >
                   <FaGithub />
                   <span className='sr-only'>Login with Github</span>
-                </Button>
-                <Button
-                  variant='outline'
+                </ButtonWithLoading>
+                <ButtonWithLoading
                   onClick={async () => await signInWithGoogle()}
-                  type='button'
                   className='w-full'
                 >
                   <FaGoogle />
                   <span className='sr-only'>Login with Google</span>
-                </Button>
-                <Button
-                  variant='outline'
+                </ButtonWithLoading>
+                <ButtonWithLoading
                   onClick={async () => await signInWithMeta()}
-                  type='button'
                   className='w-full'
                 >
                   <FaMeta />
                   <span className='sr-only'>Login with Meta</span>
-                </Button>
+                </ButtonWithLoading>
               </div>
               <div className='text-center text-sm'>
                 Don&apos;t have an account?{' '}

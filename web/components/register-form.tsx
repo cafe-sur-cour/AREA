@@ -13,6 +13,8 @@ import api from '@/lib/api';
 import Image from 'next/image';
 import { toast } from 'sonner';
 import InputPassword from './ui/input-password';
+import { getAPIUrl } from '@/lib/config';
+import ButtonWithLoading from './ui/button-with-loading';
 
 export function RegisterForm({
   className,
@@ -54,6 +56,18 @@ export function RegisterForm({
     }
   };
 
+  const signInWithGithub = async () => {
+    window.location.href = `${await getAPIUrl()}/auth/github/login`;
+  };
+
+  const signInWithGoogle = async () => {
+    window.location.href = `${await getAPIUrl()}/auth/google/login`;
+  };
+
+  const signInWithMeta = async () => {
+    window.location.href = `${await getAPIUrl()}/auth/meta/login`;
+  };
+
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
       <Card className='overflow-hidden p-0'>
@@ -88,11 +102,15 @@ export function RegisterForm({
               </div>
               <div className='grid gap-3'>
                 <Label htmlFor='password'>Password</Label>
-                <InputPassword name='password'/>
+                <InputPassword name='password' />
               </div>
               <div className='grid gap-3'>
                 <Label htmlFor='confirm-password'>Confirm password</Label>
-                <InputPassword id='confirm-password' name='confirm-password' placeholder='Confirm password'/>
+                <InputPassword
+                  id='confirm-password'
+                  name='confirm-password'
+                  placeholder='Confirm password'
+                />
               </div>
               <Button type='submit' className='w-full' disabled={isLoading}>
                 {isLoading ? 'Registering...' : 'Register'}
@@ -103,18 +121,27 @@ export function RegisterForm({
                 </span>
               </div>
               <div className='grid grid-cols-3 gap-4'>
-                <Button variant='outline' type='button' className='w-full'>
+                <ButtonWithLoading
+                  className='w-full'
+                  onClick={async () => await signInWithGithub()}
+                >
                   <FaGithub />
                   <span className='sr-only'>Login with Github</span>
-                </Button>
-                <Button variant='outline' type='button' className='w-full'>
+                </ButtonWithLoading>
+                <ButtonWithLoading
+                  className='w-full'
+                  onClick={async () => await signInWithGoogle()}
+                >
                   <FaGoogle />
                   <span className='sr-only'>Login with Google</span>
-                </Button>
-                <Button variant='outline' type='button' className='w-full'>
+                </ButtonWithLoading>
+                <ButtonWithLoading
+                  className='w-full'
+                  onClick={async () => await signInWithMeta()}
+                >
                   <FaMeta />
                   <span className='sr-only'>Login with Meta</span>
-                </Button>
+                </ButtonWithLoading>
               </div>
             </div>
           </form>
