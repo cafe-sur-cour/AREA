@@ -275,9 +275,21 @@ router.get(
       const isSubscribed = subscription?.subscribed || false;
       console.log(`✅ [STATUS] Timer subscription status for user ${userId}: subscribed=${isSubscribed}`);
 
+      if (!isSubscribed) {
+        return res.status(404).json({
+          subscribed: false,
+          oauth_connected: true,
+          can_create_webhooks: false,
+          message: 'Not subscribed to Timer events',
+        });
+      }
+
       return res.status(200).json({
-        subscribed: isSubscribed,
-        oauth_connected: true, // Timer doesn't require OAuth
+        subscribed: true,
+        oauth_connected: true,
+        can_create_webhooks: true,
+        subscribed_at: subscription?.subscribed_at || null,
+        unsubscribed_at: subscription?.unsubscribed_at || null,
       });
     } catch (err) {
       console.error(`❌ [STATUS] Error fetching timer subscription status for user ${(req.auth as { id: number }).id}:`, err);
