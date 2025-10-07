@@ -30,7 +30,9 @@ class MobileOAuthService {
 
       return result ?? false;
     } catch (e) {
-      _showError(context, 'Service subscription failed: $e');
+      if (context.mounted) {
+        _showError(context, 'Service subscription failed: $e');
+      }
       return false;
     }
   }

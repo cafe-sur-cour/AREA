@@ -134,14 +134,18 @@ class ServicesScreenState extends State<ServicesScreen> {
         serviceName: service.name,
       );
 
-      Navigator.of(context).pop();
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
 
       if (success) {
         _showSuccess('Successfully connected to ${service.name}');
         await _refreshServiceStatus(service);
       }
     } catch (e) {
-      Navigator.of(context).pop();
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
       _showError('Failed to connect to ${service.name}: $e');
     }
   }
@@ -162,8 +166,9 @@ class ServicesScreenState extends State<ServicesScreen> {
         service.id,
       );
 
-      Navigator.of(context).pop();
-
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
       if (success) {
         _showSuccess('Unsubscribed from ${service.name}');
         await _refreshServiceStatus(service);
@@ -171,7 +176,9 @@ class ServicesScreenState extends State<ServicesScreen> {
         _showError('Failed to unsubscribe from ${service.name}');
       }
     } catch (e) {
-      Navigator.of(context).pop();
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
       _showError('Unsubscribe failed: $e');
     }
   }

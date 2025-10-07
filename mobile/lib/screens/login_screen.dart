@@ -109,7 +109,7 @@ class LoginScreenState extends State<LoginScreen> {
     });
   }
 
-  Future<void> _goToOAuth(BuildContext context, String provider, String route) async {
+  Future<void> _goToOAuth(String provider, String route) async {
     final backendAddressNotifier = Provider.of<BackendAddressNotifier>(context, listen: false);
 
     if (backendAddressNotifier.backendAddress == null) {
@@ -141,8 +141,7 @@ class LoginScreenState extends State<LoginScreen> {
     final cookieManager = WebViewCookieManager();
     await cookieManager.clearCookies();
 
-    final result = await Navigator.push(
-      context,
+    final result = await navigator.push(
       MaterialPageRoute(
         builder: (context) => OAuthWebView(
           oauthUrl: address,
@@ -175,9 +174,9 @@ class LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  void _goToGithub(BuildContext context) async {
+  void _goToGithub() async {
     try {
-      await _goToOAuth(context, 'GitHub', AppRoutes.githubLogin);
+      await _goToOAuth('GitHub', AppRoutes.githubLogin);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -190,12 +189,12 @@ class LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  void _goToMicrosoft(BuildContext context) async {
-    // await _goToOAuth(context, 'Microsoft', AppRoutes.microsoftLogin);
+  void _goToMicrosoft() async {
+    // await _goToOAuth('Microsoft', AppRoutes.microsoftLogin);
   }
 
-  void _goToGoogle(BuildContext context) async {
-    await _goToOAuth(context, 'Google', AppRoutes.googleLogin);
+  void _goToGoogle() async {
+    await _goToOAuth('Google', AppRoutes.googleLogin);
   }
 
   @override
@@ -298,7 +297,7 @@ class LoginScreenState extends State<LoginScreen> {
                     children: [
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: () => _goToGithub(context),
+                          onPressed: _goToGithub,
                           style: ElevatedButton.styleFrom(
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
@@ -319,7 +318,7 @@ class LoginScreenState extends State<LoginScreen> {
                       const SizedBox(width: 8),
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: () => _goToGoogle(context),
+                          onPressed: _goToGoogle,
                           style: ElevatedButton.styleFrom(
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
@@ -343,7 +342,7 @@ class LoginScreenState extends State<LoginScreen> {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: () => _goToMicrosoft(context),
+                      onPressed: _goToMicrosoft,
                       style: ElevatedButton.styleFrom(
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                         backgroundColor: Colors.blue,

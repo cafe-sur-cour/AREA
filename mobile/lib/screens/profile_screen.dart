@@ -105,17 +105,21 @@ class ProfileScreenState extends State<ProfileScreen> {
     }
     final address = "${backendAddressNotifier.backendAddress}${AppRoutes.logout}";
 
+    final appLocalizations = AppLocalizations.of(context);
+
     final jwt = await getJwt();
     if (jwt == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            AppLocalizations.of(context)!.not_connected,
-            style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              appLocalizations!.not_connected,
+              style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+            ),
+            backgroundColor: AppColors.error,
           ),
-          backgroundColor: AppColors.error,
-        ),
-      );
+        );
+      }
       return;
     }
 
