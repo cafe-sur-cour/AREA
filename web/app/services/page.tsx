@@ -137,14 +137,14 @@ export default function ServicesPage() {
 
     // If user hasn't connected OAuth yet, start the OAuth flow
     if (!service.oauthConnected) {
-      window.location.href = `${apiUrl}${service.authEndpoint}`;
+      window.location.href = `${apiUrl}${service.endpoints.auth}`;
       return;
     }
 
     // If user is connected via OAuth but not subscribed, call subscribe API
     if (service.oauthConnected && !service.subscribed) {
       try {
-        await api.post(service.subscribeEndpoint!, {});
+        await api.post(service.endpoints.subscribe!, {});
         // Ensure oauthConnected is set to true alongside subscribed/isConnected
         setServices(
           services?.map(s =>
