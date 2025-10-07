@@ -266,14 +266,18 @@ router.get(
     try {
       const userId = (req.auth as { id: number }).id;
 
-      console.log(`🔄 [STATUS] Checking timer subscription status for user ${userId}`);
+      console.log(
+        `🔄 [STATUS] Checking timer subscription status for user ${userId}`
+      );
       const subscription = await serviceSubscriptionManager.getUserSubscription(
         userId,
         'timer'
       );
 
       const isSubscribed = subscription?.subscribed || false;
-      console.log(`✅ [STATUS] Timer subscription status for user ${userId}: subscribed=${isSubscribed}`);
+      console.log(
+        `✅ [STATUS] Timer subscription status for user ${userId}: subscribed=${isSubscribed}`
+      );
 
       if (!isSubscribed) {
         return res.status(404).json({
@@ -292,7 +296,10 @@ router.get(
         unsubscribed_at: subscription?.unsubscribed_at || null,
       });
     } catch (err) {
-      console.error(`❌ [STATUS] Error fetching timer subscription status for user ${(req.auth as { id: number }).id}:`, err);
+      console.error(
+        `❌ [STATUS] Error fetching timer subscription status for user ${(req.auth as { id: number }).id}:`,
+        err
+      );
       return res
         .status(500)
         .json({ error: 'Internal Server Error in timer subscribe status' });

@@ -110,7 +110,9 @@ router.get(
     try {
       const userId = (req.auth as { id: number }).id;
 
-      console.log(`🔄 [STATUS] Checking Spotify subscription status for user ${userId}`);
+      console.log(
+        `🔄 [STATUS] Checking Spotify subscription status for user ${userId}`
+      );
       const userToken = await spotifyOAuth.getUserToken(userId);
       const oauthConnected = !!userToken;
 
@@ -120,7 +122,9 @@ router.get(
       );
       const isSubscribed = subscription?.subscribed || false;
 
-      console.log(`✅ [STATUS] Spotify status for user ${userId}: subscribed=${isSubscribed}, oauth=${oauthConnected}`);
+      console.log(
+        `✅ [STATUS] Spotify status for user ${userId}: subscribed=${isSubscribed}, oauth=${oauthConnected}`
+      );
 
       if (!isSubscribed) {
         return res.status(404).json({
@@ -140,7 +144,10 @@ router.get(
         scopes: userToken?.scopes || null,
       });
     } catch (err) {
-      console.error(`❌ [STATUS] Error fetching Spotify subscription status for user ${(req.auth as { id: number }).id}:`, err);
+      console.error(
+        `❌ [STATUS] Error fetching Spotify subscription status for user ${(req.auth as { id: number }).id}:`,
+        err
+      );
       return res.status(500).json({ error: 'Internal Server Error' });
     }
   }
@@ -173,20 +180,20 @@ router.post(
     try {
       const userId = (req.auth as { id: number }).id;
 
-      console.log(`🔄 [UNSUBSCRIBE] Starting Spotify unsubscription for user ${userId}`);
       const subscription = await serviceSubscriptionManager.unsubscribeUser(
         userId,
         'spotify'
       );
 
       if (!subscription) {
-        console.log(`❌ [UNSUBSCRIBE] No active Spotify subscription found for user ${userId}`);
         return res.status(404).json({
           error: 'No active subscription found',
         });
       }
 
-      console.log(`✅ [UNSUBSCRIBE] Spotify unsubscription successful for user ${userId}:`, subscription);
+      console.log(
+        `✅ [UNSUBSCRIBE] Spotify unsubscription successful for user ${userId}`
+      );
       return res.status(200).json({
         message: 'Successfully unsubscribed from Spotify events',
         subscription: {
@@ -197,7 +204,10 @@ router.post(
         note: 'Spotify webhook cleanup will be implemented when webhooks are ready',
       });
     } catch (err) {
-      console.error(`❌ [UNSUBSCRIBE] Error in Spotify unsubscription for user ${(req.auth as { id: number }).id}:`, err);
+      console.error(
+        `❌ [UNSUBSCRIBE] Error in Spotify unsubscription for user ${(req.auth as { id: number }).id}:`,
+        err
+      );
       return res.status(500).json({ error: 'Internal Server Error' });
     }
   }

@@ -178,15 +178,15 @@ export default function ServicesPage() {
         const servicesResponse = await api.get({
           endpoint: '/api/services/subscribed',
         });
-        const servicesData = servicesResponse.data as { services: Array<{ id: string }> };
+        const servicesData = servicesResponse.data as {
+          services: Array<{ id: string }>;
+        };
         const subscribedServices = servicesData.services;
         const subscribedServiceIds = new Set(subscribedServices.map(s => s.id));
 
-        // Get OAuth status for each service
         const updatedServices = await Promise.all(
           services.map(async service => {
             try {
-              // For timer, it's always "connected" since it doesn't need OAuth
               if (service.id === 'timer') {
                 return {
                   ...service,
@@ -196,13 +196,11 @@ export default function ServicesPage() {
                 };
               }
 
-              // Check OAuth status for other services
               const oauthResponse = await api.get<{ connected?: boolean }>({
                 endpoint: service.loginStatusEndpoint!,
               });
 
-              const oauthConnected =
-                (oauthResponse.data?.connected) || false;
+              const oauthConnected = oauthResponse.data?.connected || false;
 
               return {
                 ...service,
@@ -211,7 +209,10 @@ export default function ServicesPage() {
                 subscribed: subscribedServiceIds.has(service.id),
               };
             } catch (error) {
-              console.error(`Error checking ${service.name} OAuth status:`, error);
+              console.error(
+                `Error checking ${service.name} OAuth status:`,
+                error
+              );
               return {
                 ...service,
                 isConnected: subscribedServiceIds.has(service.id),
@@ -224,7 +225,6 @@ export default function ServicesPage() {
         setServices(updatedServices);
       } catch (error) {
         console.error('Error checking services status:', error);
-        // Fallback to individual status checks if unified API fails
         const updatedServices = await Promise.all(
           services.map(async service => {
             try {
@@ -252,16 +252,15 @@ export default function ServicesPage() {
                 }
               }
 
-              const [oauthResponse, subscribeResponse] = await Promise.allSettled(
-                [
+              const [oauthResponse, subscribeResponse] =
+                await Promise.allSettled([
                   api.get<{ connected?: boolean }>({
                     endpoint: service.loginStatusEndpoint!,
                   }),
                   api.get<{ subscribed?: boolean; oauth_connected?: boolean }>({
                     endpoint: service.statusEndpoint,
                   }),
-                ]
-              );
+                ]);
 
               const oauthConnected =
                 (oauthResponse.status === 'fulfilled' &&

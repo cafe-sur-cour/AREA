@@ -11,12 +11,13 @@ async function handleTimerSubscription(
   service: string,
   serviceSubscriptionManager: ServiceSubscriptionManager
 ): Promise<{ status: number; response: Record<string, unknown> }> {
-  console.log(`🔄 [SUBSCRIBE] Starting timer subscription for user ${userId}`);
   const subscription = await serviceSubscriptionManager.subscribeUser(
     userId,
     service
   );
-  console.log(`✅ [SUBSCRIBE] Timer subscription successful for user ${userId}:`, subscription);
+  console.log(
+    `✅ [SUBSCRIBE] Timer subscription successful for user ${userId}`
+  );
   await createLog(200, 'other', `User ${userId} subscribed to ${service}`);
   return {
     status: 200,
@@ -39,17 +40,17 @@ async function handleGithubSubscription(
   res: Response,
   next: express.NextFunction
 ): Promise<{ status: number; response: Record<string, unknown> } | null> {
-  console.log(`🔄 [SUBSCRIBE] Checking GitHub OAuth for user ${userId}`);
   const { githubOAuth } = await import('../../services/services/github/oauth');
   const githubToken = await githubOAuth.getUserToken(userId);
 
   if (githubToken) {
-    console.log(`✅ [SUBSCRIBE] GitHub OAuth found for user ${userId}, creating subscription`);
     const githubSubscription = await serviceSubscriptionManager.subscribeUser(
       userId,
       service
     );
-    console.log(`✅ [SUBSCRIBE] GitHub subscription successful for user ${userId}:`, githubSubscription);
+    console.log(
+      `✅ [SUBSCRIBE] GitHub subscription successful for user ${userId}`
+    );
     await createLog(200, 'other', `User ${userId} subscribed to ${service}`);
     return {
       status: 200,
@@ -65,7 +66,6 @@ async function handleGithubSubscription(
     };
   }
 
-  console.log(`🔄 [SUBSCRIBE] No GitHub OAuth found for user ${userId}, starting OAuth flow`);
   const session = req.session as
     | { githubSubscriptionFlow?: boolean }
     | undefined;
@@ -90,17 +90,17 @@ async function handleGoogleSubscription(
   res: Response,
   next: express.NextFunction
 ): Promise<{ status: number; response: Record<string, unknown> } | null> {
-  console.log(`🔄 [SUBSCRIBE] Checking Google OAuth for user ${userId}`);
   const { googleOAuth } = await import('../../services/services/google/oauth');
   const googleToken = await googleOAuth.getUserToken(userId);
 
   if (googleToken) {
-    console.log(`✅ [SUBSCRIBE] Google OAuth found for user ${userId}, creating subscription`);
     const googleSubscription = await serviceSubscriptionManager.subscribeUser(
       userId,
       service
     );
-    console.log(`✅ [SUBSCRIBE] Google subscription successful for user ${userId}:`, googleSubscription);
+    console.log(
+      `✅ [SUBSCRIBE] Google subscription successful for user ${userId}`
+    );
     await createLog(200, 'other', `User ${userId} subscribed to ${service}`);
     return {
       status: 200,
@@ -115,7 +115,6 @@ async function handleGoogleSubscription(
     };
   }
 
-  console.log(`🔄 [SUBSCRIBE] No Google OAuth found for user ${userId}, starting OAuth flow`);
   await createLog(
     302,
     'other',
@@ -136,19 +135,19 @@ async function handleSpotifySubscription(
   res: Response,
   next: express.NextFunction
 ): Promise<{ status: number; response: Record<string, unknown> } | null> {
-  console.log(`🔄 [SUBSCRIBE] Checking Spotify OAuth for user ${userId}`);
   const { spotifyOAuth } = await import(
     '../../services/services/spotify/oauth'
   );
   const spotifyToken = await spotifyOAuth.getUserToken(userId);
 
   if (spotifyToken) {
-    console.log(`✅ [SUBSCRIBE] Spotify OAuth found for user ${userId}, creating subscription`);
     const spotifySubscription = await serviceSubscriptionManager.subscribeUser(
       userId,
       service
     );
-    console.log(`✅ [SUBSCRIBE] Spotify subscription successful for user ${userId}:`, spotifySubscription);
+    console.log(
+      `✅ [SUBSCRIBE] Spotify subscription successful for user ${userId}`
+    );
     await createLog(200, 'other', `User ${userId} subscribed to ${service}`);
     return {
       status: 200,
@@ -163,7 +162,6 @@ async function handleSpotifySubscription(
     };
   }
 
-  console.log(`🔄 [SUBSCRIBE] No Spotify OAuth found for user ${userId}, starting OAuth flow`);
   await createLog(
     302,
     'other',
@@ -184,7 +182,6 @@ async function handleDynamicServiceSubscription(
   next: express.NextFunction
 ): Promise<{ status: number; response: Record<string, unknown> } | null> {
   try {
-    console.log(`🔄 [SUBSCRIBE] Checking ${service} OAuth for user ${userId}`);
     const serviceOAuth = await import(
       `../../services/services/${service}/oauth`
     );
@@ -192,10 +189,11 @@ async function handleDynamicServiceSubscription(
     const serviceToken = await oauthInstance.getUserToken(userId);
 
     if (serviceToken) {
-      console.log(`✅ [SUBSCRIBE] ${service} OAuth found for user ${userId}, creating subscription`);
       const dynamicSubscription =
         await serviceSubscriptionManager.subscribeUser(userId, service);
-      console.log(`✅ [SUBSCRIBE] ${service} subscription successful for user ${userId}:`, dynamicSubscription);
+      console.log(
+        `✅ [SUBSCRIBE] ${service} subscription successful for user ${userId}`
+      );
       await createLog(200, 'other', `User ${userId} subscribed to ${service}`);
       return {
         status: 200,
@@ -210,7 +208,6 @@ async function handleDynamicServiceSubscription(
       };
     }
 
-    console.log(`🔄 [SUBSCRIBE] No ${service} OAuth found for user ${userId}, starting OAuth flow`);
     await createLog(
       302,
       'other',
@@ -221,7 +218,6 @@ async function handleDynamicServiceSubscription(
     })(req, res, next);
     return null;
   } catch {
-    console.log(`❌ [SUBSCRIBE] Service ${service} not found or not supported`);
     await createLog(
       404,
       'other',
