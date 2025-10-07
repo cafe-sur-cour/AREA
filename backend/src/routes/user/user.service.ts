@@ -37,11 +37,8 @@ export const getUserByID = async (id: number): Promise<User | null> => {
 
 export const getUserByEmail = async (email: string): Promise<User | null> => {
   const users = await getAllUsers();
-  console.log("Users: ", users);
   for (const user of users) {
     try {
-      console.log("Curr email: ", user.email);
-      console.log("Target email: ", email);
       if (user.email === email) {
         return user;
       }
@@ -122,7 +119,8 @@ export const updateUserName = async (
 ): Promise<boolean> => {
   const user = getUserByID(id);
   if (!user) return false;
-  AppDataSource.manager.update(User, { id }, { name: new_name });
+  const encryptedName = encryption.encryptToString(new_name);
+  AppDataSource.manager.update(User, { id }, { name: encryptedName });
   return true;
 };
 
@@ -133,8 +131,8 @@ export const getNbUser = async (): Promise<number | null> => {
 
 export const createUser = async (userData: CreateUserDTO): Promise<User> => {
   const user = new User();
-  user.name = userData.name;
-  user.email = userData.email;
+  user.name = encryption.encryptToString(userData.name);
+  user.email = encryption.encryptToString(userData.email);
   user.password_hash = userData.password_hash;
   if (userData.email_verified !== undefined)
     user.email_verified = userData.email_verified;
