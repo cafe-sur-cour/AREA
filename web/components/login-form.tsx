@@ -93,7 +93,11 @@ export function LoginForm({
                 </div>
                 <InputPassword name='password' />
               </div>
-              <Button type='submit' className='w-full' disabled={isLoading}>
+              <Button
+                type='submit'
+                className='w-full cursor-pointer'
+                disabled={isLoading}
+              >
                 {isLoading ? 'Logging in...' : 'Login'}
               </Button>
               <div className='after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t'>
@@ -104,14 +108,14 @@ export function LoginForm({
               <div className='grid grid-cols-3 gap-4'>
                 <ButtonWithLoading
                   onClick={async () => await signInWithGithub()}
-                  className='w-full'
+                  className='w-full cursor-pointer'
                 >
                   <FaGithub />
                   <span className='sr-only'>Login with Github</span>
                 </ButtonWithLoading>
                 <ButtonWithLoading
                   onClick={async () => await signInWithGoogle()}
-                  className='w-full'
+                  className='w-full cursor-pointer'
                 >
                   <FaGoogle />
                   <span className='sr-only'>Login with Google</span>
