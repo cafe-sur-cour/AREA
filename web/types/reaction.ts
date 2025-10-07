@@ -35,6 +35,7 @@ export interface Reaction {
     requiresAuth: true;
     estimatedDuration: 0;
   };
+  delay: number;
 }
 
 export interface ServiceReaction {
@@ -48,4 +49,5 @@ export interface ServiceReaction {
 export interface formReaction {
   type: string;
   config: Record<string, unknown>;
+  delay: number;
 }
