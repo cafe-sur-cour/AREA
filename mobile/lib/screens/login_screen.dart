@@ -110,7 +110,6 @@ class LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _goToOAuth(BuildContext context, String provider, String route) async {
-    debugPrint('[OAuth] enter _goToOAuth provider=$provider');
     final backendAddressNotifier = Provider.of<BackendAddressNotifier>(context, listen: false);
 
     if (backendAddressNotifier.backendAddress == null) {
@@ -129,7 +128,6 @@ class LoginScreenState extends State<LoginScreen> {
     // Normalize backend address: ensure scheme and trailing slash so the
     // OAuth URL is valid (WebView requires an absolute URL)
     String base = backendAddressNotifier.backendAddress!.trim();
-    debugPrint('[OAuth] backendAddress raw="$base"');
     if (!base.startsWith('http://') && !base.startsWith('https://')) {
       // Default to https if the scheme is missing
       base = 'https://$base';
@@ -139,7 +137,6 @@ class LoginScreenState extends State<LoginScreen> {
     }
 
     final address = "$base$route?is_mobile=true";
-    debugPrint('[OAuth] OAuth address: $address');
     final appLocalizations = AppLocalizations.of(context);
     final scaffoldMessenger = ScaffoldMessenger.of(context);
     final navigator = Navigator.of(context);
@@ -157,7 +154,7 @@ class LoginScreenState extends State<LoginScreen> {
         ),
       ),
     );
-    debugPrint('[OAUTH] Result value :  $result');
+
     if (!mounted) return;
 
     if (result == null || result is! String) {
@@ -182,7 +179,6 @@ class LoginScreenState extends State<LoginScreen> {
   }
 
   void _goToGithub(BuildContext context) async {
-    debugPrint('[OAuth] GitHub button pressed');
     try {
       await _goToOAuth(context, 'GitHub', AppRoutes.githubLogin);
     } catch (e) {

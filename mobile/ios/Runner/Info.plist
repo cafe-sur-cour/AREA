@@ -52,7 +52,7 @@
 			<string>area.oauth.callback</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>mobileApp</string>
+				<string>mobileapp</string>
 			</array>
 		</dict>
 	</array>

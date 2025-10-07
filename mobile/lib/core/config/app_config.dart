@@ -6,5 +6,5 @@ class AppConfig {
     defaultValue: _defaultFrontendUrl,
   );
 
-  static const String callBackUrl = 'mobileApp://callback';
+  static const String callBackUrl = 'mobileapp://callback';
 }
