@@ -159,7 +159,7 @@ export default function MyAreasPage() {
             direction='right'
           >
             <DrawerTrigger asChild>
-              <Button className='gap-2'>
+              <Button className='gap-2 cursor-pointer'>
                 <Plus className='w-4 h-4' />
                 New Area
               </Button>
@@ -231,9 +231,16 @@ export default function MyAreasPage() {
               </div>
 
               <DrawerFooter>
-                <Button onClick={handleCreateAutomation}>Create Area</Button>
+                <Button
+                  className='cursor-pointer'
+                  onClick={handleCreateAutomation}
+                >
+                  Create Area
+                </Button>
                 <DrawerClose asChild>
-                  <Button variant='outline'>Cancel</Button>
+                  <Button className=' cursor-pointer' variant='outline'>
+                    Cancel
+                  </Button>
                 </DrawerClose>
               </DrawerFooter>
             </DrawerContent>
@@ -319,7 +326,7 @@ export default function MyAreasPage() {
                         variant='ghost'
                         size='sm'
                         onClick={() => handleDeleteMapping(mapping.id)}
-                        className='text-destructive hover:text-destructive hover:bg-destructive/10'
+                        className='text-destructive hover:text-destructive hover:bg-destructive/10 cursor-pointer'
                       >
                         <Trash2 className='w-4 h-4' />
                       </Button>

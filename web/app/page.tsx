@@ -28,7 +28,11 @@ export default function Home() {
             <div className='flex flex-col sm:flex-row gap-4 justify-center items-center'>
               {!isAuthenticated ? (
                 <>
-                  <Button asChild size='lg' className='text-base px-8'>
+                  <Button
+                    asChild
+                    size='lg'
+                    className='text-base px-8 cursor-pointer'
+                  >
                     <Link href='/register'>
                       Get started free
                       <ArrowRight className='ml-2 h-5 w-5' />
@@ -38,13 +42,17 @@ export default function Home() {
                     asChild
                     variant='outline'
                     size='lg'
-                    className='text-base px-8 bg-transparent'
+                    className='text-base px-8 bg-transparent cursor-pointer'
                   >
                     <Link href='/login'>Sign in</Link>
                   </Button>
                 </>
               ) : (
-                <Button asChild size='lg' className='text-base px-8'>
+                <Button
+                  asChild
+                  size='lg'
+                  className='text-base px-8 cursor-pointer'
+                >
                   <Link href='/dashboard'>
                     Go to Dashboard
                     <ArrowRight className='ml-2 h-5 w-5' />
@@ -274,14 +282,14 @@ export default function Home() {
             automations.
           </p>
           {isAuthenticated ? (
-            <Button asChild size='lg' className='text-base px-8'>
+            <Button asChild size='lg' className='text-base px-8 cursor-pointer'>
               <Link href='/my-areas'>
                 Go to My AREAs
                 <ArrowRight className='ml-2 h-5 w-5' />
               </Link>
             </Button>
           ) : (
-            <Button asChild size='lg' className='text-base px-8'>
+            <Button asChild size='lg' className='text-base px-8 cursor-pointer'>
               <Link href='/register'>
                 Start for free
                 <ArrowRight className='ml-2 h-5 w-5' />

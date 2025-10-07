@@ -229,14 +229,14 @@ export default function ServicesPage() {
                       <Button
                         onClick={() => handleDisconnect(service)}
                         variant='outline'
-                        className='w-full border-app-red-primary text-app-red-primary hover:bg-app-red-primary hover:text-red-700'
+                        className='w-full border-app-red-primary text-app-red-primary hover:bg-app-red-primary hover:text-red-700 cursor-pointer'
                       >
                         Unsubscribe
                       </Button>
                     ) : (
                       <Button
                         onClick={() => handleConnect(service)}
-                        className='w-full bg-area-primary hover:bg-area-hover text-white'
+                        className='w-full bg-area-primary hover:bg-area-hover text-white cursor-pointer'
                       >
                         Subscribe
                       </Button>
@@ -244,7 +244,7 @@ export default function ServicesPage() {
                     <Button
                       onClick={() => handleConnect(service)}
                       variant='outline'
-                      className='w-full border-app-red-primary text-app-red-primary hover:bg-app-red-primary hover:text-blue-500'
+                      className='w-full border-app-red-primary text-app-red-primary hover:bg-app-red-primary hover:text-blue-500 cursor-pointer'
                     >
                       More details
                     </Button>
