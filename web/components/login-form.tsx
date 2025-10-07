@@ -115,7 +115,6 @@ export function LoginForm({
                 >
                   <FaGoogle />
                   <span className='sr-only'>Login with Google</span>
-
                 </ButtonWithLoading>
                 <ButtonWithLoading
                   onClick={async () => await signInWithMicrosoft()}
