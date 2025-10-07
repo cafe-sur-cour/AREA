@@ -128,7 +128,6 @@ export class SpotifyOAuth {
   }
 
   async getUserInfo(accessToken: string): Promise<SpotifyUser> {
-    console.log('In the getUserInfo , access token is : ', accessToken);
     const response = await fetch(`${this.spotifyApiBaseUrl}/v1/me`, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
