@@ -8,15 +8,19 @@ import { Label } from '@/components/ui/label';
 import { useState } from 'react';
 import api from '@/lib/api';
 import Image from 'next/image';
-import { FaMeta } from 'react-icons/fa6';
-import { FaGithub, FaGoogle } from 'react-icons/fa';
+import { FaE, FaMeta } from 'react-icons/fa6';
+import { FaGithub, FaGoogle} from 'react-icons/fa';
+import { LuEye, LuEyeClosed } from "react-icons/lu";
 import { getAPIUrl } from '@/lib/config';
+import InputPassword from './ui/input-password';
+import { toast } from 'sonner';
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<'div'>) {
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -35,11 +39,11 @@ export function LoginForm({
       if (response && response.data) {
         window.location.href = '/';
       } else {
-        alert('Login failed');
+        toast.error('Login failed');
       }
     } catch (error) {
       console.error('Login error:', error);
-      alert('Login failed');
+      toast.error('Login failed');
     } finally {
       setIsLoading(false);
     }
@@ -89,13 +93,7 @@ export function LoginForm({
                     Forgot your password?
                   </a>
                 </div>
-                <Input
-                  id='password'
-                  name='password'
-                  type='password'
-                  placeholder='password'
-                  required
-                />
+                <InputPassword name='password'/>
               </div>
               <Button type='submit' className='w-full' disabled={isLoading}>
                 {isLoading ? 'Logging in...' : 'Login'}

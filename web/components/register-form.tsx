@@ -12,6 +12,7 @@ import { FaMeta } from 'react-icons/fa6';
 import api from '@/lib/api';
 import Image from 'next/image';
 import { toast } from 'sonner';
+import InputPassword from './ui/input-password';
 
 export function RegisterForm({
   className,
@@ -30,7 +31,7 @@ export function RegisterForm({
     const password = formData.get('password') as string;
     const confirmPassword = formData.get('confirm-password') as string;
     if (password !== confirmPassword) {
-      alert('Passwords do not match');
+      toast.error('Passwords do not match');
       setIsLoading(false);
       return;
     }
@@ -87,23 +88,11 @@ export function RegisterForm({
               </div>
               <div className='grid gap-3'>
                 <Label htmlFor='password'>Password</Label>
-                <Input
-                  id='password'
-                  name='password'
-                  type='password'
-                  placeholder='Password'
-                  required
-                />
+                <InputPassword name='password'/>
               </div>
               <div className='grid gap-3'>
                 <Label htmlFor='confirm-password'>Confirm password</Label>
-                <Input
-                  id='confirm-password'
-                  name='confirm-password'
-                  type='password'
-                  placeholder='Confirm password'
-                  required
-                />
+                <InputPassword id='confirm-password' name='confirm-password' placeholder='Confirm password'/>
               </div>
               <Button type='submit' className='w-full' disabled={isLoading}>
                 {isLoading ? 'Registering...' : 'Register'}
