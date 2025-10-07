@@ -1,22 +1,71 @@
 import { User } from '../../config/entity/User';
 import { AppDataSource } from '../../config/db';
 import { Repository } from 'typeorm';
+import { encryption } from '../../../index';
 
 /* Thos function returns a user from data */
 export const getAllUsers = async (): Promise<User[]> => {
-  return await AppDataSource.manager.find(User);
+  const users = await AppDataSource.manager.find(User);
+  for (const user of users) {
+    try {
+      user.name = encryption.decryptFromString(user.name);
+      user.email = encryption.decryptFromString(user.email);
+      if (user.bio) {
+        user.bio = encryption.decryptFromString(user.bio);
+      }
+    } catch (error) {
+      throw new Error(`Failed to decrypt user data: ${(error as Error).message}`);
+    }
+  }
+  return users;
 };
 
 export const getUserByID = async (id: number): Promise<User | null> => {
-  return await AppDataSource.manager.findOneBy(User, { id });
+  const user =  await AppDataSource.manager.findOneBy(User, { id });
+  if (!user) return null;
+  try {
+    user.name = encryption.decryptFromString(user.name);
+    user.email = encryption.decryptFromString(user.email);
+    if (user.bio) {
+      user.bio = encryption.decryptFromString(user.bio);
+    }
+  } catch (error) {
+    throw new Error(`Failed to decrypt user data: ${(error as Error).message}`);
+  }
+  return user;
 };
 
 export const getUserByEmail = async (email: string): Promise<User | null> => {
-  return AppDataSource.manager.findOneBy(User, { email });
+  const users = await getAllUsers();
+  console.log("Users: ", users);
+  for (const user of users) {
+    try {
+      console.log("Curr email: ", user.email);
+      console.log("Target email: ", email);
+      if (user.email === email) {
+        return user;
+      }
+    } catch (error) {
+      void error;
+      continue;
+    }
+  }
+  return null;
 };
 
 export const getUserByName = async (name: string): Promise<User | null> => {
-  return AppDataSource.manager.findOneBy(User, { name });
+  const users = await getAllUsers();
+  for (const user of users) {
+    try {
+      if (user.name === name) {
+        return user;
+      }
+    } catch (error) {
+      void error;
+      continue;
+    }
+  }
+  return null;
 };
 
 /* Those function update or delete info from a user */
