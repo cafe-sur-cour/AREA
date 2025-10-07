@@ -7,8 +7,8 @@ import mail from '../../middleware/mail';
 import passport from 'passport';
 import token from '../../middleware/token';
 import nodemailer from 'nodemailer';
-import { githubOAuth } from '../../services/services/github/oauth';
 import { createLog } from '../logs/logs.service';
+import subscriptionRouter from '../services/subscription';
 
 interface TokenPayload extends jwt.JwtPayload {
   email: string;
@@ -382,18 +382,6 @@ router.post(
   token,
   async (req: Request, res: Response): Promise<void> => {
     try {
-      if (!req.auth) {
-        await createLog(
-          403,
-          'logout',
-          `Logout attempt with no authenticated user`
-        );
-        res
-          .status(403)
-          .json({ message: 'Logout failed: No authenticated user' });
-        return;
-      }
-
       const email = (req.auth as { email: string })?.email;
       res.clearCookie('auth_token', { path: '/', domain: process.env.DOMAIN });
       await createLog(200, 'logout', `User logged out: ${email || 'unknown'}`);
@@ -512,13 +500,32 @@ router.post('/verify', mail, (req: Request, res: Response) => {
  *     description: |
  *       Redirects user to GitHub for OAuth authorization.
  *       This route is used for login/register when user is not authenticated.
+ *     parameters:
+ *       - name: is_mobile
+ *         in: query
+ *         required: false
+ *         description: Indicates if the request originates from mobile client
+ *         schema:
+ *           type: boolean
  *     responses:
  *       302:
  *         description: Redirect to GitHub authorization page
  *       500:
  *         description: Internal Server Error
  */
-router.get('/github/login', passport.authenticate('github-login'));
+router.get(
+  '/github/login',
+  (req, res, next) => {
+    if (req.query.is_mobile === 'true') {
+      const session = req.session as {
+        is_mobile?: boolean;
+      } & typeof req.session;
+      session.is_mobile = true;
+    }
+    next();
+  },
+  passport.authenticate('github-login')
+);
 
 /**
  * @swagger
@@ -618,6 +625,10 @@ router.get(
           const isSubscriptionFlow = session?.githubSubscriptionFlow;
 
           if (isSubscriptionFlow) {
+            const session = req.session as {
+              is_mobile?: boolean;
+              githubSubscriptionFlow?: boolean;
+            } & typeof req.session;
             const appSlug =
               process.env.GITHUB_APP_SLUG || 'area-cafe-sur-cours';
             const userId = (req.auth as { id: number })?.id || 'unknown';
@@ -625,16 +636,39 @@ router.get(
 
             if (session) {
               delete session.githubSubscriptionFlow;
+              delete session.is_mobile;
             }
             return res.redirect(installUrl);
           } else {
-            const frontendUrl = process.env.FRONTEND_URL || '';
-            return res.redirect(`${frontendUrl}?github_connected=true`);
+            const session = req.session as {
+              is_mobile?: boolean;
+            } & typeof req.session;
+            if (session.is_mobile) {
+              delete session.is_mobile;
+              res.redirect(
+                `${process.env.MOBILE_CALLBACK_URL || 'mobileApp://callback'}?github_subscribed=true`
+              );
+            } else {
+              const frontendUrl = process.env.FRONTEND_URL || '';
+              res.redirect(`${frontendUrl}?github_subscribed=true`);
+            }
+          }
+          res.redirect(`${process.env.FRONTEND_URL || ''}?token=${user.token}`);
+        } else {
+          const session = req.session as {
+            is_mobile?: boolean;
+          } & typeof req.session;
+          if (session.is_mobile) {
+            delete session.is_mobile;
+            res.redirect(
+              `${process.env.MOBILE_CALLBACK_URL || ''}?token=${user.token}`
+            );
+          } else {
+            res.redirect(
+              `${process.env.FRONTEND_URL || ''}?token=${user.token}`
+            );
           }
         }
-
-        res.redirect(`${process.env.FRONTEND_URL || ''}?token=${user.token}`);
-      } else {
         await createLog(
           500,
           'github',
@@ -656,68 +690,6 @@ router.get(
 
 /**
  * @swagger
- * /api/auth/github/subscribe:
- *   get:
- *     summary: Subscribe to GitHub service (OAuth + App Installation)
- *     tags:
- *       - OAuth
- *     description: |
- *       Complete subscription to GitHub service including OAuth authorization
- *       and GitHub App installation. This handles the full flow to enable
- *       webhook creation on user repositories.
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       302:
- *         description: Redirect to GitHub for OAuth or App installation
- *       401:
- *         description: User not authenticated
- *       500:
- *         description: Internal Server Error
- */
-router.get(
-  '/github/subscribe',
-  token,
-  async (req: Request, res: Response, next) => {
-    if (!req.auth) {
-      await createLog(
-        401,
-        'github',
-        `Authentication required to subscribe to GitHub`
-      );
-      return res.status(401).json({ error: 'Authentication required' });
-    }
-
-    try {
-      const userId = (req.auth as { id: number }).id;
-      const existingToken = await githubOAuth.getUserToken(userId);
-
-      if (existingToken) {
-        const appSlug = process.env.GITHUB_APP_SLUG || 'area-cafe-sur-cours';
-        const installUrl = `https://github.com/apps/${appSlug}/installations/new?state=${userId}`;
-        return res.redirect(installUrl);
-      }
-    } catch {
-      console.log('No existing token found, proceeding with OAuth...');
-    }
-
-    const session = req.session as
-      | { githubSubscriptionFlow?: boolean }
-      | undefined;
-    if (session) {
-      session.githubSubscriptionFlow = true;
-    }
-
-    passport.authenticate('github-subscribe', { session: false })(
-      req,
-      res,
-      next
-    );
-  }
-);
-
-/**
- * @swagger
  * /api/auth/google/login:
  *   get:
  *     summary: Initiate Google OAuth authorization for login/register
@@ -726,6 +698,13 @@ router.get(
  *     description: |
  *       Redirects user to Google for OAuth authorization.
  *       This route is used for login/register when user is not authenticated.
+ *     parameters:
+ *       - name: is_mobile
+ *         in: query
+ *         required: false
+ *         description: Indicates if the request originates from mobile client
+ *         schema:
+ *           type: boolean
  *     responses:
  *       302:
  *         description: Redirect to Google authorization page
@@ -734,46 +713,20 @@ router.get(
  */
 router.get(
   '/google/login',
+  (req, res, next) => {
+    if (req.query.is_mobile === 'true') {
+      const session = req.session as {
+        is_mobile?: boolean;
+      } & typeof req.session;
+      session.is_mobile = true;
+    }
+    next();
+  },
   passport.authenticate('google-login', {
     scope: ['openid', 'email', 'profile'],
     session: false,
   })
 );
-
-/**
- * @swagger
- * /api/auth/google/subscribe:
- *   get:
- *     summary: Initiate Google OAuth authorization for service connection
- *     tags:
- *       - OAuth
- *     description: |
- *       Redirects user to Google for OAuth authorization.
- *       This route is used to connect Google account for service access when user is already authenticated.
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       302:
- *         description: Redirect to Google authorization page
- *       401:
- *         description: User not authenticated
- *       500:
- *         description: Internal Server Error
- */
-router.get('/google/subscribe', async (req: Request, res: Response, next) => {
-  if (!req.auth) {
-    await createLog(
-      401,
-      'google',
-      `Authentication required to subscribe to Google`
-    );
-    return res.status(401).json({ error: 'Authentication required' });
-  }
-  passport.authenticate('google-subscribe', {
-    scope: ['openid', 'email', 'profile'],
-    session: false,
-  })(req, res, next);
-});
 
 /**
  * @swagger
@@ -864,7 +817,17 @@ router.get(
           domain: process.env.DOMAIN,
           sameSite: 'none',
         });
-        res.redirect(`${process.env.FRONTEND_URL || ''}`);
+        const session = req.session as {
+          is_mobile?: boolean;
+        } & typeof req.session;
+        if (session.is_mobile) {
+          delete session.is_mobile;
+          res.redirect(
+            `${process.env.MOBILE_CALLBACK_URL || 'mobileApp://callback'}?token=${user.token}`
+          );
+        } else {
+          res.redirect(`${process.env.FRONTEND_URL || ''}`);
+        }
       } else {
         await createLog(
           500,
@@ -882,45 +845,6 @@ router.get(
       );
       res.status(500).json({ error: 'Failed to authenticate with Google' });
     }
-  }
-);
-
-/**
- * @swagger
- * /api/auth/spotify/subscribe:
- *   get:
- *     summary: Subscribe to Spotify service
- *     tags:
- *       - OAuth
- *     description: |
- *       Initiates Spotify OAuth authorization for service connection.
- *       This route is used to connect Spotify account for service access when user is already authenticated.
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       302:
- *         description: Redirect to Spotify authorization page
- *       401:
- *         description: User not authenticated
- *       500:
- *         description: Internal Server Error
- */
-router.get(
-  '/spotify/subscribe',
-  token,
-  async (req: Request, res: Response, next) => {
-    if (!req.auth) {
-      await createLog(
-        401,
-        'spotify',
-        `Authentication required to subscribe to Spotify`
-      );
-      return res.status(401).json({ error: 'Authentication required' });
-    }
-    passport.authenticate('spotify-subscribe', {
-      scope: 'user-read-email user-read-private',
-      session: false,
-    })(req, res, next);
   }
 );
 
@@ -987,9 +911,19 @@ router.get(
     try {
       const user = req.user as { token: string };
       if (user && user.token) {
-        res.redirect(
-          `${process.env.FRONTEND_URL || ''}?spotify_connected=true`
-        );
+        const session = req.session as {
+          is_mobile?: boolean;
+        } & typeof req.session;
+        if (session.is_mobile) {
+          delete session.is_mobile;
+          res.redirect(
+            `${process.env.MOBILE_CALLBACK_URL || ''}?spotify_subscribed=true`
+          );
+        } else {
+          res.redirect(
+            `${process.env.FRONTEND_URL || ''}?spotify_subscribed=true`
+          );
+        }
       } else {
         await createLog(
           500,
@@ -1535,5 +1469,7 @@ router.post('/reset-password', mail, async (req: Request, res: Response) => {
     }
   );
 });
+
+router.use('/', subscriptionRouter);
 
 export default router;

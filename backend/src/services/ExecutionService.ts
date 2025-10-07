@@ -7,13 +7,11 @@ import { Raw } from 'typeorm';
 import type { Reaction } from '../types/mapping';
 import { serviceRegistry } from './ServiceRegistry';
 import { reactionExecutorRegistry } from './ReactionExecutorRegistry';
-import { UserServiceConfigService } from './UserServiceConfigService';
 import type { ReactionExecutionContext } from '../types/service';
 
 export class ExecutionService {
   private isRunning = false;
   private processingInterval: NodeJS.Timeout | undefined;
-  private userServiceConfigService = new UserServiceConfigService();
   private scheduledReactions = new Map<string, NodeJS.Timeout>();
 
   async start(): Promise<void> {
@@ -510,20 +508,6 @@ export class ExecutionService {
         return {
           credentials,
           settings: {},
-          env: process.env,
-        };
-      }
-
-      const userConfig =
-        await this.userServiceConfigService.getUserServiceConfig(
-          userId,
-          serviceName
-        );
-
-      if (userConfig) {
-        return {
-          credentials: userConfig.credentials,
-          settings: userConfig.settings,
           env: process.env,
         };
       }

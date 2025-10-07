@@ -1,8 +1,311 @@
 import express, { Request, Response } from 'express';
 import token from '../../middleware/token';
 import { serviceRegistry } from '../../services/ServiceRegistry';
+import { serviceSubscriptionManager } from '../../services/ServiceSubscriptionManager';
+import subscriptionRoutes from './subscription';
+
+const serviceEndpoints: Record<
+  string,
+  {
+    auth: string;
+    status: string;
+    loginStatus: string;
+    subscribe: string;
+    unsubscribe: string;
+  }
+> = {
+  github: {
+    auth: '/auth/github/login',
+    status: '/github/subscribe/status',
+    loginStatus: '/github/login/status',
+    subscribe: '/auth/github/subscribe',
+    unsubscribe: '/github/unsubscribe',
+  },
+  google: {
+    auth: '/auth/google/login',
+    status: '/google/subscribe/status',
+    loginStatus: '/google/login/status',
+    subscribe: '/auth/google/subscribe',
+    unsubscribe: '/google/unsubscribe',
+  },
+  spotify: {
+    auth: '/auth/spotify/subscribe',
+    status: '/spotify/subscribe/status',
+    loginStatus: '/spotify/login/status',
+    subscribe: '/auth/spotify/subscribe',
+    unsubscribe: '/spotify/unsubscribe',
+  },
+  timer: {
+    auth: '',
+    status: '/services/timer/subscribe/status',
+    loginStatus: '',
+    subscribe: '/auth/timer/subscribe',
+    unsubscribe: '',
+  },
+};
 
 const router = express.Router();
+router.use('/auth', subscriptionRoutes);
+
+/**
+ * @swagger
+ * /api/services:
+ *   get:
+ *     summary: Get all available services with subscription status
+ *     tags:
+ *       - Services
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of all services with subscription information
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 services:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                         description: Unique identifier for the service
+ *                       name:
+ *                         type: string
+ *                         description: Human-readable name of the service
+ *                       description:
+ *                         type: string
+ *                         description: Description of the service
+ *                       version:
+ *                         type: string
+ *                         description: Version of the service
+ *                       icon:
+ *                         type: string
+ *                         description: SVG icon for the service
+ *                       isSubscribed:
+ *                         type: boolean
+ *                         description: Whether the user is subscribed to this service
+ *                       endpoints:
+ *                         type: object
+ *                         properties:
+ *                           auth:
+ *                             type: string
+ *                             description: Authentication endpoint URL
+ *                           status:
+ *                             type: string
+ *                             description: Subscription status endpoint URL
+ *                           loginStatus:
+ *                             type: string
+ *                             description: Login status endpoint URL
+ *                           subscribe:
+ *                             type: string
+ *                             description: Subscribe endpoint URL
+ *                           unsubscribe:
+ *                             type: string
+ *                             description: Unsubscribe endpoint URL
+ *       500:
+ *         description: Internal server error
+ */
+router.get(
+  '/',
+  token,
+  async (req: Request, res: Response): Promise<Response> => {
+    try {
+      const auth = req.auth as { id: number; email: string };
+      const userId = auth.id;
+
+      const allServices = serviceRegistry.getAllServices();
+
+      const servicesWithSubscriptionStatus = await Promise.all(
+        allServices.map(async service => {
+          const isSubscribed =
+            await serviceSubscriptionManager.isUserSubscribed(
+              userId,
+              service.id
+            );
+
+          const endpoints = serviceEndpoints[service.id] || {
+            auth: '',
+            status: '',
+            loginStatus: '',
+            subscribe: '',
+            unsubscribe: '',
+          };
+
+          return {
+            id: service.id,
+            name: service.name,
+            description: service.description,
+            version: service.version,
+            icon: service.icon || '',
+            isSubscribed,
+            endpoints,
+          };
+        })
+      );
+
+      return res.status(200).json({
+        services: servicesWithSubscriptionStatus,
+      });
+    } catch (err) {
+      console.error('Error fetching all services:', err);
+      return res
+        .status(500)
+        .json({ error: 'Internal Server Error in get all services' });
+    }
+  }
+);
+
+/**
+ * @swagger
+ * /api/services/subscribed:
+ *   get:
+ *     summary: Get all services the user is subscribed to
+ *     tags:
+ *       - Services
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of subscribed services
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 services:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                         description: Unique identifier for the service
+ *                       name:
+ *                         type: string
+ *                         description: Human-readable name of the service
+ *                       description:
+ *                         type: string
+ *                         description: Description of the service
+ *       401:
+ *         description: Unauthorized - missing or invalid token
+ *       500:
+ *         description: Internal server error
+ */
+router.get(
+  '/subscribed',
+  token,
+  async (req: Request, res: Response): Promise<Response> => {
+    try {
+      const basicUserInfo = req.auth as { id: number; email: string };
+      const userId = basicUserInfo.id;
+
+      const userSubscriptions =
+        await serviceSubscriptionManager.getUserSubscriptions(userId);
+
+      const subscribedServices = userSubscriptions
+        .filter(subscription => subscription.subscribed)
+        .map(subscription => {
+          const service = serviceRegistry.getService(subscription.service);
+          return {
+            id: subscription.service,
+            name: service
+              ? service.name
+              : subscription.service.charAt(0).toUpperCase() +
+                subscription.service.slice(1),
+            description: service ? service.description : '',
+          };
+        });
+
+      return res.status(200).json({
+        services: subscribedServices,
+      });
+    } catch (err) {
+      console.error('Error fetching subscribed services:', err);
+      return res
+        .status(500)
+        .json({ error: 'Internal Server Error in get subscribed services' });
+    }
+  }
+);
+
+/**
+ * @swagger
+ * /api/services/timer/subscribe/status:
+ *   get:
+ *     summary: Get timer subscription status
+ *     tags:
+ *       - Services
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Timer subscription status
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 subscribed:
+ *                   type: boolean
+ *                   description: Whether the user is subscribed to timer
+ *                 oauth_connected:
+ *                   type: boolean
+ *                   description: Always true for timer (no OAuth required)
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
+router.get(
+  '/timer/subscribe/status',
+  token,
+  async (req: Request, res: Response): Promise<Response> => {
+    try {
+      const userId = (req.auth as { id: number }).id;
+
+      console.log(
+        `🔄 [STATUS] Checking timer subscription status for user ${userId}`
+      );
+      const subscription = await serviceSubscriptionManager.getUserSubscription(
+        userId,
+        'timer'
+      );
+
+      const isSubscribed = subscription?.subscribed || false;
+      console.log(
+        `✅ [STATUS] Timer subscription status for user ${userId}: subscribed=${isSubscribed}`
+      );
+
+      if (!isSubscribed) {
+        return res.status(404).json({
+          subscribed: false,
+          oauth_connected: true,
+          can_create_webhooks: false,
+          message: 'Not subscribed to Timer events',
+        });
+      }
+
+      return res.status(200).json({
+        subscribed: true,
+        oauth_connected: true,
+        can_create_webhooks: true,
+        subscribed_at: subscription?.subscribed_at || null,
+        unsubscribed_at: subscription?.unsubscribed_at || null,
+      });
+    } catch (err) {
+      console.error(
+        `❌ [STATUS] Error fetching timer subscription status for user ${(req.auth as { id: number }).id}:`,
+        err
+      );
+      return res
+        .status(500)
+        .json({ error: 'Internal Server Error in timer subscribe status' });
+    }
+  }
+);
 
 /**
  * @swagger
