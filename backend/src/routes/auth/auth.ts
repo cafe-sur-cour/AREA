@@ -382,18 +382,6 @@ router.post(
   token,
   async (req: Request, res: Response): Promise<void> => {
     try {
-      if (!req.auth) {
-        await createLog(
-          403,
-          'logout',
-          `Logout attempt with no authenticated user`
-        );
-        res
-          .status(403)
-          .json({ message: 'Logout failed: No authenticated user' });
-        return;
-      }
-
       const email = (req.auth as { email: string })?.email;
       res.clearCookie('auth_token', { path: '/', domain: process.env.DOMAIN });
       await createLog(200, 'logout', `User logged out: ${email || 'unknown'}`);

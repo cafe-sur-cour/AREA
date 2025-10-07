@@ -2,6 +2,61 @@
 
 This document outlines the frontend flow for subscribing to services in AREA.
 
+## Important: Use API Instead of Hardcoding
+
+**Never hardcode service information in your frontend code.** All service data (names, descriptions, endpoints, actions, reactions, schemas) must be retrieved dynamically through API endpoints. This ensures:
+
+- **Consistency**: Service information stays synchronized with backend changes
+- **Maintainability**: No need to update frontend when services are modified
+- **Extensibility**: New services are automatically available without frontend changes
+- **Internationalization**: Service names and descriptions are properly localized
+
+### Required API Endpoints
+
+Always use these endpoints to get service information:
+
+```javascript
+// Get all available services with subscription status
+const servicesResponse = await fetch('/api/services/', {
+  headers: { 'Authorization': `Bearer ${userToken}` }
+});
+const { services } = await servicesResponse.json();
+
+// Get services with actions only
+const actionsResponse = await fetch('/api/services/actions', {
+  headers: { 'Authorization': `Bearer ${userToken}` }
+});
+
+// Get services with reactions only
+const reactionsResponse = await fetch('/api/services/reactions', {
+  headers: { 'Authorization': `Bearer ${userToken}` }
+});
+```
+
+### ❌ Incorrect Approach (Don't Do This)
+
+```javascript
+// NEVER hardcode service information
+const hardcodedServices = [
+  {
+    id: 'github',
+    name: 'GitHub',
+    description: 'Version control platform',
+    actions: [...],
+    reactions: [...]
+  }
+];
+```
+
+### ✅ Correct Approach (Always Do This)
+
+```javascript
+// ALWAYS fetch from API
+const services = await fetchServicesFromAPI();
+const githubService = services.find(s => s.id === 'github');
+// Use githubService.name, githubService.description, etc.
+```
+
 ## Available Endpoints
 
 ### Unified Subscription Endpoint
@@ -26,6 +81,93 @@ POST /api/{service}/unsubscribe
 ```
 - **Purpose**: Unsubscribe from service events
 - **Auth**: Bearer token required
+
+## Using Service Data from API
+
+### Service Object Structure
+
+When you fetch services from `/api/services/`, each service object contains:
+
+```javascript
+{
+  id: 'github',           // Unique service identifier
+  name: 'GitHub',         // Localized service name
+  description: 'GitHub service for repository automation', // Localized description
+  isSubscribed: true,     // User's subscription status
+  endpoints: {            // API endpoints for this service
+    auth: '/api/auth/github',
+    status: '/api/github/subscribe/status',
+    loginStatus: '/api/github/login/status',
+    subscribe: '/api/github/subscribe',
+    unsubscribe: '/api/github/unsubscribe'
+  },
+  actions: [              // Available actions (if any)
+    {
+      id: 'new_commit',
+      name: 'New Commit',
+      description: 'Triggers when a new commit is pushed',
+      schema: { /* configuration schema */ }
+    }
+  ],
+  reactions: [            // Available reactions (if any)
+    {
+      id: 'create_issue',
+      name: 'Create Issue',
+      description: 'Creates a new issue in the repository',
+      schema: { /* configuration schema */ }
+    }
+  ]
+}
+```
+
+### Dynamic Service Rendering
+
+```javascript
+// Example: Render service list dynamically
+function renderServicesList() {
+  const services = await fetchServicesFromAPI();
+
+  return services.map(service => (
+    <div key={service.id}>
+      <h3>{service.name}</h3>           {/* Use API data */}
+      <p>{service.description}</p>     {/* Use API data */}
+      <button
+        onClick={() => handleSubscribe(service.endpoints.subscribe)} {/* Use API endpoints */}
+        disabled={service.isSubscribed}
+      >
+        {service.isSubscribed ? 'Subscribed' : 'Subscribe'}
+      </button>
+    </div>
+  ));
+}
+```
+
+### Dynamic Action/Reaction Selection
+
+```javascript
+// Example: Populate action dropdown from API
+function populateActionDropdown() {
+  const servicesWithActions = await fetch('/api/services/actions', {
+    headers: { 'Authorization': `Bearer ${userToken}` }
+  });
+
+  const actionSelect = document.getElementById('action-select');
+
+  servicesWithActions.forEach(service => {
+    const optgroup = document.createElement('optgroup');
+    optgroup.label = service.name; // Use API data
+
+    service.actions.forEach(action => {
+      const option = document.createElement('option');
+      option.value = `${service.id}:${action.id}`;
+      option.textContent = action.name; // Use API data
+      optgroup.appendChild(option);
+    });
+
+    actionSelect.appendChild(optgroup);
+  });
+}
+```
 
 ## Subscription Flow
 
