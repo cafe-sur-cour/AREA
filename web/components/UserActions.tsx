@@ -47,6 +47,7 @@ export function UserActions({ className, isMobile }: UserActionsProps) {
           {user?.is_admin && (
             <button
               onClick={handleSwitchToAdmin}
+              aria-label='Admin Area button'
               className={`font-heading cursor-pointer font-medium text-area-primary hover:text-area-hover transition-all duration-300 px-4 py-2 rounded-lg hover:bg-area-light/20 ${
                 isMobile ? 'w-full text-center text-lg' : ''
               }`}
@@ -76,6 +77,7 @@ export function UserActions({ className, isMobile }: UserActionsProps) {
           ))}
           <button
             onClick={handleSwitchToProfile}
+            aria-label='Profile'
             className={`relative cursor-pointer flex items-center justify-center font-heading font-bold text-app-text-secondary hover:text-area-hover transition-all duration-300 p-2 rounded-lg hover:bg-area-light/20 ${
               isMobile ? 'w-full  gap-2' : ''
             }`}
@@ -87,6 +89,7 @@ export function UserActions({ className, isMobile }: UserActionsProps) {
           </button>
           <button
             onClick={handleLogout}
+            aria-label='Logout'
             className={`font-heading cursor-pointer font-bold text-app-red-primary hover:text-red-600 transition-all duration-300 p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center justify-center gap-2 ${
               isMobile ? 'w-full' : ''
             }`}
