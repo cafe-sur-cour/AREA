@@ -174,17 +174,20 @@ router.post(
     try {
       const userId = (req.auth as { id: number }).id;
 
+      console.log(`🔄 [UNSUBSCRIBE] Starting Google unsubscription for user ${userId}`);
       const subscription = await serviceSubscriptionManager.unsubscribeUser(
         userId,
         'google'
       );
 
       if (!subscription) {
+        console.log(`❌ [UNSUBSCRIBE] No active Google subscription found for user ${userId}`);
         return res.status(404).json({
           error: 'No active subscription found',
         });
       }
 
+      console.log(`✅ [UNSUBSCRIBE] Google unsubscription successful for user ${userId}:`, subscription);
       return res.status(200).json({
         message: 'Successfully unsubscribed from Google events',
         subscription: {
@@ -195,7 +198,7 @@ router.post(
         note: 'Google webhook cleanup will be implemented when webhooks are ready',
       });
     } catch (err) {
-      console.error(err);
+      console.error(`❌ [UNSUBSCRIBE] Error in Google unsubscription for user ${(req.auth as { id: number }).id}:`, err);
       return res
         .status(500)
         .json({ error: 'Internal Server Error in google unsubscribe' });

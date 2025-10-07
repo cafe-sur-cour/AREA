@@ -174,68 +174,120 @@ export default function ServicesPage() {
       if (!user) return;
 
       setIsLoading(true);
-      const updatedServices = await Promise.all(
-        services.map(async service => {
-          try {
-            if (service.id === 'timer') {
-              try {
-                const response = await api.get({
-                  endpoint: '/api/services',
-                });
-                const servicesData = response.data as { services: Array<{ id: string; isSubscribed: boolean }> };
-                const timerService = servicesData.services.find(
-                  (s) => s.id === 'timer'
-                );
+      try {
+        const servicesResponse = await api.get({
+          endpoint: '/api/services/subscribed',
+        });
+        const servicesData = servicesResponse.data as { services: Array<{ id: string }> };
+        const subscribedServices = servicesData.services;
+        const subscribedServiceIds = new Set(subscribedServices.map(s => s.id));
+
+        // Get OAuth status for each service
+        const updatedServices = await Promise.all(
+          services.map(async service => {
+            try {
+              // For timer, it's always "connected" since it doesn't need OAuth
+              if (service.id === 'timer') {
                 return {
                   ...service,
-                  isConnected: timerService?.isSubscribed || false,
+                  isConnected: subscribedServiceIds.has(service.id),
                   oauthConnected: true,
-                  subscribed: timerService?.isSubscribed || false,
-                };
-              } catch (error) {
-                console.error('Error checking timer status:', error);
-                return {
-                  ...service,
-                  isConnected: false,
-                  oauthConnected: true,
-                  subscribed: false,
+                  subscribed: subscribedServiceIds.has(service.id),
                 };
               }
+
+              // Check OAuth status for other services
+              const oauthResponse = await api.get<{ connected?: boolean }>({
+                endpoint: service.loginStatusEndpoint!,
+              });
+
+              const oauthConnected =
+                (oauthResponse.data?.connected) || false;
+
+              return {
+                ...service,
+                isConnected: subscribedServiceIds.has(service.id),
+                oauthConnected,
+                subscribed: subscribedServiceIds.has(service.id),
+              };
+            } catch (error) {
+              console.error(`Error checking ${service.name} OAuth status:`, error);
+              return {
+                ...service,
+                isConnected: subscribedServiceIds.has(service.id),
+                oauthConnected: false,
+                subscribed: subscribedServiceIds.has(service.id),
+              };
             }
+          })
+        );
+        setServices(updatedServices);
+      } catch (error) {
+        console.error('Error checking services status:', error);
+        // Fallback to individual status checks if unified API fails
+        const updatedServices = await Promise.all(
+          services.map(async service => {
+            try {
+              if (service.id === 'timer') {
+                try {
+                  const response = await api.get({
+                    endpoint: '/api/services/subscribed',
+                  });
+                  const servicesData = response.data as { services: Array<{ id: string }> };
+                  const timerService = servicesData.services.find(
+                    (s) => s.id === 'timer'
+                  );
+                  return {
+                    ...service,
+                    isConnected: !!timerService,
+                    oauthConnected: true,
+                    subscribed: !!timerService,
+                  };
+                } catch (error) {
+                  console.error('Error checking timer status:', error);
+                  return {
+                    ...service,
+                    isConnected: false,
+                    oauthConnected: true,
+                    subscribed: false,
+                  };
+                }
+              }
 
-            const [oauthResponse, subscribeResponse] = await Promise.allSettled(
-              [
-                api.get<{ connected?: boolean }>({
-                  endpoint: service.loginStatusEndpoint!,
-                }),
-                api.get<{ subscribed?: boolean; oauth_connected?: boolean }>({
-                  endpoint: service.statusEndpoint,
-                }),
-              ]
-            );
+              const [oauthResponse, subscribeResponse] = await Promise.allSettled(
+                [
+                  api.get<{ connected?: boolean }>({
+                    endpoint: service.loginStatusEndpoint!,
+                  }),
+                  api.get<{ subscribed?: boolean; oauth_connected?: boolean }>({
+                    endpoint: service.statusEndpoint,
+                  }),
+                ]
+              );
 
-            const oauthConnected =
-              (oauthResponse.status === 'fulfilled' &&
-                oauthResponse.value.data?.connected) ||
-              false;
-            const subscribed =
-              (subscribeResponse.status === 'fulfilled' &&
-                subscribeResponse.value.data?.subscribed) ||
-              false;
+              const oauthConnected =
+                (oauthResponse.status === 'fulfilled' &&
+                  oauthResponse.value.data?.connected) ||
+                false;
+              const subscribed =
+                (subscribeResponse.status === 'fulfilled' &&
+                  subscribeResponse.value.data?.subscribed) ||
+                false;
 
-            return {
-              ...service,
-              isConnected: subscribed,
-              oauthConnected,
-              subscribed,
-            };
-          } catch (error) {
-            console.error(`Error checking ${service.name} status:`, error);
-            return service;
-          }
-        })
-      );
-      setServices(updatedServices);
+              return {
+                ...service,
+                isConnected: subscribed,
+                oauthConnected,
+                subscribed,
+              };
+            } catch (error) {
+              console.error(`Error checking ${service.name} status:`, error);
+              return service;
+            }
+          })
+        );
+        setServices(updatedServices);
+      }
       setIsLoading(false);
     };
 

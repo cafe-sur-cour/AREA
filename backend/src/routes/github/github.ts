@@ -174,17 +174,20 @@ router.post(
     try {
       const userId = (req.auth as { id: number }).id;
 
+      console.log(`🔄 [UNSUBSCRIBE] Starting GitHub unsubscription for user ${userId}`);
       const subscription = await serviceSubscriptionManager.unsubscribeUser(
         userId,
         'github'
       );
 
       if (!subscription) {
+        console.log(`❌ [UNSUBSCRIBE] No active GitHub subscription found for user ${userId}`);
         return res.status(404).json({
           error: 'No active subscription found',
         });
       }
 
+      console.log(`✅ [UNSUBSCRIBE] GitHub unsubscription successful for user ${userId}:`, subscription);
       return res.status(200).json({
         message: 'Successfully unsubscribed from GitHub events',
         subscription: {
@@ -194,7 +197,7 @@ router.post(
         },
       });
     } catch (err) {
-      console.error(err);
+      console.error(`❌ [UNSUBSCRIBE] Error in GitHub unsubscription for user ${(req.auth as { id: number }).id}:`, err);
       return res
         .status(500)
         .json({ error: 'Internal Server Error in github unsubscribe' });
