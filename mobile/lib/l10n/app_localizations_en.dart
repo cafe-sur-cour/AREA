@@ -103,4 +103,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get logged_out => 'Logged out successfully';
+
+  @override
+  String get services => 'Services';
 }

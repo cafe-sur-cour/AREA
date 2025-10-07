@@ -4,6 +4,7 @@ import 'package:area/core/constants/app_constants.dart';
 import 'package:area/core/notifiers/backend_address_notifier.dart';
 import 'package:area/core/notifiers/locale_notifier.dart';
 import 'package:area/l10n/app_localizations.dart';
+import 'package:area/screens/services_screen.dart';
 import 'package:area/services/secure_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -36,7 +37,7 @@ class ProfileScreenState extends State<ProfileScreen> {
   void _loadProfileIfConnected() async {
     final jwt = await getJwt();
     if (jwt != null && jwt.isNotEmpty) {
-      _updateProfile();
+      await _updateProfile();
     } else {
       setState(() {
         _isLoading = false;
@@ -103,9 +104,30 @@ class ProfileScreenState extends State<ProfileScreen> {
       return;
     }
     final address = "${backendAddressNotifier.backendAddress}${AppRoutes.logout}";
+
+    final appLocalizations = AppLocalizations.of(context);
+
+    final jwt = await getJwt();
+    if (jwt == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              appLocalizations!.not_connected,
+              style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+            ),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+      return;
+    }
+
+    final headers = {'Authorization': "Bearer $jwt"};
+
     final url = Uri.parse(address);
     try {
-      final response = await http.post(url);
+      final response = await http.post(url, headers: headers);
       final data = await jsonDecode(response.body);
 
       if (response.statusCode != 200) {
@@ -147,7 +169,7 @@ class ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  void _updateProfile() async {
+  Future<void> _updateProfile() async {
     final backendAddressNotifier = Provider.of<BackendAddressNotifier>(context, listen: false);
 
     if (backendAddressNotifier.backendAddress == null) {
@@ -160,6 +182,9 @@ class ProfileScreenState extends State<ProfileScreen> {
           backgroundColor: AppColors.error,
         ),
       );
+      setState(() {
+        _isLoading = false;
+      });
       return;
     }
     final address = "${backendAddressNotifier.backendAddress}${AppRoutes.me}";
@@ -336,17 +361,23 @@ class ProfileScreenState extends State<ProfileScreen> {
                     ),
                     keyboardType: TextInputType.url,
                     onChanged: (value) {
-                      if (!value.endsWith("/")) {
-                        value += "/";
+                      String normalized = value.trim();
+                      if (normalized.isEmpty) {
+                        backendAddressNotifier.setBackendAddress(null);
+                        return;
                       }
-                      backendAddressNotifier.setBackendAddress(value);
+                      if (!normalized.startsWith('http://') &&
+                          !normalized.startsWith('https://')) {
+                        normalized = 'https://$normalized';
+                      }
+                      if (!normalized.endsWith('/')) {
+                        normalized = '$normalized/';
+                      }
+                      backendAddressNotifier.setBackendAddress(normalized);
                     },
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return AppLocalizations.of(context)!.empty_backend_server_address;
-                      }
-                      if (!value.endsWith("/")) {
-                        value += "/";
                       }
                       return null;
                     },
@@ -358,6 +389,31 @@ class ProfileScreenState extends State<ProfileScreen> {
                       await _testApiAddress(value);
                     },
                   ),
+
+                  if (_isConnected) ...[
+                    const SizedBox(height: 20),
+
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(builder: (context) => const ServicesScreen()),
+                          );
+                        },
+                        icon: const Icon(Icons.api),
+                        label: Text(AppLocalizations.of(context)?.services ?? 'Services'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
               ),
       ),
