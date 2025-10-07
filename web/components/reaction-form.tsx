@@ -152,7 +152,7 @@ export default function ReactionForm({
                   variant='ghost'
                   size='sm'
                   onClick={() => removeReaction(instance.id)}
-                  className='text-red-500 hover:text-red-600'
+                  className='text-red-500 hover:text-red-600 cursor-pointer'
                 >
                   <Trash2 className='w-4 h-4' />
                 </Button>
@@ -292,7 +292,7 @@ export default function ReactionForm({
       <Button
         variant='outline'
         onClick={addReaction}
-        className='w-full border-dashed'
+        className='w-full border-dashed cursor-pointer'
       >
         <Plus className='w-4 h-4 mr-2' />
         Add Another Reaction

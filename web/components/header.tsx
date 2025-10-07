@@ -42,7 +42,7 @@ export default function Navigation() {
         <div className='lg:hidden w-full flex items-center justify-end'>
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className='text-foreground hover:text-primary focus:outline-none focus:text-primary transition-all duration-300 p-3 rounded-lg hover:bg-muted'
+            className='text-foreground hover:text-primary focus:outline-none focus:text-primary transition-all duration-300 p-3 rounded-lg hover:bg-muted cursor-pointer'
           >
             {isMenuOpen ? (
               <X className='h-7 w-7' />

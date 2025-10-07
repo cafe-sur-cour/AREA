@@ -67,7 +67,7 @@ export function PasswordEmailForm({
                   required
                 />
               </div>
-              <Button type='submit' className='w-full' disabled={isLoading}>
+              <Button type='submit' className='w-full cursor-pointer' disabled={isLoading}>
                 {isLoading
                   ? 'Requesting password reset link...'
                   : 'Request password reset'}
@@ -161,7 +161,7 @@ export default function PasswordForm({
                   required
                 />
               </div>
-              <Button type='submit' className='w-full' disabled={isLoading}>
+              <Button type='submit' className='w-full cursor-pointer' disabled={isLoading}>
                 {isLoading ? 'Loading...' : 'Reset password'}
               </Button>
             </div>
