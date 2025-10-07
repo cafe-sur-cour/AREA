@@ -94,11 +94,6 @@ export class MicrosoftOAuth {
       redirect_uri: this.redirectUri,
     });
 
-    console.log('Microsoft OAuth - Exchange URL:', url);
-    console.log('Microsoft OAuth - Redirect URI:', this.redirectUri);
-    console.log('Microsoft OAuth - Client ID:', this.clientId);
-    console.log('Microsoft OAuth - Tenant ID:', this.tenantId);
-
     const response = await fetch(url, {
       method: 'POST',
       headers: {
@@ -107,12 +102,6 @@ export class MicrosoftOAuth {
       },
       body: body,
     });
-
-    console.log('Microsoft OAuth - Response status:', response.status);
-    console.log(
-      'Microsoft OAuth - Response headers:',
-      Object.fromEntries(response.headers.entries())
-    );
 
     if (!response.ok) {
       const errorText = await response.text();
