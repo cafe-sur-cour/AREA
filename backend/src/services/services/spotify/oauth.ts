@@ -54,7 +54,7 @@ export class SpotifyOAuth {
       response_type: 'code',
       redirect_uri: this.redirectUri,
       scope:
-        'user-read-email user-read-private user-modify-playback-state playlist-modify-public playlist-modify-private user-read-playback-state user-library-modify',
+        'user-read-email user-read-private user-modify-playback-state playlist-modify-public playlist-modify-private user-read-playback-state user-library-read user-library-modify',
       state: state,
     });
     return `${this.spotifyAuthBaseUrl}/authorize?${params.toString()}`;

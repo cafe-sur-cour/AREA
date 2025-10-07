@@ -3,6 +3,7 @@ import { AppDataSource } from '../../../config/db';
 import { WebhookConfigs } from '../../../config/entity/WebhookConfigs';
 import { Raw } from 'typeorm';
 import { WebhookEvents } from '../../../config/entity/WebhookEvents';
+import { UserToken } from '../../../config/entity/UserToken';
 import { spotifyOAuth } from './oauth';
 
 interface SpotifyTrack {
@@ -42,6 +43,7 @@ export class SpotifyScheduler {
       lastTrack: SpotifyTrack | null;
       lastPlaybackState: boolean | null;
       lastLikedTracks: string[];
+      isInitialized: boolean;
     }
   >();
   private lastRequestTime = new Map<number, number>();
@@ -66,7 +68,6 @@ export class SpotifyScheduler {
       return;
     }
 
-    console.log('Starting Spotify scheduler...');
     this.isRunning = true;
 
     const pollJob = cron.schedule('*/10 * * * * *', async () => {
@@ -74,8 +75,6 @@ export class SpotifyScheduler {
     });
 
     this.cronJobs.set('spotify-poll', pollJob);
-
-    console.log('Spotify scheduler started successfully');
   }
 
   async stop(): Promise<void> {
@@ -84,7 +83,6 @@ export class SpotifyScheduler {
       return;
     }
 
-    console.log('Stopping Spotify scheduler...');
     this.isRunning = false;
 
     for (const job of this.cronJobs.values()) {
@@ -92,8 +90,6 @@ export class SpotifyScheduler {
     }
     this.cronJobs.clear();
     this.userStates.clear();
-
-    console.log('Spotify scheduler stopped');
   }
 
   private async pollActiveUsers(): Promise<void> {
@@ -130,10 +126,6 @@ export class SpotifyScheduler {
         this.lastCacheUpdate = now;
       }
 
-      console.log(
-        `Polling ${userIds.length} users with active Spotify mappings`
-      );
-
       if (userIds.length === 0) {
         return;
       }
@@ -160,6 +152,14 @@ export class SpotifyScheduler {
         return;
       }
 
+      const hasBasicScopes =
+        userToken.scopes?.includes('user-read-playback-state') ||
+        userToken.scopes?.includes('user-library-read');
+      if (!hasBasicScopes) {
+        console.warn(`Token for user ${userId} lacks required Spotify scopes`);
+        return;
+      }
+
       await this.checkPlaybackState(userId);
       await this.checkLikedTracks(userId);
     } catch (error) {
@@ -181,35 +181,40 @@ export class SpotifyScheduler {
       const currentTrack = playbackState.item;
       const isPlaying = playbackState.is_playing;
 
-      if (userState.lastTrack?.id !== currentTrack?.id && currentTrack) {
-        await this.triggerTrackChanged(
-          userId,
-          userState.lastTrack,
-          currentTrack
-        );
-        this.updateUserState(userId, { lastTrack: currentTrack });
-      }
+      if (userState.isInitialized) {
+        if (userState.lastTrack?.id !== currentTrack?.id && currentTrack) {
+          await this.triggerTrackChanged(
+            userId,
+            userState.lastTrack,
+            currentTrack
+          );
+        }
 
-      if (
-        userState.lastPlaybackState !== null &&
-        userState.lastPlaybackState !== isPlaying
-      ) {
-        if (isPlaying) {
-          await this.triggerPlaybackStarted(
-            userId,
-            currentTrack,
-            playbackState.device
-          );
-        } else {
-          await this.triggerPlaybackPaused(
-            userId,
-            currentTrack,
-            playbackState.device
-          );
+        if (
+          userState.lastPlaybackState !== null &&
+          userState.lastPlaybackState !== isPlaying
+        ) {
+          if (isPlaying) {
+            await this.triggerPlaybackStarted(
+              userId,
+              currentTrack,
+              playbackState.device
+            );
+          } else {
+            await this.triggerPlaybackPaused(
+              userId,
+              currentTrack,
+              playbackState.device
+            );
+          }
         }
       }
 
-      this.updateUserState(userId, { lastPlaybackState: isPlaying });
+      this.updateUserState(userId, {
+        lastTrack: currentTrack,
+        lastPlaybackState: isPlaying,
+        isInitialized: true,
+      });
     } catch (error) {
       if (error instanceof Response && error.status === 204) {
         this.updateUserState(userId, {
@@ -240,15 +245,20 @@ export class SpotifyScheduler {
         item => !previousLikedTrackIds.includes(item.track.id)
       );
 
-      for (const newTrack of newTracks) {
-        await this.triggerLikedSongAdded(
-          userId,
-          newTrack.track,
-          newTrack.added_at
-        );
+      if (userState.isInitialized) {
+        for (const newTrack of newTracks) {
+          await this.triggerLikedSongAdded(
+            userId,
+            newTrack.track,
+            newTrack.added_at
+          );
+        }
       }
 
-      this.updateUserState(userId, { lastLikedTracks: currentLikedTrackIds });
+      this.updateUserState(userId, {
+        lastLikedTracks: currentLikedTrackIds,
+        isInitialized: true,
+      });
     } catch (error) {
       console.error(`Error checking liked tracks for user ${userId}:`, error);
     }
@@ -265,6 +275,14 @@ export class SpotifyScheduler {
 
     const userToken = await spotifyOAuth.getUserToken(userId);
     if (!userToken) return null;
+
+    if (!this.hasRequiredScopes(userToken, url)) {
+      const requiredScopes = this.getRequiredScopesForUrl(url);
+      console.error(
+        `Token missing required scopes [${requiredScopes.join(', ')}] for ${url} for user ${userId}`
+      );
+      return null;
+    }
 
     const now = Date.now();
     const lastRequest = this.lastRequestTime.get(userId) || 0;
@@ -312,7 +330,6 @@ export class SpotifyScheduler {
         const retryAfter = response.headers.get('Retry-After');
         if (retryAfter) {
           const waitTime = parseInt(retryAfter) * 1000;
-          console.log(`Waiting ${waitTime}ms before retry`);
           await new Promise<void>(resolve => {
             setImmediate(() => {
               setTimeout(() => resolve(), Math.min(waitTime, 5000));
@@ -324,9 +341,15 @@ export class SpotifyScheduler {
       }
 
       if (!response.ok) {
-        console.error(
-          `Spotify API error for user ${userId}: ${response.status} ${response.statusText}`
-        );
+        if (response.status === 403) {
+          console.error(
+            `Spotify API access forbidden for user ${userId} - token may lack required scopes`
+          );
+        } else {
+          console.error(
+            `Spotify API error for user ${userId}: ${response.status} ${response.statusText}`
+          );
+        }
         return null;
       }
 
@@ -367,6 +390,27 @@ export class SpotifyScheduler {
     }
   }
 
+  private hasRequiredScopes(userToken: UserToken, url: string): boolean {
+    if (!userToken.scopes) return false;
+
+    const scopes = userToken.scopes;
+    const requiredScopes = this.getRequiredScopesForUrl(url);
+
+    return requiredScopes.every(scope => scopes.includes(scope));
+  }
+
+  private getRequiredScopesForUrl(url: string): string[] {
+    if (url.includes('/me/player')) {
+      return ['user-read-playback-state'];
+    }
+
+    if (url.includes('/me/tracks')) {
+      return ['user-library-read'];
+    }
+
+    return [];
+  }
+
   private chunkArray<T>(array: T[], size: number): T[][] {
     const chunks: T[][] = [];
     for (let i = 0; i < array.length; i += size) {
@@ -381,6 +425,7 @@ export class SpotifyScheduler {
         lastTrack: null,
         lastPlaybackState: null,
         lastLikedTracks: [],
+        isInitialized: false,
       });
     }
     return this.userStates.get(userId)!;
@@ -507,7 +552,5 @@ export class SpotifyScheduler {
     });
 
     await eventRepository.save(event);
-
-    console.log(`Created ${actionType} event for user ${userId}`);
   }
 }
