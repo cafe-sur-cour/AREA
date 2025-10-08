@@ -103,12 +103,6 @@ export default function ServicesPage() {
 
   const handleConnect = async (service: Service) => {
     const apiUrl = await getAPIUrl();
-    // Special-case: GitHub should first redirect users to the GitHub App
-    if (service.id === 'github') {
-      window.location.href =
-        'https://github.com/apps/area-cafe-sur-cours/installations/new/';
-      return;
-    }
 
     if (service.id === 'timer') {
       try {
