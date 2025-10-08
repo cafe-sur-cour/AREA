@@ -3,7 +3,6 @@ import type {
   ReactionExecutionContext,
   ReactionExecutionResult,
 } from '../../../types/service';
-import { spotifyOAuth } from './oauth';
 
 interface SpotifyPlaybackState {
   is_playing: boolean;
@@ -50,16 +49,7 @@ export class SpotifyReactionExecutor implements ReactionExecutor {
         };
       }
 
-      // Validate and refresh token if needed
-      const userToken = await spotifyOAuth.getUserToken(context.event.user_id);
-      if (!userToken) {
-        return {
-          success: false,
-          error: 'Spotify access token not found or expired',
-        };
-      }
-
-      const validToken = userToken.token_value;
+      const validToken = accessToken;
 
       switch (reaction.type) {
         case 'spotify.skip_track':
