@@ -66,7 +66,10 @@ export interface ActionMetadata {
   webhookPattern?: string;
   sharedEvents?: boolean;
   sharedEventFilter?: (
-    event: { source: string | null | undefined; payload: Record<string, unknown> },
+    event: {
+      source: string | null | undefined;
+      payload: Record<string, unknown>;
+    },
     mapping: { action: { config?: Record<string, unknown> } }
   ) => boolean;
 }
