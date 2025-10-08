@@ -4,9 +4,9 @@ import 'package:area/core/constants/app_colors.dart';
 import 'package:area/core/constants/app_constants.dart';
 import 'package:area/core/notifiers/backend_address_notifier.dart';
 import 'package:area/l10n/app_localizations.dart';
+import 'package:area/services/secure_http_client.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -67,7 +67,8 @@ class RegisterScreenState extends State<RegisterScreen> {
       final url = Uri.parse(address);
 
       try {
-        final response = await http.post(
+        final client = SecureHttpClient.getClient();
+        final response = await client.post(
           url,
           body: {'name': name, 'email': email, 'password': password},
         );
@@ -104,16 +105,23 @@ class RegisterScreenState extends State<RegisterScreen> {
           );
         }
       }
-      setState(() {
-        loading = false;
-      });
     }
+    setState(() {
+      loading = false;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(AppLocalizations.of(context)!.register)),
+      appBar: AppBar(
+        title: Text(
+          AppLocalizations.of(context)!.register,
+          style: TextStyle(fontFamily: 'Montserrat', fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: AppColors.areaBlue3,
+        foregroundColor: AppColors.areaLightGray,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(32.0),
         child: Form(

@@ -650,7 +650,9 @@ router.get(
               );
             } else {
               const frontendUrl = process.env.FRONTEND_URL || '';
-              return res.redirect(`${frontendUrl}?github_subscribed=true`);
+              return res.redirect(
+                `${frontendUrl}/services?github_subscribed=true`
+              );
             }
           }
         } else {
@@ -819,7 +821,7 @@ router.get(
             `${process.env.MOBILE_CALLBACK_URL || 'mobileApp://callback'}?token=${user.token}`
           );
         } else {
-          return res.redirect(`${process.env.FRONTEND_URL || ''}`);
+          return res.redirect(`${process.env.FRONTEND_URL || ''}/services`);
         }
       } else {
         await createLog(
@@ -914,7 +916,7 @@ router.get(
           );
         } else {
           return res.redirect(
-            `${process.env.FRONTEND_URL || ''}?spotify_subscribed=true`
+            `${process.env.FRONTEND_URL || ''}/services?spotify_subscribed=true`
           );
         }
       } else {

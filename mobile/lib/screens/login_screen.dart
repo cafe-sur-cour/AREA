@@ -6,11 +6,12 @@ import 'package:area/core/constants/app_constants.dart';
 import 'package:area/core/notifiers/backend_address_notifier.dart';
 import 'package:area/l10n/app_localizations.dart';
 import 'package:area/services/secure_storage.dart';
+import 'package:area/services/secure_http_client.dart';
 import 'package:area/widgets/widget_oauth_webview.dart';
 import 'package:flutter/material.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
+import 'package:webview_flutter/webview_flutter.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -66,7 +67,8 @@ class LoginScreenState extends State<LoginScreen> {
         final address = "${backendAddressNotifier.backendAddress}${AppRoutes.login}";
         final url = Uri.parse(address);
 
-        final response = await http.post(url, body: {'email': email, 'password': password});
+        final client = SecureHttpClient.getClient();
+        final response = await client.post(url, body: {'email': email, 'password': password});
 
         final data = await jsonDecode(response.body);
 
@@ -108,7 +110,7 @@ class LoginScreenState extends State<LoginScreen> {
     });
   }
 
-  Future<void> _goToOAuth(BuildContext context, String provider, String route) async {
+  Future<void> _goToOAuth(String provider, String route) async {
     final backendAddressNotifier = Provider.of<BackendAddressNotifier>(context, listen: false);
 
     if (backendAddressNotifier.backendAddress == null) {
@@ -124,18 +126,27 @@ class LoginScreenState extends State<LoginScreen> {
       return;
     }
 
-    final address = "${backendAddressNotifier.backendAddress}$route";
+    String base = backendAddressNotifier.backendAddress!.trim();
+    if (!base.startsWith('http://') && !base.startsWith('https://')) {
+      base = 'https://$base';
+    }
+    if (!base.endsWith('/')) {
+      base = '$base/';
+    }
 
+    final address = "$base$route?is_mobile=true";
     final appLocalizations = AppLocalizations.of(context);
     final scaffoldMessenger = ScaffoldMessenger.of(context);
     final navigator = Navigator.of(context);
 
-    final result = await Navigator.push(
-      context,
+    final cookieManager = WebViewCookieManager();
+    await cookieManager.clearCookies();
+
+    final result = await navigator.push(
       MaterialPageRoute(
         builder: (context) => OAuthWebView(
           oauthUrl: address,
-          redirectUrl: AppConfig.getOAuthRedirectUrl(),
+          redirectUrl: AppConfig.callBackUrl,
           providerName: provider,
         ),
       ),
@@ -164,22 +175,40 @@ class LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  void _goToGithub(BuildContext context) async {
-    await _goToOAuth(context, 'GitHub', AppRoutes.github);
+  void _goToGithub() async {
+    try {
+      await _goToOAuth('GitHub', AppRoutes.githubLogin);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('GitHub login failed: ${e.toString()}'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
   }
 
-  void _goToMicrosoft(BuildContext context) async {
-    // await _goToOAuth(context, 'Microsoft', 'api/auth/microsoft');
+  void _goToMicrosoft() async {
+    // await _goToOAuth('Microsoft', AppRoutes.microsoftLogin);
   }
 
-  void _goToGoogle(BuildContext context) async {
-    // await _goToOAuth(context, 'Google', 'api/auth/google');
+  void _goToGoogle() async {
+    await _goToOAuth('Google', AppRoutes.googleLogin);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(AppLocalizations.of(context)!.login)),
+      appBar: AppBar(
+        title: Text(
+          AppLocalizations.of(context)!.login,
+          style: TextStyle(fontFamily: 'Montserrat', fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: AppColors.areaBlue3,
+        foregroundColor: AppColors.areaLightGray,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(32.0),
         child: Form(
@@ -269,58 +298,72 @@ class LoginScreenState extends State<LoginScreen> {
 
               const SizedBox(height: 16),
 
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              Column(
                 children: [
-                  ElevatedButton(
-                    onPressed: () => _goToGithub(context),
-                    style: ElevatedButton.styleFrom(
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                      backgroundColor: AppColors.primary,
-                      padding: EdgeInsets.symmetric(horizontal: 16),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(IonIcons.logo_github, color: AppColors.areaLightGray),
-                        SizedBox(width: 8),
-                        Text('Github', style: TextStyle(color: AppColors.areaLightGray)),
-                      ],
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: _goToGithub,
+                          style: ElevatedButton.styleFrom(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            backgroundColor: AppColors.primary,
+                            padding: EdgeInsets.symmetric(vertical: 12),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(IonIcons.logo_github, color: AppColors.areaLightGray),
+                              SizedBox(width: 8),
+                              Text('GitHub', style: TextStyle(color: AppColors.areaLightGray)),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: _goToGoogle,
+                          style: ElevatedButton.styleFrom(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            backgroundColor: Colors.red,
+                            padding: EdgeInsets.symmetric(vertical: 12),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(IonIcons.logo_google, color: AppColors.areaLightGray),
+                              SizedBox(width: 8),
+                              Text('Google', style: TextStyle(color: AppColors.areaLightGray)),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  ElevatedButton(
-                    onPressed: () => _goToMicrosoft(context),
-                    style: ElevatedButton.styleFrom(
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                      backgroundColor: AppColors.primary,
-                      padding: EdgeInsets.symmetric(horizontal: 16),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(IonIcons.logo_microsoft, color: AppColors.areaLightGray),
-                        SizedBox(width: 8),
-                        Text('Microsoft', style: TextStyle(color: AppColors.areaLightGray)),
-                      ],
-                    ),
-                  ),
-                  ElevatedButton(
-                    onPressed: () => _goToGoogle(context),
-                    style: ElevatedButton.styleFrom(
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                      backgroundColor: AppColors.primary,
-                      padding: EdgeInsets.symmetric(horizontal: 16),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(IonIcons.logo_google, color: AppColors.areaLightGray),
-                        SizedBox(width: 8),
-                        Text('Google', style: TextStyle(color: AppColors.areaLightGray)),
-                      ],
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: _goToMicrosoft,
+                      style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        backgroundColor: Colors.blue,
+                        padding: EdgeInsets.symmetric(vertical: 12),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(IonIcons.logo_microsoft, color: AppColors.areaLightGray),
+                          SizedBox(width: 8),
+                          Text('Microsoft', style: TextStyle(color: AppColors.areaLightGray)),
+                        ],
+                      ),
                     ),
                   ),
                 ],

@@ -12,7 +12,22 @@ class AppRoutes {
   static const String me = "api/user/me";
 
   // OAuth2
-  static const String github = "api/auth/github/login";
+  static const String githubLogin = "api/auth/github/login";
+  static const String microsoftLogin = "api/auth/microsoft/login";
+  static const String googleLogin = "api/auth/google/login";
+
+  // Services
+  static const String services = "api/services";
+  static const String servicesSubscribed = "api/services/subscribed";
+  static const String servicesWithActions = "api/services/actions";
+  static const String servicesWithReactions = "api/services/reactions";
+
+  // Service-specific routes
+  static String actionsFromService(String serviceId) => "api/services/$serviceId/actions";
+  static String reactionsFromService(String serviceId) => "api/services/$serviceId/reactions";
+
+  // Action Reaction mapping
+  static String createAutomation = "api/mappings";
 }
 
 class AppDimensions {
