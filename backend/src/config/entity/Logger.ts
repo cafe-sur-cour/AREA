@@ -24,6 +24,7 @@ export class Logger extends BaseEntity {
       'github',
       'google',
       'spotify',
+      'microsoft',
       'other',
     ],
   })
@@ -35,6 +36,7 @@ export class Logger extends BaseEntity {
     | 'github'
     | 'google'
     | 'spotify'
+    | 'microsoft'
     | 'other';
 
   @CreateDateColumn({ type: 'timestamp' })

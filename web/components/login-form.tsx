@@ -9,8 +9,7 @@ import { Label } from '@/components/ui/label';
 import { useState } from 'react';
 import api from '@/lib/api';
 import Image from 'next/image';
-import { FaMeta } from 'react-icons/fa6';
-import { FaGithub, FaGoogle } from 'react-icons/fa';
+import { FaGithub, FaGoogle, FaMicrosoft } from 'react-icons/fa';
 import { getAPIUrl } from '@/lib/config';
 import InputPassword from './ui/input-password';
 import { toast } from 'sonner';
@@ -56,8 +55,8 @@ export function LoginForm({
     window.location.href = `${await getAPIUrl()}/auth/google/login`;
   };
 
-  const signInWithMeta = async () => {
-    window.location.href = `${await getAPIUrl()}/auth/meta/login`;
+  const signInWithMicrosoft = async () => {
+    window.location.href = `${await getAPIUrl()}/auth/microsoft/login`;
   };
 
   return (
@@ -122,11 +121,11 @@ export function LoginForm({
                   <span className='sr-only'>Login with Google</span>
                 </ButtonWithLoading>
                 <ButtonWithLoading
-                  onClick={async () => await signInWithMeta()}
-                  className='w-full cursor-pointer'
+                  onClick={async () => await signInWithMicrosoft()}
+                  className='w-full'
                 >
-                  <FaMeta />
-                  <span className='sr-only'>Login with Meta</span>
+                  <FaMicrosoft />
+                  <span className='sr-only'>Login with Microsoft 365</span>
                 </ButtonWithLoading>
               </div>
               <div className='text-center text-sm'>

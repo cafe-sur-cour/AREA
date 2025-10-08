@@ -17,7 +17,7 @@ export class UserToken extends BaseEntity {
   @Column({ type: 'varchar', length: 50 })
   token_type!: string;
 
-  @Column({ type: 'varchar', length: 500, unique: true })
+  @Column({ type: 'text', unique: true })
   token_value!: string;
 
   @Column({ type: 'timestamp', nullable: true })

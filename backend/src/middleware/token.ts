@@ -39,11 +39,7 @@ const token = (
         return next();
       } catch (err) {
         void err;
-        console.error('Invalid Bearer token');
         if (req.cookies?.auth_token) {
-          console.log(
-            'Clearing invalid auth_token cookie due to invalid Bearer token'
-          );
           clearAuthCookie(res);
         }
 
