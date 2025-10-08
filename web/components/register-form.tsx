@@ -7,8 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { FaGithub, FaGoogle } from 'react-icons/fa';
-import { FaMeta } from 'react-icons/fa6';
+import { FaGithub, FaGoogle, FaMicrosoft } from 'react-icons/fa';
 import api from '@/lib/api';
 import Image from 'next/image';
 import { toast } from 'sonner';
@@ -64,8 +63,8 @@ export function RegisterForm({
     window.location.href = `${await getAPIUrl()}/auth/google/login`;
   };
 
-  const signInWithMeta = async () => {
-    window.location.href = `${await getAPIUrl()}/auth/meta/login`;
+  const signInWithMicrosoft = async () => {
+    window.location.href = `${await getAPIUrl()}/auth/microsoft/login`;
   };
 
   return (
@@ -140,11 +139,11 @@ export function RegisterForm({
                   <span className='sr-only'>Login with Google</span>
                 </ButtonWithLoading>
                 <ButtonWithLoading
-                  className='w-full cursor-pointer'
-                  onClick={async () => await signInWithMeta()}
+                  className='w-full'
+                  onClick={async () => await signInWithMicrosoft()}
                 >
-                  <FaMeta />
-                  <span className='sr-only'>Login with Meta</span>
+                  <FaMicrosoft />
+                  <span className='sr-only'>Login with Microsoft 365</span>
                 </ButtonWithLoading>
               </div>
             </div>
