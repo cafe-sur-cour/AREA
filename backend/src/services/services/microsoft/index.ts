@@ -1,10 +1,13 @@
 import type { Service } from '../../../types/service';
+import { getIconSvg } from '../../../utils/iconMapping';
 
 const microsoftService: Service = {
   id: 'microsoft',
   name: 'Microsoft 365',
-  description: 'Microsoft 365 OAuth service for authentication',
+  description:
+    'Microsoft 365 OAuth service for authentication and Microsoft Graph API integration',
   version: '1.0.0',
+  icon: getIconSvg('FaMicrosoft'),
   actions: [],
   reactions: [],
 };

@@ -124,7 +124,7 @@ export default function ServicesPage() {
       return;
     }
 
-    if (service.id === 'spotify') {
+    if (service.id === 'spotify' || service.id === 'microsoft') {
       window.location.href = `${apiUrl}${service.endpoints.auth}`;
       return;
     }
