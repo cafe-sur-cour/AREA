@@ -20,6 +20,7 @@
   "forgot_password": "Forgot Password",
   "confirm_email": "Confirm Email",
   "confirm_email_differs": "Emails differ",
+  "email_sent": "Email sent",
   "send": "Send",
   "name": "Name",
   "empty_name": "Please enter your name",

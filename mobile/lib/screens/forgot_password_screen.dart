@@ -4,9 +4,9 @@ import 'package:area/core/constants/app_colors.dart';
 import 'package:area/core/constants/app_constants.dart';
 import 'package:area/core/notifiers/backend_address_notifier.dart';
 import 'package:area/l10n/app_localizations.dart';
+import 'package:area/services/secure_http_client.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -63,7 +63,8 @@ class ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         final address = "${backendAddressNotifier.backendAddress}${AppRoutes.forgotPassword}";
         final url = Uri.parse(address);
 
-        final response = await http.post(url, body: {'email': email});
+        final client = SecureHttpClient.getClient();
+        final response = await client.post(url, body: {'email': email});
 
         final data = await jsonDecode(response.body);
 
@@ -75,7 +76,7 @@ class ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                "Email sent",
+                AppLocalizations.of(context)!.email_sent,
                 style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
               ),
               backgroundColor: AppColors.success,
@@ -108,7 +109,14 @@ class ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(AppLocalizations.of(context)!.forgot_password)),
+      appBar: AppBar(
+        title: Text(
+          AppLocalizations.of(context)!.forgot_password,
+          style: TextStyle(fontFamily: 'Montserrat', fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: AppColors.areaBlue3,
+        foregroundColor: AppColors.areaLightGray,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(32.0),
         child: Form(

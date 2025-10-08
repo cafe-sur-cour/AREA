@@ -214,6 +214,12 @@ abstract class AppLocalizations {
   /// **'Emails differ'**
   String get confirm_email_differs;
 
+  /// No description provided for @email_sent.
+  ///
+  /// In en, this message translates to:
+  /// **'Email sent'**
+  String get email_sent;
+
   /// No description provided for @send.
   ///
   /// In en, this message translates to:

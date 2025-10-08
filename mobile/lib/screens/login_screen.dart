@@ -6,12 +6,12 @@ import 'package:area/core/constants/app_constants.dart';
 import 'package:area/core/notifiers/backend_address_notifier.dart';
 import 'package:area/l10n/app_localizations.dart';
 import 'package:area/services/secure_storage.dart';
+import 'package:area/services/secure_http_client.dart';
 import 'package:area/widgets/widget_oauth_webview.dart';
 import 'package:flutter/material.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-import 'package:http/http.dart' as http;
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -67,7 +67,8 @@ class LoginScreenState extends State<LoginScreen> {
         final address = "${backendAddressNotifier.backendAddress}${AppRoutes.login}";
         final url = Uri.parse(address);
 
-        final response = await http.post(url, body: {'email': email, 'password': password});
+        final client = SecureHttpClient.getClient();
+        final response = await client.post(url, body: {'email': email, 'password': password});
 
         final data = await jsonDecode(response.body);
 
@@ -200,7 +201,14 @@ class LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(AppLocalizations.of(context)!.login)),
+      appBar: AppBar(
+        title: Text(
+          AppLocalizations.of(context)!.login,
+          style: TextStyle(fontFamily: 'Montserrat', fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: AppColors.areaBlue3,
+        foregroundColor: AppColors.areaLightGray,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(32.0),
         child: Form(

@@ -16,9 +16,18 @@ class AppRoutes {
   static const String microsoftLogin = "api/auth/microsoft/login";
   static const String googleLogin = "api/auth/google/login";
 
-  // Service
+  // Services
   static const String services = "api/services";
   static const String servicesSubscribed = "api/services/subscribed";
+  static const String servicesWithActions = "api/services/actions";
+  static const String servicesWithReactions = "api/services/reactions";
+
+  // Service-specific routes
+  static String actionsFromService(String serviceId) => "api/services/$serviceId/actions";
+  static String reactionsFromService(String serviceId) => "api/services/$serviceId/reactions";
+
+  // Action Reaction mapping
+  static String createAutomation = "api/mappings";
 }
 
 class AppDimensions {

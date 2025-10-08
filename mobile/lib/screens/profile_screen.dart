@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:area/core/config/app_config.dart';
 import 'package:area/core/constants/app_colors.dart';
 import 'package:area/core/constants/app_constants.dart';
 import 'package:area/core/notifiers/backend_address_notifier.dart';
@@ -6,9 +7,9 @@ import 'package:area/core/notifiers/locale_notifier.dart';
 import 'package:area/l10n/app_localizations.dart';
 import 'package:area/screens/services_screen.dart';
 import 'package:area/services/secure_storage.dart';
+import 'package:area/services/secure_http_client.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -24,14 +25,27 @@ class ProfileScreenState extends State<ProfileScreen> {
   late IconData _userProfileIcon;
   final TextEditingController _backendServerController = TextEditingController();
 
-  bool _justInitialized = false;
-
   @override
   void initState() {
     super.initState();
     _backendServerController.text = "";
     _loadProfileIfConnected();
-    _justInitialized = true;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeBackendAddress();
+    });
+  }
+
+  void _initializeBackendAddress() {
+    final backendAddressNotifier = Provider.of<BackendAddressNotifier>(context, listen: false);
+    if (backendAddressNotifier.backendAddress == null) {
+      backendAddressNotifier.setBackendAddress(AppConfig.backendUrl);
+    }
+    if (backendAddressNotifier.backendAddress != null &&
+        !backendAddressNotifier.backendAddress!.endsWith("/")) {
+      backendAddressNotifier.setBackendAddress("${backendAddressNotifier.backendAddress!}/");
+    }
+    _backendServerController.text = backendAddressNotifier.backendAddress ?? "";
   }
 
   void _loadProfileIfConnected() async {
@@ -55,9 +69,11 @@ class ProfileScreenState extends State<ProfileScreen> {
     late Color color;
 
     final appLocalizations = AppLocalizations.of(context);
+    final backendAddressNotifier = Provider.of<BackendAddressNotifier>(context, listen: false);
 
     try {
-      final response = await http.get(url);
+      final client = SecureHttpClient.getClient();
+      final response = await client.get(url);
 
       if (response.statusCode != 200) {
         throw response.body;
@@ -70,9 +86,11 @@ class ProfileScreenState extends State<ProfileScreen> {
 
       message = appLocalizations!.valid_backend_server_address;
       color = AppColors.success;
+      backendAddressNotifier.setBackendAddress(address);
     } catch (e) {
       message = appLocalizations!.invalid_backend_server_address;
       color = AppColors.error;
+      _backendServerController.text = backendAddressNotifier.backendAddress ?? "";
     }
 
     if (mounted) {
@@ -127,7 +145,8 @@ class ProfileScreenState extends State<ProfileScreen> {
 
     final url = Uri.parse(address);
     try {
-      final response = await http.post(url, headers: headers);
+      final client = SecureHttpClient.getClient();
+      final response = await client.post(url, headers: headers);
       final data = await jsonDecode(response.body);
 
       if (response.statusCode != 200) {
@@ -192,7 +211,8 @@ class ProfileScreenState extends State<ProfileScreen> {
 
     try {
       final jwt = await getJwt();
-      final response = await http.get(url, headers: {'Authorization': "Bearer $jwt"});
+      final client = SecureHttpClient.getClient();
+      final response = await client.get(url, headers: {'Authorization': "Bearer $jwt"});
       final data = await jsonDecode(response.body);
 
       if (response.statusCode != 200) {
@@ -226,12 +246,7 @@ class ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final localeNotifier = Provider.of<LocaleNotifier>(context);
-    final backendAddressNotifier = Provider.of<BackendAddressNotifier>(context);
 
-    if (_justInitialized) {
-      _backendServerController.text = backendAddressNotifier.backendAddress ?? "";
-      _justInitialized = false;
-    }
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -326,7 +341,9 @@ class ProfileScreenState extends State<ProfileScreen> {
                       children: [
                         if (_isConnected) ...[
                           Icon(_userProfileIcon, size: 80),
+
                           const SizedBox(width: 16),
+
                           Flexible(
                             child: Text(
                               _userName,
@@ -337,7 +354,9 @@ class ProfileScreenState extends State<ProfileScreen> {
                           ),
                         ] else ...[
                           const Icon(Icons.account_circle, size: 80),
+
                           const SizedBox(width: 16),
+
                           Flexible(
                             child: Text(
                               AppLocalizations.of(context)!.not_connected,
@@ -360,24 +379,12 @@ class ProfileScreenState extends State<ProfileScreen> {
                       border: OutlineInputBorder(),
                     ),
                     keyboardType: TextInputType.url,
-                    onChanged: (value) {
-                      String normalized = value.trim();
-                      if (normalized.isEmpty) {
-                        backendAddressNotifier.setBackendAddress(null);
-                        return;
-                      }
-                      if (!normalized.startsWith('http://') &&
-                          !normalized.startsWith('https://')) {
-                        normalized = 'https://$normalized';
-                      }
-                      if (!normalized.endsWith('/')) {
-                        normalized = '$normalized/';
-                      }
-                      backendAddressNotifier.setBackendAddress(normalized);
-                    },
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return AppLocalizations.of(context)!.empty_backend_server_address;
+                      }
+                      if (!value.endsWith("/")) {
+                        value += "/";
                       }
                       return null;
                     },
@@ -385,9 +392,7 @@ class ProfileScreenState extends State<ProfileScreen> {
                       FocusScope.of(context).unfocus();
                       _testApiAddress(_backendServerController.text);
                     },
-                    onFieldSubmitted: (value) async {
-                      await _testApiAddress(value);
-                    },
+                    onFieldSubmitted: (value) => _testApiAddress(value),
                   ),
 
                   if (_isConnected) ...[
