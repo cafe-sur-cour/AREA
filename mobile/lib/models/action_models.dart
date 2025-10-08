@@ -260,13 +260,11 @@ class ActionModel {
 
       final value = config[field.name];
 
-      // Handle type validation with string conversion for API data
       if (field.isNumericField && value is String) {
         if (num.tryParse(value) == null) {
           return false;
         }
       } else if (field.isBooleanField && value is String) {
-        // Accept string representations of booleans from API
         final lowerValue = value.toLowerCase();
         if (lowerValue != 'true' && lowerValue != 'false') {
           return false;
