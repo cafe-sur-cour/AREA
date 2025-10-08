@@ -1,3 +1,5 @@
+import 'package:area/core/config/app_config.dart';
+import 'package:area/core/notifiers/automation_builder_notifier.dart';
 import 'package:area/l10n/app_localizations.dart';
 import 'package:area/navigation/main_navigation.dart';
 import 'package:area/screens/home_screen.dart';
@@ -13,32 +15,38 @@ import 'package:area/core/notifiers/backend_address_notifier.dart';
 import 'package:area/core/notifiers/locale_notifier.dart';
 
 void main() {
-  Widget createTestableWidget(Widget child) {
-    return MaterialApp(
-      localizationsDelegates: const [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: AppLocalizations.supportedLocales,
-      home: child,
-    );
-  }
-
   Widget addProvidersToTestableApp(Widget child) {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => LocaleNotifier()),
-        ChangeNotifierProvider(create: (context) => BackendAddressNotifier()),
+        ChangeNotifierProvider(
+          create: (context) =>
+              BackendAddressNotifier()..setBackendAddress(AppConfig.backendUrl),
+        ),
+        ChangeNotifierProvider(create: (context) => AutomationBuilderNotifier()),
       ],
       child: child,
     );
   }
 
+  Widget createTestableWidget(Widget child) {
+    return addProvidersToTestableApp(
+      MaterialApp(
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: child,
+      ),
+    );
+  }
+
   group('MainNavigation Widget Tests', () {
     testWidgets('should display 5 navigation items', (WidgetTester tester) async {
-      await tester.pumpWidget(createTestableWidget(const MainNavigation()));
+      await tester.pumpWidget(createTestableWidget(MainNavigation()));
       await tester.pumpAndSettle();
 
       final bottomNavBar = find.byType(BottomNavigationBar);
@@ -64,16 +72,18 @@ void main() {
     testWidgets('should display correct navigation labels in French', (
       WidgetTester tester,
     ) async {
-      Widget frenchApp = MaterialApp(
-        locale: const Locale('fr'),
-        localizationsDelegates: const [
-          AppLocalizations.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        supportedLocales: AppLocalizations.supportedLocales,
-        home: const MainNavigation(),
+      Widget frenchApp = addProvidersToTestableApp(
+        MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: const MainNavigation(),
+        ),
       );
 
       await tester.pumpWidget(frenchApp);
@@ -160,9 +170,7 @@ void main() {
     testWidgets('should navigate to Profile screen when Profile tab is tapped', (
       WidgetTester tester,
     ) async {
-      await tester.pumpWidget(
-        addProvidersToTestableApp(createTestableWidget(const MainNavigation())),
-      );
+      await tester.pumpWidget(createTestableWidget(const MainNavigation()));
       await tester.pumpAndSettle();
 
       await tester.tap(find.byIcon(Icons.person_outline));
