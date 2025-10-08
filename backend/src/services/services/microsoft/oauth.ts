@@ -89,6 +89,7 @@ export class MicrosoftOAuth {
     const url = `${this.microsoftAuthBaseUrl}/${this.tenantId}/oauth2/v2.0/token`;
     const body = new URLSearchParams({
       client_id: this.clientId,
+      client_secret: this.clientSecret,
       code: code,
       grant_type: 'authorization_code',
       redirect_uri: this.redirectUri,
