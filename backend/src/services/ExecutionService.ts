@@ -420,7 +420,7 @@ export class ExecutionService {
         },
         serviceConfig: await this.loadServiceConfig(
           reaction.type,
-          event.user_id
+          mapping.created_by || event.user_id
         ),
       };
 
