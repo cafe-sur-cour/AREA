@@ -1,6 +1,7 @@
 import { AppDataSource } from '../../config/db';
 import { WebhookConfigs } from '../../config/entity/WebhookConfigs';
-import { Not } from 'typeorm';
+import { ExternalWebhooks } from '../../config/entity/ExternalWebhooks';
+import { Not, Raw } from 'typeorm';
 import type { Action, Reaction } from '../../types/mapping';
 
 export class MappingService {
@@ -139,8 +140,73 @@ export class MappingService {
       return false;
     }
 
+    const actionType = mapping.action.type;
+    const repository = mapping.action.config?.repository as string;
+
     await this.mappingRepository.remove(mapping);
+
+    await this.cleanupExternalWebhooks(actionType, repository, userId);
+
     return true;
+  }
+
+  private async cleanupExternalWebhooks(
+    actionType: string,
+    repository: string | undefined,
+    userId: number
+  ): Promise<void> {
+    if (!repository) {
+      return;
+    }
+
+    const serviceId = actionType.split('.')[0];
+
+    const remainingMappings = await this.mappingRepository.find({
+      where: {
+        is_active: true,
+        action: Raw(alias => `${alias} ->> 'type' = :type`, {
+          type: actionType,
+        }),
+      },
+    });
+
+    const relevantMappings = remainingMappings.filter(mapping => {
+      const mappingRepository = mapping.action.config?.repository as string;
+      return mappingRepository === repository;
+    });
+
+    if (relevantMappings.length === 0) {
+      try {
+        if (repository) {
+          await this.cleanupWebhookForService(serviceId, repository!, userId);
+        }
+      } catch (error) {
+        console.warn(`Failed to cleanup webhook for ${repository}:`, error);
+      }
+    }
+  }
+
+  private async cleanupWebhookForService(
+    serviceId: string,
+    repository: string,
+    userId: number
+  ): Promise<void> {
+    const externalWebhooksRepo = AppDataSource.getRepository(ExternalWebhooks);
+    const webhook = await externalWebhooksRepo.findOne({
+      where: {
+        user_id: userId,
+        service: serviceId,
+        repository: repository,
+        is_active: true,
+      },
+    });
+
+    if (webhook) {
+      console.log(
+        `🧹 [MAPPING] Removing webhook record for ${repository} (user: ${userId})`
+      );
+      await externalWebhooksRepo.remove(webhook);
+    }
   }
 
   async updateMapping(

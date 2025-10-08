@@ -64,6 +64,14 @@ export interface ActionMetadata {
   color?: string;
   requiresAuth: boolean;
   webhookPattern?: string;
+  sharedEvents?: boolean;
+  sharedEventFilter?: (
+    event: {
+      source: string | null | undefined;
+      payload: Record<string, unknown>;
+    },
+    mapping: { action: { config?: Record<string, unknown> } }
+  ) => boolean;
 }
 
 export interface ReactionMetadata {

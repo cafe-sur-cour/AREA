@@ -230,6 +230,11 @@ export const actions: ActionDefinition[] = [
       tags: ['git', 'push', 'repository'],
       requiresAuth: true,
       webhookPattern: 'push',
+      sharedEvents: true,  // ← Events from this action trigger mappings for ALL users
+      sharedEventFilter: (event, mapping) => {  // ← Optional filter for shared events
+        const repository = (event.payload as { repository?: { full_name?: string } })?.repository?.full_name;
+        return repository ? mapping.action.config?.repository === repository : true;
+      },
       icon: 'git-branch',
       color: '#f05032',
     },
@@ -253,12 +258,69 @@ export const actions: ActionDefinition[] = [
       tags: ['issue', 'created'],
       requiresAuth: true,
       webhookPattern: 'issues',
+      sharedEvents: true,  // ← Shared between users
+      sharedEventFilter: (event, mapping) => {
+        const repository = (event.payload as { repository?: { full_name?: string } })?.repository?.full_name;
+        return repository ? mapping.action.config?.repository === repository : true;
+      },
       icon: 'issue-opened',
       color: '#28a745',
     },
   },
+  {
+    id: 'yourservice.personal_notification',
+    name: 'Personal Notification',
+    description: 'Triggers for personal user events',
+    configSchema: personalConfigSchema,
+    inputSchema: {
+      type: 'object',
+      properties: {
+        user_id: { type: 'string' },
+        message: { type: 'string' },
+      },
+      required: ['user_id'],
+    },
+    metadata: {
+      category: 'Personal',
+      tags: ['notification', 'personal'],
+      requiresAuth: true,
+      sharedEvents: false,  // ← Personal (default) - only the owner user sees their reactions
+      icon: 'bell',
+      color: '#007acc',
+    },
+  },
 ];
 ```
+
+### Shared Events Configuration
+
+AREA supports two types of events:
+
+#### Shared Events (`sharedEvents: true`)
+- **Trigger** : Events trigger reactions for **ALL** users who have configured this action
+- **Usage** : Ideal for external webhooks (GitHub, Discord, etc.) where multiple users may want to react to the same event
+- **Example** : A push on a GitHub repo triggers notifications for all users watching that repo
+
+#### Personal Events (`sharedEvents: false` or undefined)
+- **Trigger** : Events only trigger reactions for the **owner user**
+- **Usage** : Ideal for personal events (timers, individual notifications, etc.)
+- **Example** : A personal timer only triggers the owner's actions
+
+#### Shared Events Filtering (`sharedEventFilter`)
+For shared events, you can add a custom filter:
+
+```typescript
+sharedEventFilter: (event, mapping) => {
+  // event: { source: string, payload: Record<string, unknown> }
+  // mapping: { action: { config?: Record<string, unknown> } }
+
+  // Example: filter by repository for GitHub
+  const repository = (event.payload as { repository?: { full_name?: string } })?.repository?.full_name;
+  return repository ? mapping.action.config?.repository === repository : true;
+}
+```
+
+This filter ensures that only users who have configured the action for the correct context (repository, channel, etc.) see their reactions triggered.
 
 ## Step 5: Reaction Definitions (`reactions.ts`)
 
@@ -616,7 +678,74 @@ class YourServiceWebhookHandler implements WebhookHandler {
 export default new YourServiceWebhookHandler();
 ```
 
-## Step 12: Testing and Validation
+## Event Architecture
+
+### Understanding Events in AREA
+
+AREA processes different types of events that trigger automation execution:
+
+#### 1. Webhook Events (External)
+- **Source** : External services (GitHub, Discord, etc.)
+- **Trigger** : HTTP webhooks received from the external service
+- **Behavior** : According to `sharedEvents`, can trigger mappings for all users or only a specific user
+
+#### 2. Scheduled Events (Timers)
+- **Source** : Internal timer system
+- **Trigger** : Periodic execution based on user configuration
+- **Behavior** : Always personal (only the owner user sees their reactions)
+
+#### 3. Polling Events
+- **Source** : Regular API checks for external services
+- **Trigger** : Regular API requests to detect changes
+- **Behavior** : Can be shared or personal depending on the event nature
+
+### Event Execution Flow
+
+```
+1. Event Received ──┬─ Webhook ──→ WebhookHandler
+                   ├─ Timer ────→ TimerService
+                   └─ Polling ──→ PollingService
+
+2. Event Creation ──→ WebhookEvents (in database)
+
+3. Mapping Search ──┬─ sharedEvents: true ──→ All users
+                   └─ sharedEvents: false ──→ Owner user only
+
+4. Contextual Filtering ──→ sharedEventFilter (optional)
+
+5. Reaction Execution ──→ ReactionExecutor
+```
+
+### Practical Examples
+
+#### GitHub Push (Shared Event)
+```typescript
+metadata: {
+  sharedEvents: true,
+  sharedEventFilter: (event, mapping) => {
+    // A push on "owner/repo" only triggers mappings configured for that repo
+    const repo = event.payload.repository?.full_name;
+    return mapping.action.config?.repository === repo;
+  }
+}
+```
+**Result** : If 3 users are watching "owner/repo", a push triggers all 3 automations.
+
+#### Personal Timer (Personal Event)
+```typescript
+metadata: {
+  sharedEvents: false, // or undefined
+}
+```
+**Result** : A user's timer only triggers their own automations.
+
+#### Spotify Notification (Personal Event)
+```typescript
+metadata: {
+  sharedEvents: false,
+}
+```
+**Result** : A Spotify notification for user A only triggers A's automations.
 
 ### Unit Tests
 
@@ -662,10 +791,11 @@ describe('YourService Integration', () => {
 });
 ```
 
-## Additional Resources
+## Ressources Supplémentaires
 
+- [Architecture des Événements](../architecture/event-architecture.md)
 - [OAuth 2.0 Documentation](https://oauth.net/2/)
 - [TypeScript Types](../types/service.ts)
-- [Existing Examples](../services/services/github/)
+- [Exemples Existants](../services/services/github/)
 
 ---
