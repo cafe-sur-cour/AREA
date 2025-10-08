@@ -122,8 +122,7 @@ export class ExecutionService {
       );
 
       const mappings = await this.loadMappingsForAction(
-        event.action_type,
-        event.user_id,
+        event,
         event.mapping_id ?? undefined
       );
 
@@ -144,7 +143,10 @@ export class ExecutionService {
       );
 
       for (const mapping of mappings) {
-        await this.ensureExternalWebhooksForMapping(mapping, event.user_id);
+        await this.ensureExternalWebhooksForMapping(
+          mapping,
+          mapping.created_by || event.user_id
+        );
       }
 
       for (const mapping of mappings) {
@@ -182,10 +184,12 @@ export class ExecutionService {
   }
 
   private async loadMappingsForAction(
-    actionType: string,
-    userId: number,
+    event: WebhookEvents,
     mappingId?: number
   ): Promise<WebhookConfigs[]> {
+    const actionType = event.action_type;
+    const userId = event.user_id;
+
     console.log(
       `🔍 [ExecutionService] Loading mappings for action: ${actionType}, user: ${userId}${mappingId ? `, specific mapping: ${mappingId}` : ''}`
     );
@@ -215,8 +219,54 @@ export class ExecutionService {
       return result;
     }
 
+    const actionDefinition = serviceRegistry.getActionByType(actionType);
+    if (actionDefinition?.metadata?.sharedEvents) {
+      console.log(
+        `🔍 [ExecutionService] Searching for mappings with shared action type: ${actionType} for all users`
+      );
+
+      const result = await mappingRepository.find({
+        where: {
+          is_active: true,
+          action: Raw(alias => `${alias} ->> 'type' = :type`, {
+            type: actionType,
+          }),
+        },
+      });
+
+      let filteredResult = result;
+      if (actionDefinition.metadata?.sharedEventFilter) {
+        filteredResult = result.filter(mapping =>
+          actionDefinition.metadata!.sharedEventFilter!(
+            { source: event.source, payload: event.payload },
+            { action: mapping.action || {} }
+          )
+        );
+      }
+
+      console.log(
+        `📊 [ExecutionService] Found ${filteredResult.length} active mappings for shared action ${actionType} across all users`
+      );
+
+      if (filteredResult.length > 0) {
+        console.log(
+          `📋 [ExecutionService] Mappings found:`,
+          filteredResult.map(m => ({
+            id: m.id,
+            name: m.name,
+            user_id: m.created_by,
+            action_type: m.action.type,
+            reactions_count: m.reactions.length,
+            is_active: m.is_active,
+          }))
+        );
+      }
+
+      return filteredResult;
+    }
+
     console.log(
-      `🔍 [ExecutionService] Searching for mappings with action type: ${actionType}`
+      `🔍 [ExecutionService] Searching for mappings with action type: ${actionType} for user: ${userId}`
     );
 
     const result = await mappingRepository.find({
