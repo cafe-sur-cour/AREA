@@ -35,6 +35,13 @@ const serviceEndpoints: Record<
     subscribe: '/auth/spotify/subscribe',
     unsubscribe: '/spotify/unsubscribe',
   },
+  microsoft: {
+    auth: '/auth/microsoft/subscribe',
+    status: '/microsoft/subscribe/status',
+    loginStatus: '/microsoft/login/status',
+    subscribe: '/microsoft/subscribe',
+    unsubscribe: '/microsoft/unsubscribe',
+  },
   timer: {
     auth: '',
     status: '/services/timer/subscribe/status',
