@@ -404,6 +404,20 @@ export class ExecutionService {
     );
 
     try {
+      const mappingOwnerId = mapping.created_by;
+      if (!mappingOwnerId) {
+        console.error(
+          `❌ [ExecutionService] Mapping ${mapping.id} (${mapping.name}) has no owner (created_by: ${mapping.created_by})`
+        );
+        throw new Error(
+          `Mapping ${mapping.id} has no owner (created_by is null/undefined)`
+        );
+      }
+
+      console.log(
+        `🔑 [ExecutionService] Executing reaction for mapping ${mapping.id} (${mapping.name}) owned by user ${mappingOwnerId}`
+      );
+
       const context: ReactionExecutionContext = {
         reaction,
         event: {
@@ -416,11 +430,11 @@ export class ExecutionService {
         mapping: {
           id: mapping.id,
           name: mapping.name,
-          created_by: mapping.created_by || event.user_id,
+          created_by: mappingOwnerId,
         },
         serviceConfig: await this.loadServiceConfig(
           reaction.type,
-          mapping.created_by || event.user_id
+          mappingOwnerId
         ),
       };
 
