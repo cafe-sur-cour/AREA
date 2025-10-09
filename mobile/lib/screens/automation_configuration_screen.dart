@@ -20,6 +20,8 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
   final _descriptionController = TextEditingController();
   bool _isCreating = false;
 
+  final Map<String, TextEditingController> _configControllers = {};
+
   @override
   void initState() {
     super.initState();
@@ -31,37 +33,62 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
   void dispose() {
     _nameController.dispose();
     _descriptionController.dispose();
+    for (final controller in _configControllers.values) {
+      controller.dispose();
+    }
+    _configControllers.clear();
     super.dispose();
+  }
+
+  TextEditingController _getOrCreateController(String fieldKey, String? initialValue) {
+    if (!_configControllers.containsKey(fieldKey)) {
+      _configControllers[fieldKey] = TextEditingController(text: initialValue ?? '');
+    } else {
+      final currentText = _configControllers[fieldKey]!.text;
+      final newText = initialValue ?? '';
+      if (currentText != newText) {
+        _configControllers[fieldKey]!.text = newText;
+      }
+    }
+    return _configControllers[fieldKey]!;
   }
 
   Widget _buildConfigField(
     ConfigField field,
     dynamic currentValue,
-    Function(dynamic) onChanged,
-  ) {
+    Function(dynamic) onChanged, {
+    String? contextPrefix,
+  }) {
     switch (field.type) {
       case 'text':
       case 'email':
-        return _buildTextField(field, currentValue, onChanged);
+        return _buildTextField(field, currentValue, onChanged, contextPrefix: contextPrefix);
       case 'textarea':
-        return _buildTextAreaField(field, currentValue, onChanged);
+        return _buildTextAreaField(
+          field,
+          currentValue,
+          onChanged,
+          contextPrefix: contextPrefix,
+        );
       case 'number':
-        return _buildNumberField(field, currentValue, onChanged);
+        return _buildNumberField(field, currentValue, onChanged, contextPrefix: contextPrefix);
       case 'select':
         return _buildSelectField(field, currentValue, onChanged);
       case 'checkbox':
         return _buildCheckboxField(field, currentValue, onChanged);
       default:
-        return _buildTextField(field, currentValue, onChanged);
+        return _buildTextField(field, currentValue, onChanged, contextPrefix: contextPrefix);
     }
   }
 
   Widget _buildTextField(
     ConfigField field,
     dynamic currentValue,
-    Function(dynamic) onChanged,
-  ) {
-    final controller = TextEditingController(text: currentValue?.toString() ?? '');
+    Function(dynamic) onChanged, {
+    String? contextPrefix,
+  }) {
+    final fieldKey = '${contextPrefix ?? 'text'}_${field.name}';
+    final controller = _getOrCreateController(fieldKey, currentValue?.toString());
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -100,9 +127,11 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
   Widget _buildTextAreaField(
     ConfigField field,
     dynamic currentValue,
-    Function(dynamic) onChanged,
-  ) {
-    final controller = TextEditingController(text: currentValue?.toString() ?? '');
+    Function(dynamic) onChanged, {
+    String? contextPrefix,
+  }) {
+    final fieldKey = '${contextPrefix ?? 'textarea'}_${field.name}';
+    final controller = _getOrCreateController(fieldKey, currentValue?.toString());
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -134,9 +163,11 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
   Widget _buildNumberField(
     ConfigField field,
     dynamic currentValue,
-    Function(dynamic) onChanged,
-  ) {
-    final controller = TextEditingController(text: currentValue?.toString() ?? '');
+    Function(dynamic) onChanged, {
+    String? contextPrefix,
+  }) {
+    final fieldKey = '${contextPrefix ?? 'number'}_${field.name}';
+    final controller = _getOrCreateController(fieldKey, currentValue?.toString());
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -321,6 +352,7 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
                   field,
                   currentValue ?? field.defaultValue,
                   (value) => automationBuilder.setActionConfigValue(field.name, value),
+                  contextPrefix: 'action_${field.type}',
                 ),
               );
             }),
@@ -384,6 +416,7 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
                     field.name,
                     value,
                   ),
+                  contextPrefix: 'reaction_${reactionIndex}_${field.type}',
                 ),
               );
             }),
