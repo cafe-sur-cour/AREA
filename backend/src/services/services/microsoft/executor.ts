@@ -152,8 +152,7 @@ export class MicrosoftReactionExecutor implements ReactionExecutor {
         };
       }
 
-      const responseData =
-        (await response.json()) as TeamsChatMessageResponse;
+      const responseData = (await response.json()) as TeamsChatMessageResponse;
 
       return {
         success: true,

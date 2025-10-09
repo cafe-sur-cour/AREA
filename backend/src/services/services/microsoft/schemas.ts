@@ -3,14 +3,16 @@ import type { ActionReactionSchema } from '../../../types/mapping';
 
 export const microsoftPostTeamsMessageSchema: ActionReactionSchema = {
   name: 'Send Message in Teams Chat',
-  description: 'Sends a message to a Microsoft Teams chat (1-to-1 or group chat)',
+  description:
+    'Sends a message to a Microsoft Teams chat (1-to-1 or group chat)',
   fields: [
     {
       name: 'chat_id',
       type: 'text',
       label: 'Chat ID',
       required: true,
-      placeholder: '19:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx_yyyyyyyyyyyyyyyyyyyyyyyy@unq.gbl.spaces',
+      placeholder:
+        '19:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx_yyyyyyyyyyyyyyyyyyyyyyyy@unq.gbl.spaces',
     },
     {
       name: 'message',

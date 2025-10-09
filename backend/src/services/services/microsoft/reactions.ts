@@ -9,7 +9,8 @@ export const microsoftReactions: ReactionDefinition[] = [
   {
     id: 'microsoft.send_teams_chat_message',
     name: 'Send Message in Teams Chat',
-    description: 'Sends a message to a Microsoft Teams chat (1-to-1 or group chat)',
+    description:
+      'Sends a message to a Microsoft Teams chat (1-to-1 or group chat)',
     configSchema: microsoftPostTeamsMessageSchema,
     outputSchema: {
       type: 'object',
