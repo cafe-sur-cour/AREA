@@ -1,5 +1,4 @@
-// Microsoft service schemas
-import type { ActionReactionSchema } from '../../../types/mapping';
+import type { ActionReactionSchema } from '../../backend/src/types/mapping';
 
 export const microsoftPostTeamsMessageSchema: ActionReactionSchema = {
   name: 'Send Message in Teams Chat',

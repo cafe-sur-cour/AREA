@@ -1,4 +1,4 @@
-import type { ReactionDefinition } from '../../../types/service';
+import type { ReactionDefinition } from '../backend/src/types/service';
 import {
   microsoftPostTeamsMessageSchema,
   microsoftSendTeamsChatToUserSchema,
@@ -7,9 +7,8 @@ import {
   microsoftPostTeamsChannelMessageSchema,
   microsoftReplyToEmailSchema,
   microsoftUpdatePresenceSchema,
-} from './schemas';
+} from '../backend/src/services/services/microsoft/schemas';
 
-// Microsoft reactions
 export const microsoftReactions: ReactionDefinition[] = [
   {
     id: 'microsoft.send_teams_chat_message',

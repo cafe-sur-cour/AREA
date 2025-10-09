@@ -2,8 +2,8 @@ import type {
   ReactionExecutor,
   ReactionExecutionContext,
   ReactionExecutionResult,
-} from '../../../types/service';
-import { microsoftOAuth } from './oauth';
+} from '../../backend/src/types/service';
+import { microsoftOAuth } from '../../backend/src/services/services/microsoft/oauth';
 
 interface TeamsChatMessage {
   body: {
