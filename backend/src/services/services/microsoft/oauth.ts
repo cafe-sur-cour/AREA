@@ -75,7 +75,7 @@ export class MicrosoftOAuth {
     const params = new URLSearchParams({
       client_id: this.clientId,
       redirect_uri: this.redirectUri,
-      scope: 'openid email profile User.Read User.ReadBasic.All Chat.ReadWrite ChatMessage.Send',
+      scope: 'openid email profile User.Read User.ReadBasic.All Chat.ReadWrite ChatMessage.Send Mail.Send Mail.ReadWrite Calendars.ReadWrite ChannelMessage.Send Presence.ReadWrite',
       response_type: 'code',
       response_mode: 'query',
       state: state,

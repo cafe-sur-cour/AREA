@@ -90,6 +90,19 @@ export class MicrosoftReactionExecutor implements ReactionExecutor {
           return await this.sendChatMessage(reaction.config, validToken);
         case 'microsoft.send_direct_message':
           return await this.sendDirectMessage(reaction.config, validToken);
+        case 'microsoft.send_email':
+          return await this.sendEmail(reaction.config, validToken);
+        case 'microsoft.reply_to_email':
+          return await this.replyToEmail(reaction.config, validToken);
+        case 'microsoft.create_calendar_event':
+          return await this.createCalendarEvent(reaction.config, validToken);
+        case 'microsoft.post_teams_channel_message':
+          return await this.postTeamsChannelMessage(
+            reaction.config,
+            validToken
+          );
+        case 'microsoft.update_presence':
+          return await this.updatePresence(reaction.config, validToken);
         default:
           return {
             success: false,
@@ -310,6 +323,373 @@ export class MicrosoftReactionExecutor implements ReactionExecutor {
       return {
         success: false,
         error: `Network error while sending direct message: ${(error as Error).message}`,
+      };
+    }
+  }
+
+  private async sendEmail(
+    config: Record<string, unknown>,
+    accessToken: string
+  ): Promise<ReactionExecutionResult> {
+    const { to, subject, body, cc } = config as {
+      to: string;
+      subject: string;
+      body: string;
+      cc?: string;
+    };
+
+    if (!to || !subject || !body) {
+      return {
+        success: false,
+        error: 'To, subject, and body are required',
+      };
+    }
+
+    try {
+      const emailPayload = {
+        message: {
+          subject: subject,
+          body: {
+            contentType: 'Text',
+            content: body,
+          },
+          toRecipients: [
+            {
+              emailAddress: {
+                address: to,
+              },
+            },
+          ],
+          ...(cc && {
+            ccRecipients: cc.split(',').map((email: string) => ({
+              emailAddress: {
+                address: email.trim(),
+              },
+            })),
+          }),
+        },
+        saveToSentItems: true,
+      };
+
+      const response = await fetch(
+        `${this.apiBaseUrl}/v1.0/me/sendMail`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(emailPayload),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        const errorMessage =
+          (errorData as { error?: { message?: string } }).error?.message ||
+          'Unknown error';
+        return {
+          success: false,
+          error: `Failed to send email: ${errorMessage}`,
+        };
+      }
+
+      return {
+        success: true,
+        output: {
+          success: true,
+        },
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: `Network error while sending email: ${(error as Error).message}`,
+      };
+    }
+  }
+
+  private async replyToEmail(
+    config: Record<string, unknown>,
+    accessToken: string
+  ): Promise<ReactionExecutionResult> {
+    const { message_id, reply_body } = config as {
+      message_id: string;
+      reply_body: string;
+    };
+
+    if (!message_id || !reply_body) {
+      return {
+        success: false,
+        error: 'Message ID and reply body are required',
+      };
+    }
+
+    try {
+      const replyPayload = {
+        comment: reply_body,
+      };
+
+      const response = await fetch(
+        `${this.apiBaseUrl}/v1.0/me/messages/${message_id}/reply`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(replyPayload),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        const errorMessage =
+          (errorData as { error?: { message?: string } }).error?.message ||
+          'Unknown error';
+        return {
+          success: false,
+          error: `Failed to reply to email: ${errorMessage}`,
+        };
+      }
+
+      return {
+        success: true,
+        output: {
+          success: true,
+        },
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: `Network error while replying to email: ${(error as Error).message}`,
+      };
+    }
+  }
+
+  private async createCalendarEvent(
+    config: Record<string, unknown>,
+    accessToken: string
+  ): Promise<ReactionExecutionResult> {
+    const { subject, start_datetime, end_datetime, location, body, attendees } =
+      config as {
+        subject: string;
+        start_datetime: string;
+        end_datetime: string;
+        location?: string;
+        body?: string;
+        attendees?: string;
+      };
+
+    if (!subject || !start_datetime || !end_datetime) {
+      return {
+        success: false,
+        error: 'Subject, start datetime, and end datetime are required',
+      };
+    }
+
+    try {
+      const eventPayload = {
+        subject: subject,
+        start: {
+          dateTime: start_datetime,
+          timeZone: 'UTC',
+        },
+        end: {
+          dateTime: end_datetime,
+          timeZone: 'UTC',
+        },
+        ...(location && {
+          location: {
+            displayName: location,
+          },
+        }),
+        ...(body && {
+          body: {
+            contentType: 'Text',
+            content: body,
+          },
+        }),
+        ...(attendees && {
+          attendees: attendees.split(',').map((email: string) => ({
+            emailAddress: {
+              address: email.trim(),
+            },
+            type: 'required',
+          })),
+        }),
+      };
+
+      const response = await fetch(
+        `${this.apiBaseUrl}/v1.0/me/events`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(eventPayload),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        const errorMessage =
+          (errorData as { error?: { message?: string } }).error?.message ||
+          'Unknown error';
+        return {
+          success: false,
+          error: `Failed to create calendar event: ${errorMessage}`,
+        };
+      }
+
+      const eventData = (await response.json()) as {
+        id: string;
+        webLink: string;
+      };
+
+      return {
+        success: true,
+        output: {
+          event_id: eventData.id,
+          web_link: eventData.webLink,
+          success: true,
+        },
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: `Network error while creating calendar event: ${(error as Error).message}`,
+      };
+    }
+  }
+
+  private async postTeamsChannelMessage(
+    config: Record<string, unknown>,
+    accessToken: string
+  ): Promise<ReactionExecutionResult> {
+    const { team_id, channel_id, message } = config as {
+      team_id: string;
+      channel_id: string;
+      message: string;
+    };
+
+    if (!team_id || !channel_id || !message) {
+      return {
+        success: false,
+        error: 'Team ID, channel ID, and message are required',
+      };
+    }
+
+    try {
+      const messagePayload = {
+        body: {
+          contentType: 'text',
+          content: message,
+        },
+      };
+
+      const response = await fetch(
+        `${this.apiBaseUrl}/v1.0/teams/${team_id}/channels/${channel_id}/messages`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(messagePayload),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        const errorMessage =
+          (errorData as { error?: { message?: string } }).error?.message ||
+          'Unknown error';
+        return {
+          success: false,
+          error: `Failed to post channel message: ${errorMessage}`,
+        };
+      }
+
+      const responseData = (await response.json()) as { id: string };
+
+      return {
+        success: true,
+        output: {
+          message_id: responseData.id,
+          success: true,
+        },
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: `Network error while posting channel message: ${(error as Error).message}`,
+      };
+    }
+  }
+
+  private async updatePresence(
+    config: Record<string, unknown>,
+    accessToken: string
+  ): Promise<ReactionExecutionResult> {
+    const { availability, activity, expiration_duration } = config as {
+      availability: string;
+      activity: string;
+      expiration_duration?: string;
+    };
+
+    if (!availability || !activity) {
+      return {
+        success: false,
+        error: 'Availability and activity are required',
+      };
+    }
+
+    try {
+      const presencePayload = {
+        sessionId: `area-${Date.now()}`,
+        availability: availability,
+        activity: activity,
+        ...(expiration_duration && {
+          expirationDuration: expiration_duration,
+        }),
+      };
+
+      const response = await fetch(
+        `${this.apiBaseUrl}/v1.0/me/presence/setPresence`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(presencePayload),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        const errorMessage =
+          (errorData as { error?: { message?: string } }).error?.message ||
+          'Unknown error';
+        return {
+          success: false,
+          error: `Failed to update presence: ${errorMessage}`,
+        };
+      }
+
+      return {
+        success: true,
+        output: {
+          success: true,
+          availability: availability,
+          activity: activity,
+        },
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: `Network error while updating presence: ${(error as Error).message}`,
       };
     }
   }
