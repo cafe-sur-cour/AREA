@@ -47,9 +47,8 @@ export const slackActions: ActionDefinition[] = [
         if (!eventData.channel) return false;
 
         const mappingChannel = mapping.action.config?.channel as string;
-        if (!mappingChannel) return true; // No filter means all channels
+        if (!mappingChannel) return true;
 
-        // Check if channel matches (by ID or name)
         return eventData.channel === mappingChannel;
       },
     },
@@ -78,7 +77,7 @@ export const slackActions: ActionDefinition[] = [
       tags: ['message', 'dm', 'direct', 'communication'],
       requiresAuth: true,
       webhookPattern: 'message.im',
-      sharedEvents: false, // DMs are user-specific
+      sharedEvents: false,
     },
   },
   {
@@ -115,11 +114,10 @@ export const slackActions: ActionDefinition[] = [
       webhookPattern: 'channel_created',
       sharedEvents: true,
       sharedEventFilter: (event, mapping) => {
-        // For channel creation, we can filter by creator if needed
         const eventData = event.payload as { channel?: { creator?: string } };
 
-        const mappingCreator = mapping.action.config?.channel as string; // Reuse channel field for creator filter
-        if (!mappingCreator) return true; // No filter means all channel creations
+        const mappingCreator = mapping.action.config?.channel as string;
+        if (!mappingCreator) return true;
 
         return eventData.channel?.creator === mappingCreator;
       },
@@ -162,13 +160,11 @@ export const slackActions: ActionDefinition[] = [
           reaction?: string;
         };
 
-        // Check channel filter
         const mappingChannel = mapping.action.config?.channel as string;
         if (mappingChannel && eventData.item?.channel !== mappingChannel) {
           return false;
         }
 
-        // Check emoji filter
         const mappingEmoji = mapping.action.config?.emoji as string;
         if (
           mappingEmoji &&
