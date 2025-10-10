@@ -275,20 +275,25 @@ export class SlackReactionExecutor implements ReactionExecutor {
 
     console.log('🔵 SLACK DEBUG: History API response status:', historyResponse.status);
 
-    if (!historyResponse.ok) {
-      const errorData = (await historyResponse.json()) as SlackApiResponse;
-      console.log('🔴 SLACK DEBUG: History API error:', errorData);
-      throw new Error(`Failed to get channel history: ${errorData.error}`);
-    }
-
-    const historyData = (await historyResponse.json()) as { ok: boolean; messages: Array<{ ts: string; text: string }> };
+    const historyData = (await historyResponse.json()) as { ok: boolean; messages: Array<{ ts: string; text: string }>; error?: string };
     console.log('🔵 SLACK DEBUG: History API response:', {
       ok: historyData.ok,
       messagesCount: historyData.messages?.length || 0,
-      messages: historyData.messages
+      messages: historyData.messages,
+      error: historyData.error
     });
 
-    if (!historyData.ok || !historyData.messages || historyData.messages.length === 0) {
+    if (!historyResponse.ok) {
+      console.log('🔴 SLACK DEBUG: History API HTTP error');
+      throw new Error(`Failed to get channel history: HTTP ${historyResponse.status}`);
+    }
+
+    if (!historyData.ok) {
+      console.log('� SLACK DEBUG: History API returned error:', historyData.error);
+      throw new Error(`Failed to get channel history: ${historyData.error || 'Unknown error'}`);
+    }
+
+    if (!historyData.messages || historyData.messages.length === 0) {
       console.log('🔴 SLACK DEBUG: No messages in history response');
       throw new Error('No messages found in channel');
     }
@@ -427,20 +432,25 @@ export class SlackReactionExecutor implements ReactionExecutor {
 
     console.log('🔵 SLACK DEBUG: History API response status:', historyResponse.status);
 
-    if (!historyResponse.ok) {
-      const errorData = (await historyResponse.json()) as SlackApiResponse;
-      console.log('🔴 SLACK DEBUG: History API error:', errorData);
-      throw new Error(`Failed to get channel history: ${errorData.error}`);
-    }
-
-    const historyData = (await historyResponse.json()) as { ok: boolean; messages: Array<{ ts: string; text: string }> };
+    const historyData = (await historyResponse.json()) as { ok: boolean; messages: Array<{ ts: string; text: string }>; error?: string };
     console.log('🔵 SLACK DEBUG: History API response:', {
       ok: historyData.ok,
       messagesCount: historyData.messages?.length || 0,
-      messages: historyData.messages
+      messages: historyData.messages,
+      error: historyData.error
     });
 
-    if (!historyData.ok || !historyData.messages || historyData.messages.length === 0) {
+    if (!historyResponse.ok) {
+      console.log('🔴 SLACK DEBUG: History API HTTP error');
+      throw new Error(`Failed to get channel history: HTTP ${historyResponse.status}`);
+    }
+
+    if (!historyData.ok) {
+      console.log('� SLACK DEBUG: History API returned error:', historyData.error);
+      throw new Error(`Failed to get channel history: ${historyData.error || 'Unknown error'}`);
+    }
+
+    if (!historyData.messages || historyData.messages.length === 0) {
       console.log('🔴 SLACK DEBUG: No messages in history response');
       throw new Error('No messages found in channel');
     }
