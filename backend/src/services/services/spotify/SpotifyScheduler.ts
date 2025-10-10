@@ -152,10 +152,10 @@ export class SpotifyScheduler {
         return;
       }
 
-      const hasBasicScopes =
-        userToken.scopes?.includes('user-read-playback-state') ||
-        userToken.scopes?.includes('user-library-read');
-      if (!hasBasicScopes) {
+      const hasPlaybackScope = userToken.scopes?.includes('user-read-playback-state');
+      const hasLibraryScope = userToken.scopes?.includes('user-library-read');
+
+      if (!hasPlaybackScope && !hasLibraryScope) {
         console.warn(`Token for user ${userId} lacks required Spotify scopes`);
         return;
       }
