@@ -74,7 +74,7 @@ export class SlackOAuth {
   }
 
   async exchangeCodeForToken(code: string): Promise<SlackTokenResponse> {
-    const response = await fetch(`${this.slackAuthBaseUrl}/access`, {
+    const response = await fetch(`${this.slackAuthBaseUrl}/oauth.v2.access`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
