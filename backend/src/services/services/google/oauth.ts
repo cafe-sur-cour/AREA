@@ -82,6 +82,7 @@ export class GoogleOAuth {
       scope: scopes.join(' '),
       response_type: 'code',
       access_type: 'offline',
+      prompt: 'consent',
       state: state,
     });
     return `${this.googleAuthBaseUrl}/o/oauth2/v2/auth?${params.toString()}`;
