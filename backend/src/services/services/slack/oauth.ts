@@ -86,8 +86,8 @@ export class SlackOAuth {
     const params = new URLSearchParams({
       client_id: this.clientId,
       scope:
-        'channels:read,chat:write,users:read,groups:read,im:read,mpim:read,reactions:read,reactions:write,incoming-webhook',
-      user_scope: 'channels:read,chat:write,groups:read,im:read,mpim:read,reactions:read,reactions:write',
+        'channels:read,channels:history,chat:write,users:read,groups:read,groups:history,im:read,mpim:read,reactions:read,reactions:write',
+      user_scope: 'channels:read,channels:history,chat:write,groups:read,groups:history,im:read,mpim:read,reactions:read,reactions:write',
       redirect_uri: this.redirectUri,
       state: state,
     });
