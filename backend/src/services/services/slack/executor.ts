@@ -331,34 +331,34 @@ export class SlackReactionExecutor implements ReactionExecutor {
     if (userToken && userToken.scopes) {
       console.log('🔵 SLACK DEBUG: User token scopes:', userToken.scopes);
     } else {
-      console.log('� SLACK DEBUG: No user token found or no scopes available');
+      console.log('🔴 SLACK DEBUG: No user token found or no scopes available');
     }
 
-    console.log('� SLACK DEBUG: Access token scope check - attempting auth test');
+    console.log('🔵 SLACK DEBUG: Access token scope check - attempting conversations.open');
 
-    // First, open a DM channel with the user
-    const imResponse = await fetch(`${slackOAuth['slackApiBaseUrl']}/im.open`, {
+    // First, open a DM channel with the user using conversations.open
+    const imResponse = await fetch(`${slackOAuth['slackApiBaseUrl']}/conversations.open`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        user: targetUserId,
+        users: targetUserId,
       }),
     });
 
     if (!imResponse.ok) {
       const errorData = (await imResponse.json()) as SlackApiResponse;
-      console.log('🔴 SLACK DEBUG: im.open failed:', errorData);
+      console.log('🔴 SLACK DEBUG: conversations.open failed:', errorData);
       throw new Error(`Failed to open DM: ${errorData.error}`);
     }
 
     const imData = (await imResponse.json()) as SlackImOpenResponse;
-    console.log('🔵 SLACK DEBUG: im.open response:', imData);
+    console.log('🔵 SLACK DEBUG: conversations.open response:', imData);
 
     if (!imData.channel || !imData.channel.id) {
-      console.log('🔴 SLACK DEBUG: im.open returned invalid channel data');
+      console.log('🔴 SLACK DEBUG: conversations.open returned invalid channel data');
       throw new Error('Failed to open DM: Invalid channel data returned');
     }
 
