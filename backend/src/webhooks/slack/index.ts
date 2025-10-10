@@ -211,10 +211,14 @@ class SlackWebhookHandler implements WebhookHandler {
       const channelId = event.channel as string;
       const senderId = event.user as string;
 
+      // For DM filtering, we need to use the user token (not bot token) to access IM channels
+      const userAccessToken = await this.getUserAccessToken(userToken.user_id);
+      const tokenToUse = userAccessToken?.token_value || userToken.token_value;
+
       // Get IM channel members using Slack API
       const response = await fetch(`https://slack.com/api/conversations.members?channel=${channelId}`, {
         headers: {
-          Authorization: `Bearer ${userToken.token_value}`,
+          Authorization: `Bearer ${tokenToUse}`,
           'Content-Type': 'application/json',
         },
       });
@@ -248,7 +252,7 @@ class SlackWebhookHandler implements WebhookHandler {
       // Get current user's Slack ID using auth.test API
       const authResponse = await fetch('https://slack.com/api/auth.test', {
         headers: {
-          Authorization: `Bearer ${userToken.token_value}`,
+          Authorization: `Bearer ${tokenToUse}`,
           'Content-Type': 'application/json',
         },
       });
@@ -278,6 +282,20 @@ class SlackWebhookHandler implements WebhookHandler {
       console.error('❌ [SLACK WEBHOOK] Error checking DM recipients:', error);
       return false;
     }
+  }
+
+  private async getUserAccessToken(userId: number): Promise<UserToken | null> {
+    const tokenRepository = AppDataSource.getRepository(UserToken);
+
+    const token = await tokenRepository.findOne({
+      where: {
+        user_id: userId,
+        token_type: 'slack_user_access_token',
+        is_revoked: false,
+      },
+    });
+
+    return token;
   }
 }
 
