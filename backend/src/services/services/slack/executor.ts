@@ -6,6 +6,8 @@ import type {
 import fetch from 'node-fetch';
 import { slackOAuth } from './oauth';
 import { createLog } from '../../../routes/logs/logs.service';
+import { AppDataSource } from '../../../config/db';
+import { UserToken } from '../../../config/entity/UserToken';
 
 interface SlackApiResponse {
   ok: boolean;
@@ -128,7 +130,8 @@ export class SlackReactionExecutor implements ReactionExecutor {
         case 'slack.send_dm':
           return await this.sendDM(
             accessToken,
-            reaction.config as unknown as SendDMConfig
+            reaction.config as unknown as SendDMConfig,
+            userId
           );
 
         case 'slack.pin_message':
@@ -308,27 +311,30 @@ export class SlackReactionExecutor implements ReactionExecutor {
 
   private async sendDM(
     accessToken: string,
-    config: SendDMConfig
+    config: SendDMConfig,
+    userId: number
   ): Promise<ReactionExecutionResult> {
-    const { userId, message } = config;
+    const { userId: targetUserId, message } = config;
 
-    console.log('🔵 SLACK DEBUG: sendDM called with config:', { userId, message: message.substring(0, 50) + '...' });
-    console.log('🔵 SLACK DEBUG: Access token scope check - attempting auth test');
+    console.log('🔵 SLACK DEBUG: sendDM called with config:', { userId: targetUserId, message: message.substring(0, 50) + '...' });
 
-    // Test the token to get scope information
-    const authTestResponse = await fetch(`${slackOAuth['slackApiBaseUrl']}/auth.test`, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
+    // Get token info to display scopes
+    const tokenRepository = AppDataSource.getRepository(UserToken);
+    const userToken = await tokenRepository.findOne({
+      where: {
+        user_id: userId,
+        token_type: 'slack_user_access_token',
+        is_revoked: false,
       },
     });
 
-    if (authTestResponse.ok) {
-      const authData = await authTestResponse.json() as { scope?: string };
-      console.log('🔵 SLACK DEBUG: Auth test successful, scopes:', authData.scope || 'unknown');
+    if (userToken && userToken.scopes) {
+      console.log('🔵 SLACK DEBUG: User token scopes:', userToken.scopes);
     } else {
-      console.log('🔴 SLACK DEBUG: Auth test failed, cannot determine scopes');
+      console.log('� SLACK DEBUG: No user token found or no scopes available');
     }
+
+    console.log('� SLACK DEBUG: Access token scope check - attempting auth test');
 
     // First, open a DM channel with the user
     const imResponse = await fetch(`${slackOAuth['slackApiBaseUrl']}/im.open`, {
@@ -338,16 +344,24 @@ export class SlackReactionExecutor implements ReactionExecutor {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        user: userId,
+        user: targetUserId,
       }),
     });
 
     if (!imResponse.ok) {
       const errorData = (await imResponse.json()) as SlackApiResponse;
+      console.log('🔴 SLACK DEBUG: im.open failed:', errorData);
       throw new Error(`Failed to open DM: ${errorData.error}`);
     }
 
     const imData = (await imResponse.json()) as SlackImOpenResponse;
+    console.log('🔵 SLACK DEBUG: im.open response:', imData);
+
+    if (!imData.channel || !imData.channel.id) {
+      console.log('🔴 SLACK DEBUG: im.open returned invalid channel data');
+      throw new Error('Failed to open DM: Invalid channel data returned');
+    }
+
     const channelId = imData.channel.id;
 
     // Now send the message
@@ -373,7 +387,7 @@ export class SlackReactionExecutor implements ReactionExecutor {
 
     const messageData = (await messageResponse.json()) as SlackApiResponse;
 
-    await createLog(200, 'other', `DM sent to user ${userId}`);
+    await createLog(200, 'other', `DM sent to user ${targetUserId}`);
 
     return {
       success: true,
@@ -381,7 +395,7 @@ export class SlackReactionExecutor implements ReactionExecutor {
         success: true,
         channel: channelId,
         messageId: messageData.ts,
-        userId: userId,
+        userId: targetUserId,
       },
     };
   }
