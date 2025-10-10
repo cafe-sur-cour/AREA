@@ -275,7 +275,7 @@ export class SlackReactionExecutor implements ReactionExecutor {
 
     console.log('🔵 SLACK DEBUG: History API response status:', historyResponse.status);
 
-    const historyData = (await historyResponse.json()) as { ok: boolean; messages: Array<{ ts: string; text: string }>; error?: string };
+    const historyData = (await historyResponse.json()) as { ok: boolean; messages: Array<{ ts: string; text: string; subtype?: string }>; error?: string };
     console.log('🔵 SLACK DEBUG: History API response:', {
       ok: historyData.ok,
       messagesCount: historyData.messages?.length || 0,
@@ -419,9 +419,9 @@ export class SlackReactionExecutor implements ReactionExecutor {
     const channelId = await this.resolveChannelId(accessToken, channel);
     console.log('🔵 SLACK DEBUG: Resolved channel:', channel, '->', channelId);
 
-    // First, get the last message from the channel
+    // First, get the last messages from the channel
     const historyResponse = await fetch(
-      `${slackOAuth['slackApiBaseUrl']}/conversations.history?channel=${channelId}&limit=1`,
+      `${slackOAuth['slackApiBaseUrl']}/conversations.history?channel=${channelId}&limit=10`,
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -432,7 +432,7 @@ export class SlackReactionExecutor implements ReactionExecutor {
 
     console.log('🔵 SLACK DEBUG: History API response status:', historyResponse.status);
 
-    const historyData = (await historyResponse.json()) as { ok: boolean; messages: Array<{ ts: string; text: string }>; error?: string };
+    const historyData = (await historyResponse.json()) as { ok: boolean; messages: Array<{ ts: string; text: string; subtype?: string }>; error?: string };
     console.log('🔵 SLACK DEBUG: History API response:', {
       ok: historyData.ok,
       messagesCount: historyData.messages?.length || 0,
@@ -455,14 +455,16 @@ export class SlackReactionExecutor implements ReactionExecutor {
       throw new Error('No messages found in channel');
     }
 
-    const lastMessage = historyData.messages[0];
-    if (!lastMessage) {
-      throw new Error('No messages found in channel');
+    // Find the first pinnable message (skip system messages)
+    const pinnableMessage = historyData.messages.find(msg => !msg.subtype || msg.subtype !== 'bot_add');
+    if (!pinnableMessage) {
+      console.log('🔴 SLACK DEBUG: No pinnable messages found (all are system messages)');
+      throw new Error('No pinnable messages found in channel (only system messages)');
     }
 
-    const messageId = lastMessage.ts;
+    const messageId = pinnableMessage.ts;
 
-    console.log('🔵 SLACK DEBUG: Found last message to pin:', { messageId, text: lastMessage.text });
+    console.log('🔵 SLACK DEBUG: Found pinnable message to pin:', { messageId, text: pinnableMessage.text, subtype: pinnableMessage.subtype });
 
     const response = await fetch(`${slackOAuth['slackApiBaseUrl']}/pins.add`, {
       method: 'POST',
@@ -476,10 +478,22 @@ export class SlackReactionExecutor implements ReactionExecutor {
       }),
     });
 
+    console.log('🔵 SLACK DEBUG: Pins.add response status:', response.status);
+
+    const pinData = await response.json() as { ok: boolean; error?: string };
+    console.log('🔵 SLACK DEBUG: Pins.add response:', pinData);
+
     if (!response.ok) {
-      const errorData = (await response.json()) as SlackApiResponse;
-      throw new Error(`Failed to pin message: ${errorData.error}`);
+      console.log('🔴 SLACK DEBUG: Pins.add HTTP error');
+      throw new Error(`Failed to pin message: HTTP ${response.status}`);
     }
+
+    if (!pinData.ok) {
+      console.log('🔴 SLACK DEBUG: Pins.add API error:', pinData.error);
+      throw new Error(`Failed to pin message: ${pinData.error}`);
+    }
+
+    console.log('✅ SLACK DEBUG: Message pinned successfully');
 
     await createLog(
       200,
