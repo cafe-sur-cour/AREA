@@ -1464,6 +1464,81 @@ router.post('/reset-password', mail, async (req: Request, res: Response) => {
   );
 });
 
+router.get('/slack/subscribe', token, async (req: Request, res: Response) => {
+  try {
+    const { slackOAuth } = await import('../../services/services/slack/oauth');
+    const state = Math.random().toString(36).substring(2, 15);
+    const authUrl = slackOAuth.getAuthorizationUrl(state);
+    res.redirect(authUrl);
+  } catch (error) {
+    console.error('Slack OAuth subscribe error:', error);
+    await createLog(
+      500,
+      'other',
+      `Failed to initiate Slack OAuth subscription: ${error}`
+    );
+    res
+      .status(500)
+      .json({ error: 'Failed to initiate Slack OAuth subscription' });
+  }
+});
+
+router.get(
+  '/slack/callback',
+  async (req: Request, res: Response, next) => {
+    try {
+      passport.authenticate('slack-subscribe', { session: false })(
+        req,
+        res,
+        next
+      );
+    } catch (err) {
+      console.error('Slack OAuth callback error:', err);
+      await createLog(
+        500,
+        'other',
+        `Failed to authenticate with Slack: ${err}`
+      );
+      res.status(500).json({ error: 'Failed to authenticate with Slack' });
+    }
+  },
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const user = req.user as { token: string };
+      if (user && user.token) {
+        const session = req.session as {
+          is_mobile?: boolean;
+        } & typeof req.session;
+        if (session.is_mobile) {
+          delete session.is_mobile;
+          return res.redirect(
+            `${process.env.MOBILE_CALLBACK_URL || ''}?slack_subscribed=true`
+          );
+        } else {
+          return res.redirect(
+            `${process.env.FRONTEND_URL || ''}/services?slack_subscribed=true`
+          );
+        }
+      } else {
+        await createLog(
+          500,
+          'other',
+          `Failed to authenticate with Slack: No token received`
+        );
+        res.status(500).json({ error: 'Authentication failed' });
+      }
+    } catch (err) {
+      console.error('Slack OAuth callback error:', err);
+      await createLog(
+        500,
+        'other',
+        `Failed to authenticate with Slack: ${err}`
+      );
+      res.status(500).json({ error: 'Failed to authenticate with Slack' });
+    }
+  }
+);
+
 router.use('/', subscriptionRouter);
 
 export default router;
