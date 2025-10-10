@@ -50,6 +50,10 @@ export class SlackReactionExecutor implements ReactionExecutor {
     const { reaction, event } = context;
     const userId = event.user_id;
 
+    console.log('🔵 SLACK DEBUG: execute() called with reaction:', reaction.type);
+    console.log('🔵 SLACK DEBUG: execute() userId:', userId);
+    console.log('🔵 SLACK DEBUG: execute() reaction config:', reaction.config);
+
     try {
       // Get user token
       const userToken = await slackOAuth.getUserToken(userId);
@@ -119,6 +123,17 @@ export class SlackReactionExecutor implements ReactionExecutor {
   ): Promise<ReactionExecutionResult> {
     const { channel, message } = config;
 
+    console.log('🔵 SLACK DEBUG: sendMessage called with config:', { channel, message });
+    console.log('🔵 SLACK DEBUG: Access token starts with:', accessToken.substring(0, 10) + '...');
+
+    const requestBody = {
+      channel: channel,
+      text: message,
+    };
+
+    console.log('🔵 SLACK DEBUG: Request body:', requestBody);
+    console.log('🔵 SLACK DEBUG: API URL:', `${slackOAuth['slackApiBaseUrl']}/chat.postMessage`);
+
     const response = await fetch(
       `${slackOAuth['slackApiBaseUrl']}/chat.postMessage`,
       {
@@ -127,19 +142,42 @@ export class SlackReactionExecutor implements ReactionExecutor {
           Authorization: `Bearer ${accessToken}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          channel: channel,
-          text: message,
-        }),
+        body: JSON.stringify(requestBody),
       }
     );
 
+    console.log('🔵 SLACK DEBUG: HTTP Response status:', response.status);
+    console.log('🔵 SLACK DEBUG: HTTP Response headers:', Object.fromEntries(response.headers.entries()));
+
     if (!response.ok) {
-      const errorData = (await response.json()) as SlackApiResponse;
-      throw new Error(`Failed to send message: ${errorData.error}`);
+      const errorText = await response.text();
+      console.log('🔴 SLACK DEBUG: Error response body:', errorText);
+      let errorData;
+      try {
+        errorData = JSON.parse(errorText) as SlackApiResponse;
+      } catch (parseError) { // eslint-disable-line @typescript-eslint/no-unused-vars
+        console.log('🔴 SLACK DEBUG: Failed to parse error response as JSON');
+        errorData = { error: errorText };
+      }
+      throw new Error(`Failed to send message: ${errorData.error || 'Unknown error'}`);
     }
 
-    const data = (await response.json()) as SlackApiResponse;
+    const responseText = await response.text();
+    console.log('🔵 SLACK DEBUG: Success response body:', responseText);
+
+    let data;
+    try {
+      data = JSON.parse(responseText) as SlackApiResponse;
+    } catch (parseError) { // eslint-disable-line @typescript-eslint/no-unused-vars
+      console.log('🔴 SLACK DEBUG: Failed to parse success response as JSON');
+      data = { ts: 'unknown', channel: channel };
+    }
+
+    console.log('✅ SLACK DEBUG: Message sent successfully:', {
+      messageId: data.ts,
+      channel: data.channel,
+      ok: data.ok
+    });
 
     await createLog(200, 'other', `Message sent to channel ${channel}`);
 
