@@ -20,6 +20,7 @@
   "forgot_password": "Mot de passe oublié",
   "confirm_email": "Confirmer l'email",
   "confirm_email_differs": "Les mails ne correspondent pas",
+  "email_sent": "Email envoyé",
   "send": "Envoyer",
   "name": "Nom",
   "empty_name": "Entrez votre nom",
@@ -31,5 +32,6 @@
   "valid_backend_server_address": "L'adresse est valide",
   "user_registered": "Utilisateur créé",
   "logged_in": "Connexion réussie",
-  "logged_out": "Déconnexion réussie"
+  "logged_out": "Déconnexion réussie",
+  "services": "Services"
 }

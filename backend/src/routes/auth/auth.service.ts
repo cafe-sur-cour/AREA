@@ -16,7 +16,7 @@ import {
 } from './oauth.service';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { JWT_SECRET } from '../../../index';
+import { JWT_SECRET, encryption } from '../../../index';
 
 export async function login(email: string, password_hash: string) {
   const foundUser = await getUserByEmail(email);
@@ -52,13 +52,15 @@ export async function register(email: string, name: string, password: string) {
 }
 
 export async function verify(email: string) {
-  const user = await getUserByEmail(email);
+  const decryptedEmail = encryption.decryptFromString(email);
+  const user = await getUserByEmail(decryptedEmail);
   if (!user) return new Error('User not found');
   await updateUserEmailVerified(user.id, true);
 }
 
 export async function requestReset(email: string) {
-  const user = await getUserByEmail(email);
+  const decryptedEmail = encryption.decryptFromString(email);
+  const user = await getUserByEmail(decryptedEmail);
   if (!user) return null;
 
   const token = jwt.sign({ email: user.email }, JWT_SECRET as string, {
@@ -68,7 +70,8 @@ export async function requestReset(email: string) {
 }
 
 export async function resetPassword(email: string, newPassword: string) {
-  const user = await getUserByEmail(email);
+  const decryptedEmail = encryption.decryptFromString(email);
+  const user = await getUserByEmail(decryptedEmail);
   if (!user) return new Error('User not found');
 
   try {

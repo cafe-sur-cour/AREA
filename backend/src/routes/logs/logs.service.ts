@@ -10,6 +10,7 @@ export const createLog = async (
     | 'user'
     | 'github'
     | 'google'
+    | 'microsoft'
     | 'spotify'
     | 'other',
   message: string | null

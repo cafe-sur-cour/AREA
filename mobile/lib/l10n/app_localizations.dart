@@ -214,6 +214,12 @@ abstract class AppLocalizations {
   /// **'Emails differ'**
   String get confirm_email_differs;
 
+  /// No description provided for @email_sent.
+  ///
+  /// In en, this message translates to:
+  /// **'Email sent'**
+  String get email_sent;
+
   /// No description provided for @send.
   ///
   /// In en, this message translates to:
@@ -285,6 +291,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Logged out successfully'**
   String get logged_out;
+
+  /// No description provided for @services.
+  ///
+  /// In en, this message translates to:
+  /// **'Services'**
+  String get services;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

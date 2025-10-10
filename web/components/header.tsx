@@ -36,26 +36,28 @@ export default function Navigation() {
         </div>
 
         {/* Mobile burger */}
-        <div className='lg:hidden flex items-center justify-start w-full text-primary font-bold text-xl font-heading'>
+        <h1 className='lg:hidden flex items-center justify-start w-full text-primary font-bold text-xl font-heading'>
           Area
-        </div>
+        </h1>
         <div className='lg:hidden w-full flex items-center justify-end'>
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className='text-foreground hover:text-primary focus:outline-none focus:text-primary transition-all duration-300 p-3 rounded-lg hover:bg-muted'
+            aria-label='Toggle Menu'
+            className='text-foreground hover:text-primary focus:outline-none focus:text-primary transition-all duration-300 p-3 rounded-lg hover:bg-muted cursor-pointer flex items-center gap-2'
           >
             {isMenuOpen ? (
               <X className='h-7 w-7' />
             ) : (
               <Menu className='h-7 w-7' />
             )}
+            <span className='text-xs font-medium'>Menu</span>
           </button>
         </div>
       </div>
 
       {/* Mobile menu */}
       {isMenuOpen && (
-        <div className='lg:hidden pt-6 pb-6 space-y-6 border-t border-border mt-2 bg-card rounded-lg shadow-lg border border-border'>
+        <div className='lg:hidden pt-6 pb-6 space-y-6 border-t border-border mt-2 bg-card rounded-lg shadow-lg border'>
           <NavLinks className='flex flex-col space-y-3' isMobile />
           <div className='border-t border-border mx-8'></div>
           <UserActions className='flex flex-col space-y-3' isMobile />

@@ -645,36 +645,31 @@ router.get(
             } & typeof req.session;
             if (session.is_mobile) {
               delete session.is_mobile;
-              res.redirect(
+              return res.redirect(
                 `${process.env.MOBILE_CALLBACK_URL || 'mobileApp://callback'}?github_subscribed=true`
               );
             } else {
               const frontendUrl = process.env.FRONTEND_URL || '';
-              res.redirect(`${frontendUrl}?github_subscribed=true`);
+              return res.redirect(
+                `${frontendUrl}/services?github_subscribed=true`
+              );
             }
           }
-          res.redirect(`${process.env.FRONTEND_URL || ''}?token=${user.token}`);
         } else {
           const session = req.session as {
             is_mobile?: boolean;
           } & typeof req.session;
           if (session.is_mobile) {
             delete session.is_mobile;
-            res.redirect(
+            return res.redirect(
               `${process.env.MOBILE_CALLBACK_URL || ''}?token=${user.token}`
             );
           } else {
-            res.redirect(
+            return res.redirect(
               `${process.env.FRONTEND_URL || ''}?token=${user.token}`
             );
           }
         }
-        await createLog(
-          500,
-          'github',
-          `Failed to authenticate with GitHub: No token received`
-        );
-        res.status(500).json({ error: 'Authentication failed' });
       }
     } catch (err) {
       console.error('GitHub OAuth callback error:', err);
@@ -822,11 +817,11 @@ router.get(
         } & typeof req.session;
         if (session.is_mobile) {
           delete session.is_mobile;
-          res.redirect(
+          return res.redirect(
             `${process.env.MOBILE_CALLBACK_URL || 'mobileApp://callback'}?token=${user.token}`
           );
         } else {
-          res.redirect(`${process.env.FRONTEND_URL || ''}`);
+          return res.redirect(`${process.env.FRONTEND_URL || ''}/services`);
         }
       } else {
         await createLog(
@@ -916,12 +911,12 @@ router.get(
         } & typeof req.session;
         if (session.is_mobile) {
           delete session.is_mobile;
-          res.redirect(
+          return res.redirect(
             `${process.env.MOBILE_CALLBACK_URL || ''}?spotify_subscribed=true`
           );
         } else {
-          res.redirect(
-            `${process.env.FRONTEND_URL || ''}?spotify_subscribed=true`
+          return res.redirect(
+            `${process.env.FRONTEND_URL || ''}/services?spotify_subscribed=true`
           );
         }
       } else {
@@ -940,6 +935,197 @@ router.get(
         `Failed to authenticate with Spotify: ${err}`
       );
       res.status(500).json({ error: 'Failed to authenticate with Spotify' });
+    }
+  }
+);
+
+/**
+ * @swagger
+ * /api/auth/microsoft/login:
+ *   get:
+ *     summary: Initiate Microsoft OAuth authorization for login/register
+ *     tags:
+ *       - OAuth
+ *     description: |
+ *       Redirects user to Microsoft for OAuth authorization.
+ *       This route is used for login/register when user is not authenticated.
+ *     responses:
+ *       302:
+ *         description: Redirect to Microsoft authorization page
+ *       500:
+ *         description: Internal Server Error
+ */
+router.get('/microsoft/login', async (req: Request, res: Response) => {
+  try {
+    const { microsoftOAuth } = await import(
+      '../../services/services/microsoft/oauth'
+    );
+    const state = Math.random().toString(36).substring(2, 15);
+    const authUrl = microsoftOAuth.getAuthorizationUrl(state);
+    res.redirect(authUrl);
+  } catch (error) {
+    console.error('Microsoft OAuth login error:', error);
+    await createLog(
+      500,
+      'microsoft',
+      `Failed to initiate Microsoft OAuth: ${error}`
+    );
+    res.status(500).json({ error: 'Failed to initiate Microsoft OAuth' });
+  }
+});
+
+/**
+ * @swagger
+ * /api/auth/microsoft/subscribe:
+ *   get:
+ *     summary: Initiate Microsoft OAuth authorization for service connection
+ *     tags:
+ *       - OAuth
+ *     description: |
+ *       Redirects user to Microsoft for OAuth authorization.
+ *       This route is used to connect Microsoft account for service access when user is already authenticated.
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     responses:
+ *       302:
+ *         description: Redirect to Microsoft authorization page
+ *       401:
+ *         description: User not authenticated
+ *       500:
+ *         description: Internal Server Error
+ */
+router.get(
+  '/microsoft/subscribe',
+  token,
+  async (req: Request, res: Response) => {
+    try {
+      const { microsoftOAuth } = await import(
+        '../../services/services/microsoft/oauth'
+      );
+      const state = Math.random().toString(36).substring(2, 15);
+      const authUrl = microsoftOAuth.getAuthorizationUrl(state);
+      res.redirect(authUrl);
+    } catch (error) {
+      console.error('Microsoft OAuth subscribe error:', error);
+      await createLog(
+        500,
+        'microsoft',
+        `Failed to initiate Microsoft OAuth subscription: ${error}`
+      );
+      res
+        .status(500)
+        .json({ error: 'Failed to initiate Microsoft OAuth subscription' });
+    }
+  }
+);
+
+/**
+ * @swagger
+ * /api/auth/microsoft/callback:
+ *   get:
+ *     summary: Handle Microsoft OAuth callback for both login/register and service connection
+ *     tags:
+ *       - OAuth
+ *     description: |
+ *       Exchanges authorization code for access token and handles authentication.
+ *       Automatically determines whether to perform login/register or service connection
+ *       based on user authentication status.
+ *     parameters:
+ *       - name: code
+ *         in: query
+ *         required: true
+ *         description: Authorization code from Microsoft
+ *         schema:
+ *           type: string
+ *       - name: state
+ *         in: query
+ *         required: true
+ *         description: State parameter for CSRF protection
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: OAuth successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               oneOf:
+ *                 - description: Login/Register response
+ *                   properties:
+ *                     token:
+ *                       type: string
+ *                     user:
+ *                       type: object
+ *                 - description: Service connection response
+ *                   properties:
+ *                     message:
+ *                       type: string
+ *                     user:
+ *                       type: object
+ *       400:
+ *         description: Bad Request - Missing parameters
+ *       500:
+ *         description: Internal Server Error
+ */
+router.get(
+  '/microsoft/callback',
+  async (req: Request, res: Response, next) => {
+    try {
+      const isAuthenticated = !!(req.auth || req.cookies?.auth_token);
+
+      if (isAuthenticated) {
+        passport.authenticate('microsoft-subscribe', { session: false })(
+          req,
+          res,
+          next
+        );
+      } else {
+        passport.authenticate('microsoft-login', { session: false })(
+          req,
+          res,
+          next
+        );
+      }
+    } catch (err) {
+      console.error('Microsoft OAuth callback error:', err);
+      await createLog(
+        500,
+        'microsoft',
+        `Failed to authenticate with Microsoft: ${err}`
+      );
+      res.status(500).json({ error: 'Failed to authenticate with Microsoft' });
+    }
+  },
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const user = req.user as { token: string };
+      if (user && user.token) {
+        res.cookie('auth_token', user.token, {
+          maxAge: 86400000,
+          httpOnly: true,
+          secure: true,
+          domain: process.env.DOMAIN,
+          sameSite: 'none',
+        });
+        res.redirect(`${process.env.FRONTEND_URL || ''}`);
+      } else {
+        await createLog(
+          500,
+          'microsoft',
+          `Failed to authenticate with Microsoft: No token received`
+        );
+        res.status(500).json({ error: 'Authentication failed' });
+      }
+    } catch (err) {
+      console.error('Microsoft OAuth callback error:', err);
+      await createLog(
+        500,
+        'microsoft',
+        `Failed to authenticate with Microsoft: ${err}`
+      );
+      res.status(500).json({ error: 'Failed to authenticate with Microsoft' });
     }
   }
 );

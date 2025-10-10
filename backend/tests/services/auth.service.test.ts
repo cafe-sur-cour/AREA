@@ -14,6 +14,10 @@ jest.mock('jsonwebtoken');
 
 jest.mock('../../index', () => ({
   JWT_SECRET: 'test-jwt-secret',
+  encryption: {
+    // newest encryption API used by the service: decryptFromString
+    decryptFromString: jest.fn((s: string) => s),
+  },
 }));
 
 import * as authService from '../../src/routes/auth/auth.service';

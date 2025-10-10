@@ -56,7 +56,7 @@ export default function VerifyPage() {
             </p>
             <button
               onClick={() => router.push('/login')}
-              className='inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-3 rounded-lg font-medium transition-all duration-300 hover:scale-105'
+              className='inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-3 rounded-lg font-medium transition-all duration-300 hover:scale-105 cursor-pointer'
             >
               Go to Login <ArrowRight className='w-4 h-4' />
             </button>
@@ -147,7 +147,7 @@ export default function VerifyPage() {
                 </div>
                 <button
                   onClick={() => router.push('/login')}
-                  className='inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-3 rounded-lg font-medium transition-all duration-300 hover:scale-105'
+                  className='inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-3 rounded-lg font-medium transition-all duration-300 hover:scale-105 cursor-pointer'
                 >
                   Go to Login Now <ArrowRight className='w-4 h-4' />
                 </button>

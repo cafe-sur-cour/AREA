@@ -1,22 +1,70 @@
 import { User } from '../../config/entity/User';
 import { AppDataSource } from '../../config/db';
 import { Repository } from 'typeorm';
+import { encryption } from '../../../index';
 
 /* Thos function returns a user from data */
 export const getAllUsers = async (): Promise<User[]> => {
-  return await AppDataSource.manager.find(User);
+  const users = await AppDataSource.manager.find(User);
+  for (const user of users) {
+    try {
+      user.name = encryption.decryptFromString(user.name);
+      user.email = encryption.decryptFromString(user.email);
+      if (user.bio) {
+        user.bio = encryption.decryptFromString(user.bio);
+      }
+    } catch (error) {
+      throw new Error(
+        `Failed to decrypt user data: ${(error as Error).message}`
+      );
+    }
+  }
+  return users;
 };
 
 export const getUserByID = async (id: number): Promise<User | null> => {
-  return await AppDataSource.manager.findOneBy(User, { id });
+  const user = await AppDataSource.manager.findOneBy(User, { id });
+  if (!user) return null;
+  try {
+    user.name = encryption.decryptFromString(user.name);
+    user.email = encryption.decryptFromString(user.email);
+    if (user.bio) {
+      user.bio = encryption.decryptFromString(user.bio);
+    }
+  } catch (error) {
+    throw new Error(`Failed to decrypt user data: ${(error as Error).message}`);
+  }
+  return user;
 };
 
 export const getUserByEmail = async (email: string): Promise<User | null> => {
-  return AppDataSource.manager.findOneBy(User, { email });
+  const users = await getAllUsers();
+  for (const user of users) {
+    try {
+      if (user.email === email) {
+        return user;
+      }
+    } catch (error) {
+      void error;
+      continue;
+    }
+  }
+  return null;
 };
 
 export const getUserByName = async (name: string): Promise<User | null> => {
-  return AppDataSource.manager.findOneBy(User, { name });
+  const users = await getAllUsers();
+  for (const user of users) {
+    try {
+      if (user.name === name) {
+        return user;
+      }
+    } catch (error) {
+      void error;
+      continue;
+    }
+  }
+  return null;
 };
 
 /* Those function update or delete info from a user */
@@ -73,7 +121,8 @@ export const updateUserName = async (
 ): Promise<boolean> => {
   const user = getUserByID(id);
   if (!user) return false;
-  AppDataSource.manager.update(User, { id }, { name: new_name });
+  const encryptedName = encryption.encryptToString(new_name);
+  AppDataSource.manager.update(User, { id }, { name: encryptedName });
   return true;
 };
 
@@ -84,8 +133,8 @@ export const getNbUser = async (): Promise<number | null> => {
 
 export const createUser = async (userData: CreateUserDTO): Promise<User> => {
   const user = new User();
-  user.name = userData.name;
-  user.email = userData.email;
+  user.name = encryption.encryptToString(userData.name);
+  user.email = encryption.encryptToString(userData.email);
   user.password_hash = userData.password_hash;
   if (userData.email_verified !== undefined)
     user.email_verified = userData.email_verified;

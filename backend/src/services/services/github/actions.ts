@@ -72,6 +72,15 @@ export const githubActions: ActionDefinition[] = [
       tags: ['repository', 'push', 'git'],
       requiresAuth: true,
       webhookPattern: 'push',
+      sharedEvents: true,
+      sharedEventFilter: (event, mapping) => {
+        const repository = (
+          event.payload as { repository?: { full_name?: string } }
+        )?.repository?.full_name;
+        return repository
+          ? mapping.action.config?.repository === repository
+          : true;
+      },
     },
   },
   {
@@ -160,6 +169,15 @@ export const githubActions: ActionDefinition[] = [
       tags: ['repository', 'pull-request', 'opened'],
       requiresAuth: true,
       webhookPattern: 'pull_request',
+      sharedEvents: true,
+      sharedEventFilter: (event, mapping) => {
+        const repository = (
+          event.payload as { repository?: { full_name?: string } }
+        )?.repository?.full_name;
+        return repository
+          ? mapping.action.config?.repository === repository
+          : true;
+      },
     },
   },
   {
@@ -239,6 +257,15 @@ export const githubActions: ActionDefinition[] = [
       tags: ['repository', 'pull-request', 'merged'],
       requiresAuth: true,
       webhookPattern: 'pull_request',
+      sharedEvents: true,
+      sharedEventFilter: (event, mapping) => {
+        const repository = (
+          event.payload as { repository?: { full_name?: string } }
+        )?.repository?.full_name;
+        return repository
+          ? mapping.action.config?.repository === repository
+          : true;
+      },
     },
   },
 ];

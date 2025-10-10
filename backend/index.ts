@@ -16,6 +16,7 @@ import i18next from 'i18next';
 import * as i18nextMiddleware from 'i18next-http-middleware';
 import passport from 'passport';
 import './src/config/passport';
+import { StringEncryption } from './src/config/EncryptionService';
 
 import authRoutes from './src/routes/auth/auth';
 import userRoutes from './src/routes/user/user';
@@ -25,6 +26,7 @@ import webhookRoutes from './src/webhooks';
 import githubRoutes from './src/routes/github/github';
 import googleRoutes from './src/routes/google/google';
 import spotifyRoutes from './src/routes/spotify/spotify';
+import microsoftRoutes from './src/routes/microsoft/microsoft';
 import servicesRoutes from './src/routes/services';
 import mappingsRoutes from './src/routes/services/mappings';
 
@@ -39,7 +41,7 @@ import { Session } from './src/config/entity/Session';
 import { TypeormStore } from 'connect-typeorm';
 
 const app = express();
-export const JWT_SECRET = crypto.randomBytes(64).toString('hex');
+export const JWT_SECRET = process.env.JWT_SECRET || '';
 
 const FRONTEND_ORIGIN = process.env.FRONTEND_URL || '';
 const BACKEND_ORIGIN = process.env.BACKEND_URL || '';
@@ -103,7 +105,7 @@ app.use(passport.session());
 
 setupSwagger(app);
 setupSignal();
-
+const encryption = new StringEncryption();
 (async function start() {
   try {
     console.log('Initializing i18n...');
@@ -137,9 +139,10 @@ setupSignal();
     app.use('/api/user', userRoutes);
     app.use('/api/github', githubRoutes);
     app.use('/api/google', googleRoutes);
-    app.use('/api/spotify', spotifyRoutes);
     app.use('/api/services', servicesRoutes);
     app.use('/api/mappings', mappingsRoutes);
+    app.use('/api/spotify', spotifyRoutes);
+    app.use('/api/microsoft', microsoftRoutes);
     app.use('/api/info', apiRoutes);
     app.use('/about.json', aboutRoutes);
     app.use('/api/webhooks', webhookRoutes);
@@ -157,3 +160,5 @@ setupSignal();
     process.exit(1);
   }
 })();
+
+export { encryption };

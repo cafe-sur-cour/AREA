@@ -174,7 +174,7 @@ export default function DashboardPage() {
           </div>
           <Button
             onClick={() => router.push('/my-areas')}
-            className='bg-primary hover:bg-primary/90'
+            className='bg-primary hover:bg-primary/90 cursor-pointer'
           >
             <Plus className='h-4 w-4 mr-2' />
             New Area
@@ -250,7 +250,7 @@ export default function DashboardPage() {
           <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
             <Button
               variant='outline'
-              className='justify-start h-auto p-4 flex-col items-start gap-2'
+              className='justify-start h-auto p-4 flex-col items-start gap-2 cursor-pointer'
               onClick={() => router.push('/services')}
             >
               <Users className='h-5 w-5 text-blue-600' />
@@ -264,7 +264,7 @@ export default function DashboardPage() {
 
             <Button
               variant='outline'
-              className='justify-start h-auto p-4 flex-col items-start gap-2'
+              className='justify-start h-auto p-4 flex-col items-start gap-2 cursor-pointer'
               onClick={() => router.push('/catalogue')}
             >
               <Zap className='h-5 w-5 text-purple-600' />
@@ -278,7 +278,7 @@ export default function DashboardPage() {
 
             <Button
               variant='outline'
-              className='justify-start h-auto p-4 flex-col items-start gap-2'
+              className='justify-start h-auto p-4 flex-col items-start gap-2 cursor-pointer'
               onClick={() => router.push('/profile')}
             >
               <Settings className='h-5 w-5 text-green-600' />
@@ -302,7 +302,10 @@ export default function DashboardPage() {
               <p className='text-muted-foreground mb-6'>
                 Create your first Area to get started
               </p>
-              <Button onClick={() => router.push('/my-areas')}>
+              <Button
+                className='cursor-pointer'
+                onClick={() => router.push('/my-areas')}
+              >
                 <Plus className='h-4 w-4 mr-2' />
                 Create Area
               </Button>

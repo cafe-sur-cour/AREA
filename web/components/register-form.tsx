@@ -7,11 +7,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { FaGithub, FaGoogle } from 'react-icons/fa';
-import { FaMeta } from 'react-icons/fa6';
+import { FaGithub, FaGoogle, FaMicrosoft } from 'react-icons/fa';
 import api from '@/lib/api';
 import Image from 'next/image';
 import { toast } from 'sonner';
+import InputPassword from './ui/input-password';
+import { getAPIUrl } from '@/lib/config';
+import ButtonWithLoading from './ui/button-with-loading';
 
 export function RegisterForm({
   className,
@@ -30,7 +32,7 @@ export function RegisterForm({
     const password = formData.get('password') as string;
     const confirmPassword = formData.get('confirm-password') as string;
     if (password !== confirmPassword) {
-      alert('Passwords do not match');
+      toast.error('Passwords do not match');
       setIsLoading(false);
       return;
     }
@@ -51,6 +53,18 @@ export function RegisterForm({
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const signInWithGithub = async () => {
+    window.location.href = `${await getAPIUrl()}/auth/github/login`;
+  };
+
+  const signInWithGoogle = async () => {
+    window.location.href = `${await getAPIUrl()}/auth/google/login`;
+  };
+
+  const signInWithMicrosoft = async () => {
+    window.location.href = `${await getAPIUrl()}/auth/microsoft/login`;
   };
 
   return (
@@ -87,25 +101,21 @@ export function RegisterForm({
               </div>
               <div className='grid gap-3'>
                 <Label htmlFor='password'>Password</Label>
-                <Input
-                  id='password'
-                  name='password'
-                  type='password'
-                  placeholder='Password'
-                  required
-                />
+                <InputPassword name='password' />
               </div>
               <div className='grid gap-3'>
                 <Label htmlFor='confirm-password'>Confirm password</Label>
-                <Input
+                <InputPassword
                   id='confirm-password'
                   name='confirm-password'
-                  type='password'
                   placeholder='Confirm password'
-                  required
                 />
               </div>
-              <Button type='submit' className='w-full' disabled={isLoading}>
+              <Button
+                type='submit'
+                className='w-full cursor-pointer'
+                disabled={isLoading}
+              >
                 {isLoading ? 'Registering...' : 'Register'}
               </Button>
               <div className='after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t'>
@@ -114,18 +124,27 @@ export function RegisterForm({
                 </span>
               </div>
               <div className='grid grid-cols-3 gap-4'>
-                <Button variant='outline' type='button' className='w-full'>
+                <ButtonWithLoading
+                  className='w-full cursor-pointer'
+                  onClick={async () => await signInWithGithub()}
+                >
                   <FaGithub />
                   <span className='sr-only'>Login with Github</span>
-                </Button>
-                <Button variant='outline' type='button' className='w-full'>
+                </ButtonWithLoading>
+                <ButtonWithLoading
+                  className='w-full cursor-pointer'
+                  onClick={async () => await signInWithGoogle()}
+                >
                   <FaGoogle />
                   <span className='sr-only'>Login with Google</span>
-                </Button>
-                <Button variant='outline' type='button' className='w-full'>
-                  <FaMeta />
-                  <span className='sr-only'>Login with Meta</span>
-                </Button>
+                </ButtonWithLoading>
+                <ButtonWithLoading
+                  className='w-full'
+                  onClick={async () => await signInWithMicrosoft()}
+                >
+                  <FaMicrosoft />
+                  <span className='sr-only'>Login with Microsoft 365</span>
+                </ButtonWithLoading>
               </div>
             </div>
           </form>
