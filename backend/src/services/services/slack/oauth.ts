@@ -132,7 +132,6 @@ export class SlackOAuth {
       throw new Error(`Slack auth test error: ${authData.error}`);
     }
 
-    // Get user info
     const userResponse = await fetch(
       `${this.slackApiBaseUrl}/users.info?user=${authData.user_id}`,
       {
