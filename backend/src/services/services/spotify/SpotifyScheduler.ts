@@ -227,6 +227,8 @@ export class SpotifyScheduler {
     }
   }
 
+  private lastLikedTrackDetection = new Map<number, number>();
+
   private async checkLikedTracks(userId: number): Promise<void> {
     try {
       const response = await this.makeSpotifyRequest(
@@ -241,17 +243,33 @@ export class SpotifyScheduler {
       const userState = this.getUserState(userId);
       const previousLikedTrackIds = userState.lastLikedTracks || [];
 
-      const newTracks = likedTracks.items.filter(
-        item => !previousLikedTrackIds.includes(item.track.id)
-      );
+      if (userState.isInitialized && previousLikedTrackIds.length > 0) {
+        // Anti-spam: don't check for new tracks more than once every 10 seconds
+        const now = Date.now();
+        const lastDetection = this.lastLikedTrackDetection.get(userId) || 0;
+        if (now - lastDetection < 10000) {
+          return;
+        }
 
-      if (userState.isInitialized) {
-        for (const newTrack of newTracks) {
-          await this.triggerLikedSongAdded(
-            userId,
-            newTrack.track,
-            newTrack.added_at
+        const newTrackIds = currentLikedTrackIds.filter(
+          id => !previousLikedTrackIds.includes(id)
+        );
+
+        if (newTrackIds.length > 0) {
+          console.log(`🎵 [Spotify] User ${userId} has ${newTrackIds.length} new liked tracks`);
+          this.lastLikedTrackDetection.set(userId, now);
+
+          const newTracks = likedTracks.items.filter(item =>
+            newTrackIds.includes(item.track.id)
           );
+
+          for (const newTrack of newTracks) {
+            await this.triggerLikedSongAdded(
+              userId,
+              newTrack.track,
+              newTrack.added_at
+            );
+          }
         }
       }
 
