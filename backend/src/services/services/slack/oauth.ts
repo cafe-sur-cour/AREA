@@ -79,8 +79,6 @@ export class SlackOAuth {
       '🔵 SLACK DEBUG: Channel access check skipped (scopes are correct)'
     );
 
-    // With proper scopes, we assume the user/bot can access the channel
-    // No need to send a test message anymore
     return {
       ok: true,
       channel: channel,
