@@ -42,6 +42,40 @@ interface PinMessageConfig {
 }
 
 export class SlackReactionExecutor implements ReactionExecutor {
+  private async resolveChannelId(accessToken: string, channelInput: string): Promise<string> {
+    // If it's already an ID (starts with C, G, D, etc.), return as-is
+    if (/^[CGD][A-Z0-9]+$/.test(channelInput)) {
+      return channelInput;
+    }
+
+    // Remove # prefix if present
+    const channelName = channelInput.startsWith('#') ? channelInput.substring(1) : channelInput;
+
+    // Try to find the channel by name
+    const listResponse = await fetch(
+      `${slackOAuth['slackApiBaseUrl']}/conversations.list?types=public_channel,private_channel&limit=200`,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    if (!listResponse.ok) {
+      const errorData = await listResponse.json() as SlackApiResponse;
+      throw new Error(`Failed to list channels: ${errorData.error}`);
+    }
+
+    const listData = await listResponse.json() as { channels?: Array<{ id: string; name: string }> };
+    const channel = listData.channels?.find((ch) => ch.name === channelName);
+
+    if (!channel) {
+      throw new Error(`Channel '${channelInput}' not found or not accessible`);
+    }
+
+    return channel.id;
+  }
   async execute(
     context: ReactionExecutionContext
   ): Promise<ReactionExecutionResult> {
@@ -224,9 +258,13 @@ export class SlackReactionExecutor implements ReactionExecutor {
 
     console.log('🔵 SLACK DEBUG: addReaction called with config:', { channel, emoji });
 
+    // Resolve channel name to ID for history API
+    const channelId = await this.resolveChannelId(accessToken, channel);
+    console.log('🔵 SLACK DEBUG: Resolved channel:', channel, '->', channelId);
+
     // First, get the last message from the channel
     const historyResponse = await fetch(
-      `${slackOAuth['slackApiBaseUrl']}/conversations.history?channel=${channel}&limit=1`,
+      `${slackOAuth['slackApiBaseUrl']}/conversations.history?channel=${channelId}&limit=1`,
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -263,7 +301,7 @@ export class SlackReactionExecutor implements ReactionExecutor {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          channel: channel,
+          channel: channelId,
           timestamp: messageId,
           name: emoji,
         }),
@@ -362,9 +400,13 @@ export class SlackReactionExecutor implements ReactionExecutor {
 
     console.log('🔵 SLACK DEBUG: pinMessage called with config:', { channel });
 
+    // Resolve channel name to ID for history API
+    const channelId = await this.resolveChannelId(accessToken, channel);
+    console.log('🔵 SLACK DEBUG: Resolved channel:', channel, '->', channelId);
+
     // First, get the last message from the channel
     const historyResponse = await fetch(
-      `${slackOAuth['slackApiBaseUrl']}/conversations.history?channel=${channel}&limit=1`,
+      `${slackOAuth['slackApiBaseUrl']}/conversations.history?channel=${channelId}&limit=1`,
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -399,7 +441,7 @@ export class SlackReactionExecutor implements ReactionExecutor {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        channel: channel,
+        channel: channelId,
         timestamp: messageId,
       }),
     });
