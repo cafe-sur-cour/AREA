@@ -235,14 +235,22 @@ class SlackWebhookHandler implements WebhookHandler {
         return false;
       }
 
-      // For DMs, there should be exactly 2 members
-      if (data.members.length !== 2) {
-        console.log(`⚠️  [SLACK WEBHOOK] DM channel ${channelId} has ${data.members.length} members, expected 2`);
+      // For DMs, there should be exactly 2 members, or 1 member for self-DMs
+      if (data.members.length !== 2 && data.members.length !== 1) {
+        console.log(`⚠️  [SLACK WEBHOOK] DM channel ${channelId} has ${data.members.length} members, expected 1 or 2`);
         return false;
       }
 
-      // Find the member who is not the sender
-      const recipientId = data.members.find(member => member !== senderId);
+      let recipientId: string | undefined;
+
+      if (data.members.length === 2) {
+        // Regular DM: find the member who is not the sender
+        recipientId = data.members.find(member => member !== senderId);
+      } else if (data.members.length === 1) {
+        // Self-DM: the only member is the sender (and recipient)
+        recipientId = data.members[0];
+        console.log(`🔄 [SLACK WEBHOOK] Self-DM detected in channel ${channelId}`);
+      }
 
       if (!recipientId) {
         console.error(`❌ [SLACK WEBHOOK] Could not determine DM recipient`);
