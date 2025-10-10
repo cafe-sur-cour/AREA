@@ -41,6 +41,15 @@ export interface SlackUser {
   error?: string;
 }
 
+export interface SlackIncomingWebhookResponse {
+  ok: boolean;
+  url?: string;
+  channel?: string;
+  channel_id?: string;
+  configuration_url?: string;
+  error?: string;
+}
+
 export class SlackOAuth {
   private clientId: string;
   private clientSecret: string;
@@ -62,11 +71,66 @@ export class SlackOAuth {
     }
   }
 
+  async createIncomingWebhook(accessToken: string, channel: string): Promise<SlackIncomingWebhookResponse> {
+    console.log('🔵 SLACK DEBUG: Checking if user can access channel:', channel);
+
+    const response = await fetch(`${this.slackApiBaseUrl}/chat.postMessage`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        channel: channel,
+        text: 'AREA test message - checking channel access',
+      }),
+    });
+
+    // If the message succeeds, the user can post in the channel
+    if (response.ok) {
+      console.log('🔵 SLACK DEBUG: User can post in channel, proceeding...');
+      return {
+        ok: true,
+        channel: channel,
+      };
+    }
+
+    // If not in channel, try to join it first
+    console.log('🔵 SLACK DEBUG: User cannot post in channel, attempting to join...');
+    const joinResponse = await fetch(`${this.slackApiBaseUrl}/conversations.join`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        channel: channel,
+      }),
+    });
+
+    if (joinResponse.ok) {
+      console.log('✅ SLACK DEBUG: Successfully joined channel as user');
+      return {
+        ok: true,
+        channel: channel,
+      };
+    }
+
+    // If joining fails, return error
+    const joinData = await joinResponse.json() as SlackErrorResponse;
+    console.log('🔴 SLACK DEBUG: Failed to join channel:', joinData.error);
+
+    return {
+      ok: false,
+      error: joinData.error || 'Failed to join channel',
+    };
+  }
+
   getAuthorizationUrl(state: string): string {
     const params = new URLSearchParams({
       client_id: this.clientId,
       scope:
-        'channels:read,chat:write,users:read,groups:read,im:read,mpim:read,reactions:read,reactions:write',
+        'channels:read,chat:write,users:read,groups:read,im:read,mpim:read,reactions:read,reactions:write,incoming-webhook',
       redirect_uri: this.redirectUri,
       state: state,
     });
@@ -207,6 +271,20 @@ export class SlackOAuth {
       where: {
         user_id: userId,
         token_type: 'slack_access_token',
+        is_revoked: false,
+      },
+    });
+
+    return token;
+  }
+
+  async getUserAccessToken(userId: number): Promise<UserToken | null> {
+    const tokenRepository = AppDataSource.getRepository(UserToken);
+
+    const token = await tokenRepository.findOne({
+      where: {
+        user_id: userId,
+        token_type: 'slack_user_access_token',
         is_revoked: false,
       },
     });

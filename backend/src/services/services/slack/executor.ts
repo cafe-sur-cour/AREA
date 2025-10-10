@@ -55,21 +55,22 @@ export class SlackReactionExecutor implements ReactionExecutor {
     console.log('🔵 SLACK DEBUG: execute() reaction config:', reaction.config);
 
     try {
-      // Get user token
-      const userToken = await slackOAuth.getUserToken(userId);
+      // Get user access token (not bot token) so messages come from the user
+      const userToken = await slackOAuth.getUserAccessToken(userId);
       if (!userToken) {
         await createLog(
           401,
           'other',
-          `No Slack token found for user ${userId}`
+          `No Slack user access token found for user ${userId}`
         );
         return {
           success: false,
-          error: 'User not authenticated with Slack',
+          error: 'User not authenticated with Slack (user token required)',
         };
       }
 
       const accessToken = userToken.token_value;
+      console.log('🔵 SLACK DEBUG: Using user access token for posting as user');
 
       switch (reaction.type) {
         case 'slack.send_message':
@@ -125,6 +126,15 @@ export class SlackReactionExecutor implements ReactionExecutor {
 
     console.log('🔵 SLACK DEBUG: sendMessage called with config:', { channel, message });
     console.log('🔵 SLACK DEBUG: Access token starts with:', accessToken.substring(0, 10) + '...');
+
+    // First, ensure the user can access the channel
+    const webhookResult = await slackOAuth.createIncomingWebhook(accessToken, channel);
+    if (!webhookResult.ok) {
+      console.log('🔴 SLACK DEBUG: Cannot access channel:', webhookResult.error);
+      throw new Error(`Cannot access channel ${channel}: ${webhookResult.error}`);
+    }
+
+    console.log('✅ SLACK DEBUG: Bot can access channel, proceeding with message...');
 
     const requestBody = {
       channel: channel,
