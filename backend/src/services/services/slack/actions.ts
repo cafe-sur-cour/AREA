@@ -2,9 +2,9 @@ import type { ActionDefinition } from '../../../types/service';
 import {
   slackNewMessageSchema,
   slackNewDMSchema,
-  slackUserMentionSchema,
+  slackChannelCreatedSchema,
   slackReactionAddedSchema,
-} from './schemas';
+} from '../slack/schemas';
 
 // Slack actions
 export const slackActions: ActionDefinition[] = [
@@ -73,38 +73,43 @@ export const slackActions: ActionDefinition[] = [
     },
   },
   {
-    id: 'slack.user_mention',
-    name: 'User Mentioned',
-    description: 'Triggers when the connected account is mentioned in a channel message',
-    configSchema: slackUserMentionSchema,
+    id: 'slack.channel_created',
+    name: 'Channel Created',
+    description: 'Triggers when a new channel is created in the workspace',
+    configSchema: slackChannelCreatedSchema,
     inputSchema: {
       type: 'object',
       properties: {
-        type: { type: 'string', description: 'Event type (app_mention)' },
-        user: { type: 'string', description: 'User ID who mentioned the app' },
-        text: { type: 'string', description: 'Message text content' },
-        ts: { type: 'string', description: 'Message timestamp' },
-        channel: { type: 'string', description: 'Channel ID where mention occurred' },
+        type: { type: 'string', description: 'Event type (channel_created)' },
+        channel: {
+          type: 'object',
+          description: 'Channel information',
+          properties: {
+            id: { type: 'string', description: 'Channel ID' },
+            name: { type: 'string', description: 'Channel name' },
+            created: { type: 'number', description: 'Creation timestamp' },
+            creator: { type: 'string', description: 'User ID who created the channel' },
+          },
+        },
         event_ts: { type: 'string', description: 'Event timestamp' },
         team: { type: 'string', description: 'Team/workspace ID' },
       },
-      required: ['type', 'user', 'text', 'ts', 'channel'],
+      required: ['type', 'channel', 'event_ts'],
     },
     metadata: {
       category: 'Slack',
-      tags: ['mention', 'app', 'communication'],
+      tags: ['channel', 'creation', 'organization'],
       requiresAuth: true,
-      webhookPattern: 'app_mention',
+      webhookPattern: 'channel_created',
       sharedEvents: true,
       sharedEventFilter: (event, mapping) => {
-        const eventData = event.payload as { channel?: string };
-        if (!eventData.channel) return false;
+        // For channel creation, we can filter by creator if needed
+        const eventData = event.payload as { channel?: { creator?: string } };
 
-        const mappingChannel = mapping.action.config?.channel as string;
-        if (!mappingChannel) return true; // No filter means all channels
+        const mappingCreator = mapping.action.config?.channel as string; // Reuse channel field for creator filter
+        if (!mappingCreator) return true; // No filter means all channel creations
 
-        // Check if channel matches (by ID or name)
-        return eventData.channel === mappingChannel;
+        return eventData.channel?.creator === mappingCreator;
       },
     },
   },

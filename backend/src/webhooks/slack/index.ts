@@ -169,8 +169,8 @@ class SlackWebhookHandler implements WebhookHandler {
           return 'slack.new_dm';
         }
         break;
-      case 'app_mention':
-        return 'slack.user_mention';
+      case 'channel_created':
+        return 'slack.channel_created';
       case 'reaction_added':
         return 'slack.reaction_added';
     }

@@ -21,16 +21,16 @@ export const slackNewDMSchema: ActionReactionSchema = {
   fields: [],
 };
 
-export const slackUserMentionSchema: ActionReactionSchema = {
-  name: 'User Mentioned',
-  description: 'Triggers when the connected account is mentioned in a channel message',
+export const slackChannelCreatedSchema: ActionReactionSchema = {
+  name: 'Channel Created',
+  description: 'Triggers when a new channel is created in the workspace',
   fields: [
     {
-      name: 'channel',
+      name: 'creator',
       type: 'text',
-      label: 'Channel Name or ID (optional, leave empty for all channels)',
+      label: 'Creator User ID (optional, leave empty for all channel creations)',
       required: false,
-      placeholder: '#general or C1234567890',
+      placeholder: 'U1234567890',
     },
   ],
 };
