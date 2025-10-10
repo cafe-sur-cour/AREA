@@ -166,18 +166,11 @@ export class SlackReactionExecutor implements ReactionExecutor {
   ): Promise<ReactionExecutionResult> {
     const { channel, message } = config;
 
-    console.log('🔵 SLACK DEBUG: sendMessage called with config:', { channel, message });
-    console.log('🔵 SLACK DEBUG: Access token starts with:', accessToken.substring(0, 10) + '...');
-    console.log('🔵 SLACK DEBUG: Using', isUserToken ? 'user token' : 'bot token');
-
     // First, ensure we can access the channel
     const webhookResult = await slackOAuth.createIncomingWebhook(accessToken, channel);
     if (!webhookResult.ok) {
-      console.log('🔴 SLACK DEBUG: Cannot access channel:', webhookResult.error);
       throw new Error(`Cannot access channel ${channel}: ${webhookResult.error}`);
     }
-
-    console.log('✅ SLACK DEBUG: Can access channel, proceeding with message...');
 
     const requestBody: Record<string, unknown> = {
       channel: channel,
@@ -188,9 +181,6 @@ export class SlackReactionExecutor implements ReactionExecutor {
     if (!isUserToken) {
       requestBody.as_user = true;
     }
-
-    console.log('🔵 SLACK DEBUG: Request body:', requestBody);
-    console.log('🔵 SLACK DEBUG: API URL:', `${slackOAuth['slackApiBaseUrl']}/chat.postMessage`);
 
     const response = await fetch(
       `${slackOAuth['slackApiBaseUrl']}/chat.postMessage`,
@@ -204,38 +194,25 @@ export class SlackReactionExecutor implements ReactionExecutor {
       }
     );
 
-    console.log('🔵 SLACK DEBUG: HTTP Response status:', response.status);
-    console.log('🔵 SLACK DEBUG: HTTP Response headers:', Object.fromEntries(response.headers.entries()));
-
     if (!response.ok) {
       const errorText = await response.text();
-      console.log('🔴 SLACK DEBUG: Error response body:', errorText);
       let errorData;
       try {
         errorData = JSON.parse(errorText) as SlackApiResponse;
       } catch (parseError) { // eslint-disable-line @typescript-eslint/no-unused-vars
-        console.log('🔴 SLACK DEBUG: Failed to parse error response as JSON');
         errorData = { error: errorText };
       }
       throw new Error(`Failed to send message: ${errorData.error || 'Unknown error'}`);
     }
 
     const responseText = await response.text();
-    console.log('🔵 SLACK DEBUG: Success response body:', responseText);
 
     let data;
     try {
       data = JSON.parse(responseText) as SlackApiResponse;
     } catch (parseError) { // eslint-disable-line @typescript-eslint/no-unused-vars
-      console.log('🔴 SLACK DEBUG: Failed to parse success response as JSON');
       data = { ts: 'unknown', channel: channel };
     }
-
-    console.log('✅ SLACK DEBUG: Message sent successfully:', {
-      messageId: data.ts,
-      channel: data.channel,
-      ok: data.ok
-    });
 
     await createLog(200, 'other', `Message sent to channel ${channel}`);
 
@@ -256,11 +233,8 @@ export class SlackReactionExecutor implements ReactionExecutor {
   ): Promise<ReactionExecutionResult> {
     const { channel, emoji } = config;
 
-    console.log('🔵 SLACK DEBUG: addReaction called with config:', { channel, emoji });
-
     // Resolve channel name to ID for history API
     const channelId = await this.resolveChannelId(accessToken, channel);
-    console.log('🔵 SLACK DEBUG: Resolved channel:', channel, '->', channelId);
 
     // First, get the last message from the channel
     const historyResponse = await fetch(
@@ -273,28 +247,17 @@ export class SlackReactionExecutor implements ReactionExecutor {
       }
     );
 
-    console.log('🔵 SLACK DEBUG: History API response status:', historyResponse.status);
-
     const historyData = (await historyResponse.json()) as { ok: boolean; messages: Array<{ ts: string; text: string; subtype?: string }>; error?: string };
-    console.log('🔵 SLACK DEBUG: History API response:', {
-      ok: historyData.ok,
-      messagesCount: historyData.messages?.length || 0,
-      messages: historyData.messages,
-      error: historyData.error
-    });
 
     if (!historyResponse.ok) {
-      console.log('🔴 SLACK DEBUG: History API HTTP error');
       throw new Error(`Failed to get channel history: HTTP ${historyResponse.status}`);
     }
 
     if (!historyData.ok) {
-      console.log('� SLACK DEBUG: History API returned error:', historyData.error);
       throw new Error(`Failed to get channel history: ${historyData.error || 'Unknown error'}`);
     }
 
     if (!historyData.messages || historyData.messages.length === 0) {
-      console.log('🔴 SLACK DEBUG: No messages in history response');
       throw new Error('No messages found in channel');
     }
 
@@ -304,8 +267,6 @@ export class SlackReactionExecutor implements ReactionExecutor {
     }
 
     const messageId = lastMessage.ts;
-
-    console.log('🔵 SLACK DEBUG: Found last message:', { messageId, text: lastMessage.text });
 
     const response = await fetch(
       `${slackOAuth['slackApiBaseUrl']}/reactions.add`,
@@ -350,6 +311,24 @@ export class SlackReactionExecutor implements ReactionExecutor {
     config: SendDMConfig
   ): Promise<ReactionExecutionResult> {
     const { userId, message } = config;
+
+    console.log('🔵 SLACK DEBUG: sendDM called with config:', { userId, message: message.substring(0, 50) + '...' });
+    console.log('🔵 SLACK DEBUG: Access token scope check - attempting auth test');
+
+    // Test the token to get scope information
+    const authTestResponse = await fetch(`${slackOAuth['slackApiBaseUrl']}/auth.test`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (authTestResponse.ok) {
+      const authData = await authTestResponse.json() as { scope?: string };
+      console.log('🔵 SLACK DEBUG: Auth test successful, scopes:', authData.scope || 'unknown');
+    } else {
+      console.log('🔴 SLACK DEBUG: Auth test failed, cannot determine scopes');
+    }
 
     // First, open a DM channel with the user
     const imResponse = await fetch(`${slackOAuth['slackApiBaseUrl']}/im.open`, {
@@ -413,11 +392,8 @@ export class SlackReactionExecutor implements ReactionExecutor {
   ): Promise<ReactionExecutionResult> {
     const { channel } = config;
 
-    console.log('🔵 SLACK DEBUG: pinMessage called with config:', { channel });
-
     // Resolve channel name to ID for history API
     const channelId = await this.resolveChannelId(accessToken, channel);
-    console.log('🔵 SLACK DEBUG: Resolved channel:', channel, '->', channelId);
 
     // First, get the last messages from the channel
     const historyResponse = await fetch(
@@ -430,41 +406,27 @@ export class SlackReactionExecutor implements ReactionExecutor {
       }
     );
 
-    console.log('🔵 SLACK DEBUG: History API response status:', historyResponse.status);
-
     const historyData = (await historyResponse.json()) as { ok: boolean; messages: Array<{ ts: string; text: string; subtype?: string }>; error?: string };
-    console.log('🔵 SLACK DEBUG: History API response:', {
-      ok: historyData.ok,
-      messagesCount: historyData.messages?.length || 0,
-      messages: historyData.messages,
-      error: historyData.error
-    });
 
     if (!historyResponse.ok) {
-      console.log('🔴 SLACK DEBUG: History API HTTP error');
       throw new Error(`Failed to get channel history: HTTP ${historyResponse.status}`);
     }
 
     if (!historyData.ok) {
-      console.log('� SLACK DEBUG: History API returned error:', historyData.error);
       throw new Error(`Failed to get channel history: ${historyData.error || 'Unknown error'}`);
     }
 
     if (!historyData.messages || historyData.messages.length === 0) {
-      console.log('🔴 SLACK DEBUG: No messages in history response');
       throw new Error('No messages found in channel');
     }
 
     // Find the first pinnable message (skip system messages)
     const pinnableMessage = historyData.messages.find(msg => !msg.subtype || msg.subtype !== 'bot_add');
     if (!pinnableMessage) {
-      console.log('🔴 SLACK DEBUG: No pinnable messages found (all are system messages)');
       throw new Error('No pinnable messages found in channel (only system messages)');
     }
 
     const messageId = pinnableMessage.ts;
-
-    console.log('🔵 SLACK DEBUG: Found pinnable message to pin:', { messageId, text: pinnableMessage.text, subtype: pinnableMessage.subtype });
 
     const response = await fetch(`${slackOAuth['slackApiBaseUrl']}/pins.add`, {
       method: 'POST',
@@ -478,22 +440,15 @@ export class SlackReactionExecutor implements ReactionExecutor {
       }),
     });
 
-    console.log('🔵 SLACK DEBUG: Pins.add response status:', response.status);
-
     const pinData = await response.json() as { ok: boolean; error?: string };
-    console.log('🔵 SLACK DEBUG: Pins.add response:', pinData);
 
     if (!response.ok) {
-      console.log('🔴 SLACK DEBUG: Pins.add HTTP error');
       throw new Error(`Failed to pin message: HTTP ${response.status}`);
     }
 
     if (!pinData.ok) {
-      console.log('🔴 SLACK DEBUG: Pins.add API error:', pinData.error);
       throw new Error(`Failed to pin message: ${pinData.error}`);
     }
-
-    console.log('✅ SLACK DEBUG: Message pinned successfully');
 
     await createLog(
       200,
