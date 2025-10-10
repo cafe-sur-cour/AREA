@@ -72,7 +72,7 @@ export class SlackOAuth {
   }
 
   async createIncomingWebhook(accessToken: string, channel: string): Promise<SlackIncomingWebhookResponse> {
-    console.log('🔵 SLACK DEBUG: Checking if user can access channel:', channel);
+    console.log('🔵 SLACK DEBUG: Checking if bot can access channel:', channel);
 
     const response = await fetch(`${this.slackApiBaseUrl}/chat.postMessage`, {
       method: 'POST',
@@ -83,12 +83,13 @@ export class SlackOAuth {
       body: JSON.stringify({
         channel: channel,
         text: 'AREA test message - checking channel access',
+        as_user: true,
       }),
     });
 
-    // If the message succeeds, the user can post in the channel
+    // If the message succeeds, the bot can post in the channel as user
     if (response.ok) {
-      console.log('🔵 SLACK DEBUG: User can post in channel, proceeding...');
+      console.log('🔵 SLACK DEBUG: Bot can post in channel as user, proceeding...');
       return {
         ok: true,
         channel: channel,
@@ -96,7 +97,7 @@ export class SlackOAuth {
     }
 
     // If not in channel, try to join it first
-    console.log('🔵 SLACK DEBUG: User cannot post in channel, attempting to join...');
+    console.log('🔵 SLACK DEBUG: Bot cannot post in channel, attempting to join...');
     const joinResponse = await fetch(`${this.slackApiBaseUrl}/conversations.join`, {
       method: 'POST',
       headers: {
@@ -109,7 +110,7 @@ export class SlackOAuth {
     });
 
     if (joinResponse.ok) {
-      console.log('✅ SLACK DEBUG: Successfully joined channel as user');
+      console.log('✅ SLACK DEBUG: Successfully joined channel');
       return {
         ok: true,
         channel: channel,
@@ -131,6 +132,7 @@ export class SlackOAuth {
       client_id: this.clientId,
       scope:
         'channels:read,chat:write,users:read,groups:read,im:read,mpim:read,reactions:read,reactions:write,incoming-webhook',
+      user_scope: 'channels:read,chat:write,groups:read,im:read,mpim:read,reactions:read,reactions:write',
       redirect_uri: this.redirectUri,
       state: state,
     });

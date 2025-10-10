@@ -55,49 +55,61 @@ export class SlackReactionExecutor implements ReactionExecutor {
     console.log('🔵 SLACK DEBUG: execute() reaction config:', reaction.config);
 
     try {
-      // Get user access token (not bot token) so messages come from the user
-      const userToken = await slackOAuth.getUserAccessToken(userId);
+      // Try user token first (preferred - messages come directly from user)
+      let userToken = await slackOAuth.getUserAccessToken(userId);
+
       if (!userToken) {
-        await createLog(
-          401,
-          'other',
-          `No Slack user access token found for user ${userId}`
-        );
-        return {
-          success: false,
-          error: 'User not authenticated with Slack (user token required)',
-        };
+        console.log('🔵 SLACK DEBUG: No user token found, trying bot token with as_user');
+        // Fallback to bot token with as_user: true
+        userToken = await slackOAuth.getUserToken(userId);
+        if (!userToken) {
+          await createLog(
+            401,
+            'other',
+            `No Slack token found for user ${userId}`
+          );
+          return {
+            success: false,
+            error: 'User not authenticated with Slack',
+          };
+        }
       }
 
       const accessToken = userToken.token_value;
-      console.log('🔵 SLACK DEBUG: Using user access token for posting as user');
+      const isUserToken = userToken.token_type === 'slack_user_access_token';
+      console.log(`🔵 SLACK DEBUG: Using ${isUserToken ? 'user' : 'bot'} token for posting`);
 
       switch (reaction.type) {
         case 'slack.send_message':
           return await this.sendMessage(
             accessToken,
-            reaction.config as unknown as SendMessageConfig
+            reaction.config as unknown as SendMessageConfig,
+            isUserToken
           );
 
         case 'slack.add_reaction':
           return await this.addReaction(
             accessToken,
-            reaction.config as unknown as AddReactionConfig
+            reaction.config as unknown as AddReactionConfig,
+            isUserToken
           );
 
         case 'slack.send_dm':
           return await this.sendDM(
             accessToken,
-            reaction.config as unknown as SendDMConfig
+            reaction.config as unknown as SendDMConfig,
+            isUserToken
           );
 
         case 'slack.pin_message':
           return await this.pinMessage(
             accessToken,
-            reaction.config as unknown as PinMessageConfig
+            reaction.config as unknown as PinMessageConfig,
+            isUserToken
           );
 
         default:
+          await createLog(400, 'other', `Unknown Slack reaction type: ${reaction.type}`);
           return {
             success: false,
             error: `Unknown Slack reaction type: ${reaction.type}`,
@@ -120,26 +132,33 @@ export class SlackReactionExecutor implements ReactionExecutor {
 
   private async sendMessage(
     accessToken: string,
-    config: SendMessageConfig
+    config: SendMessageConfig,
+    isUserToken: boolean = false
   ): Promise<ReactionExecutionResult> {
     const { channel, message } = config;
 
     console.log('🔵 SLACK DEBUG: sendMessage called with config:', { channel, message });
     console.log('🔵 SLACK DEBUG: Access token starts with:', accessToken.substring(0, 10) + '...');
+    console.log('🔵 SLACK DEBUG: Using', isUserToken ? 'user token' : 'bot token');
 
-    // First, ensure the user can access the channel
+    // First, ensure we can access the channel
     const webhookResult = await slackOAuth.createIncomingWebhook(accessToken, channel);
     if (!webhookResult.ok) {
       console.log('🔴 SLACK DEBUG: Cannot access channel:', webhookResult.error);
       throw new Error(`Cannot access channel ${channel}: ${webhookResult.error}`);
     }
 
-    console.log('✅ SLACK DEBUG: Bot can access channel, proceeding with message...');
+    console.log('✅ SLACK DEBUG: Can access channel, proceeding with message...');
 
-    const requestBody = {
+    const requestBody: Record<string, unknown> = {
       channel: channel,
       text: message,
     };
+
+    // Only use as_user: true with bot tokens
+    if (!isUserToken) {
+      requestBody.as_user = true;
+    }
 
     console.log('🔵 SLACK DEBUG: Request body:', requestBody);
     console.log('🔵 SLACK DEBUG: API URL:', `${slackOAuth['slackApiBaseUrl']}/chat.postMessage`);
@@ -204,7 +223,8 @@ export class SlackReactionExecutor implements ReactionExecutor {
 
   private async addReaction(
     accessToken: string,
-    config: AddReactionConfig
+    config: AddReactionConfig,
+    isUserToken: boolean = false
   ): Promise<ReactionExecutionResult> {
     const { channel, messageId, emoji } = config;
 
@@ -248,7 +268,8 @@ export class SlackReactionExecutor implements ReactionExecutor {
 
   private async sendDM(
     accessToken: string,
-    config: SendDMConfig
+    config: SendDMConfig,
+    isUserToken: boolean = false
   ): Promise<ReactionExecutionResult> {
     const { userId, message } = config;
 
@@ -310,7 +331,8 @@ export class SlackReactionExecutor implements ReactionExecutor {
 
   private async pinMessage(
     accessToken: string,
-    config: PinMessageConfig
+    config: PinMessageConfig,
+    isUserToken: boolean = false
   ): Promise<ReactionExecutionResult> {
     const { channel, messageId } = config;
 
