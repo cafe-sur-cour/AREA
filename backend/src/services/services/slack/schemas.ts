@@ -1,2 +1,57 @@
 // Slack service schemas
-// TODO: Add Slack action and reaction schemas here
+import type { ActionReactionSchema } from '../../../types/mapping';
+
+export const slackNewMessageSchema: ActionReactionSchema = {
+  name: 'New Message in Channel',
+  description: 'Triggers when a new message is posted in a specific channel',
+  fields: [
+    {
+      name: 'channel',
+      type: 'text',
+      label: 'Channel Name or ID (optional, leave empty for all channels)',
+      required: false,
+      placeholder: '#general or C1234567890',
+    },
+  ],
+};
+
+export const slackNewDMSchema: ActionReactionSchema = {
+  name: 'New Direct Message',
+  description: 'Triggers when the user receives a new private message',
+  fields: [],
+};
+
+export const slackUserMentionSchema: ActionReactionSchema = {
+  name: 'User Mentioned',
+  description: 'Triggers when the connected account is mentioned in a channel message',
+  fields: [
+    {
+      name: 'channel',
+      type: 'text',
+      label: 'Channel Name or ID (optional, leave empty for all channels)',
+      required: false,
+      placeholder: '#general or C1234567890',
+    },
+  ],
+};
+
+export const slackReactionAddedSchema: ActionReactionSchema = {
+  name: 'Reaction Added to Message',
+  description: 'Triggers when someone adds a reaction (emoji) to a message',
+  fields: [
+    {
+      name: 'channel',
+      type: 'text',
+      label: 'Channel Name or ID (optional, leave empty for all channels)',
+      required: false,
+      placeholder: '#general or C1234567890',
+    },
+    {
+      name: 'emoji',
+      type: 'text',
+      label: 'Emoji Name (optional, leave empty for any reaction)',
+      required: false,
+      placeholder: 'thumbsup or :thumbsup:',
+    },
+  ],
+};
