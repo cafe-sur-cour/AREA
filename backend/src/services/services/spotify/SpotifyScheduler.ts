@@ -152,7 +152,9 @@ export class SpotifyScheduler {
         return;
       }
 
-      const hasPlaybackScope = userToken.scopes?.includes('user-read-playback-state');
+      const hasPlaybackScope = userToken.scopes?.includes(
+        'user-read-playback-state'
+      );
       const hasLibraryScope = userToken.scopes?.includes('user-library-read');
 
       if (!hasPlaybackScope && !hasLibraryScope) {
@@ -256,7 +258,9 @@ export class SpotifyScheduler {
         );
 
         if (newTrackIds.length > 0) {
-          console.log(`🎵 [Spotify] User ${userId} has ${newTrackIds.length} new liked tracks`);
+          console.log(
+            `🎵 [Spotify] User ${userId} has ${newTrackIds.length} new liked tracks`
+          );
           this.lastLikedTrackDetection.set(userId, now);
 
           const newTracks = likedTracks.items.filter(item =>
