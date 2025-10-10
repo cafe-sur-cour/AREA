@@ -10,6 +10,10 @@ class SlackWebhookHandler implements WebhookHandler {
 
   async handle(req: Request, res: Response): Promise<Response> {
     try {
+      console.log(
+        `\n🎣 [SLACK WEBHOOK] Event received (team: ${req.body?.team_id || req.body?.event?.team})`
+      );
+
       const signature = req.headers['x-slack-signature'] as string;
       const timestamp = req.headers['x-slack-request-timestamp'] as string;
 
@@ -34,8 +38,11 @@ class SlackWebhookHandler implements WebhookHandler {
 
       const userToken = await this.findUserBySlackTeam(teamId);
       if (!userToken) {
+        console.log(`❌ [SLACK WEBHOOK] Team ${teamId} not registered`);
         return res.status(200).json({ message: 'Team not registered' });
       }
+
+      console.log(`✅ [SLACK WEBHOOK] Found token for user ${userToken.user_id} (team: ${teamId})`);
 
       const userId = userToken.user_id;
 
@@ -48,6 +55,7 @@ class SlackWebhookHandler implements WebhookHandler {
       );
 
       if (!isSubscribed) {
+        console.log(`⚠️  [SLACK WEBHOOK] User ${userId} not subscribed - ignoring`);
         return res
           .status(200)
           .json({ message: 'User not subscribed to service' });
@@ -84,16 +92,22 @@ class SlackWebhookHandler implements WebhookHandler {
         const actionType = this.getActionTypeFromEvent(event);
 
         if (!actionType) {
+          console.log(`⚠️  [SLACK WEBHOOK] Unsupported event type: ${event.type}`);
           return res.status(200).json({ message: 'Event type not supported' });
         }
 
+        console.log(`🎣 [SLACK WEBHOOK] Processing ${event.type} → ${actionType}`);
+
         if (actionType === 'slack.new_dm') {
+          console.log(`🔍 [SLACK WEBHOOK] Checking DM recipient for channel ${event.channel}`);
           const isRecipient = await this.isUserRecipientOfDM(event, userToken);
           if (!isRecipient) {
+            console.log(`🚫 [SLACK WEBHOOK] DM not for this user - ignored`);
             return res
               .status(200)
               .json({ message: 'DM not for this user - ignored' });
           }
+          console.log(`✅ [SLACK WEBHOOK] DM is for this user - processing`);
         }
 
         const webhookEvent = new WebhookEvents();
@@ -108,6 +122,8 @@ class SlackWebhookHandler implements WebhookHandler {
           !!process.env.SERVICE_SLACK_SIGNING_SECRET;
 
         await AppDataSource.getRepository(WebhookEvents).save(webhookEvent);
+
+        console.log(`✅ [SLACK WEBHOOK] Event processed successfully (ID: ${webhookEvent.id})`);
 
         return res
           .status(200)
@@ -148,6 +164,8 @@ class SlackWebhookHandler implements WebhookHandler {
     const apiBaseUrl =
       process.env.SERVICE_SLACK_API_BASE_URL || 'https://slack.com/api';
 
+    console.log(`🔍 [SLACK TEAM] Looking for token for team ${teamId}`);
+
     const slackTokens = await tokenRepository.find({
       where: {
         token_type: 'slack_access_token',
@@ -155,8 +173,11 @@ class SlackWebhookHandler implements WebhookHandler {
       },
     });
 
+    console.log(`📋 [SLACK TEAM] Found ${slackTokens.length} potential tokens`);
+
     for (const token of slackTokens) {
       try {
+        console.log(`🔑 [SLACK TEAM] Testing token for user ${token.user_id}`);
         const authResponse = await fetch(`${apiBaseUrl}/auth.test`, {
           headers: {
             Authorization: `Bearer ${token.token_value}`,
@@ -171,13 +192,21 @@ class SlackWebhookHandler implements WebhookHandler {
             error?: string;
           };
 
+          console.log(`✅ [SLACK TEAM] Token valid, team_id: ${authData.team_id}`);
+
           if (authData.ok && authData.team_id === teamId) {
+            console.log(`🎯 [SLACK TEAM] Token matches team ${teamId} for user ${token.user_id}`);
             return token;
           }
+        } else {
+          console.log(`❌ [SLACK TEAM] Token invalid for user ${token.user_id}: ${authResponse.status}`);
         }
-      } catch {}
+      } catch (error) {
+        console.log(`❌ [SLACK TEAM] Error testing token for user ${token.user_id}:`, error);
+      }
     }
 
+    console.log(`❌ [SLACK TEAM] No valid token found for team ${teamId}`);
     return null;
   }
 
@@ -191,8 +220,12 @@ class SlackWebhookHandler implements WebhookHandler {
       const apiBaseUrl =
         process.env.SERVICE_SLACK_API_BASE_URL || 'https://slack.com/api';
 
+      console.log(`🔍 [SLACK DM] Checking DM recipient for channel ${channelId}, sender ${senderId}`);
+
       const userAccessToken = await this.getUserAccessToken(userToken.user_id);
       const tokenToUse = userAccessToken?.token_value || userToken.token_value;
+
+      console.log(`🔑 [SLACK DM] Using ${userAccessToken ? 'user' : 'bot'} token for API calls`);
 
       const response = await fetch(
         `${apiBaseUrl}/conversations.members?channel=${channelId}`,
@@ -205,6 +238,7 @@ class SlackWebhookHandler implements WebhookHandler {
       );
 
       if (!response.ok) {
+        console.log(`❌ [SLACK DM] Failed to get channel members: ${response.status} ${response.statusText}`);
         return false;
       }
 
@@ -215,10 +249,14 @@ class SlackWebhookHandler implements WebhookHandler {
       };
 
       if (!data.ok || !data.members) {
+        console.log(`❌ [SLACK DM] API error: ${data.error}`);
         return false;
       }
 
+      console.log(`👥 [SLACK DM] Channel ${channelId} has ${data.members.length} members: ${data.members.join(', ')}`);
+
       if (data.members.length !== 2 && data.members.length !== 1) {
+        console.log(`⚠️  [SLACK DM] Unexpected member count: ${data.members.length}`);
         return false;
       }
 
@@ -231,8 +269,11 @@ class SlackWebhookHandler implements WebhookHandler {
       }
 
       if (!recipientId) {
+        console.log(`❌ [SLACK DM] Could not determine recipient`);
         return false;
       }
+
+      console.log(`🎯 [SLACK DM] Determined recipient: ${recipientId}`);
 
       const authResponse = await fetch(`${apiBaseUrl}/auth.test`, {
         headers: {
@@ -242,6 +283,7 @@ class SlackWebhookHandler implements WebhookHandler {
       });
 
       if (!authResponse.ok) {
+        console.log(`❌ [SLACK DM] Failed to get user info: ${authResponse.status} ${authResponse.statusText}`);
         return false;
       }
 
@@ -252,14 +294,18 @@ class SlackWebhookHandler implements WebhookHandler {
       };
 
       if (!authData.ok || !authData.user_id) {
+        console.log(`❌ [SLACK DM] Auth error: ${authData.error}`);
         return false;
       }
 
       const currentUserSlackId = authData.user_id;
       const isRecipient = currentUserSlackId === recipientId;
 
+      console.log(`🔍 [SLACK DM] Current user Slack ID: ${currentUserSlackId}, recipient: ${recipientId} → ${isRecipient ? 'ACCEPTED' : 'REJECTED'}`);
+
       return isRecipient;
-    } catch {
+    } catch (error) {
+      console.error('❌ [SLACK DM] Error checking DM recipients:', error);
       return false;
     }
   }
@@ -274,8 +320,15 @@ class SlackWebhookHandler implements WebhookHandler {
         },
       });
 
+      if (userToken) {
+        console.log(`✅ [SLACK TOKEN] Found user access token for user ${userId}`);
+      } else {
+        console.log(`⚠️  [SLACK TOKEN] No user access token found for user ${userId}, will use bot token`);
+      }
+
       return userToken || null;
-    } catch {
+    } catch (error) {
+      console.error('❌ [SLACK TOKEN] Error getting user access token:', error);
       return null;
     }
   }
