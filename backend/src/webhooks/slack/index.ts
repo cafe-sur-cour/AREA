@@ -100,14 +100,19 @@ class SlackWebhookHandler implements WebhookHandler {
 
         if (actionType === 'slack.new_dm') {
           console.log(`🔍 [SLACK WEBHOOK] Checking DM recipient for channel ${event.channel}`);
-          const isRecipient = await this.isUserRecipientOfDM(event, userToken);
-          if (!isRecipient) {
-            console.log(`🚫 [SLACK WEBHOOK] DM not for this user - ignored`);
-            return res
-              .status(200)
-              .json({ message: 'DM not for this user - ignored' });
+          const userAccessToken = await this.getUserAccessToken(userId);
+          if (!userAccessToken) {
+            console.log(`⚠️  [SLACK WEBHOOK] No user token available - accepting all DMs for user ${userId}`);
+          } else {
+            const isRecipient = await this.isUserRecipientOfDM(event, userAccessToken);
+            if (!isRecipient) {
+              console.log(`🚫 [SLACK WEBHOOK] DM not for this user - ignored`);
+              return res
+                .status(200)
+                .json({ message: 'DM not for this user - ignored' });
+            }
+            console.log(`✅ [SLACK WEBHOOK] DM is for this user - processing`);
           }
-          console.log(`✅ [SLACK WEBHOOK] DM is for this user - processing`);
         }
 
         const webhookEvent = new WebhookEvents();
@@ -222,10 +227,10 @@ class SlackWebhookHandler implements WebhookHandler {
 
       console.log(`🔍 [SLACK DM] Checking DM recipient for channel ${channelId}, sender ${senderId}`);
 
-      const userAccessToken = await this.getUserAccessToken(userToken.user_id);
-      const tokenToUse = userAccessToken?.token_value || userToken.token_value;
+      // Use the user token directly (already validated that it exists)
+      const tokenToUse = userToken.token_value;
 
-      console.log(`🔑 [SLACK DM] Using ${userAccessToken ? 'user' : 'bot'} token for API calls`);
+      console.log(`🔑 [SLACK DM] Using user token for API calls`);
 
       const response = await fetch(
         `${apiBaseUrl}/conversations.members?channel=${channelId}`,
