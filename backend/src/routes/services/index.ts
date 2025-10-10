@@ -42,6 +42,13 @@ const serviceEndpoints: Record<
     subscribe: '/microsoft/subscribe',
     unsubscribe: '/microsoft/unsubscribe',
   },
+  slack: {
+    auth: '/auth/slack/subscribe',
+    status: '/slack/subscribe/status',
+    loginStatus: '/slack/login/status',
+    subscribe: '/auth/slack/subscribe',
+    unsubscribe: '/slack/unsubscribe',
+  },
   timer: {
     auth: '',
     status: '/services/timer/subscribe/status',
