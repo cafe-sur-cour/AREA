@@ -116,6 +116,15 @@ class SlackWebhookHandler implements WebhookHandler {
 
         console.log(`🎣 [SLACK WEBHOOK] Processing ${event.type} → ${actionType}`);
 
+        // Special filtering for DMs: only process if user is the recipient (not sender)
+        if (actionType === 'slack.new_dm') {
+          const isRecipient = await this.isUserRecipientOfDM(event, userToken);
+          if (!isRecipient) {
+            console.log(`⚠️  [SLACK WEBHOOK] User ${userId} is not recipient of DM - ignoring`);
+            return res.status(200).json({ message: 'DM not for this user - ignored' });
+          }
+        }
+
         // Log event details
         if (event.type === 'message') {
           const channelType = event.channel_type || 'unknown';
@@ -195,6 +204,80 @@ class SlackWebhookHandler implements WebhookHandler {
     }
 
     return null;
+  }
+
+  private async isUserRecipientOfDM(event: Record<string, unknown>, userToken: UserToken): Promise<boolean> {
+    try {
+      const channelId = event.channel as string;
+      const senderId = event.user as string;
+
+      // Get IM channel members using Slack API
+      const response = await fetch(`https://slack.com/api/conversations.members?channel=${channelId}`, {
+        headers: {
+          Authorization: `Bearer ${userToken.token_value}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        console.error(`❌ [SLACK WEBHOOK] Failed to get IM members: ${response.statusText}`);
+        return false;
+      }
+
+      const data = await response.json() as { ok: boolean; members?: string[]; error?: string };
+
+      if (!data.ok || !data.members) {
+        console.error(`❌ [SLACK WEBHOOK] IM members API error: ${data.error}`);
+        return false;
+      }
+
+      // For DMs, there should be exactly 2 members
+      if (data.members.length !== 2) {
+        console.log(`⚠️  [SLACK WEBHOOK] DM channel ${channelId} has ${data.members.length} members, expected 2`);
+        return false;
+      }
+
+      // Find the member who is not the sender
+      const recipientId = data.members.find(member => member !== senderId);
+
+      if (!recipientId) {
+        console.error(`❌ [SLACK WEBHOOK] Could not determine DM recipient`);
+        return false;
+      }
+
+      // Get current user's Slack ID using auth.test API
+      const authResponse = await fetch('https://slack.com/api/auth.test', {
+        headers: {
+          Authorization: `Bearer ${userToken.token_value}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!authResponse.ok) {
+        console.error(`❌ [SLACK WEBHOOK] Failed to get user auth info: ${authResponse.statusText}`);
+        return false;
+      }
+
+      const authData = await authResponse.json() as { ok: boolean; user_id: string; error?: string };
+
+      if (!authData.ok || !authData.user_id) {
+        console.error(`❌ [SLACK WEBHOOK] Auth test API error: ${authData.error}`);
+        return false;
+      }
+
+      const currentUserSlackId = authData.user_id;
+
+      // Check if this user is the recipient
+      const isRecipient = currentUserSlackId === recipientId;
+
+      console.log(`🔍 [SLACK WEBHOOK] DM from ${senderId} to ${recipientId}, current user Slack ID ${currentUserSlackId} - ${isRecipient ? 'ACCEPTED' : 'REJECTED'}`);
+
+      return isRecipient;
+
+    } catch (error) {
+      console.error('❌ [SLACK WEBHOOK] Error checking DM recipients:', error);
+      return false;
+    }
   }
 }
 
