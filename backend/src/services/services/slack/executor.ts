@@ -202,8 +202,7 @@ export class SlackReactionExecutor implements ReactionExecutor {
       let errorData;
       try {
         errorData = JSON.parse(errorText) as SlackApiResponse;
-      } catch (parseError) {
-        // eslint-disable-line @typescript-eslint/no-unused-vars
+      } catch {
         errorData = { error: errorText };
       }
       throw new Error(
@@ -216,8 +215,7 @@ export class SlackReactionExecutor implements ReactionExecutor {
     let data;
     try {
       data = JSON.parse(responseText) as SlackApiResponse;
-    } catch (parseError) {
-      // eslint-disable-line @typescript-eslint/no-unused-vars
+    } catch {
       data = { ts: 'unknown', channel: channel };
     }
 
