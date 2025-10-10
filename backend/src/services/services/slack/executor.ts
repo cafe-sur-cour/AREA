@@ -6,8 +6,6 @@ import type {
 import fetch from 'node-fetch';
 import { slackOAuth } from './oauth';
 import { createLog } from '../../../routes/logs/logs.service';
-import { AppDataSource } from '../../../config/db';
-import { UserToken } from '../../../config/entity/UserToken';
 
 interface SlackApiResponse {
   ok: boolean;
@@ -44,16 +42,18 @@ interface PinMessageConfig {
 }
 
 export class SlackReactionExecutor implements ReactionExecutor {
-  private async resolveChannelId(accessToken: string, channelInput: string): Promise<string> {
-    // If it's already an ID (starts with C, G, D, etc.), return as-is
+  private async resolveChannelId(
+    accessToken: string,
+    channelInput: string
+  ): Promise<string> {
     if (/^[CGD][A-Z0-9]+$/.test(channelInput)) {
       return channelInput;
     }
 
-    // Remove # prefix if present
-    const channelName = channelInput.startsWith('#') ? channelInput.substring(1) : channelInput;
+    const channelName = channelInput.startsWith('#')
+      ? channelInput.substring(1)
+      : channelInput;
 
-    // Try to find the channel by name
     const listResponse = await fetch(
       `${slackOAuth['slackApiBaseUrl']}/conversations.list?types=public_channel,private_channel&limit=200`,
       {
@@ -65,12 +65,14 @@ export class SlackReactionExecutor implements ReactionExecutor {
     );
 
     if (!listResponse.ok) {
-      const errorData = await listResponse.json() as SlackApiResponse;
+      const errorData = (await listResponse.json()) as SlackApiResponse;
       throw new Error(`Failed to list channels: ${errorData.error}`);
     }
 
-    const listData = await listResponse.json() as { channels?: Array<{ id: string; name: string }> };
-    const channel = listData.channels?.find((ch) => ch.name === channelName);
+    const listData = (await listResponse.json()) as {
+      channels?: Array<{ id: string; name: string }>;
+    };
+    const channel = listData.channels?.find(ch => ch.name === channelName);
 
     if (!channel) {
       throw new Error(`Channel '${channelInput}' not found or not accessible`);
@@ -84,17 +86,10 @@ export class SlackReactionExecutor implements ReactionExecutor {
     const { reaction, event } = context;
     const userId = event.user_id;
 
-    console.log('🔵 SLACK DEBUG: execute() called with reaction:', reaction.type);
-    console.log('🔵 SLACK DEBUG: execute() userId:', userId);
-    console.log('🔵 SLACK DEBUG: execute() reaction config:', reaction.config);
-
     try {
-      // Try user token first (preferred - messages come directly from user)
       let userToken = await slackOAuth.getUserAccessToken(userId);
 
       if (!userToken) {
-        console.log('🔵 SLACK DEBUG: No user token found, trying bot token with as_user');
-        // Fallback to bot token with as_user: true
         userToken = await slackOAuth.getUserToken(userId);
         if (!userToken) {
           await createLog(
@@ -111,7 +106,6 @@ export class SlackReactionExecutor implements ReactionExecutor {
 
       const accessToken = userToken.token_value;
       const isUserToken = userToken.token_type === 'slack_user_access_token';
-      console.log(`🔵 SLACK DEBUG: Using ${isUserToken ? 'user' : 'bot'} token for posting`);
 
       switch (reaction.type) {
         case 'slack.send_message':
@@ -130,8 +124,7 @@ export class SlackReactionExecutor implements ReactionExecutor {
         case 'slack.send_dm':
           return await this.sendDM(
             accessToken,
-            reaction.config as unknown as SendDMConfig,
-            userId
+            reaction.config as unknown as SendDMConfig
           );
 
         case 'slack.pin_message':
@@ -141,7 +134,11 @@ export class SlackReactionExecutor implements ReactionExecutor {
           );
 
         default:
-          await createLog(400, 'other', `Unknown Slack reaction type: ${reaction.type}`);
+          await createLog(
+            400,
+            'other',
+            `Unknown Slack reaction type: ${reaction.type}`
+          );
           return {
             success: false,
             error: `Unknown Slack reaction type: ${reaction.type}`,
@@ -169,10 +166,14 @@ export class SlackReactionExecutor implements ReactionExecutor {
   ): Promise<ReactionExecutionResult> {
     const { channel, message } = config;
 
-    // First, ensure we can access the channel
-    const webhookResult = await slackOAuth.createIncomingWebhook(accessToken, channel);
+    const webhookResult = await slackOAuth.createIncomingWebhook(
+      accessToken,
+      channel
+    );
     if (!webhookResult.ok) {
-      throw new Error(`Cannot access channel ${channel}: ${webhookResult.error}`);
+      throw new Error(
+        `Cannot access channel ${channel}: ${webhookResult.error}`
+      );
     }
 
     const requestBody: Record<string, unknown> = {
@@ -180,7 +181,6 @@ export class SlackReactionExecutor implements ReactionExecutor {
       text: message,
     };
 
-    // Only use as_user: true with bot tokens
     if (!isUserToken) {
       requestBody.as_user = true;
     }
@@ -202,10 +202,13 @@ export class SlackReactionExecutor implements ReactionExecutor {
       let errorData;
       try {
         errorData = JSON.parse(errorText) as SlackApiResponse;
-      } catch (parseError) { // eslint-disable-line @typescript-eslint/no-unused-vars
+      } catch (parseError) {
+        // eslint-disable-line @typescript-eslint/no-unused-vars
         errorData = { error: errorText };
       }
-      throw new Error(`Failed to send message: ${errorData.error || 'Unknown error'}`);
+      throw new Error(
+        `Failed to send message: ${errorData.error || 'Unknown error'}`
+      );
     }
 
     const responseText = await response.text();
@@ -213,7 +216,8 @@ export class SlackReactionExecutor implements ReactionExecutor {
     let data;
     try {
       data = JSON.parse(responseText) as SlackApiResponse;
-    } catch (parseError) { // eslint-disable-line @typescript-eslint/no-unused-vars
+    } catch (parseError) {
+      // eslint-disable-line @typescript-eslint/no-unused-vars
       data = { ts: 'unknown', channel: channel };
     }
 
@@ -236,10 +240,8 @@ export class SlackReactionExecutor implements ReactionExecutor {
   ): Promise<ReactionExecutionResult> {
     const { channel, emoji } = config;
 
-    // Resolve channel name to ID for history API
     const channelId = await this.resolveChannelId(accessToken, channel);
 
-    // First, get the last message from the channel
     const historyResponse = await fetch(
       `${slackOAuth['slackApiBaseUrl']}/conversations.history?channel=${channelId}&limit=1`,
       {
@@ -250,14 +252,22 @@ export class SlackReactionExecutor implements ReactionExecutor {
       }
     );
 
-    const historyData = (await historyResponse.json()) as { ok: boolean; messages: Array<{ ts: string; text: string; subtype?: string }>; error?: string };
+    const historyData = (await historyResponse.json()) as {
+      ok: boolean;
+      messages: Array<{ ts: string; text: string; subtype?: string }>;
+      error?: string;
+    };
 
     if (!historyResponse.ok) {
-      throw new Error(`Failed to get channel history: HTTP ${historyResponse.status}`);
+      throw new Error(
+        `Failed to get channel history: HTTP ${historyResponse.status}`
+      );
     }
 
     if (!historyData.ok) {
-      throw new Error(`Failed to get channel history: ${historyData.error || 'Unknown error'}`);
+      throw new Error(
+        `Failed to get channel history: ${historyData.error || 'Unknown error'}`
+      );
     }
 
     if (!historyData.messages || historyData.messages.length === 0) {
@@ -311,60 +321,36 @@ export class SlackReactionExecutor implements ReactionExecutor {
 
   private async sendDM(
     accessToken: string,
-    config: SendDMConfig,
-    userId: number
+    config: SendDMConfig
   ): Promise<ReactionExecutionResult> {
     const { userId: targetUserId, message } = config;
 
-    console.log('🔵 SLACK DEBUG: sendDM called with config:', { userId: targetUserId, message: message.substring(0, 50) + '...' });
-
-    // Get token info to display scopes
-    const tokenRepository = AppDataSource.getRepository(UserToken);
-    const userToken = await tokenRepository.findOne({
-      where: {
-        user_id: userId,
-        token_type: 'slack_user_access_token',
-        is_revoked: false,
-      },
-    });
-
-    if (userToken && userToken.scopes) {
-      console.log('🔵 SLACK DEBUG: User token scopes:', userToken.scopes);
-    } else {
-      console.log('🔴 SLACK DEBUG: No user token found or no scopes available');
-    }
-
-    console.log('🔵 SLACK DEBUG: Access token scope check - attempting conversations.open');
-
-    // First, open a DM channel with the user using conversations.open
-    const imResponse = await fetch(`${slackOAuth['slackApiBaseUrl']}/conversations.open`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        users: targetUserId,
-      }),
-    });
+    const imResponse = await fetch(
+      `${slackOAuth['slackApiBaseUrl']}/conversations.open`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          users: targetUserId,
+        }),
+      }
+    );
 
     if (!imResponse.ok) {
       const errorData = (await imResponse.json()) as SlackApiResponse;
-      console.log('🔴 SLACK DEBUG: conversations.open failed:', errorData);
       throw new Error(`Failed to open DM: ${errorData.error}`);
     }
 
     const imData = (await imResponse.json()) as SlackImOpenResponse;
-    console.log('🔵 SLACK DEBUG: conversations.open response:', imData);
 
     if (!imData.channel || !imData.channel.id) {
-      console.log('🔴 SLACK DEBUG: conversations.open returned invalid channel data');
       throw new Error('Failed to open DM: Invalid channel data returned');
     }
 
     const channelId = imData.channel.id;
-
-    // Now send the message
     const messageResponse = await fetch(
       `${slackOAuth['slackApiBaseUrl']}/chat.postMessage`,
       {
@@ -406,10 +392,8 @@ export class SlackReactionExecutor implements ReactionExecutor {
   ): Promise<ReactionExecutionResult> {
     const { channel } = config;
 
-    // Resolve channel name to ID for history API
     const channelId = await this.resolveChannelId(accessToken, channel);
 
-    // First, get the last messages from the channel
     const historyResponse = await fetch(
       `${slackOAuth['slackApiBaseUrl']}/conversations.history?channel=${channelId}&limit=10`,
       {
@@ -420,24 +404,35 @@ export class SlackReactionExecutor implements ReactionExecutor {
       }
     );
 
-    const historyData = (await historyResponse.json()) as { ok: boolean; messages: Array<{ ts: string; text: string; subtype?: string }>; error?: string };
+    const historyData = (await historyResponse.json()) as {
+      ok: boolean;
+      messages: Array<{ ts: string; text: string; subtype?: string }>;
+      error?: string;
+    };
 
     if (!historyResponse.ok) {
-      throw new Error(`Failed to get channel history: HTTP ${historyResponse.status}`);
+      throw new Error(
+        `Failed to get channel history: HTTP ${historyResponse.status}`
+      );
     }
 
     if (!historyData.ok) {
-      throw new Error(`Failed to get channel history: ${historyData.error || 'Unknown error'}`);
+      throw new Error(
+        `Failed to get channel history: ${historyData.error || 'Unknown error'}`
+      );
     }
 
     if (!historyData.messages || historyData.messages.length === 0) {
       throw new Error('No messages found in channel');
     }
 
-    // Find the first pinnable message (skip system messages)
-    const pinnableMessage = historyData.messages.find(msg => !msg.subtype || msg.subtype !== 'bot_add');
+    const pinnableMessage = historyData.messages.find(
+      msg => !msg.subtype || msg.subtype !== 'bot_add'
+    );
     if (!pinnableMessage) {
-      throw new Error('No pinnable messages found in channel (only system messages)');
+      throw new Error(
+        'No pinnable messages found in channel (only system messages)'
+      );
     }
 
     const messageId = pinnableMessage.ts;
@@ -454,7 +449,7 @@ export class SlackReactionExecutor implements ReactionExecutor {
       }),
     });
 
-    const pinData = await response.json() as { ok: boolean; error?: string };
+    const pinData = (await response.json()) as { ok: boolean; error?: string };
 
     if (!response.ok) {
       throw new Error(`Failed to pin message: HTTP ${response.status}`);
@@ -464,11 +459,7 @@ export class SlackReactionExecutor implements ReactionExecutor {
       throw new Error(`Failed to pin message: ${pinData.error}`);
     }
 
-    await createLog(
-      200,
-      'other',
-      `Last message pinned in channel ${channel}`
-    );
+    await createLog(200, 'other', `Last message pinned in channel ${channel}`);
 
     return {
       success: true,

@@ -63,7 +63,8 @@ export const slackReactions: ReactionDefinition[] = [
     description: 'Add an emoji reaction to the last message in a channel',
     configSchema: {
       name: 'Add Reaction Configuration',
-      description: 'Configure which channel and emoji reaction to add to the last message',
+      description:
+        'Configure which channel and emoji reaction to add to the last message',
       fields: [
         {
           name: 'channel',

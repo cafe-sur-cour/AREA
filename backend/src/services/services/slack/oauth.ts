@@ -71,8 +71,13 @@ export class SlackOAuth {
     }
   }
 
-  async createIncomingWebhook(accessToken: string, channel: string): Promise<SlackIncomingWebhookResponse> {
-    console.log('🔵 SLACK DEBUG: Channel access check skipped (scopes are correct)');
+  async createIncomingWebhook(
+    accessToken: string,
+    channel: string
+  ): Promise<SlackIncomingWebhookResponse> {
+    console.log(
+      '🔵 SLACK DEBUG: Channel access check skipped (scopes are correct)'
+    );
 
     // With proper scopes, we assume the user/bot can access the channel
     // No need to send a test message anymore
@@ -87,7 +92,8 @@ export class SlackOAuth {
       client_id: this.clientId,
       scope:
         'channels:read,channels:history,chat:write,users:read,groups:read,groups:history,im:read,im:write,mpim:read,reactions:read,reactions:write,pins:write',
-      user_scope: 'channels:read,channels:history,chat:write,groups:read,groups:history,im:read,im:write,mpim:read,reactions:read,reactions:write,pins:write',
+      user_scope:
+        'channels:read,channels:history,chat:write,groups:read,groups:history,im:read,im:write,mpim:read,reactions:read,reactions:write,pins:write',
       redirect_uri: this.redirectUri,
       state: state,
     });
