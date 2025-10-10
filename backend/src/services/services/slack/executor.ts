@@ -29,7 +29,6 @@ interface SendMessageConfig {
 
 interface AddReactionConfig {
   channel: string;
-  messageId: string;
   emoji: string;
 }
 
@@ -40,7 +39,6 @@ interface SendDMConfig {
 
 interface PinMessageConfig {
   channel: string;
-  messageId: string;
 }
 
 export class SlackReactionExecutor implements ReactionExecutor {
@@ -90,22 +88,19 @@ export class SlackReactionExecutor implements ReactionExecutor {
         case 'slack.add_reaction':
           return await this.addReaction(
             accessToken,
-            reaction.config as unknown as AddReactionConfig,
-            isUserToken
+            reaction.config as unknown as AddReactionConfig
           );
 
         case 'slack.send_dm':
           return await this.sendDM(
             accessToken,
-            reaction.config as unknown as SendDMConfig,
-            isUserToken
+            reaction.config as unknown as SendDMConfig
           );
 
         case 'slack.pin_message':
           return await this.pinMessage(
             accessToken,
-            reaction.config as unknown as PinMessageConfig,
-            isUserToken
+            reaction.config as unknown as PinMessageConfig
           );
 
         default:
@@ -223,10 +218,41 @@ export class SlackReactionExecutor implements ReactionExecutor {
 
   private async addReaction(
     accessToken: string,
-    config: AddReactionConfig,
-    isUserToken: boolean = false
+    config: AddReactionConfig
   ): Promise<ReactionExecutionResult> {
-    const { channel, messageId, emoji } = config;
+    const { channel, emoji } = config;
+
+    console.log('🔵 SLACK DEBUG: addReaction called with config:', { channel, emoji });
+
+    // First, get the last message from the channel
+    const historyResponse = await fetch(
+      `${slackOAuth['slackApiBaseUrl']}/conversations.history?channel=${channel}&limit=1`,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    if (!historyResponse.ok) {
+      const errorData = (await historyResponse.json()) as SlackApiResponse;
+      throw new Error(`Failed to get channel history: ${errorData.error}`);
+    }
+
+    const historyData = (await historyResponse.json()) as { ok: boolean; messages: Array<{ ts: string; text: string }> };
+    if (!historyData.ok || !historyData.messages || historyData.messages.length === 0) {
+      throw new Error('No messages found in channel');
+    }
+
+    const lastMessage = historyData.messages[0];
+    if (!lastMessage) {
+      throw new Error('No messages found in channel');
+    }
+
+    const messageId = lastMessage.ts;
+
+    console.log('🔵 SLACK DEBUG: Found last message:', { messageId, text: lastMessage.text });
 
     const response = await fetch(
       `${slackOAuth['slackApiBaseUrl']}/reactions.add`,
@@ -252,7 +278,7 @@ export class SlackReactionExecutor implements ReactionExecutor {
     await createLog(
       200,
       'other',
-      `Reaction ${emoji} added to message ${messageId} in channel ${channel}`
+      `Reaction ${emoji} added to last message in channel ${channel}`
     );
 
     return {
@@ -268,8 +294,7 @@ export class SlackReactionExecutor implements ReactionExecutor {
 
   private async sendDM(
     accessToken: string,
-    config: SendDMConfig,
-    isUserToken: boolean = false
+    config: SendDMConfig
   ): Promise<ReactionExecutionResult> {
     const { userId, message } = config;
 
@@ -331,10 +356,41 @@ export class SlackReactionExecutor implements ReactionExecutor {
 
   private async pinMessage(
     accessToken: string,
-    config: PinMessageConfig,
-    isUserToken: boolean = false
+    config: PinMessageConfig
   ): Promise<ReactionExecutionResult> {
-    const { channel, messageId } = config;
+    const { channel } = config;
+
+    console.log('🔵 SLACK DEBUG: pinMessage called with config:', { channel });
+
+    // First, get the last message from the channel
+    const historyResponse = await fetch(
+      `${slackOAuth['slackApiBaseUrl']}/conversations.history?channel=${channel}&limit=1`,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    if (!historyResponse.ok) {
+      const errorData = (await historyResponse.json()) as SlackApiResponse;
+      throw new Error(`Failed to get channel history: ${errorData.error}`);
+    }
+
+    const historyData = (await historyResponse.json()) as { ok: boolean; messages: Array<{ ts: string; text: string }> };
+    if (!historyData.ok || !historyData.messages || historyData.messages.length === 0) {
+      throw new Error('No messages found in channel');
+    }
+
+    const lastMessage = historyData.messages[0];
+    if (!lastMessage) {
+      throw new Error('No messages found in channel');
+    }
+
+    const messageId = lastMessage.ts;
+
+    console.log('🔵 SLACK DEBUG: Found last message to pin:', { messageId, text: lastMessage.text });
 
     const response = await fetch(`${slackOAuth['slackApiBaseUrl']}/pins.add`, {
       method: 'POST',
@@ -356,7 +412,7 @@ export class SlackReactionExecutor implements ReactionExecutor {
     await createLog(
       200,
       'other',
-      `Message ${messageId} pinned in channel ${channel}`
+      `Last message pinned in channel ${channel}`
     );
 
     return {

@@ -59,24 +59,17 @@ export const slackReactions: ReactionDefinition[] = [
   },
   {
     id: 'slack.add_reaction',
-    name: 'Add Reaction to Message',
-    description: 'Add an emoji reaction to a specific message',
+    name: 'Add Reaction to Last Message',
+    description: 'Add an emoji reaction to the last message in a channel',
     configSchema: {
       name: 'Add Reaction Configuration',
-      description: 'Configure which message and emoji reaction to add',
+      description: 'Configure which channel and emoji reaction to add to the last message',
       fields: [
         {
           name: 'channel',
           type: 'text',
           label: 'Channel Name or ID',
           placeholder: '#general or C1234567890',
-          required: true,
-        },
-        {
-          name: 'messageId',
-          type: 'text',
-          label: 'Message Timestamp',
-          placeholder: '1234567890.123456',
           required: true,
         },
         {
@@ -112,7 +105,7 @@ export const slackReactions: ReactionDefinition[] = [
     },
     metadata: {
       category: 'Interaction',
-      tags: ['reaction', 'emoji', 'message'],
+      tags: ['reaction', 'emoji', 'message', 'last'],
       icon: '👍',
       color: '#4A154B',
       requiresAuth: true,
@@ -173,24 +166,17 @@ export const slackReactions: ReactionDefinition[] = [
   },
   {
     id: 'slack.pin_message',
-    name: 'Pin Message',
-    description: 'Pin a message in a Slack channel',
+    name: 'Pin Last Message',
+    description: 'Pin the last message in a Slack channel',
     configSchema: {
       name: 'Pin Message Configuration',
-      description: 'Configure which message to pin',
+      description: 'Configure which channel to pin the last message in',
       fields: [
         {
           name: 'channel',
           type: 'text',
           label: 'Channel Name or ID',
           placeholder: '#general or C1234567890',
-          required: true,
-        },
-        {
-          name: 'messageId',
-          type: 'text',
-          label: 'Message Timestamp',
-          placeholder: '1234567890.123456',
           required: true,
         },
       ],
@@ -215,7 +201,7 @@ export const slackReactions: ReactionDefinition[] = [
     },
     metadata: {
       category: 'Organization',
-      tags: ['pin', 'important', 'bookmark'],
+      tags: ['pin', 'important', 'bookmark', 'last'],
       icon: '📌',
       color: '#4A154B',
       requiresAuth: true,
