@@ -17,11 +17,17 @@ export const slackActions: ActionDefinition[] = [
       type: 'object',
       properties: {
         type: { type: 'string', description: 'Event type (message)' },
-        channel: { type: 'string', description: 'Channel ID where message was posted' },
+        channel: {
+          type: 'string',
+          description: 'Channel ID where message was posted',
+        },
         user: { type: 'string', description: 'User ID who sent the message' },
         text: { type: 'string', description: 'Message text content' },
         ts: { type: 'string', description: 'Message timestamp' },
-        channel_type: { type: 'string', description: 'Type of channel (channel, group, im)' },
+        channel_type: {
+          type: 'string',
+          description: 'Type of channel (channel, group, im)',
+        },
         event_ts: { type: 'string', description: 'Event timestamp' },
         team: { type: 'string', description: 'Team/workspace ID' },
       },
@@ -34,7 +40,10 @@ export const slackActions: ActionDefinition[] = [
       webhookPattern: 'message.channels',
       sharedEvents: true,
       sharedEventFilter: (event, mapping) => {
-        const eventData = event.payload as { channel?: string; channel_type?: string };
+        const eventData = event.payload as {
+          channel?: string;
+          channel_type?: string;
+        };
         if (!eventData.channel) return false;
 
         const mappingChannel = mapping.action.config?.channel as string;
@@ -88,7 +97,10 @@ export const slackActions: ActionDefinition[] = [
             id: { type: 'string', description: 'Channel ID' },
             name: { type: 'string', description: 'Channel name' },
             created: { type: 'number', description: 'Creation timestamp' },
-            creator: { type: 'string', description: 'User ID who created the channel' },
+            creator: {
+              type: 'string',
+              description: 'User ID who created the channel',
+            },
           },
         },
         event_ts: { type: 'string', description: 'Event timestamp' },
@@ -145,7 +157,10 @@ export const slackActions: ActionDefinition[] = [
       webhookPattern: 'reaction_added',
       sharedEvents: true,
       sharedEventFilter: (event, mapping) => {
-        const eventData = event.payload as { item?: { channel?: string }; reaction?: string };
+        const eventData = event.payload as {
+          item?: { channel?: string };
+          reaction?: string;
+        };
 
         // Check channel filter
         const mappingChannel = mapping.action.config?.channel as string;
@@ -155,7 +170,10 @@ export const slackActions: ActionDefinition[] = [
 
         // Check emoji filter
         const mappingEmoji = mapping.action.config?.emoji as string;
-        if (mappingEmoji && eventData.reaction !== mappingEmoji.replace(/:/g, '')) {
+        if (
+          mappingEmoji &&
+          eventData.reaction !== mappingEmoji.replace(/:/g, '')
+        ) {
           return false;
         }
 

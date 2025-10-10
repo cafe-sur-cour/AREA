@@ -28,7 +28,8 @@ export const slackChannelCreatedSchema: ActionReactionSchema = {
     {
       name: 'creator',
       type: 'text',
-      label: 'Creator User ID (optional, leave empty for all channel creations)',
+      label:
+        'Creator User ID (optional, leave empty for all channel creations)',
       required: false,
       placeholder: 'U1234567890',
     },
