@@ -2,6 +2,7 @@ import type { Service } from '../../../types/service';
 import { slackReactionExecutor } from './executor';
 import { getIconSvg } from '../../../utils/iconMapping';
 import { slackReactions } from './reactions';
+import { slackActions } from './actions';
 
 const slackService: Service = {
   id: 'slack',
@@ -9,7 +10,7 @@ const slackService: Service = {
   description: 'Slack service for team communication integration',
   version: '1.0.0',
   icon: getIconSvg('FaSlack'),
-  actions: [], // TODO: Add Slack actions later
+  actions: slackActions,
   reactions: slackReactions,
   getCredentials: async (userId: number) => {
     const { slackOAuth } = await import('./oauth');
