@@ -2,6 +2,7 @@ import type { Service } from '../../../types/service';
 import { spotifyActions } from './actions';
 import { spotifyReactions } from './reactions';
 import { spotifyReactionExecutor } from './executor';
+import { SpotifyScheduler } from './SpotifyScheduler';
 import { getIconSvg } from '../../../utils/iconMapping';
 
 const spotifyService: Service = {
@@ -23,12 +24,16 @@ export default spotifyService;
 
 export const executor = spotifyReactionExecutor;
 
+const spotifyScheduler = new SpotifyScheduler();
+
 export async function initialize(): Promise<void> {
   console.log('Initializing Spotify service...');
+  await spotifyScheduler.start();
   console.log('Spotify service initialized');
 }
 
 export async function cleanup(): Promise<void> {
   console.log('Cleaning up Spotify service...');
+  await spotifyScheduler.stop();
   console.log('Spotify service cleaned up');
 }
