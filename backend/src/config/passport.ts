@@ -16,6 +16,7 @@ import { googleOAuth } from '../services/services/google/oauth';
 import { spotifyOAuth } from '../services/services/spotify/oauth';
 import { microsoftOAuth } from '../services/services/microsoft/oauth';
 import { slackOAuth } from '../services/services/slack/oauth';
+import { facebookOAuth } from '../services/services/meta/oauth';
 import { JWT_SECRET } from '../../index';
 
 export interface GitHubUser {
@@ -47,6 +48,13 @@ export interface SlackUser {
 }
 
 export interface SpotifyUser {
+  id: string;
+  name: string;
+  email: string;
+  token: string;
+}
+
+export interface MetaUser {
   id: string;
   name: string;
   email: string;
@@ -734,6 +742,117 @@ passport.use(
           id: userInfo.user.id,
           name: userInfo.user.real_name || userInfo.user.name,
           email: userInfo.user.profile?.email || '',
+          token: userToken,
+        });
+      } catch (error) {
+        return done(error as Error, null);
+      }
+    }
+  )
+);
+
+passport.use(
+  'meta-login',
+  new CustomStrategy(
+    async (
+      req: Request,
+      done: (error: Error | null, user?: MetaUser | null) => void
+    ) => {
+      try {
+        const { code } = req.query;
+        if (!code || typeof code !== 'string') {
+          return done(new Error('Authorization code is missing'), null);
+        }
+
+        const tokenData = await facebookOAuth.exchangeCodeForToken(code);
+        const userInfo = await facebookOAuth.getUserInfo(
+          tokenData.access_token
+        );
+        const userToken = await oauthLogin(
+          'meta',
+          userInfo.id,
+          userInfo.email || '',
+          userInfo.name
+        );
+
+        if (userToken instanceof Error) {
+          return done(userToken, null);
+        }
+
+        const decoded = jwt.verify(userToken, JWT_SECRET as string) as {
+          id: number;
+        };
+        await facebookOAuth.storeUserToken(decoded.id, tokenData);
+
+        return done(null, {
+          id: userInfo.id,
+          name: userInfo.name,
+          email: userInfo.email || '',
+          token: userToken,
+        });
+      } catch (error) {
+        return done(error as Error, null);
+      }
+    }
+  )
+);
+
+passport.use(
+  'meta-subscribe',
+  new CustomStrategy(
+    async (
+      req: Request,
+      done: (error: Error | null, user?: MetaUser | null) => void
+    ) => {
+      try {
+        const currentUser = await getCurrentUser(req);
+        if (!currentUser) {
+          return done(new Error('User not authenticated'), null);
+        }
+
+        const { code } = req.query;
+        if (!code || typeof code !== 'string') {
+          return done(new Error('Authorization code is missing'), null);
+        }
+
+        const tokenData = await facebookOAuth.exchangeCodeForToken(code);
+        const userInfo = await facebookOAuth.getUserInfo(
+          tokenData.access_token
+        );
+
+        const userToken = await connectOAuthProvider(
+          currentUser.id,
+          'meta',
+          userInfo.id,
+          userInfo.email || '',
+          userInfo.name
+        );
+
+        if (userToken instanceof Error) {
+          return done(userToken, null);
+        }
+
+        const decoded = jwt.verify(userToken, JWT_SECRET as string) as {
+          id: number;
+        };
+        await facebookOAuth.storeUserToken(decoded.id, tokenData);
+
+        try {
+          const { serviceSubscriptionManager } = await import(
+            '../services/ServiceSubscriptionManager'
+          );
+          await serviceSubscriptionManager.subscribeUser(decoded.id, 'meta');
+        } catch (subscriptionError) {
+          console.error(
+            'Error auto-subscribing user to Meta service:',
+            subscriptionError
+          );
+        }
+
+        return done(null, {
+          id: userInfo.id,
+          name: userInfo.name,
+          email: userInfo.email || '',
           token: userToken,
         });
       } catch (error) {
