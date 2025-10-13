@@ -44,26 +44,26 @@ async function handleGithubSubscription(
   const githubToken = await githubOAuth.getUserToken(userId);
 
   if (githubToken) {
-    const githubSubscription = await serviceSubscriptionManager.subscribeUser(
-      userId,
-      service
-    );
+    await serviceSubscriptionManager.subscribeUser(userId, service);
     console.log(
       `✅ [SUBSCRIBE] GitHub subscription successful for user ${userId}`
     );
     await createLog(200, 'other', `User ${userId} subscribed to ${service}`);
-    return {
-      status: 200,
-      response: {
-        message: `Successfully subscribed to ${service}`,
-        subscription: {
-          subscribed: githubSubscription.subscribed,
-          subscribed_at: githubSubscription.subscribed_at,
-          service: githubSubscription.service,
-        },
-        note: 'GitHub app installation will be handled separately for webhooks',
-      },
-    };
+
+    const session = req.session as {
+      is_mobile?: boolean;
+    } & typeof req.session;
+    if (session.is_mobile) {
+      delete session.is_mobile;
+      res.redirect(
+        `${process.env.MOBILE_CALLBACK_URL || ''}?github_subscribed=true`
+      );
+    } else {
+      res.redirect(
+        `${process.env.FRONTEND_URL || ''}/services?github_subscribed=true`
+      );
+    }
+    return null;
   }
 
   const session = req.session as
@@ -94,25 +94,26 @@ async function handleGoogleSubscription(
   const googleToken = await googleOAuth.getUserToken(userId);
 
   if (googleToken) {
-    const googleSubscription = await serviceSubscriptionManager.subscribeUser(
-      userId,
-      service
-    );
+    await serviceSubscriptionManager.subscribeUser(userId, service);
     console.log(
       `✅ [SUBSCRIBE] Google subscription successful for user ${userId}`
     );
     await createLog(200, 'other', `User ${userId} subscribed to ${service}`);
-    return {
-      status: 200,
-      response: {
-        message: `Successfully subscribed to ${service}`,
-        subscription: {
-          subscribed: googleSubscription.subscribed,
-          subscribed_at: googleSubscription.subscribed_at,
-          service: googleSubscription.service,
-        },
-      },
-    };
+
+    const session = req.session as {
+      is_mobile?: boolean;
+    } & typeof req.session;
+    if (session.is_mobile) {
+      delete session.is_mobile;
+      res.redirect(
+        `${process.env.MOBILE_CALLBACK_URL || ''}?google_subscribed=true`
+      );
+    } else {
+      res.redirect(
+        `${process.env.FRONTEND_URL || ''}/services?google_subscribed=true`
+      );
+    }
+    return null;
   }
 
   await createLog(
@@ -141,25 +142,26 @@ async function handleSpotifySubscription(
   const spotifyToken = await spotifyOAuth.getUserToken(userId);
 
   if (spotifyToken) {
-    const spotifySubscription = await serviceSubscriptionManager.subscribeUser(
-      userId,
-      service
-    );
+    await serviceSubscriptionManager.subscribeUser(userId, service);
     console.log(
       `✅ [SUBSCRIBE] Spotify subscription successful for user ${userId}`
     );
     await createLog(200, 'other', `User ${userId} subscribed to ${service}`);
-    return {
-      status: 200,
-      response: {
-        message: `Successfully subscribed to ${service}`,
-        subscription: {
-          subscribed: spotifySubscription.subscribed,
-          subscribed_at: spotifySubscription.subscribed_at,
-          service: spotifySubscription.service,
-        },
-      },
-    };
+
+    const session = req.session as {
+      is_mobile?: boolean;
+    } & typeof req.session;
+    if (session.is_mobile) {
+      delete session.is_mobile;
+      res.redirect(
+        `${process.env.MOBILE_CALLBACK_URL || ''}?spotify_subscribed=true`
+      );
+    } else {
+      res.redirect(
+        `${process.env.FRONTEND_URL || ''}/services?spotify_subscribed=true`
+      );
+    }
+    return null;
   }
 
   await createLog(
@@ -189,23 +191,26 @@ async function handleDynamicServiceSubscription(
     const serviceToken = await oauthInstance.getUserToken(userId);
 
     if (serviceToken) {
-      const dynamicSubscription =
-        await serviceSubscriptionManager.subscribeUser(userId, service);
+      await serviceSubscriptionManager.subscribeUser(userId, service);
       console.log(
         `✅ [SUBSCRIBE] ${service} subscription successful for user ${userId}`
       );
       await createLog(200, 'other', `User ${userId} subscribed to ${service}`);
-      return {
-        status: 200,
-        response: {
-          message: `Successfully subscribed to ${service}`,
-          subscription: {
-            subscribed: dynamicSubscription.subscribed,
-            subscribed_at: dynamicSubscription.subscribed_at,
-            service: dynamicSubscription.service,
-          },
-        },
-      };
+
+      const session = req.session as {
+        is_mobile?: boolean;
+      } & typeof req.session;
+      if (session.is_mobile) {
+        delete session.is_mobile;
+        res.redirect(
+          `${process.env.MOBILE_CALLBACK_URL || ''}?${service}_subscribed=true`
+        );
+      } else {
+        res.redirect(
+          `${process.env.FRONTEND_URL || ''}/services?${service}_subscribed=true`
+        );
+      }
+      return null;
     }
 
     await createLog(
