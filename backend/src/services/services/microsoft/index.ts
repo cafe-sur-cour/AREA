@@ -10,6 +10,10 @@ const microsoftService: Service = {
   icon: getIconSvg('FaMicrosoft'),
   actions: [],
   reactions: [],
+  oauth: {
+    enabled: true,
+    supportsLogin: true,
+  },
 };
 
 export default microsoftService;

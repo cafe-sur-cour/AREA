@@ -12,6 +12,9 @@ const timerService: Service = {
   icon: getIconSvg('FaClock'),
   actions: timerActions,
   reactions: timerReactions,
+  oauth: {
+    enabled: false,
+  },
 };
 
 export default timerService;

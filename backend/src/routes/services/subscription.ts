@@ -3,9 +3,9 @@ import token from '../../middleware/token';
 import passport from 'passport';
 import { createLog } from '../logs/logs.service';
 import { ServiceSubscriptionManager } from '../../services/ServiceSubscriptionManager';
+import { serviceRegistry } from '../../services/ServiceRegistry';
 
 const router = express.Router();
-const NON_OAUTH_SERVICES = ['timer'];
 
 function redirectAfterSubscription(
   req: Request,
@@ -35,7 +35,10 @@ async function handleServiceSubscription(
   res: Response,
   next: express.NextFunction
 ): Promise<{ status: number; response: Record<string, unknown> } | null> {
-  if (NON_OAUTH_SERVICES.includes(service)) {
+  const serviceDefinition = serviceRegistry.getService(service);
+  const usesOAuth = serviceDefinition?.oauth?.enabled ?? true;
+
+  if (!usesOAuth) {
     await serviceSubscriptionManager.subscribeUser(userId, service);
     console.log(
       `✅ [SUBSCRIBE] ${service} subscription successful for user ${userId}`
@@ -427,8 +430,12 @@ router.get(
       );
       const isSubscribed = subscription?.subscribed || false;
 
+      // Check if service uses OAuth by looking at service definition
+      const serviceDefinition = serviceRegistry.getService(service);
+      const usesOAuth = serviceDefinition?.oauth?.enabled ?? true;
+
       let oauthConnected = false;
-      if (!NON_OAUTH_SERVICES.includes(service)) {
+      if (usesOAuth) {
         try {
           const serviceOAuth = await import(
             `../../services/services/${service}/oauth`
@@ -440,6 +447,7 @@ router.get(
           console.warn(`Could not check OAuth status for ${service}:`, error);
         }
       } else {
+        // Non-OAuth services are always "connected"
         oauthConnected = true;
       }
 
@@ -553,7 +561,11 @@ router.get(
     const userId = (req.auth as { id: number }).id;
 
     try {
-      if (NON_OAUTH_SERVICES.includes(service)) {
+      // Check if service uses OAuth by looking at service definition
+      const serviceDefinition = serviceRegistry.getService(service);
+      const usesOAuth = serviceDefinition?.oauth?.enabled ?? true;
+
+      if (!usesOAuth) {
         return res.status(404).json({
           connected: false,
           message: `${service} does not support OAuth login`,

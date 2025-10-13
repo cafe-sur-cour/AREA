@@ -12,6 +12,10 @@ const githubService: Service = {
   icon: getIconSvg('FaGithub'),
   actions: githubActions,
   reactions: githubReactions,
+  oauth: {
+    enabled: true,
+    supportsLogin: true,
+  },
   getCredentials: async (userId: number) => {
     const { githubOAuth } = await import('./oauth');
     const userToken = await githubOAuth.getUserToken(userId);

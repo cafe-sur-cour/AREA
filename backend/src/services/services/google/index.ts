@@ -9,6 +9,10 @@ const googleService: Service = {
   icon: getIconSvg('FaGoogle'),
   actions: [],
   reactions: [],
+  oauth: {
+    enabled: true,
+    supportsLogin: true,
+  },
 };
 
 export default googleService;

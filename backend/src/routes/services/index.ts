@@ -5,16 +5,6 @@ import { extractPayloadFields } from '../../utils/payloadFields';
 import { serviceSubscriptionManager } from '../../services/ServiceSubscriptionManager';
 import subscriptionRoutes from './subscription';
 
-const SERVICES_WITH_LOGIN_SUPPORT = ['github', 'google', 'microsoft'];
-const OAUTH_SERVICES = [
-  'github',
-  'google',
-  'microsoft',
-  'spotify',
-  'twitch',
-  'slack',
-];
-
 function generateServiceEndpoints(serviceId: string): {
   auth?: string;
   status: string;
@@ -22,8 +12,9 @@ function generateServiceEndpoints(serviceId: string): {
   subscribe: string;
   unsubscribe: string;
 } {
-  const supportsLogin = SERVICES_WITH_LOGIN_SUPPORT.includes(serviceId);
-  const hasOAuth = OAUTH_SERVICES.includes(serviceId);
+  const service = serviceRegistry.getService(serviceId);
+  const supportsLogin = service?.oauth?.supportsLogin ?? false;
+  const hasOAuth = service?.oauth?.enabled ?? false;
 
   return {
     ...(supportsLogin && { auth: `/auth/${serviceId}/login` }),

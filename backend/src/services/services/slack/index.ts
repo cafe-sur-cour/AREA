@@ -12,6 +12,10 @@ const slackService: Service = {
   icon: getIconSvg('FaSlack'),
   actions: slackActions,
   reactions: slackReactions,
+  oauth: {
+    enabled: true,
+    supportsLogin: false,
+  },
   getCredentials: async (userId: number) => {
     const { slackOAuth } = await import('./oauth');
     const userToken = await slackOAuth.getUserToken(userId);

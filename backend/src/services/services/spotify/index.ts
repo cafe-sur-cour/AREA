@@ -13,6 +13,10 @@ const spotifyService: Service = {
   icon: getIconSvg('FaSpotify'),
   actions: spotifyActions,
   reactions: spotifyReactions,
+  oauth: {
+    enabled: true,
+    supportsLogin: false,
+  },
   getCredentials: async (userId: number) => {
     const { spotifyOAuth } = await import('./oauth');
     const userToken = await spotifyOAuth.getUserToken(userId);

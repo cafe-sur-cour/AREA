@@ -9,6 +9,10 @@ export interface Service {
   actions: ActionDefinition[];
   reactions: ReactionDefinition[];
   getCredentials?: (userId: number) => Promise<Record<string, string>>;
+  oauth?: {
+    enabled: boolean;
+    supportsLogin?: boolean;
+  };
 }
 
 export interface ActionDefinition {
