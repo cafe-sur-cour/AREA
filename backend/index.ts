@@ -134,6 +134,17 @@ const encryption = new StringEncryption();
       `✅ Admin panel available at http://localhost:8080${admin.options.rootPath}`
     );
 
+    // Log all incoming requests for debugging
+    app.use((req, res, next) => {
+      if (req.path.includes('/auth/')) {
+        console.log(`📥 [REQUEST] ${req.method} ${req.path}`, {
+          query: req.query,
+          hasAuth: !!req.auth,
+        });
+      }
+      next();
+    });
+
     app.use('/api/auth', authRoutes);
     app.use('/api/user', userRoutes);
     app.use('/api/services', servicesRoutes);

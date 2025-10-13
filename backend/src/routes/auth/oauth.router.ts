@@ -27,6 +27,11 @@ export function createOAuthRouter(): Router {
       router.get(
         `/${serviceId}/login`,
         (req: Request, res: Response, next: NextFunction) => {
+          console.log(`🔍 [OAUTH] ${serviceId}/login called:`, {
+            query: req.query,
+            hasAuth: !!req.auth,
+            hasCookie: !!req.cookies?.auth_token,
+          });
           if (req.query.is_mobile === 'true') {
             const session = req.session as {
               is_mobile?: boolean;
