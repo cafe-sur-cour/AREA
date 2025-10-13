@@ -27,12 +27,6 @@ export function createOAuthRouter(): Router {
       router.get(
         `/${serviceId}/login`,
         async (req: Request, res: Response, next: NextFunction) => {
-          console.log(`🔍 [OAUTH] ${serviceId}/login called:`, {
-            query: req.query,
-            hasAuth: !!req.auth,
-            hasCookie: !!req.cookies?.auth_token,
-          });
-
           try {
             const serviceOAuth = await import(
               `../../services/services/${serviceId}/oauth`
@@ -40,9 +34,6 @@ export function createOAuthRouter(): Router {
             const oauthInstance = serviceOAuth[`${serviceId}OAuth`];
 
             if (typeof oauthInstance?.getAuthorizationUrl === 'function') {
-              console.log(
-                `✅ [OAUTH] Redirecting ${serviceId}/login to authorization URL`
-              );
               if (req.query.is_mobile === 'true') {
                 const session = req.session as {
                   is_mobile?: boolean;
@@ -53,12 +44,7 @@ export function createOAuthRouter(): Router {
               const authUrl = oauthInstance.getAuthorizationUrl(state);
               return res.redirect(authUrl);
             }
-          } catch (error) {
-            console.warn(
-              `Could not check OAuth redirect for ${serviceId}, using passport:`,
-              error
-            );
-          }
+          } catch {}
 
           if (req.query.is_mobile === 'true') {
             const session = req.session as {
@@ -74,11 +60,6 @@ export function createOAuthRouter(): Router {
     router.get(
       `/${serviceId}/callback`,
       async (req: Request, res: Response, next: NextFunction) => {
-        console.log(`🔍 [OAUTH] ${serviceId}/callback called:`, {
-          query: req.query,
-          hasAuth: !!req.auth,
-          hasCookie: !!req.cookies?.auth_token,
-        });
         try {
           const isAuthenticated = !!(req.auth || req.cookies?.auth_token);
 
