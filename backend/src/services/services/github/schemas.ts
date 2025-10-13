@@ -76,7 +76,8 @@ export const githubCreateIssueSchema: ActionReactionSchema = {
       required: false,
       placeholder: 'Describe the issue in detail...',
       dynamic: true,
-      dynamicPlaceholder: 'Issue created from PR: {{action.payload.pull_request.body}}\n\nMerged by: {{action.payload.pull_request.merged_by.login}}',
+      dynamicPlaceholder:
+        'Issue created from PR: {{action.payload.pull_request.body}}\n\nMerged by: {{action.payload.pull_request.merged_by.login}}',
     },
     {
       name: 'labels',
@@ -124,7 +125,8 @@ export const githubAddCommentSchema: ActionReactionSchema = {
       required: true,
       placeholder: 'This is an automated comment from AREA',
       dynamic: true,
-      dynamicPlaceholder: '🎉 PR merged successfully!\n\n**Title:** {{action.payload.pull_request.title}}\n**Merged by:** {{action.payload.pull_request.merged_by.login}}\n**Merge commit:** {{action.payload.pull_request.merge_commit_sha}}',
+      dynamicPlaceholder:
+        '🎉 PR merged successfully!\n\n**Title:** {{action.payload.pull_request.title}}\n**Merged by:** {{action.payload.pull_request.merged_by.login}}\n**Merge commit:** {{action.payload.pull_request.merge_commit_sha}}',
     },
   ],
 };

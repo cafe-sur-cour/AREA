@@ -419,8 +419,10 @@ export class ExecutionService {
         `🔑 [ExecutionService] Executing reaction for mapping ${mapping.id} (${mapping.name}) owned by user ${mappingOwnerId}`
       );
 
-      // Interpolate action payload into reaction config
-      const interpolatedConfig = interpolatePayload(reaction.config, event.payload);
+      const interpolatedConfig = interpolatePayload(
+        reaction.config,
+        event.payload
+      );
 
       const context: ReactionExecutionContext = {
         reaction: {
