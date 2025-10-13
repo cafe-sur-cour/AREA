@@ -106,11 +106,13 @@ const DynamicTextarea: React.FC<DynamicTextareaProps> = ({
           // Scroll to selected item
           setTimeout(() => {
             if (suggestionsRef.current) {
-              const selectedElement = suggestionsRef.current.children[newIndex] as HTMLElement;
+              const selectedElement = suggestionsRef.current.children[
+                newIndex
+              ] as HTMLElement;
               if (selectedElement) {
                 selectedElement.scrollIntoView({
                   behavior: 'smooth',
-                  block: 'nearest'
+                  block: 'nearest',
                 });
               }
             }
@@ -124,11 +126,13 @@ const DynamicTextarea: React.FC<DynamicTextareaProps> = ({
           // Scroll to selected item
           setTimeout(() => {
             if (suggestionsRef.current) {
-              const selectedElement = suggestionsRef.current.children[newIndex] as HTMLElement;
+              const selectedElement = suggestionsRef.current.children[
+                newIndex
+              ] as HTMLElement;
               if (selectedElement) {
                 selectedElement.scrollIntoView({
                   behavior: 'smooth',
-                  block: 'nearest'
+                  block: 'nearest',
                 });
               }
             }
@@ -147,7 +151,7 @@ const DynamicTextarea: React.FC<DynamicTextareaProps> = ({
   };
 
   return (
-    <div className="relative">
+    <div className='relative'>
       <textarea
         ref={textareaRef}
         name={name}
@@ -156,14 +160,14 @@ const DynamicTextarea: React.FC<DynamicTextareaProps> = ({
         value={value}
         onChange={handleInputChange}
         onKeyDown={handleKeyDown}
-        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 text-sm font-mono bg-blue-50"
+        className='mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 text-sm font-mono bg-blue-50'
         rows={rows}
       />
 
       {showSuggestions && suggestions.length > 0 && (
         <div
           ref={suggestionsRef}
-          className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-40 overflow-y-auto"
+          className='absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-40 overflow-y-auto'
         >
           {suggestions.map((field, index) => (
             <div
@@ -173,10 +177,10 @@ const DynamicTextarea: React.FC<DynamicTextareaProps> = ({
               }`}
               onClick={() => insertSuggestion(field)}
             >
-              <div className="font-mono text-blue-600 text-xs break-all">
-                {"{" + "{action.payload." + field.path + "}"}
+              <div className='font-mono text-blue-600 text-xs break-all'>
+                {'{' + '{action.payload.' + field.path + '}'}
               </div>
-              <div className="text-gray-500 text-xs mt-1 break-words">
+              <div className='text-gray-500 text-xs mt-1 break-words'>
                 {field.description}
               </div>
             </div>
@@ -414,11 +418,15 @@ export default function ReactionForm({
                       </label>
 
                       {isDynamic ? (
-                        <div className="space-y-2">
-                          <div className="bg-blue-50 border border-blue-200 rounded-md p-2">
-                            <div className="flex items-center">
-                              <div className="text-xs text-blue-700">
-                                Type <span className="font-mono bg-blue-100 px-1 rounded">{"{"}</span> to see action data suggestions
+                        <div className='space-y-2'>
+                          <div className='bg-blue-50 border border-blue-200 rounded-md p-2'>
+                            <div className='flex items-center'>
+                              <div className='text-xs text-blue-700'>
+                                Type{' '}
+                                <span className='font-mono bg-blue-100 px-1 rounded'>
+                                  {'{'}
+                                </span>{' '}
+                                to see action data suggestions
                               </div>
                             </div>
                           </div>
@@ -431,7 +439,7 @@ export default function ReactionForm({
                               getStringValue(field.default) ||
                               ''
                             }
-                            onChange={(value) => {
+                            onChange={value => {
                               updateReactionInstance(instance.id, {
                                 config: {
                                   ...instance.config,
@@ -461,7 +469,7 @@ export default function ReactionForm({
                               },
                             });
                           }}
-                          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 text-sm"
+                          className='mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 text-sm'
                           rows={field.type === 'textarea' ? 3 : 1}
                         />
                       )}

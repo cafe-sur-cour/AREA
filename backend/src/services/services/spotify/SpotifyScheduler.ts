@@ -184,7 +184,11 @@ export class SpotifyScheduler {
       const isPlaying = playbackState.is_playing;
 
       if (userState.isInitialized) {
-        if (userState.lastTrack?.id !== currentTrack?.id && currentTrack && isPlaying) {
+        if (
+          userState.lastTrack?.id !== currentTrack?.id &&
+          currentTrack &&
+          isPlaying
+        ) {
           await this.triggerTrackChanged(
             userId,
             userState.lastTrack,
