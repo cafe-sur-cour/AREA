@@ -1055,7 +1055,25 @@ router.get(
   async (req: Request, res: Response): Promise<void> => {
     try {
       const user = req.user as { token: string };
+      const isAuthenticated = !!(req.auth || req.cookies?.auth_token);
+
       if (user && user.token) {
+        if (isAuthenticated) {
+          const session = req.session as {
+            is_mobile?: boolean;
+          } & typeof req.session;
+          if (session.is_mobile) {
+            delete session.is_mobile;
+            return res.redirect(
+              `${process.env.MOBILE_CALLBACK_URL || ''}?microsoft_subscribed=true`
+            );
+          } else {
+            return res.redirect(
+              `${process.env.FRONTEND_URL || ''}/services?microsoft_subscribed=true`
+            );
+          }
+        }
+
         res.cookie('auth_token', user.token, {
           maxAge: 86400000,
           httpOnly: true,
