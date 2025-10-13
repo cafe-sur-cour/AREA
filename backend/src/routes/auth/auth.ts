@@ -824,10 +824,16 @@ router.post('/reset-password', mail, async (req: Request, res: Response) => {
   );
 });
 
-router.use('/', (req, res, next) => {
-  const oauthRouter = createOAuthRouter();
-  oauthRouter(req, res, next);
-});
+let oauthRoutesInitialized = false;
+
+export function initializeOAuthRoutes(): void {
+  if (!oauthRoutesInitialized) {
+    const oauthRouter = createOAuthRouter();
+    router.use('/', oauthRouter);
+    oauthRoutesInitialized = true;
+    console.log('✅ OAuth routes initialized');
+  }
+}
 
 router.use('/', subscriptionRouter);
 

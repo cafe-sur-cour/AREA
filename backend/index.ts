@@ -17,7 +17,6 @@ import * as i18nextMiddleware from 'i18next-http-middleware';
 import passport from 'passport';
 import { StringEncryption } from './src/config/EncryptionService';
 
-import authRoutes from './src/routes/auth/auth';
 import userRoutes from './src/routes/user/user';
 import apiRoutes from './src/routes/api/api';
 import aboutRoutes from './src/routes/about/about';
@@ -118,6 +117,11 @@ const encryption = new StringEncryption();
     console.log('Loading webhooks...');
     await webhookLoader.loadAllWebhooks();
     await executionService.start();
+
+    console.log('🔧 Initializing OAuth routes...');
+    const authModule = await import('./src/routes/auth/auth');
+    authModule.initializeOAuthRoutes();
+    const authRoutes = authModule.default;
 
     console.log('🔧 Setting up AdminJS...');
     const { admin, adminRouter } = await AdminRouter(
