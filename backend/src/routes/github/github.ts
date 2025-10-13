@@ -160,66 +160,6 @@ router.get(
 
 /**
  * @swagger
- * /api/github/unsubscribe:
- *   post:
- *     summary: Unsubscribe from GitHub events
- *     tags:
- *       - GitHub Service
- *     description: |
- *       Unsubscribe user from GitHub events. OAuth connection remains intact.
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Successfully unsubscribed
- *       404:
- *         description: Not subscribed
- *       500:
- *         description: Internal Server Error
- */
-router.post(
-  '/unsubscribe',
-  token,
-  async (req: Request, res: Response): Promise<Response> => {
-    try {
-      const userId = (req.auth as { id: number }).id;
-
-      const subscription = await serviceSubscriptionManager.unsubscribeUser(
-        userId,
-        'github'
-      );
-
-      if (!subscription) {
-        return res.status(404).json({
-          error: 'No active subscription found',
-        });
-      }
-
-      console.log(
-        `✅ [UNSUBSCRIBE] GitHub unsubscription successful for user ${userId}`
-      );
-      return res.status(200).json({
-        message: 'Successfully unsubscribed from GitHub events',
-        subscription: {
-          subscribed: subscription.subscribed,
-          unsubscribed_at: subscription.unsubscribed_at,
-          service: subscription.service,
-        },
-      });
-    } catch (err) {
-      console.error(
-        `❌ [UNSUBSCRIBE] Error in GitHub unsubscription for user ${(req.auth as { id: number }).id}:`,
-        err
-      );
-      return res
-        .status(500)
-        .json({ error: 'Internal Server Error in github unsubscribe' });
-    }
-  }
-);
-
-/**
- * @swagger
  * /api/github/webhooks:
  *   get:
  *     summary: Get user's GitHub webhooks

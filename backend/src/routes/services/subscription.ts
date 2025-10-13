@@ -216,4 +216,119 @@ router.get(
   }
 );
 
+/**
+ * @swagger
+ * /api/auth/{service}/unsubscribe:
+ *   post:
+ *     summary: Unsubscribe from a service
+ *     tags:
+ *       - OAuth
+ *     description: |
+ *       Generic unsubscribe endpoint that handles service unsubscription.
+ *       This unified route replaces individual service-specific unsubscribe routes.
+ *
+ *       The user's OAuth connection remains intact - only the subscription is removed.
+ *       The user can re-subscribe at any time without needing to re-authenticate.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: service
+ *         in: path
+ *         required: true
+ *         description: Service name (github, google, spotify, microsoft, etc.)
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Successfully unsubscribed
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Successfully unsubscribed from github events"
+ *                 subscription:
+ *                   type: object
+ *                   properties:
+ *                     subscribed:
+ *                       type: boolean
+ *                       example: false
+ *                     unsubscribed_at:
+ *                       type: string
+ *                       format: date-time
+ *                     service:
+ *                       type: string
+ *       404:
+ *         description: No active subscription found
+ *       401:
+ *         description: User not authenticated
+ *       500:
+ *         description: Internal Server Error
+ */
+router.post(
+  '/:service/unsubscribe',
+  token,
+  async (req: Request, res: Response): Promise<Response> => {
+    const service = req.params.service?.toLowerCase();
+    if (!service) {
+      await createLog(400, 'other', 'Service parameter is required');
+      return res.status(400).json({ error: 'Service parameter is required' });
+    }
+
+    const userId = (req.auth as { id: number }).id;
+
+    try {
+      const { serviceSubscriptionManager } = await import(
+        '../../services/ServiceSubscriptionManager'
+      );
+
+      const subscription = await serviceSubscriptionManager.unsubscribeUser(
+        userId,
+        service
+      );
+
+      if (!subscription) {
+        await createLog(
+          404,
+          'other',
+          `No active subscription found for user ${userId} on ${service}`
+        );
+        return res.status(404).json({
+          error: 'No active subscription found',
+        });
+      }
+
+      console.log(
+        `✅ [UNSUBSCRIBE] ${service} unsubscription successful for user ${userId}`
+      );
+      await createLog(
+        200,
+        'other',
+        `User ${userId} unsubscribed from ${service}`
+      );
+
+      return res.status(200).json({
+        message: `Successfully unsubscribed from ${service} events`,
+        subscription: {
+          subscribed: subscription.subscribed,
+          unsubscribed_at: subscription.unsubscribed_at,
+          service: subscription.service,
+        },
+      });
+    } catch (error) {
+      console.error(`Error in ${service} unsubscribe route:`, error);
+      await createLog(
+        500,
+        'other',
+        `Error in ${service} unsubscribe route: ${error instanceof Error ? error.message : String(error)}`
+      );
+      return res.status(500).json({
+        error: `Internal Server Error in ${service} unsubscribe`,
+      });
+    }
+  }
+);
+
 export default router;

@@ -12,7 +12,7 @@ function generateServiceEndpoints(serviceId: string): {
   status: string;
   loginStatus?: string;
   subscribe: string;
-  unsubscribe?: string;
+  unsubscribe: string;
 } {
   const supportsLogin = SERVICES_WITH_LOGIN_SUPPORT.includes(serviceId);
 
@@ -21,7 +21,7 @@ function generateServiceEndpoints(serviceId: string): {
     status: `/${serviceId}/subscribe/status`,
     ...(supportsLogin && { loginStatus: `/${serviceId}/login/status` }),
     subscribe: `/auth/${serviceId}/subscribe`,
-    unsubscribe: `/${serviceId}/unsubscribe`,
+    unsubscribe: `/auth/${serviceId}/unsubscribe`,
   };
 }
 
