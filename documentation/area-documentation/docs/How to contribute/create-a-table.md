@@ -244,9 +244,9 @@ Make sure your SQL files follow the naming convention to ensure proper execution
 ## Best Practices
 
 ### 1. Naming Conventions
-- **Tables**: `snake_case`, plural (e.g., `user_sessions`)
-- **Columns**: `snake_case` (e.g., `created_at`)
-- **Entities**: `PascalCase`, singular (e.g., `UserSession`)
+- **Tables**: `snake_case`, plural (e.g., `user_tokens`, `webhook_configs`)
+- **Columns**: `snake_case` (e.g., `created_at`, `user_id`)
+- **Entities**: `PascalCase`, singular (e.g., `UserToken`, `WebhookConfig`)
 - **Foreign Keys**: `{table}_id` (e.g., `user_id`)
 
 ### 2. Required Fields
