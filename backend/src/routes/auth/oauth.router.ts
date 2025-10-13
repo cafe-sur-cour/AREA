@@ -26,21 +26,48 @@ export function createOAuthRouter(): Router {
     if (supportsLogin) {
       router.get(
         `/${serviceId}/login`,
-        (req: Request, res: Response, next: NextFunction) => {
+        async (req: Request, res: Response, next: NextFunction) => {
           console.log(`🔍 [OAUTH] ${serviceId}/login called:`, {
             query: req.query,
             hasAuth: !!req.auth,
             hasCookie: !!req.cookies?.auth_token,
           });
+
+          try {
+            const serviceOAuth = await import(
+              `../../../services/services/${serviceId}/oauth`
+            );
+            const oauthInstance = serviceOAuth[`${serviceId}OAuth`];
+
+            if (typeof oauthInstance?.getAuthorizationUrl === 'function') {
+              console.log(
+                `✅ [OAUTH] Redirecting ${serviceId}/login to authorization URL`
+              );
+              if (req.query.is_mobile === 'true') {
+                const session = req.session as {
+                  is_mobile?: boolean;
+                } & typeof req.session;
+                session.is_mobile = true;
+              }
+              const state = Math.random().toString(36).substring(2, 15);
+              const authUrl = oauthInstance.getAuthorizationUrl(state);
+              return res.redirect(authUrl);
+            }
+          } catch (error) {
+            console.warn(
+              `Could not check OAuth redirect for ${serviceId}, using passport:`,
+              error
+            );
+          }
+
           if (req.query.is_mobile === 'true') {
             const session = req.session as {
               is_mobile?: boolean;
             } & typeof req.session;
             session.is_mobile = true;
           }
-          next();
-        },
-        passport.authenticate(`${serviceId}-login`)
+          passport.authenticate(`${serviceId}-login`)(req, res, next);
+        }
       );
     }
 
