@@ -33,7 +33,7 @@ export function interpolateString(
 ): string {
   return template.replace(/\{\{([^}]+)\}\}/g, (match, path) => {
     const value = getValueByPath(context, path.trim());
-    return value !== undefined ? String(value) : match;
+    return value !== undefined ? valueToString(value) : match;
   });
 }
 
@@ -53,4 +53,38 @@ function getValueByPath(obj: Record<string, unknown>, path: string): unknown {
   }
 
   return current;
+}
+
+/**
+ * Convert a value to string for template interpolation
+ * Handles arrays and objects specially
+ */
+function valueToString(value: unknown): string {
+  if (value === null || value === undefined) {
+    return '';
+  }
+
+  if (Array.isArray(value)) {
+    if (value.length === 0) {
+      return '';
+    }
+    // For arrays of primitives, join them
+    if (value.every(item => typeof item === 'string' || typeof item === 'number' || typeof item === 'boolean')) {
+      return value.join(', ');
+    }
+    // For arrays of objects, show a summary
+    return `[${value.length} item${value.length > 1 ? 's' : ''}]`;
+  }
+
+  if (typeof value === 'object') {
+    // For objects, try to JSON stringify, but limit length
+    try {
+      const json = JSON.stringify(value);
+      return json.length > 100 ? '[Object]' : json;
+    } catch {
+      return '[Object]';
+    }
+  }
+
+  return String(value);
 }

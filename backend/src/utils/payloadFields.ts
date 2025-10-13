@@ -36,7 +36,7 @@ export function extractPayloadFields(action: ActionDefinition): PayloadField[] {
             path: currentPath,
             type: `${valueObj.type}<${valueObj.items.type || 'object'}>`,
             description: valueObj.description || `Array of ${valueObj.items.type || 'items'}`,
-            ...(valueObj.example && { example: valueObj.example }),
+            example: `[${valueObj.items.type === 'object' ? 'objects' : 'items'}]`,
           });
 
           // If items are objects, extract their fields with [0] indexing
