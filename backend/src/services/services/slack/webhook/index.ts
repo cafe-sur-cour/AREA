@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
 import crypto from 'crypto';
-import { AppDataSource } from '../../config/db';
-import { WebhookEvents } from '../../config/entity/WebhookEvents';
-import { UserToken } from '../../config/entity/UserToken';
-import type { WebhookHandler } from '../../types/webhook';
+import { AppDataSource } from '../../../../config/db';
+import { WebhookEvents } from '../../../../config/entity/WebhookEvents';
+import { UserToken } from '../../../../config/entity/UserToken';
+import type { WebhookHandler } from '../../../../types/webhook';
 
 class SlackWebhookHandler implements WebhookHandler {
   service = 'slack';
@@ -49,7 +49,7 @@ class SlackWebhookHandler implements WebhookHandler {
       const userId = userToken.user_id;
 
       const { serviceSubscriptionManager } = await import(
-        '../../services/ServiceSubscriptionManager'
+        '../../../ServiceSubscriptionManager'
       );
       const isSubscribed = await serviceSubscriptionManager.isUserSubscribed(
         userId,
