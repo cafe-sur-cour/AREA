@@ -6,7 +6,6 @@ import * as process from 'process';
 import { User } from './entity/User';
 import { UserOAuthProvider } from './entity/UserOAuthProvider';
 import { UserToken } from './entity/UserToken';
-import { UserSessions } from './entity/UserSessions';
 import { UserActivityLogs } from './entity/UserActivityLogs';
 import { UserServiceSubscriptions } from './entity/UserServiceSubscriptions';
 import { ExternalWebhooks } from './entity/ExternalWebhooks';
@@ -43,7 +42,6 @@ export const AppDataSource = new DataSource({
     User,
     UserOAuthProvider,
     UserToken,
-    UserSessions,
     UserActivityLogs,
     UserServiceSubscriptions,
     ExternalWebhooks,

@@ -40,7 +40,7 @@ CREATE TABLE service_configurations (
     "is_active" BOOLEAN DEFAULT TRUE,
     "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    
+
     -- Constraints
     CONSTRAINT "unique_user_service" UNIQUE ("user_id", "service_name")
 );
@@ -69,9 +69,9 @@ If your table has foreign key relationships, create or update the relation file:
 -- ===========================================
 
 -- Add foreign key constraints
-ALTER TABLE service_configurations 
-ADD CONSTRAINT fk_service_configs_user 
-FOREIGN KEY ("user_id") REFERENCES users("id") 
+ALTER TABLE service_configurations
+ADD CONSTRAINT fk_service_configs_user
+FOREIGN KEY ("user_id") REFERENCES users("id")
 ON DELETE CASCADE;
 
 -- ===========================================
@@ -288,17 +288,17 @@ CREATE TABLE notifications (
     "is_read" BOOLEAN DEFAULT FALSE,
     "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     "read_at" TIMESTAMP,
-    
-    CONSTRAINT "valid_notification_type" 
+
+    CONSTRAINT "valid_notification_type"
     CHECK ("type" IN ('info', 'warning', 'error', 'success'))
 );
 ```
 
 **2. Relations** (`database/relation/notifications.sql`):
 ```sql
-ALTER TABLE notifications 
-ADD CONSTRAINT fk_notifications_user 
-FOREIGN KEY ("user_id") REFERENCES users("id") 
+ALTER TABLE notifications
+ADD CONSTRAINT fk_notifications_user
+FOREIGN KEY ("user_id") REFERENCES users("id")
 ON DELETE CASCADE;
 
 CREATE INDEX "idx_notifications_user_id" ON notifications("user_id");
