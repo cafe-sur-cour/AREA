@@ -10,7 +10,6 @@ export default function Page() {
   const handleClear = async () => {
     setWorking(true);
     try {
-      // temporary "delete" action: clear local/session storage and simulate an async op
       localStorage.clear();
       sessionStorage.clear();
       await new Promise(r => setTimeout(r, 300));

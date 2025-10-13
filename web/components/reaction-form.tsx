@@ -22,7 +22,7 @@ interface ReactionInstance {
   config: Record<string, unknown>;
   delay: number | null;
   selectedService: string | null;
-  dynamicFields: Record<string, boolean>; // Track which fields are in dynamic mode
+  dynamicFields: Record<string, boolean>;
 }
 
 interface DynamicTextareaProps {
@@ -56,12 +56,10 @@ const DynamicTextarea: React.FC<DynamicTextareaProps> = ({
 
     onChange(newValue);
 
-    // Check if we should show suggestions
     const textBeforeCursor = newValue.substring(0, newCursorPosition);
     const lastOpenBrace = textBeforeCursor.lastIndexOf('{');
 
     if (lastOpenBrace !== -1 && lastOpenBrace === newCursorPosition - 1) {
-      // Show all suggestions when typing a single {
       setSuggestions(payloadFields);
       setShowSuggestions(true);
       setSelectedIndex(-1);
@@ -77,7 +75,6 @@ const DynamicTextarea: React.FC<DynamicTextareaProps> = ({
     const lastOpenBrace = textBeforeCursor.lastIndexOf('{');
 
     if (lastOpenBrace !== -1 && lastOpenBrace === currentCursorPos - 1) {
-      // Replace the single { with the full template
       const beforeBrace = value.substring(0, lastOpenBrace);
       const afterBrace = value.substring(currentCursorPos);
       const template = `{{action.payload.${field.path}}}`;
@@ -86,7 +83,6 @@ const DynamicTextarea: React.FC<DynamicTextareaProps> = ({
       onChange(newValue);
       setShowSuggestions(false);
 
-      // Focus back to textarea and set cursor position after the closing }}
       setTimeout(() => {
         if (textareaRef.current) {
           const newCursorPos = beforeBrace.length + template.length;
@@ -103,7 +99,6 @@ const DynamicTextarea: React.FC<DynamicTextareaProps> = ({
         e.preventDefault();
         setSelectedIndex(prev => {
           const newIndex = prev < suggestions.length - 1 ? prev + 1 : 0;
-          // Scroll to selected item
           setTimeout(() => {
             if (suggestionsRef.current) {
               const selectedElement = suggestionsRef.current.children[
@@ -123,7 +118,6 @@ const DynamicTextarea: React.FC<DynamicTextareaProps> = ({
         e.preventDefault();
         setSelectedIndex(prev => {
           const newIndex = prev > 0 ? prev - 1 : suggestions.length - 1;
-          // Scroll to selected item
           setTimeout(() => {
             if (suggestionsRef.current) {
               const selectedElement = suggestionsRef.current.children[
@@ -194,7 +188,7 @@ const DynamicTextarea: React.FC<DynamicTextareaProps> = ({
 interface ReactionFormProps {
   onReactionsChange: (reactions: Reaction[]) => void;
   onConfigChange: (config: Record<string, unknown>[]) => void;
-  selectedAction?: Action | null; // Action sélectionnée pour afficher les champs de payload
+  selectedAction?: Action | null;
 }
 
 const getStringValue = (value: unknown): string => {
@@ -287,7 +281,6 @@ export default function ReactionForm({
       .filter(instance => instance.reaction)
       .map(instance => {
         if (instance.reaction) {
-          // Attacher le delay à la réaction avant de l'envoyer au parent
           return {
             ...instance.reaction,
             delay: instance.delay || 0,
