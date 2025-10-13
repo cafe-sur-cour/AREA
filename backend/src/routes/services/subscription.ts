@@ -5,34 +5,29 @@ import { createLog } from '../logs/logs.service';
 import { ServiceSubscriptionManager } from '../../services/ServiceSubscriptionManager';
 
 const router = express.Router();
+const NON_OAUTH_SERVICES = ['timer'];
 
-async function handleTimerSubscription(
-  userId: number,
-  service: string,
-  serviceSubscriptionManager: ServiceSubscriptionManager
-): Promise<{ status: number; response: Record<string, unknown> }> {
-  const subscription = await serviceSubscriptionManager.subscribeUser(
-    userId,
-    service
-  );
-  console.log(
-    `✅ [SUBSCRIBE] Timer subscription successful for user ${userId}`
-  );
-  await createLog(200, 'other', `User ${userId} subscribed to ${service}`);
-  return {
-    status: 200,
-    response: {
-      message: `Successfully subscribed to ${service}`,
-      subscription: {
-        subscribed: subscription.subscribed,
-        subscribed_at: subscription.subscribed_at,
-        service: subscription.service,
-      },
-    },
-  };
+function redirectAfterSubscription(
+  req: Request,
+  res: Response,
+  service: string
+): void {
+  const session = req.session as {
+    is_mobile?: boolean;
+  } & typeof req.session;
+
+  const redirectUrl = session.is_mobile
+    ? `${process.env.MOBILE_CALLBACK_URL || ''}?${service}_subscribed=true`
+    : `${process.env.FRONTEND_URL || ''}/services?${service}_subscribed=true`;
+
+  if (session.is_mobile) {
+    delete session.is_mobile;
+  }
+
+  res.redirect(redirectUrl);
 }
 
-async function handleGithubSubscription(
+async function handleServiceSubscription(
   userId: number,
   service: string,
   serviceSubscriptionManager: ServiceSubscriptionManager,
@@ -40,149 +35,17 @@ async function handleGithubSubscription(
   res: Response,
   next: express.NextFunction
 ): Promise<{ status: number; response: Record<string, unknown> } | null> {
-  const { githubOAuth } = await import('../../services/services/github/oauth');
-  const githubToken = await githubOAuth.getUserToken(userId);
-
-  if (githubToken) {
+  if (NON_OAUTH_SERVICES.includes(service)) {
     await serviceSubscriptionManager.subscribeUser(userId, service);
     console.log(
-      `✅ [SUBSCRIBE] GitHub subscription successful for user ${userId}`
+      `✅ [SUBSCRIBE] ${service} subscription successful for user ${userId}`
     );
     await createLog(200, 'other', `User ${userId} subscribed to ${service}`);
 
-    const session = req.session as {
-      is_mobile?: boolean;
-    } & typeof req.session;
-    if (session.is_mobile) {
-      delete session.is_mobile;
-      res.redirect(
-        `${process.env.MOBILE_CALLBACK_URL || ''}?github_subscribed=true`
-      );
-    } else {
-      res.redirect(
-        `${process.env.FRONTEND_URL || ''}/services?github_subscribed=true`
-      );
-    }
+    redirectAfterSubscription(req, res, service);
     return null;
   }
 
-  const session = req.session as
-    | { githubSubscriptionFlow?: boolean }
-    | undefined;
-  if (session) {
-    session.githubSubscriptionFlow = true;
-  }
-
-  await createLog(
-    302,
-    'other',
-    `Starting OAuth flow for user ${userId} to subscribe to ${service}`
-  );
-  passport.authenticate('github-subscribe', { session: false })(req, res, next);
-  return null;
-}
-
-async function handleGoogleSubscription(
-  userId: number,
-  service: string,
-  serviceSubscriptionManager: ServiceSubscriptionManager,
-  req: Request,
-  res: Response,
-  next: express.NextFunction
-): Promise<{ status: number; response: Record<string, unknown> } | null> {
-  const { googleOAuth } = await import('../../services/services/google/oauth');
-  const googleToken = await googleOAuth.getUserToken(userId);
-
-  if (googleToken) {
-    await serviceSubscriptionManager.subscribeUser(userId, service);
-    console.log(
-      `✅ [SUBSCRIBE] Google subscription successful for user ${userId}`
-    );
-    await createLog(200, 'other', `User ${userId} subscribed to ${service}`);
-
-    const session = req.session as {
-      is_mobile?: boolean;
-    } & typeof req.session;
-    if (session.is_mobile) {
-      delete session.is_mobile;
-      res.redirect(
-        `${process.env.MOBILE_CALLBACK_URL || ''}?google_subscribed=true`
-      );
-    } else {
-      res.redirect(
-        `${process.env.FRONTEND_URL || ''}/services?google_subscribed=true`
-      );
-    }
-    return null;
-  }
-
-  await createLog(
-    302,
-    'other',
-    `Starting OAuth flow for user ${userId} to subscribe to ${service}`
-  );
-  passport.authenticate('google-subscribe', {
-    scope: ['openid', 'email', 'profile'],
-    session: false,
-  })(req, res, next);
-  return null;
-}
-
-async function handleSpotifySubscription(
-  userId: number,
-  service: string,
-  serviceSubscriptionManager: ServiceSubscriptionManager,
-  req: Request,
-  res: Response,
-  next: express.NextFunction
-): Promise<{ status: number; response: Record<string, unknown> } | null> {
-  const { spotifyOAuth } = await import(
-    '../../services/services/spotify/oauth'
-  );
-  const spotifyToken = await spotifyOAuth.getUserToken(userId);
-
-  if (spotifyToken) {
-    await serviceSubscriptionManager.subscribeUser(userId, service);
-    console.log(
-      `✅ [SUBSCRIBE] Spotify subscription successful for user ${userId}`
-    );
-    await createLog(200, 'other', `User ${userId} subscribed to ${service}`);
-
-    const session = req.session as {
-      is_mobile?: boolean;
-    } & typeof req.session;
-    if (session.is_mobile) {
-      delete session.is_mobile;
-      res.redirect(
-        `${process.env.MOBILE_CALLBACK_URL || ''}?spotify_subscribed=true`
-      );
-    } else {
-      res.redirect(
-        `${process.env.FRONTEND_URL || ''}/services?spotify_subscribed=true`
-      );
-    }
-    return null;
-  }
-
-  await createLog(
-    302,
-    'other',
-    `Starting OAuth flow for user ${userId} to subscribe to ${service}`
-  );
-  passport.authenticate('spotify-subscribe', {
-    session: false,
-  })(req, res, next);
-  return null;
-}
-
-async function handleDynamicServiceSubscription(
-  userId: number,
-  service: string,
-  serviceSubscriptionManager: ServiceSubscriptionManager,
-  req: Request,
-  res: Response,
-  next: express.NextFunction
-): Promise<{ status: number; response: Record<string, unknown> } | null> {
   try {
     const serviceOAuth = await import(
       `../../services/services/${service}/oauth`
@@ -197,19 +60,7 @@ async function handleDynamicServiceSubscription(
       );
       await createLog(200, 'other', `User ${userId} subscribed to ${service}`);
 
-      const session = req.session as {
-        is_mobile?: boolean;
-      } & typeof req.session;
-      if (session.is_mobile) {
-        delete session.is_mobile;
-        res.redirect(
-          `${process.env.MOBILE_CALLBACK_URL || ''}?${service}_subscribed=true`
-        );
-      } else {
-        res.redirect(
-          `${process.env.FRONTEND_URL || ''}/services?${service}_subscribed=true`
-        );
-      }
+      redirectAfterSubscription(req, res, service);
       return null;
     }
 
@@ -218,11 +69,14 @@ async function handleDynamicServiceSubscription(
       'other',
       `Starting OAuth flow for user ${userId} to subscribe to ${service}`
     );
+
     passport.authenticate(`${service}-subscribe`, {
       session: false,
     })(req, res, next);
+
     return null;
-  } catch {
+  } catch (error) {
+    console.error(`Error loading OAuth for service ${service}:`, error);
     await createLog(
       404,
       'other',
@@ -323,68 +177,18 @@ router.get(
           'other',
           `User ${userId} already subscribed to ${service}`
         );
-        return res.status(200).json({
-          message: `Already subscribed to ${service}`,
-          already_subscribed: true,
-        });
+        redirectAfterSubscription(req, res, service);
+        return;
       }
 
-      let result: { status: number; response: Record<string, unknown> } | null =
-        null;
-
-      switch (service) {
-        case 'timer':
-          result = await handleTimerSubscription(
-            userId,
-            service,
-            serviceSubscriptionManager
-          );
-          break;
-
-        case 'github':
-          result = await handleGithubSubscription(
-            userId,
-            service,
-            serviceSubscriptionManager,
-            req,
-            res,
-            next
-          );
-          break;
-
-        case 'google':
-          result = await handleGoogleSubscription(
-            userId,
-            service,
-            serviceSubscriptionManager,
-            req,
-            res,
-            next
-          );
-          break;
-
-        case 'spotify':
-          result = await handleSpotifySubscription(
-            userId,
-            service,
-            serviceSubscriptionManager,
-            req,
-            res,
-            next
-          );
-          break;
-
-        default:
-          result = await handleDynamicServiceSubscription(
-            userId,
-            service,
-            serviceSubscriptionManager,
-            req,
-            res,
-            next
-          );
-          break;
-      }
+      const result = await handleServiceSubscription(
+        userId,
+        service,
+        serviceSubscriptionManager,
+        req,
+        res,
+        next
+      );
 
       if (result === null) {
         return;
@@ -403,19 +207,6 @@ router.get(
         .json({ error: `Internal Server Error in ${service} subscribe` });
     }
   }
-);
-
-router.get('/github/subscribe', (req, res) =>
-  res.redirect('/auth/github/subscribe')
-);
-router.get('/google/subscribe', (req, res) =>
-  res.redirect('/auth/google/subscribe')
-);
-router.get('/spotify/subscribe', (req, res) =>
-  res.redirect('/auth/spotify/subscribe')
-);
-router.get('/timer/subscribe', (req, res) =>
-  res.redirect('/auth/timer/subscribe')
 );
 
 export default router;

@@ -976,52 +976,6 @@ router.get('/microsoft/login', async (req: Request, res: Response) => {
 
 /**
  * @swagger
- * /api/auth/microsoft/subscribe:
- *   get:
- *     summary: Initiate Microsoft OAuth authorization for service connection
- *     tags:
- *       - OAuth
- *     description: |
- *       Redirects user to Microsoft for OAuth authorization.
- *       This route is used to connect Microsoft account for service access when user is already authenticated.
- *     security:
- *       - bearerAuth: []
- *       - cookieAuth: []
- *     responses:
- *       302:
- *         description: Redirect to Microsoft authorization page
- *       401:
- *         description: User not authenticated
- *       500:
- *         description: Internal Server Error
- */
-router.get(
-  '/microsoft/subscribe',
-  token,
-  async (req: Request, res: Response) => {
-    try {
-      const { microsoftOAuth } = await import(
-        '../../services/services/microsoft/oauth'
-      );
-      const state = Math.random().toString(36).substring(2, 15);
-      const authUrl = microsoftOAuth.getAuthorizationUrl(state);
-      res.redirect(authUrl);
-    } catch (error) {
-      console.error('Microsoft OAuth subscribe error:', error);
-      await createLog(
-        500,
-        'microsoft',
-        `Failed to initiate Microsoft OAuth subscription: ${error}`
-      );
-      res
-        .status(500)
-        .json({ error: 'Failed to initiate Microsoft OAuth subscription' });
-    }
-  }
-);
-
-/**
- * @swagger
  * /api/auth/microsoft/callback:
  *   get:
  *     summary: Handle Microsoft OAuth callback for both login/register and service connection
@@ -1633,25 +1587,6 @@ router.get(
     }
   }
 );
-
-router.get('/slack/subscribe', token, async (req: Request, res: Response) => {
-  try {
-    const { slackOAuth } = await import('../../services/services/slack/oauth');
-    const state = Math.random().toString(36).substring(2, 15);
-    const authUrl = slackOAuth.getAuthorizationUrl(state);
-    res.redirect(authUrl);
-  } catch (error) {
-    console.error('Slack OAuth subscribe error:', error);
-    await createLog(
-      500,
-      'other',
-      `Failed to initiate Slack OAuth subscription: ${error}`
-    );
-    res
-      .status(500)
-      .json({ error: 'Failed to initiate Slack OAuth subscription' });
-  }
-});
 
 router.get(
   '/slack/callback',
