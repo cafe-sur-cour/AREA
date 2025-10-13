@@ -215,6 +215,7 @@ export default function MyAreasPage() {
                   <ReactionForm
                     onReactionsChange={setSelectedReactions}
                     onConfigChange={setReactionsConfig}
+                    selectedAction={selectedAction}
                   />
                 </div>
 

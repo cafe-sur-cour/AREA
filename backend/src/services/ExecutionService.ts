@@ -8,6 +8,7 @@ import type { Reaction } from '../types/mapping';
 import { serviceRegistry } from './ServiceRegistry';
 import { reactionExecutorRegistry } from './ReactionExecutorRegistry';
 import type { ReactionExecutionContext } from '../types/service';
+import { interpolatePayload } from '../utils/payloadInterpolation';
 
 export class ExecutionService {
   private isRunning = false;
@@ -418,8 +419,16 @@ export class ExecutionService {
         `🔑 [ExecutionService] Executing reaction for mapping ${mapping.id} (${mapping.name}) owned by user ${mappingOwnerId}`
       );
 
+      const interpolatedConfig = interpolatePayload(
+        reaction.config,
+        event.payload
+      );
+
       const context: ReactionExecutionContext = {
-        reaction,
+        reaction: {
+          ...reaction,
+          config: interpolatedConfig,
+        },
         event: {
           id: event.id,
           action_type: event.action_type,
