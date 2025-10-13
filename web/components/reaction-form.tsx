@@ -245,40 +245,41 @@ export default function ReactionForm({
                 </h4>
 
                 {/* Payload Fields Info */}
-                {selectedAction?.payloadFields && selectedAction.payloadFields.length > 0 && (
-                  <div className='bg-blue-50 border border-blue-200 rounded-md p-3 mb-4'>
-                    <div className='flex items-center mb-2'>
-                      <Info className='w-4 h-4 text-blue-600 mr-2' />
-                      <span className='text-sm font-medium text-blue-800'>
-                        Available Action Data
-                      </span>
-                    </div>
-                    <p className='text-xs text-blue-700 mb-2'>
-                      When configuring dynamic fields, you can reference data from the &quot;{selectedAction.name}&quot; action:
-                    </p>
-                    <div className='space-y-1'>
-                      {selectedAction.payloadFields.map(field => (
-                        <div key={field.path} className='text-xs'>
-                          <code className='bg-blue-100 text-blue-800 px-1 py-0.5 rounded font-mono'>
-                            {'{{action.payload.' + field.path + '}}'}
-                          </code>
-                          <span className='text-blue-600 ml-2'>
-                            {field.description} ({field.type})
-                          </span>
-                          {field.example && (
-                            <span className='text-blue-500 ml-1'>
-                              e.g., {field.example}
+                {selectedAction?.payloadFields &&
+                  selectedAction.payloadFields.length > 0 &&
+                  instance.reaction?.configSchema?.fields?.some(
+                    field => field.dynamic
+                  ) && (
+                    <div className='bg-blue-50 border border-blue-200 rounded-md p-3 mb-4'>
+                      <div className='flex items-center mb-2'>
+                        <Info className='w-4 h-4 text-blue-600 mr-2' />
+                        <span className='text-sm font-medium text-blue-800'>
+                          Available Action Data
+                        </span>
+                      </div>
+                      <p className='text-xs text-blue-700 mb-2'>
+                        When configuring dynamic fields, you can reference data
+                        from the &quot;{selectedAction.name}&quot; action:
+                      </p>
+                      <div className='space-y-1'>
+                        {selectedAction.payloadFields.map(field => (
+                          <div key={field.path} className='text-xs'>
+                            <code className='bg-blue-100 text-blue-800 px-1 py-0.5 rounded font-mono'>
+                              {'{{action.payload.' + field.path + '}}'}
+                            </code>
+                            <span className='text-blue-600 ml-2'>
+                              {field.description} ({field.type})
                             </span>
-                          )}
-                        </div>
-                      ))}
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
                 {instance.reaction.configSchema.fields.map(field => {
                   const isDynamic = field.dynamic;
-                  const isInDynamicMode = instance.dynamicFields[field.name] || false;
+                  const isInDynamicMode =
+                    instance.dynamicFields[field.name] || false;
 
                   return (
                     <div key={field.name} className='space-y-2'>
@@ -293,7 +294,9 @@ export default function ReactionForm({
                         </label>
                         {isDynamic && (
                           <div className='flex items-center space-x-2'>
-                            <span className='text-xs text-gray-500'>Dynamic</span>
+                            <span className='text-xs text-gray-500'>
+                              Dynamic
+                            </span>
                             <Switch
                               checked={isInDynamicMode}
                               onCheckedChange={(checked: boolean) => {
@@ -305,8 +308,8 @@ export default function ReactionForm({
                                   config: {
                                     ...instance.config,
                                     [field.name]: checked
-                                      ? (field.dynamicPlaceholder || '')
-                                      : (instance.config[field.name] || ''),
+                                      ? field.dynamicPlaceholder || ''
+                                      : instance.config[field.name] || '',
                                   },
                                 });
                               }}
@@ -317,7 +320,8 @@ export default function ReactionForm({
 
                       {isDynamic && isInDynamicMode && (
                         <div className='text-xs text-gray-500 mb-2'>
-                          Use {'{{action.payload.field}}'} syntax to reference action data.
+                          Use {'{{action.payload.field}}'} syntax to reference
+                          action data.
                           {field.dynamicPlaceholder && (
                             <div className='mt-1 p-2 bg-gray-50 rounded text-xs font-mono'>
                               Example: {field.dynamicPlaceholder}
@@ -348,7 +352,9 @@ export default function ReactionForm({
                           });
                         }}
                         className={`mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 text-sm ${
-                          isDynamic && isInDynamicMode ? 'font-mono bg-blue-50' : ''
+                          isDynamic && isInDynamicMode
+                            ? 'font-mono bg-blue-50'
+                            : ''
                         }`}
                         rows={field.type === 'textarea' ? 3 : 1}
                       />

@@ -26,7 +26,8 @@ export const slackReactions: ReactionDefinition[] = [
           placeholder: 'Enter your message here...',
           required: true,
           dynamic: true,
-          dynamicPlaceholder: 'New message from {{action.payload.user}}: "{{action.payload.text}}"',
+          dynamicPlaceholder:
+            'New message from {{action.payload.user}}: "{{action.payload.text}}"',
         },
       ],
     },
@@ -145,7 +146,8 @@ export const slackReactions: ReactionDefinition[] = [
           placeholder: 'Enter your private message here...',
           required: true,
           dynamic: true,
-          dynamicPlaceholder: 'Thanks for your message: "{{action.payload.text}}"',
+          dynamicPlaceholder:
+            'Thanks for your message: "{{action.payload.text}}"',
         },
       ],
     },
