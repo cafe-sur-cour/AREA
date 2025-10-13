@@ -49,6 +49,7 @@ const DynamicTextarea: React.FC<DynamicTextareaProps> = ({
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [cursorPosition, setCursorPosition] = useState(0);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const suggestionsRef = useRef<HTMLDivElement>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newValue = e.target.value;
@@ -100,14 +101,40 @@ const DynamicTextarea: React.FC<DynamicTextareaProps> = ({
     if (showSuggestions && suggestions.length > 0) {
       if (e.key === 'ArrowDown') {
         e.preventDefault();
-        setSelectedIndex(prev =>
-          prev < suggestions.length - 1 ? prev + 1 : 0
-        );
+        setSelectedIndex(prev => {
+          const newIndex = prev < suggestions.length - 1 ? prev + 1 : 0;
+          // Scroll to selected item
+          setTimeout(() => {
+            if (suggestionsRef.current) {
+              const selectedElement = suggestionsRef.current.children[newIndex] as HTMLElement;
+              if (selectedElement) {
+                selectedElement.scrollIntoView({
+                  behavior: 'smooth',
+                  block: 'nearest'
+                });
+              }
+            }
+          }, 0);
+          return newIndex;
+        });
       } else if (e.key === 'ArrowUp') {
         e.preventDefault();
-        setSelectedIndex(prev =>
-          prev > 0 ? prev - 1 : suggestions.length - 1
-        );
+        setSelectedIndex(prev => {
+          const newIndex = prev > 0 ? prev - 1 : suggestions.length - 1;
+          // Scroll to selected item
+          setTimeout(() => {
+            if (suggestionsRef.current) {
+              const selectedElement = suggestionsRef.current.children[newIndex] as HTMLElement;
+              if (selectedElement) {
+                selectedElement.scrollIntoView({
+                  behavior: 'smooth',
+                  block: 'nearest'
+                });
+              }
+            }
+          }, 0);
+          return newIndex;
+        });
       } else if (e.key === 'Enter' && selectedIndex >= 0) {
         e.preventDefault();
         insertSuggestion(suggestions[selectedIndex]);
@@ -134,19 +161,22 @@ const DynamicTextarea: React.FC<DynamicTextareaProps> = ({
       />
 
       {showSuggestions && suggestions.length > 0 && (
-        <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-40 overflow-y-auto">
+        <div
+          ref={suggestionsRef}
+          className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-40 overflow-y-auto"
+        >
           {suggestions.map((field, index) => (
             <div
               key={field.path}
-              className={`px-3 py-2 cursor-pointer text-sm ${
+              className={`px-3 py-2 cursor-pointer text-sm border-b border-gray-100 last:border-b-0 ${
                 index === selectedIndex ? 'bg-blue-100' : 'hover:bg-gray-100'
               }`}
               onClick={() => insertSuggestion(field)}
             >
-              <div className="font-mono text-blue-600">
-                {`{{action.payload.${field.path}}}`}
+              <div className="font-mono text-blue-600 text-xs break-all">
+                {"{" + "{action.payload." + field.path + "}"}
               </div>
-              <div className="text-gray-500 text-xs">
+              <div className="text-gray-500 text-xs mt-1 break-words">
                 {field.description}
               </div>
             </div>
@@ -384,26 +414,31 @@ export default function ReactionForm({
                       </label>
 
                       {isDynamic ? (
-                        <DynamicTextarea
-                          name={field.name}
-                          placeholder={field.placeholder}
-                          required={field.required}
-                          value={
-                            getStringValue(instance.config[field.name]) ||
-                            getStringValue(field.default) ||
-                            ''
-                          }
-                          onChange={(value) => {
-                            updateReactionInstance(instance.id, {
-                              config: {
-                                ...instance.config,
-                                [field.name]: value,
-                              },
-                            });
-                          }}
-                          payloadFields={selectedAction?.payloadFields || []}
-                          rows={field.type === 'textarea' ? 3 : 1}
-                        />
+                        <div className="relative">
+                          <DynamicTextarea
+                            name={field.name}
+                            placeholder={field.placeholder}
+                            required={field.required}
+                            value={
+                              getStringValue(instance.config[field.name]) ||
+                              getStringValue(field.default) ||
+                              ''
+                            }
+                            onChange={(value) => {
+                              updateReactionInstance(instance.id, {
+                                config: {
+                                  ...instance.config,
+                                  [field.name]: value,
+                                },
+                              });
+                            }}
+                            payloadFields={selectedAction?.payloadFields || []}
+                            rows={field.type === 'textarea' ? 3 : 1}
+                          />
+                          <div className="absolute top-2 right-2 text-xs text-gray-400 pointer-events-none">
+                            Type {"{"} to see suggestions
+                          </div>
+                        </div>
                       ) : (
                         <textarea
                           name={field.name}
