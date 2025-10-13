@@ -47,7 +47,6 @@ const DynamicTextarea: React.FC<DynamicTextareaProps> = ({
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [suggestions, setSuggestions] = useState<PayloadField[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(-1);
-  const [cursorPosition, setCursorPosition] = useState(0);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
 
@@ -56,7 +55,6 @@ const DynamicTextarea: React.FC<DynamicTextareaProps> = ({
     const newCursorPosition = e.target.selectionStart || 0;
 
     onChange(newValue);
-    setCursorPosition(newCursorPosition);
 
     // Check if we should show suggestions
     const textBeforeCursor = newValue.substring(0, newCursorPosition);
@@ -74,22 +72,24 @@ const DynamicTextarea: React.FC<DynamicTextareaProps> = ({
   };
 
   const insertSuggestion = (field: PayloadField) => {
-    const textBeforeCursor = value.substring(0, cursorPosition);
+    const currentCursorPos = textareaRef.current?.selectionStart || 0;
+    const textBeforeCursor = value.substring(0, currentCursorPos);
     const lastOpenBrace = textBeforeCursor.lastIndexOf('{');
 
-    if (lastOpenBrace !== -1 && lastOpenBrace === cursorPosition - 1) {
+    if (lastOpenBrace !== -1 && lastOpenBrace === currentCursorPos - 1) {
       // Replace the single { with the full template
       const beforeBrace = value.substring(0, lastOpenBrace);
-      const afterBrace = value.substring(cursorPosition);
-      const newValue = `${beforeBrace}{{action.payload.${field.path}}}${afterBrace}`;
+      const afterBrace = value.substring(currentCursorPos);
+      const template = `{{action.payload.${field.path}}}`;
+      const newValue = `${beforeBrace}${template}${afterBrace}`;
 
       onChange(newValue);
       setShowSuggestions(false);
 
-      // Focus back to textarea and set cursor position
+      // Focus back to textarea and set cursor position after the closing }}
       setTimeout(() => {
         if (textareaRef.current) {
-          const newCursorPos = beforeBrace.length + `{{action.payload.${field.path}}`.length;
+          const newCursorPos = beforeBrace.length + template.length;
           textareaRef.current.focus();
           textareaRef.current.setSelectionRange(newCursorPos, newCursorPos);
         }
@@ -414,7 +414,14 @@ export default function ReactionForm({
                       </label>
 
                       {isDynamic ? (
-                        <div className="relative">
+                        <div className="space-y-2">
+                          <div className="bg-blue-50 border border-blue-200 rounded-md p-2">
+                            <div className="flex items-center">
+                              <div className="text-xs text-blue-700">
+                                Type <span className="font-mono bg-blue-100 px-1 rounded">{"{"}</span> to see action data suggestions
+                              </div>
+                            </div>
+                          </div>
                           <DynamicTextarea
                             name={field.name}
                             placeholder={field.placeholder}
@@ -435,9 +442,6 @@ export default function ReactionForm({
                             payloadFields={selectedAction?.payloadFields || []}
                             rows={field.type === 'textarea' ? 3 : 1}
                           />
-                          <div className="absolute top-2 right-2 text-xs text-gray-400 pointer-events-none">
-                            Type {"{"} to see suggestions
-                          </div>
                         </div>
                       ) : (
                         <textarea
