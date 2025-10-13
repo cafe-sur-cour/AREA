@@ -50,6 +50,13 @@ const serviceEndpoints: Record<
     subscribe: '/auth/slack/subscribe',
     unsubscribe: '/slack/unsubscribe',
   },
+  twitch: {
+    auth: '/auth/twitch/login',
+    status: '/twitch/subscribe/status',
+    loginStatus: '/twitch/login/status',
+    subscribe: '/auth/twitch/subscribe',
+    unsubscribe: '/twitch/unsubscribe',
+  },
   timer: {
     auth: '',
     status: '/services/timer/subscribe/status',

@@ -1464,6 +1464,176 @@ router.post('/reset-password', mail, async (req: Request, res: Response) => {
   );
 });
 
+/**
+ * @swagger
+ * /api/auth/twitch/login:
+ *   get:
+ *     summary: Initiate Twitch OAuth authorization for login/register
+ *     tags:
+ *       - OAuth
+ *     description: |
+ *       Redirects user to Twitch for OAuth authorization.
+ *       This route is used for login/register when user is not authenticated.
+ *     parameters:
+ *       - name: is_mobile
+ *         in: query
+ *         required: false
+ *         description: Indicates if the request originates from mobile client
+ *         schema:
+ *           type: boolean
+ *     responses:
+ *       302:
+ *         description: Redirect to Twitch authorization page
+ *       500:
+ *         description: Internal Server Error
+ */
+router.get(
+  '/twitch/login',
+  (req, res, next) => {
+    if (req.query.is_mobile === 'true') {
+      const session = req.session as {
+        is_mobile?: boolean;
+      } & typeof req.session;
+      session.is_mobile = true;
+    }
+    next();
+  },
+  passport.authenticate('twitch-login')
+);
+
+/**
+ * @swagger
+ * /api/auth/twitch/callback:
+ *   get:
+ *     summary: Handle Twitch OAuth callback for both login/register and service connection
+ *     tags:
+ *       - OAuth
+ *     description: |
+ *       Exchanges authorization code for access token and handles authentication.
+ *       Automatically determines whether to perform login/register or service connection
+ *       based on user authentication status.
+ *     parameters:
+ *       - name: code
+ *         in: query
+ *         required: true
+ *         description: Authorization code from Twitch
+ *         schema:
+ *           type: string
+ *       - name: state
+ *         in: query
+ *         required: true
+ *         description: State parameter for CSRF protection
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: OAuth successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               oneOf:
+ *                 - description: Login/Register response
+ *                   properties:
+ *                     token:
+ *                       type: string
+ *                     user:
+ *                       type: object
+ *                 - description: Service connection response
+ *                   properties:
+ *                     message:
+ *                       type: string
+ *                     user:
+ *                       type: object
+ *       400:
+ *         description: Bad Request - Missing parameters
+ *       500:
+ *         description: Internal Server Error
+ */
+router.get(
+  '/twitch/callback',
+  async (req: Request, res: Response, next) => {
+    try {
+      const isAuthenticated = !!(req.auth || req.cookies?.auth_token);
+
+      if (isAuthenticated) {
+        passport.authenticate('twitch-subscribe', { session: false })(
+          req,
+          res,
+          next
+        );
+      } else {
+        passport.authenticate('twitch-login', { session: false })(
+          req,
+          res,
+          next
+        );
+      }
+    } catch (err) {
+      console.error('Twitch OAuth callback error:', err);
+      await createLog(
+        500,
+        'twitch',
+        `Failed to authenticate with Twitch: ${err}`
+      );
+      res.status(500).json({ error: 'Failed to authenticate with Twitch' });
+    }
+  },
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const user = req.user as { token: string };
+      if (user && user.token) {
+        res.cookie('auth_token', user.token, {
+          maxAge: 86400000,
+          httpOnly: true,
+          domain: process.env.DOMAIN,
+          secure: true,
+          sameSite: 'none',
+        });
+
+        const isAuthenticated = !!(req.auth || req.cookies?.auth_token);
+        if (isAuthenticated) {
+          const session = req.session as {
+            is_mobile?: boolean;
+          } & typeof req.session;
+          if (session.is_mobile) {
+            delete session.is_mobile;
+            return res.redirect(
+              `${process.env.MOBILE_CALLBACK_URL || ''}?twitch_subscribed=true`
+            );
+          } else {
+            return res.redirect(
+              `${process.env.FRONTEND_URL || ''}/services?twitch_subscribed=true`
+            );
+          }
+        } else {
+          const session = req.session as {
+            is_mobile?: boolean;
+          } & typeof req.session;
+          if (session.is_mobile) {
+            delete session.is_mobile;
+            return res.redirect(
+              `${process.env.MOBILE_CALLBACK_URL || ''}?token=${user.token}`
+            );
+          } else {
+            return res.redirect(
+              `${process.env.FRONTEND_URL || ''}?token=${user.token}`
+            );
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Twitch OAuth callback error:', err);
+      await createLog(
+        500,
+        'twitch',
+        `Failed to authenticate with Twitch: ${err}`
+      );
+      res.status(500).json({ error: 'Failed to authenticate with Twitch' });
+    }
+  }
+);
+
 router.get('/slack/subscribe', token, async (req: Request, res: Response) => {
   try {
     const { slackOAuth } = await import('../../services/services/slack/oauth');

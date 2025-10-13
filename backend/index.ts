@@ -28,6 +28,7 @@ import googleRoutes from './src/routes/google/google';
 import spotifyRoutes from './src/routes/spotify/spotify';
 import microsoftRoutes from './src/routes/microsoft/microsoft';
 import slackRoutes from './src/routes/slack/slack';
+import twitchRoutes from './src/routes/twitch/twitch';
 import servicesRoutes from './src/routes/services';
 import mappingsRoutes from './src/routes/services/mappings';
 
@@ -145,6 +146,7 @@ const encryption = new StringEncryption();
     app.use('/api/spotify', spotifyRoutes);
     app.use('/api/microsoft', microsoftRoutes);
     app.use('/api/slack', slackRoutes);
+    app.use('/api/twitch', twitchRoutes);
     app.use('/api/info', apiRoutes);
     app.use('/about.json', aboutRoutes);
     app.use('/api/webhooks', webhookRoutes);
