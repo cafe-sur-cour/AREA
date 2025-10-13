@@ -331,4 +331,153 @@ router.post(
   }
 );
 
+/**
+ * @swagger
+ * /api/auth/{service}/subscribe/status:
+ *   get:
+ *     summary: Check service subscription status
+ *     tags:
+ *       - OAuth
+ *     description: |
+ *       Generic status endpoint that checks if a user is subscribed to a service.
+ *       This unified route replaces individual service-specific status routes.
+ *
+ *       Returns subscription status, OAuth connection status, and whether the user
+ *       can create webhooks (requires both subscription and OAuth).
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: service
+ *         in: path
+ *         required: true
+ *         description: Service name (github, google, spotify, microsoft, etc.)
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Service subscription status (subscribed)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 subscribed:
+ *                   type: boolean
+ *                   example: true
+ *                 oauth_connected:
+ *                   type: boolean
+ *                   description: True if user has OAuth token for this service
+ *                 can_create_webhooks:
+ *                   type: boolean
+ *                   description: True if user can create webhooks (subscribed + oauth)
+ *                 subscribed_at:
+ *                   type: string
+ *                   format: date-time
+ *                   nullable: true
+ *                 unsubscribed_at:
+ *                   type: string
+ *                   format: date-time
+ *                   nullable: true
+ *       404:
+ *         description: Not subscribed to service
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 subscribed:
+ *                   type: boolean
+ *                   example: false
+ *                 oauth_connected:
+ *                   type: boolean
+ *                 can_create_webhooks:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *       401:
+ *         description: User not authenticated
+ *       500:
+ *         description: Internal Server Error
+ */
+router.get(
+  '/:service/subscribe/status',
+  token,
+  async (req: Request, res: Response): Promise<Response> => {
+    const service = req.params.service?.toLowerCase();
+    if (!service) {
+      await createLog(400, 'other', 'Service parameter is required');
+      return res.status(400).json({ error: 'Service parameter is required' });
+    }
+
+    const userId = (req.auth as { id: number }).id;
+
+    try {
+      console.log(
+        `🔄 [STATUS] Checking ${service} subscription status for user ${userId}`
+      );
+
+      const { serviceSubscriptionManager } = await import(
+        '../../services/ServiceSubscriptionManager'
+      );
+
+      const subscription = await serviceSubscriptionManager.getUserSubscription(
+        userId,
+        service
+      );
+      const isSubscribed = subscription?.subscribed || false;
+
+      let oauthConnected = false;
+      if (!NON_OAUTH_SERVICES.includes(service)) {
+        try {
+          const serviceOAuth = await import(
+            `../../services/services/${service}/oauth`
+          );
+          const oauthInstance = serviceOAuth[`${service}OAuth`];
+          const userToken = await oauthInstance.getUserToken(userId);
+          oauthConnected = !!userToken;
+        } catch (error) {
+          console.warn(`Could not check OAuth status for ${service}:`, error);
+        }
+      } else {
+        oauthConnected = true;
+      }
+
+      console.log(
+        `✅ [STATUS] ${service} status for user ${userId}: subscribed=${isSubscribed}, oauth=${oauthConnected}`
+      );
+
+      if (!isSubscribed) {
+        return res.status(404).json({
+          subscribed: false,
+          oauth_connected: oauthConnected,
+          can_create_webhooks: false,
+          message: `Not subscribed to ${service} events`,
+        });
+      }
+
+      return res.status(200).json({
+        subscribed: true,
+        oauth_connected: oauthConnected,
+        can_create_webhooks: isSubscribed && oauthConnected,
+        subscribed_at: subscription?.subscribed_at || null,
+        unsubscribed_at: subscription?.unsubscribed_at || null,
+      });
+    } catch (error) {
+      console.error(
+        `❌ [STATUS] Error fetching ${service} subscription status for user ${userId}:`,
+        error
+      );
+      await createLog(
+        500,
+        'other',
+        `Error in ${service} subscribe status: ${error instanceof Error ? error.message : String(error)}`
+      );
+      return res.status(500).json({
+        error: `Internal Server Error in ${service} subscribe status`,
+      });
+    }
+  }
+);
+
 export default router;
