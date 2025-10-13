@@ -35,7 +35,7 @@ export function createOAuthRouter(): Router {
 
           try {
             const serviceOAuth = await import(
-              `../../../services/services/${serviceId}/oauth`
+              `../../services/services/${serviceId}/oauth`
             );
             const oauthInstance = serviceOAuth[`${serviceId}OAuth`];
 
