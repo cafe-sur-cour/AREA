@@ -47,6 +47,7 @@ const DynamicTextarea: React.FC<DynamicTextareaProps> = ({
 }) => {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [suggestions, setSuggestions] = useState<PayloadField[]>([]);
+  const [selectedIndex, setSelectedIndex] = useState(-1);
   const [cursorPosition, setCursorPosition] = useState(0);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -59,34 +60,28 @@ const DynamicTextarea: React.FC<DynamicTextareaProps> = ({
 
     // Check if we should show suggestions
     const textBeforeCursor = newValue.substring(0, newCursorPosition);
-    const lastOpenBrace = textBeforeCursor.lastIndexOf('{{');
+    const lastOpenBrace = textBeforeCursor.lastIndexOf('{');
 
-    if (lastOpenBrace !== -1) {
-      const textAfterLastBrace = textBeforeCursor.substring(lastOpenBrace + 2);
-      if (!textAfterLastBrace.includes('}}') && !textAfterLastBrace.includes(' ')) {
-        // Show suggestions
-        const searchTerm = textAfterLastBrace.toLowerCase();
-        const filteredFields = payloadFields.filter(field =>
-          field.path.toLowerCase().includes(searchTerm)
-        );
-        setSuggestions(filteredFields);
-        setShowSuggestions(true);
-      } else {
-        setShowSuggestions(false);
-      }
+    if (lastOpenBrace !== -1 && lastOpenBrace === newCursorPosition - 1) {
+      // Show all suggestions when typing a single {
+      setSuggestions(payloadFields);
+      setShowSuggestions(true);
+      setSelectedIndex(-1);
     } else {
       setShowSuggestions(false);
+      setSelectedIndex(-1);
     }
   };
 
   const insertSuggestion = (field: PayloadField) => {
     const textBeforeCursor = value.substring(0, cursorPosition);
-    const lastOpenBrace = textBeforeCursor.lastIndexOf('{{');
+    const lastOpenBrace = textBeforeCursor.lastIndexOf('{');
 
-    if (lastOpenBrace !== -1) {
-      const beforeBraces = value.substring(0, lastOpenBrace);
-      const afterBraces = value.substring(cursorPosition);
-      const newValue = `${beforeBraces}{{action.payload.${field.path}}}${afterBraces}`;
+    if (lastOpenBrace !== -1 && lastOpenBrace === cursorPosition - 1) {
+      // Replace the single { with the full template
+      const beforeBrace = value.substring(0, lastOpenBrace);
+      const afterBrace = value.substring(cursorPosition);
+      const newValue = `${beforeBrace}{{action.payload.${field.path}}}${afterBrace}`;
 
       onChange(newValue);
       setShowSuggestions(false);
@@ -94,7 +89,7 @@ const DynamicTextarea: React.FC<DynamicTextareaProps> = ({
       // Focus back to textarea and set cursor position
       setTimeout(() => {
         if (textareaRef.current) {
-          const newCursorPos = beforeBraces.length + `{{action.payload.${field.path}}`.length;
+          const newCursorPos = beforeBrace.length + `{{action.payload.${field.path}}`.length;
           textareaRef.current.focus();
           textareaRef.current.setSelectionRange(newCursorPos, newCursorPos);
         }
@@ -104,8 +99,23 @@ const DynamicTextarea: React.FC<DynamicTextareaProps> = ({
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (showSuggestions && suggestions.length > 0) {
-      if (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'Enter' || e.key === 'Escape') {
+      if (e.key === 'ArrowDown') {
         e.preventDefault();
+        setSelectedIndex(prev =>
+          prev < suggestions.length - 1 ? prev + 1 : 0
+        );
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        setSelectedIndex(prev =>
+          prev > 0 ? prev - 1 : suggestions.length - 1
+        );
+      } else if (e.key === 'Enter' && selectedIndex >= 0) {
+        e.preventDefault();
+        insertSuggestion(suggestions[selectedIndex]);
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        setShowSuggestions(false);
+        setSelectedIndex(-1);
       }
     }
   };
@@ -126,10 +136,12 @@ const DynamicTextarea: React.FC<DynamicTextareaProps> = ({
 
       {showSuggestions && suggestions.length > 0 && (
         <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-40 overflow-y-auto">
-          {suggestions.map((field) => (
+          {suggestions.map((field, index) => (
             <div
               key={field.path}
-              className="px-3 py-2 hover:bg-gray-100 cursor-pointer text-sm"
+              className={`px-3 py-2 cursor-pointer text-sm ${
+                index === selectedIndex ? 'bg-blue-100' : 'hover:bg-gray-100'
+              }`}
               onClick={() => insertSuggestion(field)}
             >
               <div className="font-mono text-blue-600">
@@ -379,6 +391,8 @@ export default function ReactionForm({
                       <p className='text-xs text-blue-700 mb-2'>
                         When configuring dynamic fields, you can reference data
                         from the &quot;{selectedAction.name}&quot; action.
+                        Use the {'{{action.payload.field}}'} syntax to insert
+                        action data into dynamic fields.
                       </p>
                     </div>
                   )}
