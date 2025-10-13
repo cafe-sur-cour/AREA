@@ -29,6 +29,8 @@ export { githubReactionExecutor as executor };
 
 export async function initialize(): Promise<void> {
   console.log('Initializing GitHub service...');
+  const { initializeGitHubPassport } = await import('./passport');
+  initializeGitHubPassport();
   console.log('GitHub service initialized');
 }
 

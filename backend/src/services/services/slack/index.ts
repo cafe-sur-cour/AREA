@@ -29,7 +29,8 @@ export const executor = slackReactionExecutor;
 
 export async function initialize(): Promise<void> {
   console.log('Initializing Slack service...');
-  // TODO: Initialize Slack scheduler if needed
+  const { initializeSlackPassport } = await import('./passport');
+  initializeSlackPassport();
   console.log('Slack service initialized');
 }
 

@@ -23,6 +23,9 @@ const twitchService: Service = {
 export default twitchService;
 
 export async function initialize(): Promise<void> {
+  console.log('Initializing Twitch service...');
+  const { initializeTwitchPassport } = await import('./passport');
+  initializeTwitchPassport();
   console.log('✅ Twitch service initialized');
 }
 

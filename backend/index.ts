@@ -15,7 +15,6 @@ import { initI18n } from './src/config/i18n';
 import i18next from 'i18next';
 import * as i18nextMiddleware from 'i18next-http-middleware';
 import passport from 'passport';
-import './src/config/passport';
 import { StringEncryption } from './src/config/EncryptionService';
 
 import authRoutes from './src/routes/auth/auth';

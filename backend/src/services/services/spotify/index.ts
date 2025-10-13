@@ -32,6 +32,8 @@ const spotifyScheduler = new SpotifyScheduler();
 
 export async function initialize(): Promise<void> {
   console.log('Initializing Spotify service...');
+  const { initializeSpotifyPassport } = await import('./passport');
+  initializeSpotifyPassport();
   await spotifyScheduler.start();
   console.log('Spotify service initialized');
 }
