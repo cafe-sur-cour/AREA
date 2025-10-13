@@ -70,6 +70,13 @@ async function handleServiceSubscription(
       `Starting OAuth flow for user ${userId} to subscribe to ${service}`
     );
 
+    if (typeof oauthInstance.getAuthorizationUrl === 'function') {
+      const state = Math.random().toString(36).substring(2, 15);
+      const authUrl = oauthInstance.getAuthorizationUrl(state);
+      res.redirect(authUrl);
+      return null;
+    }
+
     passport.authenticate(`${service}-subscribe`, {
       session: false,
     })(req, res, next);
