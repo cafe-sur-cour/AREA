@@ -25,6 +25,7 @@ import aboutRoutes from './src/routes/about/about';
 import webhookRoutes from './src/webhooks';
 import githubRoutes from './src/routes/github/github';
 import googleRoutes from './src/routes/google/google';
+import facebookRoutes from './src/routes/facebook/facebook';
 import spotifyRoutes from './src/routes/spotify/spotify';
 import microsoftRoutes from './src/routes/microsoft/microsoft';
 import slackRoutes from './src/routes/slack/slack';
@@ -40,6 +41,8 @@ import session from 'express-session';
 
 import { Session } from './src/config/entity/Session';
 import { TypeormStore } from 'connect-typeorm';
+
+
 
 const app = express();
 export const JWT_SECRET = process.env.JWT_SECRET || '';
@@ -145,6 +148,7 @@ const encryption = new StringEncryption();
     app.use('/api/spotify', spotifyRoutes);
     app.use('/api/microsoft', microsoftRoutes);
     app.use('/api/slack', slackRoutes);
+    app.use('/api/facebook', facebookRoutes);
     app.use('/api/info', apiRoutes);
     app.use('/about.json', aboutRoutes);
     app.use('/api/webhooks', webhookRoutes);
