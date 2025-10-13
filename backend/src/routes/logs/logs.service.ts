@@ -12,6 +12,8 @@ export const createLog = async (
     | 'google'
     | 'microsoft'
     | 'spotify'
+    | 'slack'
+    | 'facebook'
     | 'other',
   message: string | null
 ): Promise<Logger> => {
