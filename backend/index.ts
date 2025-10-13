@@ -23,12 +23,6 @@ import userRoutes from './src/routes/user/user';
 import apiRoutes from './src/routes/api/api';
 import aboutRoutes from './src/routes/about/about';
 import webhookRoutes from './src/webhooks';
-import githubRoutes from './src/routes/github/github';
-import googleRoutes from './src/routes/google/google';
-import spotifyRoutes from './src/routes/spotify/spotify';
-import microsoftRoutes from './src/routes/microsoft/microsoft';
-import slackRoutes from './src/routes/slack/slack';
-import twitchRoutes from './src/routes/twitch/twitch';
 import servicesRoutes from './src/routes/services';
 import mappingsRoutes from './src/routes/services/mappings';
 
@@ -139,14 +133,8 @@ const encryption = new StringEncryption();
 
     app.use('/api/auth', authRoutes);
     app.use('/api/user', userRoutes);
-    app.use('/api/github', githubRoutes);
-    app.use('/api/google', googleRoutes);
     app.use('/api/services', servicesRoutes);
     app.use('/api/mappings', mappingsRoutes);
-    app.use('/api/spotify', spotifyRoutes);
-    app.use('/api/microsoft', microsoftRoutes);
-    app.use('/api/slack', slackRoutes);
-    app.use('/api/twitch', twitchRoutes);
     app.use('/api/info', apiRoutes);
     app.use('/about.json', aboutRoutes);
     app.use('/api/webhooks', webhookRoutes);

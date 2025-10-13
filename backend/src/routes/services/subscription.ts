@@ -480,4 +480,111 @@ router.get(
   }
 );
 
+/**
+ * @swagger
+ * /api/auth/{service}/login/status:
+ *   get:
+ *     summary: Check OAuth login status for a service
+ *     tags:
+ *       - OAuth
+ *     description: |
+ *       Generic login status endpoint that checks if a user has completed OAuth authentication
+ *       with a service. This unified route replaces individual service-specific login/status routes.
+ *
+ *       This only checks OAuth connection status, not subscription status.
+ *       Use /:service/subscribe/status to check subscription status.
+ *
+ *       Only works for services that support OAuth login (github, google, microsoft).
+ *       Returns 404 for non-OAuth services like timer.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: service
+ *         in: path
+ *         required: true
+ *         description: Service name (github, google, microsoft)
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: OAuth login status (connected)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 connected:
+ *                   type: boolean
+ *                   example: true
+ *                 token_expires_at:
+ *                   type: string
+ *                   format: date-time
+ *                   nullable: true
+ *                 scopes:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *       404:
+ *         description: OAuth not completed or service doesn't support OAuth login
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 connected:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *       401:
+ *         description: User not authenticated
+ *       500:
+ *         description: Internal Server Error
+ */
+router.get(
+  '/:service/login/status',
+  token,
+  async (req: Request, res: Response): Promise<Response> => {
+    const service = req.params.service?.toLowerCase();
+    if (!service) {
+      return res.status(400).json({ error: 'Service parameter is required' });
+    }
+
+    const userId = (req.auth as { id: number }).id;
+
+    try {
+      if (NON_OAUTH_SERVICES.includes(service)) {
+        return res.status(404).json({
+          connected: false,
+          message: `${service} does not support OAuth login`,
+        });
+      }
+
+      const serviceOAuth = await import(
+        `../../services/services/${service}/oauth`
+      );
+      const oauthInstance = serviceOAuth[`${service}OAuth`];
+      const userToken = await oauthInstance.getUserToken(userId);
+
+      if (!userToken) {
+        return res.status(404).json({
+          connected: false,
+          message: `${service} OAuth not completed`,
+        });
+      }
+
+      return res.status(200).json({
+        connected: true,
+        token_expires_at: userToken.expires_at,
+        scopes: userToken.scopes,
+      });
+    } catch (error) {
+      console.error(`Error checking ${service} login status:`, error);
+      return res.status(500).json({
+        error: `Internal Server Error in ${service} login status`,
+      });
+    }
+  }
+);
+
 export default router;

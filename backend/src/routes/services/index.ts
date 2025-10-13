@@ -6,6 +6,14 @@ import { serviceSubscriptionManager } from '../../services/ServiceSubscriptionMa
 import subscriptionRoutes from './subscription';
 
 const SERVICES_WITH_LOGIN_SUPPORT = ['github', 'google', 'microsoft'];
+const OAUTH_SERVICES = [
+  'github',
+  'google',
+  'microsoft',
+  'spotify',
+  'twitch',
+  'slack',
+];
 
 function generateServiceEndpoints(serviceId: string): {
   auth?: string;
@@ -15,11 +23,12 @@ function generateServiceEndpoints(serviceId: string): {
   unsubscribe: string;
 } {
   const supportsLogin = SERVICES_WITH_LOGIN_SUPPORT.includes(serviceId);
+  const hasOAuth = OAUTH_SERVICES.includes(serviceId);
 
   return {
     ...(supportsLogin && { auth: `/auth/${serviceId}/login` }),
-    status: `/${serviceId}/subscribe/status`,
-    ...(supportsLogin && { loginStatus: `/${serviceId}/login/status` }),
+    status: `/auth/${serviceId}/subscribe/status`,
+    ...(hasOAuth && { loginStatus: `/auth/${serviceId}/login/status` }),
     subscribe: `/auth/${serviceId}/subscribe`,
     unsubscribe: `/auth/${serviceId}/unsubscribe`,
   };
