@@ -1130,6 +1130,25 @@ router.get(
   }
 );
 
+
+
+router.get('/meta/login', 
+  (req, res, next) => {
+    if (req.query.is_mobile === 'true') {
+      const session = req.session as {
+        is_mobile?: boolean;
+      } & typeof req.session;
+      session.is_mobile = true;
+    }
+    next();
+  },
+  passport.authenticate('meta-login')
+);
+
+router.get('/meta/callback', (req: Request, res: Response) => {
+  res.status(501).json({ error: 'Not implemented' });
+});
+
 /**
  * @swagger
  * /api/auth/forgot-password:
@@ -1535,6 +1554,230 @@ router.get(
         `Failed to authenticate with Slack: ${err}`
       );
       res.status(500).json({ error: 'Failed to authenticate with Slack' });
+    }
+  }
+);
+
+/**
+ * @swagger
+ * /api/auth/meta/login:
+ *   get:
+ *     summary: Initiate Meta (Facebook) OAuth authorization for login/register
+ *     tags:
+ *       - OAuth
+ *     description: |
+ *       Redirects user to Meta (Facebook) for OAuth authorization.
+ *       This route is used for login/register when user is not authenticated.
+ *     parameters:
+ *       - name: is_mobile
+ *         in: query
+ *         required: false
+ *         description: Indicates if the request originates from mobile client
+ *         schema:
+ *           type: boolean
+ *     responses:
+ *       302:
+ *         description: Redirect to Meta authorization page
+ *       500:
+ *         description: Internal Server Error
+ */
+router.get('/meta/login', async (req: Request, res: Response) => {
+  try {
+    const { facebookOAuth } = await import('../../services/services/meta/oauth');
+    const session = req.session as {
+      is_mobile?: boolean;
+    } & typeof req.session;
+    
+    if (req.query.is_mobile === 'true') {
+      session.is_mobile = true;
+    }
+    
+    const state = Math.random().toString(36).substring(2, 15);
+    const authUrl = facebookOAuth.getAuthorizationUrl(state);
+    res.redirect(authUrl);
+  } catch (error) {
+    console.error('Meta OAuth login error:', error);
+    await createLog(
+      500,
+      'other',
+      `Failed to initiate Meta OAuth login: ${error}`
+    );
+    res.status(500).json({ error: 'Failed to initiate Meta OAuth login' });
+  }
+});
+
+/**
+ * @swagger
+ * /api/auth/meta/subscribe:
+ *   get:
+ *     summary: Initiate Meta (Facebook) OAuth authorization for service connection
+ *     tags:
+ *       - OAuth
+ *     description: |
+ *       Redirects user to Meta (Facebook) for OAuth authorization.
+ *       This route is used to connect Meta account for service access when user is already authenticated.
+ *     security:
+ *       - bearerAuth: []
+ *       - cookieAuth: []
+ *     responses:
+ *       302:
+ *         description: Redirect to Meta authorization page
+ *       401:
+ *         description: User not authenticated
+ *       500:
+ *         description: Internal Server Error
+ */
+router.get('/meta/subscribe', token, async (req: Request, res: Response) => {
+  try {
+    const { facebookOAuth } = await import('../../services/services/meta/oauth');
+    const state = Math.random().toString(36).substring(2, 15);
+    const authUrl = facebookOAuth.getAuthorizationUrl(state);
+    res.redirect(authUrl);
+  } catch (error) {
+    console.error('Meta OAuth subscribe error:', error);
+    await createLog(
+      500,
+      'other',
+      `Failed to initiate Meta OAuth subscription: ${error}`
+    );
+    res
+      .status(500)
+      .json({ error: 'Failed to initiate Meta OAuth subscription' });
+  }
+});
+
+/**
+ * @swagger
+ * /api/auth/meta/callback:
+ *   get:
+ *     summary: Handle Meta (Facebook) OAuth callback for both login/register and service connection
+ *     tags:
+ *       - OAuth
+ *     description: |
+ *       Exchanges authorization code for access token and handles authentication.
+ *       Automatically determines whether to perform login/register or service connection
+ *       based on user authentication status.
+ *     parameters:
+ *       - name: code
+ *         in: query
+ *         required: true
+ *         description: Authorization code from Meta
+ *         schema:
+ *           type: string
+ *       - name: state
+ *         in: query
+ *         required: true
+ *         description: State parameter for CSRF protection
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: OAuth successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               oneOf:
+ *                 - description: Login/Register response
+ *                   properties:
+ *                     token:
+ *                       type: string
+ *                     user:
+ *                       type: object
+ *                 - description: Service connection response
+ *                   properties:
+ *                     message:
+ *                       type: string
+ *                     user:
+ *                       type: object
+ *       400:
+ *         description: Bad Request - Missing parameters
+ *       500:
+ *         description: Internal Server Error
+ */
+router.get(
+  '/meta/callback',
+  async (req: Request, res: Response, next) => {
+    try {
+      // Check if user is authenticated to determine which strategy to use
+      const authHeader = req.header('Authorization');
+      const cookieToken = req.cookies?.auth_token;
+      const isAuthenticated = Boolean(authHeader?.startsWith('Bearer ') || cookieToken);
+      
+      const strategy = isAuthenticated ? 'meta-subscribe' : 'meta-login';
+      passport.authenticate(strategy, { session: false })(req, res, next);
+    } catch (err) {
+      console.error('Meta OAuth callback error:', err);
+      await createLog(
+        500,
+        'other',
+        `Failed to authenticate with Meta: ${err}`
+      );
+      res.status(500).json({ error: 'Failed to authenticate with Meta' });
+    }
+  },
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const user = req.user as { token: string };
+      if (user && user.token) {
+        const session = req.session as {
+          is_mobile?: boolean;
+        } & typeof req.session;
+        
+        // Check if this was a login/register or service connection
+        const authHeader = req.header('Authorization');
+        const cookieToken = req.cookies?.auth_token;
+        const isAuthenticated = Boolean(authHeader?.startsWith('Bearer ') || cookieToken);
+        
+        if (isAuthenticated) {
+          // Service connection
+          if (session.is_mobile) {
+            delete session.is_mobile;
+            return res.redirect(
+              `${process.env.MOBILE_CALLBACK_URL || ''}?meta_subscribed=true`
+            );
+          } else {
+            return res.redirect(
+              `${process.env.FRONTEND_URL || ''}/services?meta_subscribed=true`
+            );
+          }
+        } else {
+          // Login/Register
+          res.cookie('auth_token', user.token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            domain: process.env.DOMAIN || undefined,
+            sameSite: 'strict',
+            maxAge: 24 * 60 * 60 * 1000, // 24 hours
+          });
+          
+          if (session.is_mobile) {
+            delete session.is_mobile;
+            return res.redirect(
+              `${process.env.MOBILE_CALLBACK_URL || ''}?token=${user.token}`
+            );
+          } else {
+            return res.redirect(
+              `${process.env.FRONTEND_URL || ''}/dashboard?token=${user.token}`
+            );
+          }
+        }
+      } else {
+        await createLog(
+          500,
+          'other',
+          `Failed to authenticate with Meta: No token received`
+        );
+        res.status(500).json({ error: 'Authentication failed' });
+      }
+    } catch (err) {
+      console.error('Meta OAuth callback error:', err);
+      await createLog(
+        500,
+        'other',
+        `Failed to authenticate with Meta: ${err}`
+      );
+      res.status(500).json({ error: 'Failed to authenticate with Meta' });
     }
   }
 );
