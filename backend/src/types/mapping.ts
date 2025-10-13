@@ -86,6 +86,8 @@ export interface ConfigField {
   placeholder?: string;
   options?: SelectOption[];
   default?: string | number | boolean;
+  dynamic?: boolean; // Whether this field supports payload interpolation
+  dynamicPlaceholder?: string; // Example of dynamic value usage
 }
 
 export interface ActionReactionSchema {

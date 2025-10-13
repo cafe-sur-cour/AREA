@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
 import token from '../../middleware/token';
 import { serviceRegistry } from '../../services/ServiceRegistry';
+import { extractPayloadFields } from '../../utils/payloadFields';
 import { serviceSubscriptionManager } from '../../services/ServiceSubscriptionManager';
 import subscriptionRoutes from './subscription';
 
@@ -482,7 +483,10 @@ router.get(
           name: service.name,
           description: service.description,
           version: service.version,
-          actions: service.actions,
+          actions: service.actions.map(action => ({
+            ...action,
+            payloadFields: extractPayloadFields(action),
+          })),
         })),
       });
     } catch (err) {
@@ -854,7 +858,10 @@ router.get(
       return res.status(200).json({
         service_id: service.id,
         service_name: service.name,
-        actions: service.actions,
+        actions: service.actions.map(action => ({
+          ...action,
+          payloadFields: extractPayloadFields(action),
+        })),
       });
     } catch (err) {
       console.error('Error fetching service actions:', err);

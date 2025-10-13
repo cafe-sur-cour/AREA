@@ -27,6 +27,7 @@ export interface Action {
     properties: object;
     required: [string];
   };
+  payloadFields?: PayloadField[]; // Available payload fields for dynamic reactions
   metadata: {
     category: string;
     tags: [string];
@@ -35,6 +36,13 @@ export interface Action {
     requiresAuth: true;
     webhookPattern: string;
   };
+}
+
+export interface PayloadField {
+  path: string;
+  type: string;
+  description: string;
+  example?: string;
 }
 
 export interface ServiceAction {

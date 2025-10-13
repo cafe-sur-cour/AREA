@@ -66,6 +66,8 @@ export const githubCreateIssueSchema: ActionReactionSchema = {
       label: 'Issue Title',
       required: true,
       placeholder: 'Bug report: Something is broken',
+      dynamic: true,
+      dynamicPlaceholder: '{{action.payload.pull_request.title}} - Issue',
     },
     {
       name: 'body',
@@ -73,6 +75,8 @@ export const githubCreateIssueSchema: ActionReactionSchema = {
       label: 'Issue Description',
       required: false,
       placeholder: 'Describe the issue in detail...',
+      dynamic: true,
+      dynamicPlaceholder: 'Issue created from PR: {{action.payload.pull_request.body}}\n\nMerged by: {{action.payload.pull_request.merged_by.login}}',
     },
     {
       name: 'labels',
@@ -87,6 +91,8 @@ export const githubCreateIssueSchema: ActionReactionSchema = {
       label: 'Assignees (comma-separated usernames)',
       required: false,
       placeholder: 'octocat,monalisa',
+      dynamic: true,
+      dynamicPlaceholder: '{{action.payload.pull_request.user.login}}',
     },
   ],
 };
@@ -108,6 +114,8 @@ export const githubAddCommentSchema: ActionReactionSchema = {
       label: 'Issue/PR Number',
       required: true,
       placeholder: '123',
+      dynamic: true,
+      dynamicPlaceholder: '{{action.payload.pull_request.number}}',
     },
     {
       name: 'body',
@@ -115,6 +123,8 @@ export const githubAddCommentSchema: ActionReactionSchema = {
       label: 'Comment Body',
       required: true,
       placeholder: 'This is an automated comment from AREA',
+      dynamic: true,
+      dynamicPlaceholder: '🎉 PR merged successfully!\n\n**Title:** {{action.payload.pull_request.title}}\n**Merged by:** {{action.payload.pull_request.merged_by.login}}\n**Merge commit:** {{action.payload.pull_request.merge_commit_sha}}',
     },
   ],
 };

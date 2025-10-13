@@ -19,6 +19,8 @@ export interface Reaction {
           },
         ];
         default: string;
+        dynamic?: boolean;
+        dynamicPlaceholder?: string;
       },
     ];
   };
