@@ -1,9 +1,8 @@
 'use client';
 import api from '@/lib/api';
 import { Reaction, ServiceReaction } from '@/types/reaction';
-import { Action } from '@/types/action';
-import { useEffect } from 'react';
-import { useState } from 'react';
+import { Action, PayloadField } from '@/types/action';
+import { useState, useRef, useEffect } from 'react';
 import {
   Select,
   SelectContent,
@@ -26,6 +25,126 @@ interface ReactionInstance {
   selectedService: string | null;
   dynamicFields: Record<string, boolean>; // Track which fields are in dynamic mode
 }
+
+interface DynamicTextareaProps {
+  name: string;
+  placeholder: string;
+  required: boolean;
+  value: string;
+  onChange: (value: string) => void;
+  payloadFields: PayloadField[];
+  rows?: number;
+}
+
+const DynamicTextarea: React.FC<DynamicTextareaProps> = ({
+  name,
+  placeholder,
+  required,
+  value,
+  onChange,
+  payloadFields,
+  rows = 1,
+}) => {
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [suggestions, setSuggestions] = useState<PayloadField[]>([]);
+  const [cursorPosition, setCursorPosition] = useState(0);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newValue = e.target.value;
+    const newCursorPosition = e.target.selectionStart || 0;
+
+    onChange(newValue);
+    setCursorPosition(newCursorPosition);
+
+    // Check if we should show suggestions
+    const textBeforeCursor = newValue.substring(0, newCursorPosition);
+    const lastOpenBrace = textBeforeCursor.lastIndexOf('{{');
+
+    if (lastOpenBrace !== -1) {
+      const textAfterLastBrace = textBeforeCursor.substring(lastOpenBrace + 2);
+      if (!textAfterLastBrace.includes('}}') && !textAfterLastBrace.includes(' ')) {
+        // Show suggestions
+        const searchTerm = textAfterLastBrace.toLowerCase();
+        const filteredFields = payloadFields.filter(field =>
+          field.path.toLowerCase().includes(searchTerm)
+        );
+        setSuggestions(filteredFields);
+        setShowSuggestions(true);
+      } else {
+        setShowSuggestions(false);
+      }
+    } else {
+      setShowSuggestions(false);
+    }
+  };
+
+  const insertSuggestion = (field: PayloadField) => {
+    const textBeforeCursor = value.substring(0, cursorPosition);
+    const lastOpenBrace = textBeforeCursor.lastIndexOf('{{');
+
+    if (lastOpenBrace !== -1) {
+      const beforeBraces = value.substring(0, lastOpenBrace);
+      const afterBraces = value.substring(cursorPosition);
+      const newValue = `${beforeBraces}{{action.payload.${field.path}}}${afterBraces}`;
+
+      onChange(newValue);
+      setShowSuggestions(false);
+
+      // Focus back to textarea and set cursor position
+      setTimeout(() => {
+        if (textareaRef.current) {
+          const newCursorPos = beforeBraces.length + `{{action.payload.${field.path}}`.length;
+          textareaRef.current.focus();
+          textareaRef.current.setSelectionRange(newCursorPos, newCursorPos);
+        }
+      }, 0);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (showSuggestions && suggestions.length > 0) {
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'Enter' || e.key === 'Escape') {
+        e.preventDefault();
+      }
+    }
+  };
+
+  return (
+    <div className="relative">
+      <textarea
+        ref={textareaRef}
+        name={name}
+        placeholder={placeholder}
+        required={required}
+        value={value}
+        onChange={handleInputChange}
+        onKeyDown={handleKeyDown}
+        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 text-sm font-mono bg-blue-50"
+        rows={rows}
+      />
+
+      {showSuggestions && suggestions.length > 0 && (
+        <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-40 overflow-y-auto">
+          {suggestions.map((field) => (
+            <div
+              key={field.path}
+              className="px-3 py-2 hover:bg-gray-100 cursor-pointer text-sm"
+              onClick={() => insertSuggestion(field)}
+            >
+              <div className="font-mono text-blue-600">
+                {`{{action.payload.${field.path}}}`}
+              </div>
+              <div className="text-gray-500 text-xs">
+                {field.description}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
 interface ReactionFormProps {
   onReactionsChange: (reactions: Reaction[]) => void;
@@ -259,20 +378,8 @@ export default function ReactionForm({
                       </div>
                       <p className='text-xs text-blue-700 mb-2'>
                         When configuring dynamic fields, you can reference data
-                        from the &quot;{selectedAction.name}&quot; action:
+                        from the &quot;{selectedAction.name}&quot; action.
                       </p>
-                      <div className='space-y-1'>
-                        {selectedAction.payloadFields.map(field => (
-                          <div key={field.path} className='text-xs'>
-                            <code className='bg-blue-100 text-blue-800 px-1 py-0.5 rounded font-mono'>
-                              {'{{action.payload.' + field.path + '}}'}
-                            </code>
-                            <span className='text-blue-600 ml-2'>
-                              {field.description} ({field.type})
-                            </span>
-                          </div>
-                        ))}
-                      </div>
                     </div>
                   )}
 
@@ -330,34 +437,51 @@ export default function ReactionForm({
                         </div>
                       )}
 
-                      <textarea
-                        name={field.name}
-                        placeholder={
-                          isDynamic && isInDynamicMode
-                            ? field.dynamicPlaceholder || field.placeholder
-                            : field.placeholder
-                        }
-                        required={field.required}
-                        value={
-                          getStringValue(instance.config[field.name]) ||
-                          getStringValue(field.default) ||
-                          ''
-                        }
-                        onChange={e => {
-                          updateReactionInstance(instance.id, {
-                            config: {
-                              ...instance.config,
-                              [field.name]: e.target.value,
-                            },
-                          });
-                        }}
-                        className={`mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 text-sm ${
-                          isDynamic && isInDynamicMode
-                            ? 'font-mono bg-blue-50'
-                            : ''
-                        }`}
-                        rows={field.type === 'textarea' ? 3 : 1}
-                      />
+                      {isDynamic && isInDynamicMode ? (
+                        <DynamicTextarea
+                          name={field.name}
+                          placeholder={
+                            field.dynamicPlaceholder || field.placeholder
+                          }
+                          required={field.required}
+                          value={
+                            getStringValue(instance.config[field.name]) ||
+                            getStringValue(field.default) ||
+                            ''
+                          }
+                          onChange={(value) => {
+                            updateReactionInstance(instance.id, {
+                              config: {
+                                ...instance.config,
+                                [field.name]: value,
+                              },
+                            });
+                          }}
+                          payloadFields={selectedAction?.payloadFields || []}
+                          rows={field.type === 'textarea' ? 3 : 1}
+                        />
+                      ) : (
+                        <textarea
+                          name={field.name}
+                          placeholder={field.placeholder}
+                          required={field.required}
+                          value={
+                            getStringValue(instance.config[field.name]) ||
+                            getStringValue(field.default) ||
+                            ''
+                          }
+                          onChange={e => {
+                            updateReactionInstance(instance.id, {
+                              config: {
+                                ...instance.config,
+                                [field.name]: e.target.value,
+                              },
+                            });
+                          }}
+                          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 text-sm"
+                          rows={field.type === 'textarea' ? 3 : 1}
+                        />
+                      )}
                     </div>
                   );
                 })}
