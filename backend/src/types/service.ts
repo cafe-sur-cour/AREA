@@ -13,6 +13,13 @@ export interface Service {
     enabled: boolean;
     supportsLogin?: boolean;
   };
+  alwaysSubscribed?: boolean;
+  deleteWebhook?: (userId: number, webhookId: number) => Promise<void>;
+  ensureWebhookForMapping?: (
+    mapping: { action: { type: string; config: Record<string, unknown> } },
+    userId: number,
+    actionDefinition?: ActionDefinition
+  ) => Promise<void>;
 }
 
 export interface ActionDefinition {

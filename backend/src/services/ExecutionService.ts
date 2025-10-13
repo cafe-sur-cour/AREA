@@ -607,9 +607,18 @@ export class ExecutionService {
     }
 
     const serviceId = mapping.action.type.split('.')[0];
-    if (serviceId === 'github') {
-      const { ensureWebhookForMapping } = await import('./services/github');
-      await ensureWebhookForMapping(mapping, userId, actionDefinition);
+    if (!serviceId) {
+      return;
+    }
+
+    const serviceDefinition = serviceRegistry.getService(serviceId);
+
+    if (serviceDefinition?.ensureWebhookForMapping) {
+      await serviceDefinition.ensureWebhookForMapping(
+        mapping,
+        userId,
+        actionDefinition
+      );
     }
   }
 }

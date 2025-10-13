@@ -15,6 +15,7 @@ const timerService: Service = {
   oauth: {
     enabled: false,
   },
+  alwaysSubscribed: true,
 };
 
 export default timerService;

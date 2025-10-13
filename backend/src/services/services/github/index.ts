@@ -21,6 +21,41 @@ const githubService: Service = {
     const userToken = await githubOAuth.getUserToken(userId);
     return userToken ? { access_token: userToken.token_value } : {};
   },
+  deleteWebhook: async (userId: number, webhookId: number) => {
+    const { githubWebhookManager } = await import('./webhookManager');
+    await githubWebhookManager.deleteWebhook(userId, webhookId);
+  },
+  ensureWebhookForMapping: async (mapping, userId, actionDefinition) => {
+    const { githubWebhookManager } = await import('./webhookManager');
+
+    if (!actionDefinition?.metadata?.webhookPattern) {
+      return;
+    }
+
+    const repository = mapping.action.config?.repository as string;
+    if (!repository) {
+      console.warn(
+        `Cannot create webhook for mapping: missing repository in config`
+      );
+      return;
+    }
+
+    const events = [actionDefinition.metadata.webhookPattern];
+
+    console.log(
+      `Ensuring GitHub webhook exists for ${repository} with events: ${events.join(', ')}`
+    );
+
+    try {
+      await githubWebhookManager.createWebhook(userId, {
+        repository,
+        events,
+      });
+      console.log(`✅ Webhook ensured for mapping`);
+    } catch (error) {
+      console.error(`❌ Failed to create webhook for mapping:`, error);
+    }
+  },
 };
 
 export default githubService;
@@ -37,41 +72,4 @@ export async function initialize(): Promise<void> {
 export async function cleanup(): Promise<void> {
   console.log('Cleaning up GitHub service...');
   console.log('GitHub service cleaned up');
-}
-
-export async function ensureWebhookForMapping(
-  mapping: { action: { type: string; config: Record<string, unknown> } },
-  userId: number,
-  actionDefinition?: { metadata?: { webhookPattern?: string } }
-): Promise<void> {
-  const { githubWebhookManager } = await import('./webhookManager');
-
-  const actionDef = actionDefinition;
-  if (!actionDef?.metadata?.webhookPattern) {
-    return;
-  }
-
-  const repository = mapping.action.config?.repository as string;
-  if (!repository) {
-    console.warn(
-      `Cannot create webhook for mapping: missing repository in config`
-    );
-    return;
-  }
-
-  const events = [actionDef.metadata.webhookPattern];
-
-  console.log(
-    `Ensuring GitHub webhook exists for ${repository} with events: ${events.join(', ')}`
-  );
-
-  try {
-    await githubWebhookManager.createWebhook(userId, {
-      repository,
-      events,
-    });
-    console.log(`✅ Webhook ensured for mapping`);
-  } catch (error) {
-    console.error(`❌ Failed to create webhook for mapping:`, error);
-  }
 }
