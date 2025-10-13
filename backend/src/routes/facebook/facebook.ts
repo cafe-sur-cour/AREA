@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 import token from '../../middleware/token';
-import { facebookOAuth } from '../../services/services/meta/oauth';
+import { facebookOAuth } from '../../services/services/facebook/oauth';
 import { connect } from 'http2';
 
 

@@ -8,6 +8,7 @@ import {
 } from 'passport-google-oauth20';
 import { Strategy as OAuth2Strategy } from 'passport-oauth2';
 import { Strategy as CustomStrategy } from 'passport-custom';
+import { Strategy as FacebookStrategy } from 'passport-facebook';
 import { Request } from 'express';
 import jwt from 'jsonwebtoken';
 import { oauthLogin, connectOAuthProvider } from '../routes/auth/auth.service';
@@ -16,7 +17,7 @@ import { googleOAuth } from '../services/services/google/oauth';
 import { spotifyOAuth } from '../services/services/spotify/oauth';
 import { microsoftOAuth } from '../services/services/microsoft/oauth';
 import { slackOAuth } from '../services/services/slack/oauth';
-import { facebookOAuth } from '../services/services/meta/oauth';
+import { facebookOAuth } from '../services/services/facebook/oauth';
 import { JWT_SECRET } from '../../index';
 
 export interface GitHubUser {
@@ -60,6 +61,12 @@ export interface MetaUser {
   email: string;
   token: string;
 }
+export interface FacebookUser {
+	id: string;
+	name: string;
+	email?: string;
+}
+
 
 async function getCurrentUser(
   req: Request
@@ -752,111 +759,78 @@ passport.use(
 );
 
 passport.use(
-  'meta-login',
-  new CustomStrategy(
+  'facebook-login',
+  new FacebookStrategy(
+    {
+      clientID: process.env.SERVICE_FACEBOOK_CLIENT_ID,
+      clientSecret: process.env.SERVICE_FACEBOOK_CLIENT_SECRET,
+      callbackURL: process.env.SERVICE_FACEBOOK_REDIRECT_URI,
+      profileFields: ['id', 'displayName', 'email', 'picture.type(large)'],
+      passReqToCallback: true
+    },
     async (
       req: Request,
-      done: (error: Error | null, user?: MetaUser | null) => void
+      accessToken: string,
+      refreshToken: string,
+      params: { expires_in?: number; scope?: string },
+      profile: unknown,
+      done: unknown
     ) => {
+      const doneCallback = done as (
+        error: Error | null,
+        user?: FacebookUser | null
+      ) => void;
       try {
-        const { code } = req.query;
-        if (!code || typeof code !== 'string') {
-          return done(new Error('Authorization code is missing'), null);
+        interface FacebookProfileShape {
+          id?: string;
+          displayName?: string;
+          emails?: { value?: string }[];
+          photos?: { value?: string }[];
         }
-
-        const tokenData = await facebookOAuth.exchangeCodeForToken(code);
-        const userInfo = await facebookOAuth.getUserInfo(
-          tokenData.access_token
-        );
-        const userToken = await oauthLogin(
+        const fbProfile = profile as FacebookProfileShape;
+        
+        // Example user object structure
+        const user: FacebookUser = {
+          id: fbProfile.id || '',
+          name: fbProfile.displayName || '',
+          ...(fbProfile.emails?.[0]?.value && { email: fbProfile.emails[0].value }),
+        };
+        
+        // Generate token
+        const token = await oauthLogin(
           'meta',
-          userInfo.id,
-          userInfo.email || '',
-          userInfo.name
+          fbProfile.id || '',
+          user.email || '',
+          fbProfile.displayName || ''
         );
-
-        if (userToken instanceof Error) {
-          return done(userToken, null);
+        
+        if (token instanceof Error) {
+          return doneCallback(token, null);
         }
-
-        const decoded = jwt.verify(userToken, JWT_SECRET as string) as {
+        
+        // Verify and store token
+        const decoded = jwt.verify(token, JWT_SECRET as string) as {
           id: number;
         };
-        await facebookOAuth.storeUserToken(decoded.id, tokenData);
-
-        return done(null, {
-          id: userInfo.id,
-          name: userInfo.name,
-          email: userInfo.email || '',
-          token: userToken,
-        });
-      } catch (error) {
-        return done(error as Error, null);
-      }
-    }
-  )
-);
-
-passport.use(
-  'meta-subscribe',
-  new CustomStrategy(
-    async (
-      req: Request,
-      done: (error: Error | null, user?: MetaUser | null) => void
-    ) => {
-      try {
-        const currentUser = await getCurrentUser(req);
-        if (!currentUser) {
-          return done(new Error('User not authenticated'), null);
-        }
-
-        const { code } = req.query;
-        if (!code || typeof code !== 'string') {
-          return done(new Error('Authorization code is missing'), null);
-        }
-
-        const tokenData = await facebookOAuth.exchangeCodeForToken(code);
-        const userInfo = await facebookOAuth.getUserInfo(
-          tokenData.access_token
+        
+        await facebookOAuth.storeUserToken(
+          decoded.id, 
+          { 
+            access_token: accessToken, 
+            token_type: 'bearer', 
+            expires_in: 5184000 
+          }
         );
-
-        const userToken = await connectOAuthProvider(
-          currentUser.id,
-          'meta',
-          userInfo.id,
-          userInfo.email || '',
-          userInfo.name
-        );
-
-        if (userToken instanceof Error) {
-          return done(userToken, null);
-        }
-
-        const decoded = jwt.verify(userToken, JWT_SECRET as string) as {
-          id: number;
+        
+        // **FIX: Add token to user object before returning**
+        const userWithToken = {
+          ...user,
+          token  // This is what was missing!
         };
-        await facebookOAuth.storeUserToken(decoded.id, tokenData);
-
-        try {
-          const { serviceSubscriptionManager } = await import(
-            '../services/ServiceSubscriptionManager'
-          );
-          await serviceSubscriptionManager.subscribeUser(decoded.id, 'meta');
-        } catch (subscriptionError) {
-          console.error(
-            'Error auto-subscribing user to Meta service:',
-            subscriptionError
-          );
-        }
-
-        return done(null, {
-          id: userInfo.id,
-          name: userInfo.name,
-          email: userInfo.email || '',
-          token: userToken,
-        });
+        
+        return doneCallback(null, userWithToken);
       } catch (error) {
-        return done(error as Error, null);
+        return doneCallback(error as Error, null);
       }
     }
   )
