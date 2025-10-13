@@ -824,7 +824,11 @@ router.post('/reset-password', mail, async (req: Request, res: Response) => {
   );
 });
 
-router.use('/', createOAuthRouter());
+router.use('/', (req, res, next) => {
+  const oauthRouter = createOAuthRouter();
+  oauthRouter(req, res, next);
+});
+
 router.use('/', subscriptionRouter);
 
 export default router;

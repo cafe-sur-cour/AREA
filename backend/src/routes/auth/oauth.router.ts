@@ -4,10 +4,18 @@ import process from 'process';
 import { serviceRegistry } from '../../services/ServiceRegistry';
 import { createLog } from '../logs/logs.service';
 
+let oauthRouter: Router | null = null;
+
 export function createOAuthRouter(): Router {
+  if (oauthRouter) {
+    return oauthRouter;
+  }
+
   const router = express.Router();
 
   const services = serviceRegistry.getAllServices();
+
+  console.log(`🔧 Creating OAuth routes for ${services.length} services...`);
 
   for (const service of services) {
     if (!service.oauth?.enabled) continue;
@@ -153,5 +161,7 @@ export function createOAuthRouter(): Router {
     );
   }
 
+  console.log(`✅ OAuth routes created successfully`);
+  oauthRouter = router;
   return router;
 }
