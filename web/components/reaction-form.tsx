@@ -1,7 +1,12 @@
 'use client';
 import api from '@/lib/api';
 import { Reaction, ServiceReaction } from '@/types/reaction';
-import { Action, PayloadField } from '@/types/action';
+import { PayloadField } from '@/types/action';
+import {
+  ReactionInstance,
+  DynamicTextareaProps,
+  ReactionFormProps,
+} from '@/types/form';
 import { useState, useRef, useEffect } from 'react';
 import {
   Select,
@@ -15,25 +20,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Plus, Trash2 } from 'lucide-react';
-
-interface ReactionInstance {
-  id: string;
-  reaction: Reaction | null;
-  config: Record<string, unknown>;
-  delay: number | null;
-  selectedService: string | null;
-  dynamicFields: Record<string, boolean>;
-}
-
-interface DynamicTextareaProps {
-  name: string;
-  placeholder: string;
-  required: boolean;
-  value: string;
-  onChange: (value: string) => void;
-  payloadFields: PayloadField[];
-  rows?: number;
-}
 
 const DynamicTextarea: React.FC<DynamicTextareaProps> = ({
   name,
@@ -184,12 +170,6 @@ const DynamicTextarea: React.FC<DynamicTextareaProps> = ({
     </div>
   );
 };
-
-interface ReactionFormProps {
-  onReactionsChange: (reactions: Reaction[]) => void;
-  onConfigChange: (config: Record<string, unknown>[]) => void;
-  selectedAction?: Action | null;
-}
 
 const getStringValue = (value: unknown): string => {
   if (typeof value === 'string') return value;

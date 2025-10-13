@@ -27,7 +27,7 @@ export interface Action {
     properties: object;
     required: [string];
   };
-  payloadFields?: PayloadField[]; // Available payload fields for dynamic reactions
+  payloadFields?: PayloadField[];
   metadata: {
     category: string;
     tags: [string];
