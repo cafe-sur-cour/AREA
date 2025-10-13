@@ -5,66 +5,25 @@ import { extractPayloadFields } from '../../utils/payloadFields';
 import { serviceSubscriptionManager } from '../../services/ServiceSubscriptionManager';
 import subscriptionRoutes from './subscription';
 
-const serviceEndpoints: Record<
-  string,
-  {
-    auth: string;
-    status: string;
-    loginStatus: string;
-    subscribe: string;
-    unsubscribe: string;
-  }
-> = {
-  github: {
-    auth: '/auth/github/login',
-    status: '/github/subscribe/status',
-    loginStatus: '/github/login/status',
-    subscribe: '/auth/github/subscribe',
-    unsubscribe: '/github/unsubscribe',
-  },
-  google: {
-    auth: '/auth/google/login',
-    status: '/google/subscribe/status',
-    loginStatus: '/google/login/status',
-    subscribe: '/auth/google/subscribe',
-    unsubscribe: '/google/unsubscribe',
-  },
-  spotify: {
-    auth: '/auth/spotify/subscribe',
-    status: '/spotify/subscribe/status',
-    loginStatus: '/spotify/login/status',
-    subscribe: '/auth/spotify/subscribe',
-    unsubscribe: '/spotify/unsubscribe',
-  },
-  microsoft: {
-    auth: '/auth/microsoft/subscribe',
-    status: '/microsoft/subscribe/status',
-    loginStatus: '/microsoft/login/status',
-    subscribe: '/microsoft/subscribe',
-    unsubscribe: '/microsoft/unsubscribe',
-  },
-  slack: {
-    auth: '/auth/slack/subscribe',
-    status: '/slack/subscribe/status',
-    loginStatus: '/slack/login/status',
-    subscribe: '/auth/slack/subscribe',
-    unsubscribe: '/slack/unsubscribe',
-  },
-  twitch: {
-    auth: '/auth/twitch/login',
-    status: '/twitch/subscribe/status',
-    loginStatus: '/twitch/login/status',
-    subscribe: '/auth/twitch/subscribe',
-    unsubscribe: '/twitch/unsubscribe',
-  },
-  timer: {
-    auth: '',
-    status: '/services/timer/subscribe/status',
-    loginStatus: '',
-    subscribe: '/auth/timer/subscribe',
-    unsubscribe: '',
-  },
-};
+const SERVICES_WITH_LOGIN_SUPPORT = ['github', 'google', 'microsoft'];
+
+function generateServiceEndpoints(serviceId: string): {
+  auth?: string;
+  status: string;
+  loginStatus?: string;
+  subscribe: string;
+  unsubscribe?: string;
+} {
+  const supportsLogin = SERVICES_WITH_LOGIN_SUPPORT.includes(serviceId);
+
+  return {
+    ...(supportsLogin && { auth: `/auth/${serviceId}/login` }),
+    status: `/${serviceId}/subscribe/status`,
+    ...(supportsLogin && { loginStatus: `/${serviceId}/login/status` }),
+    subscribe: `/auth/${serviceId}/subscribe`,
+    unsubscribe: `/${serviceId}/unsubscribe`,
+  };
+}
 
 const router = express.Router();
 router.use('/auth', subscriptionRoutes);
@@ -148,13 +107,7 @@ router.get(
               service.id
             );
 
-          const endpoints = serviceEndpoints[service.id] || {
-            auth: '',
-            status: '',
-            loginStatus: '',
-            subscribe: '',
-            unsubscribe: '',
-          };
+          const endpoints = generateServiceEndpoints(service.id);
 
           return {
             id: service.id,
