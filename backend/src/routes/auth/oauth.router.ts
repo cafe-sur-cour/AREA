@@ -115,19 +115,18 @@ export function createOAuthRouter(): Router {
           if (isAuthenticated) {
             const session = req.session as {
               is_mobile?: boolean;
-              githubSubscriptionFlow?: boolean;
+              subscriptionFlow?: boolean;
             } & typeof req.session;
 
-            // GitHub App installation is the only special case as it requires a specific installation flow
-            if (serviceId === 'github' && session.githubSubscriptionFlow) {
-              const appSlug =
-                process.env.GITHUB_APP_SLUG || 'area-cafe-sur-cours';
-              const userId = (req.auth as { id: number })?.id || 'unknown';
-              const installUrl = `https://github.com/apps/${appSlug}/installations/new?state=${userId}`;
-
-              delete session.githubSubscriptionFlow;
-              delete session.is_mobile;
-              return res.redirect(installUrl);
+            if (session.subscriptionFlow && service.oauth?.getSubscriptionUrl) {
+              const userId = (req.auth as { id: number })?.id;
+              if (userId) {
+                const subscriptionUrl =
+                  service.oauth.getSubscriptionUrl(userId);
+                delete session.subscriptionFlow;
+                delete session.is_mobile;
+                return res.redirect(subscriptionUrl);
+              }
             }
 
             if (session.is_mobile) {

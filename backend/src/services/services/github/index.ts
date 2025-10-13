@@ -15,6 +15,10 @@ const githubService: Service = {
   oauth: {
     enabled: true,
     supportsLogin: true,
+    getSubscriptionUrl: (userId: number) => {
+      const appSlug = process.env.GITHUB_APP_SLUG || 'area-cafe-sur-cours';
+      return `https://github.com/apps/${appSlug}/installations/new?state=${userId}`;
+    },
   },
   getCredentials: async (userId: number) => {
     const { githubOAuth } = await import('./oauth');

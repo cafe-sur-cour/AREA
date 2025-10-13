@@ -12,6 +12,7 @@ export interface Service {
   oauth?: {
     enabled: boolean;
     supportsLogin?: boolean;
+    getSubscriptionUrl?: (userId: number) => string;
   };
   alwaysSubscribed?: boolean;
   deleteWebhook?: (userId: number, webhookId: number) => Promise<void>;
