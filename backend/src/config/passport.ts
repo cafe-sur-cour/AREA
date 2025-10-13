@@ -788,46 +788,42 @@ passport.use(
           photos?: { value?: string }[];
         }
         const fbProfile = profile as FacebookProfileShape;
-        
-        // Example user object structure
+
         const user: FacebookUser = {
           id: fbProfile.id || '',
           name: fbProfile.displayName || '',
           ...(fbProfile.emails?.[0]?.value && { email: fbProfile.emails[0].value }),
         };
-        
-        // Generate token
+
         const token = await oauthLogin(
           'meta',
           fbProfile.id || '',
           user.email || '',
           fbProfile.displayName || ''
         );
-        
+
         if (token instanceof Error) {
           return doneCallback(token, null);
         }
-        
-        // Verify and store token
+
         const decoded = jwt.verify(token, JWT_SECRET as string) as {
           id: number;
         };
-        
+
         await facebookOAuth.storeUserToken(
-          decoded.id, 
-          { 
-            access_token: accessToken, 
-            token_type: 'bearer', 
-            expires_in: 5184000 
+          decoded.id,
+          {
+            access_token: accessToken,
+            token_type: 'bearer',
+            expires_in: 5184000
           }
         );
-        
-        // **FIX: Add token to user object before returning**
+
         const userWithToken = {
           ...user,
-          token  // This is what was missing!
+          token
         };
-        
+
         return doneCallback(null, userWithToken);
       } catch (error) {
         return doneCallback(error as Error, null);

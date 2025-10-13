@@ -1131,8 +1131,25 @@ router.get(
 );
 
 
-
-router.get('/facebook/login', 
+/**
+ * * @swagger
+ * /api/auth/facebook/login:
+ *   get:
+ *     summary: Initiate Facebook OAuth authorization for login/register
+ *     tags:
+ *       - OAuth
+ *     description: |
+ *       Redirects user to Facebook for OAuth authorization.
+ *       This route is used for login/register when user is not authenticated.
+ *     parameters:
+ *       - name: is_mobile
+ *         in: query
+ *         required: false
+ *         description: Indicates if the request originates from mobile client
+ *         schema:
+ *           type: boolean
+ */
+router.get('/facebook/login',
   (req, res, next) => {
     if (req.query.is_mobile === 'true') {
       const session = req.session as {
@@ -1145,6 +1162,56 @@ router.get('/facebook/login',
   passport.authenticate('facebook-login')
 );
 
+
+/**
+ * * @swagger
+ * /api/auth/facebook/callback:
+ *   get:
+ *     summary: Handle Facebook OAuth callback for both login/register and service connection
+ *     tags:
+ *       - OAuth
+ *     description: |
+ *       Exchanges authorization code for access token and handles authentication.
+ *       Automatically determines whether to perform login/register or service connection
+ *       based on user authentication status.
+ *     parameters:
+ *       - name: code
+ *         in: query
+ *         required: true
+ *         description: Authorization code from Facebook
+ *         schema:
+ *           type: string
+ *       - name: state
+ *         in: query
+ *         required: true
+ *         description: State parameter for CSRF protection
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: OAuth successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               oneOf:
+ *                 - description: Login/Register response
+ *                   properties:
+ *                     token:
+ *                       type: string
+ *                       description: Access token for the authenticated user
+ *                     user:
+ *                       type: object
+ *                       properties:
+ *                         id:
+ *                           type: string
+ *                           description: User ID
+ *                         email:
+ *                           type: string
+ *                           description: User email address
+ *       500:
+ *         description: Internal Server Error
+ */
 router.get('/facebook/callback',
   async (req: Request, res: Response, next) => {
     try {
@@ -1159,7 +1226,7 @@ router.get('/facebook/callback',
       } else {
         passport.authenticate('facebook-login', { session: false })(
           req,
-          res,                
+          res,
           next
         );
       }
@@ -1175,9 +1242,6 @@ router.get('/facebook/callback',
   },
   async (req: Request, res: Response): Promise<void> => {
     try {
-      const user = req.user as { token: string };
-      console.log('Facebook user:', user);
-      console.log('Token; ', user.token);
       if (user && user.token) {
         res.cookie('auth_token', user.token, {
           maxAge: 86400000,
