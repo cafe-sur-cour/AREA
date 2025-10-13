@@ -54,6 +54,12 @@ async function handleServiceSubscription(
       `../../services/services/${service}/oauth`
     );
     const oauthInstance = serviceOAuth[`${service}OAuth`];
+    console.log(`🔍 [OAUTH] ${service} OAuth instance:`, {
+      hasInstance: !!oauthInstance,
+      hasGetAuthUrl: typeof oauthInstance?.getAuthorizationUrl === 'function',
+      instanceKeys: oauthInstance ? Object.keys(oauthInstance) : [],
+    });
+
     const serviceToken = await oauthInstance.getUserToken(userId);
 
     if (serviceToken) {
@@ -74,12 +80,16 @@ async function handleServiceSubscription(
     );
 
     if (typeof oauthInstance.getAuthorizationUrl === 'function') {
+      console.log(`✅ [OAUTH] Redirecting ${service} to authorization URL`);
       const state = Math.random().toString(36).substring(2, 15);
       const authUrl = oauthInstance.getAuthorizationUrl(state);
       res.redirect(authUrl);
       return null;
     }
 
+    console.log(
+      `⚠️ [OAUTH] ${service} using passport.authenticate instead of redirect`
+    );
     passport.authenticate(`${service}-subscribe`, {
       session: false,
     })(req, res, next);

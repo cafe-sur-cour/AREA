@@ -42,6 +42,11 @@ export function createOAuthRouter(): Router {
     router.get(
       `/${serviceId}/callback`,
       async (req: Request, res: Response, next: NextFunction) => {
+        console.log(`🔍 [OAUTH] ${serviceId}/callback called:`, {
+          query: req.query,
+          hasAuth: !!req.auth,
+          hasCookie: !!req.cookies?.auth_token,
+        });
         try {
           const isAuthenticated = !!(req.auth || req.cookies?.auth_token);
 
