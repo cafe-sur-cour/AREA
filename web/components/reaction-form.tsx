@@ -14,8 +14,7 @@ import {
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Plus, Trash2, Info } from 'lucide-react';
-import { Switch } from '@/components/ui/switch';
+import { Plus, Trash2 } from 'lucide-react';
 
 interface ReactionInstance {
   id: string;
@@ -375,88 +374,19 @@ export default function ReactionForm({
                   Configuration
                 </h4>
 
-                {/* Payload Fields Info */}
-                {selectedAction?.payloadFields &&
-                  selectedAction.payloadFields.length > 0 &&
-                  instance.reaction?.configSchema?.fields?.some(
-                    field => field.dynamic
-                  ) && (
-                    <div className='bg-blue-50 border border-blue-200 rounded-md p-3 mb-4'>
-                      <div className='flex items-center mb-2'>
-                        <Info className='w-4 h-4 text-blue-600 mr-2' />
-                        <span className='text-sm font-medium text-blue-800'>
-                          Available Action Data
-                        </span>
-                      </div>
-                      <p className='text-xs text-blue-700 mb-2'>
-                        When configuring dynamic fields, you can reference data
-                        from the &quot;{selectedAction.name}&quot; action.
-                        Use the {'{{action.payload.field}}'} syntax to insert
-                        action data into dynamic fields.
-                      </p>
-                    </div>
-                  )}
-
                 {instance.reaction.configSchema.fields.map(field => {
                   const isDynamic = field.dynamic;
-                  const isInDynamicMode =
-                    instance.dynamicFields[field.name] || false;
 
                   return (
                     <div key={field.name} className='space-y-2'>
-                      <div className='flex items-center justify-between'>
-                        <label className='block text-sm font-medium text-gray-700'>
-                          {field.label}
-                          {isDynamic && (
-                            <span className='ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded'>
-                              Dynamic
-                            </span>
-                          )}
-                        </label>
-                        {isDynamic && (
-                          <div className='flex items-center space-x-2'>
-                            <span className='text-xs text-gray-500'>
-                              Dynamic
-                            </span>
-                            <Switch
-                              checked={isInDynamicMode}
-                              onCheckedChange={(checked: boolean) => {
-                                updateReactionInstance(instance.id, {
-                                  dynamicFields: {
-                                    ...instance.dynamicFields,
-                                    [field.name]: checked,
-                                  },
-                                  config: {
-                                    ...instance.config,
-                                    [field.name]: checked
-                                      ? field.dynamicPlaceholder || ''
-                                      : instance.config[field.name] || '',
-                                  },
-                                });
-                              }}
-                            />
-                          </div>
-                        )}
-                      </div>
+                      <label className='block text-sm font-medium text-gray-700'>
+                        {field.label}
+                      </label>
 
-                      {isDynamic && isInDynamicMode && (
-                        <div className='text-xs text-gray-500 mb-2'>
-                          Use {'{{action.payload.field}}'} syntax to reference
-                          action data.
-                          {field.dynamicPlaceholder && (
-                            <div className='mt-1 p-2 bg-gray-50 rounded text-xs font-mono'>
-                              Example: {field.dynamicPlaceholder}
-                            </div>
-                          )}
-                        </div>
-                      )}
-
-                      {isDynamic && isInDynamicMode ? (
+                      {isDynamic ? (
                         <DynamicTextarea
                           name={field.name}
-                          placeholder={
-                            field.dynamicPlaceholder || field.placeholder
-                          }
+                          placeholder={field.placeholder}
                           required={field.required}
                           value={
                             getStringValue(instance.config[field.name]) ||
