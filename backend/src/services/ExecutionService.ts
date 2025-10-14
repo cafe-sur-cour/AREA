@@ -226,22 +226,6 @@ export class ExecutionService {
         `🔍 [ExecutionService] Searching for mappings with shared action type: ${actionType} for all users`
       );
 
-      // Debug: Let's see what mappings exist in the database
-      const allMappings = await mappingRepository.find({
-        where: { is_active: true },
-        select: ['id', 'name', 'action', 'created_by'],
-      });
-      console.log(
-        `🔍 [ExecutionService] All active mappings in DB:`,
-        allMappings.map(m => ({
-          id: m.id,
-          name: m.name,
-          action_type: m.action?.type,
-          action_json: JSON.stringify(m.action),
-          created_by: m.created_by,
-        }))
-      );
-
       const result = await mappingRepository.find({
         where: {
           is_active: true,
@@ -249,23 +233,6 @@ export class ExecutionService {
             type: actionType,
           }),
         },
-      });
-
-      console.log(
-        `🔍 [ExecutionService] Raw query result for type '${actionType}': ${result.length} mappings`
-      );
-
-      // Debug: Show all active mappings with full action JSON
-      const debugMappings = await mappingRepository.find({
-        where: { is_active: true },
-      });
-      console.log(
-        `🔍 [ExecutionService] All active mappings (${debugMappings.length}):`
-      );
-      debugMappings.forEach((mapping, index) => {
-        console.log(
-          `  ${index + 1}. ID: ${mapping.id}, Action: ${JSON.stringify(mapping.action)}`
-        );
       });
 
       let filteredResult = result;
@@ -276,44 +243,47 @@ export class ExecutionService {
         ) {
           filteredResult = [];
           for (const mapping of result) {
-            const shouldInclude =
-              await actionDefinition.metadata.sharedEventFilter(
+            try {
+              const shouldInclude =
+                await actionDefinition.metadata.sharedEventFilter(
+                  { source: event.source, payload: event.payload },
+                  { action: mapping.action || {} },
+                  mapping.created_by || event.user_id
+                );
+              if (shouldInclude) {
+                filteredResult.push(mapping);
+              }
+            } catch (error) {
+              console.error(
+                `❌ [ExecutionService] Error in async filter for mapping ${mapping.id}:`,
+                error
+              );
+            }
+          }
+        } else {
+          filteredResult = result.filter(mapping => {
+            try {
+              const shouldInclude = actionDefinition.metadata!
+                .sharedEventFilter!(
                 { source: event.source, payload: event.payload },
                 { action: mapping.action || {} },
                 mapping.created_by || event.user_id
               );
-            if (shouldInclude) {
-              filteredResult.push(mapping);
+              return shouldInclude;
+            } catch (error) {
+              console.error(
+                `❌ [ExecutionService] Error in sync filter for mapping ${mapping.id}:`,
+                error
+              );
+              return false;
             }
-          }
-        } else {
-          filteredResult = result.filter(mapping =>
-            actionDefinition.metadata!.sharedEventFilter!(
-              { source: event.source, payload: event.payload },
-              { action: mapping.action || {} },
-              mapping.created_by || event.user_id
-            )
-          );
+          });
         }
       }
 
       console.log(
         `📊 [ExecutionService] Found ${filteredResult.length} active mappings for shared action ${actionType} across all users`
       );
-
-      if (filteredResult.length > 0) {
-        console.log(
-          `📋 [ExecutionService] Mappings found:`,
-          filteredResult.map(m => ({
-            id: m.id,
-            name: m.name,
-            user_id: m.created_by,
-            action_type: m.action.type,
-            reactions_count: m.reactions.length,
-            is_active: m.is_active,
-          }))
-        );
-      }
 
       return filteredResult;
     }
@@ -335,33 +305,6 @@ export class ExecutionService {
     console.log(
       `📊 [ExecutionService] Found ${result.length} active mappings for user ${userId}`
     );
-
-    if (result.length > 0) {
-      console.log(
-        `📋 [ExecutionService] Mappings found:`,
-        result.map(m => ({
-          id: m.id,
-          name: m.name,
-          action_type: m.action.type,
-          reactions_count: m.reactions.length,
-          is_active: m.is_active,
-        }))
-      );
-    } else {
-      const allUserMappings = await mappingRepository.find({
-        where: { created_by: userId },
-        select: ['id', 'name', 'action', 'is_active'],
-      });
-      console.log(
-        `🔍 [ExecutionService] All mappings for user ${userId}:`,
-        allUserMappings.map(m => ({
-          id: m.id,
-          name: m.name,
-          action_type: m.action?.type || 'undefined',
-          is_active: m.is_active,
-        }))
-      );
-    }
 
     return result;
   }
