@@ -38,6 +38,7 @@ export default function ActionForm({
     string | null
   >(null);
   const [listAction, setListAction] = useState<Action[]>([]);
+  const [isFirstTime, setIsFirstTime] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchAction = async () => {
@@ -52,8 +53,15 @@ export default function ActionForm({
           console.log('No service actions found');
           return;
         }
-        console.log('Service actions: ', res.services);
         setActions(res.services);
+        if (selectedAction && !isFirstTime) {
+          setIsFirstTime(true);
+          setSelectedServiceAction(selectedAction.serviceId);
+          setListAction(
+            res.services.find(action => action.id === selectedAction.serviceId)
+              ?.actions || []
+          );
+        }
       } finally {
         setIsLoading(false);
       }
@@ -61,6 +69,9 @@ export default function ActionForm({
 
     fetchAction();
   }, []);
+
+  useEffect(() => {}, [selectedAction]);
+
   if (isLoading) return null;
   return (
     <>
