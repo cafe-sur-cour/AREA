@@ -72,12 +72,12 @@ class ServicesScreenState extends State<ServicesScreen> {
 
       final status = await ServiceSubscriptionService.getServiceStatus(
         backendAddressNotifier.backendAddress!,
-        service.id,
+        service,
       );
 
       final oauthStatus = await ServiceSubscriptionService.getOAuthStatus(
         backendAddressNotifier.backendAddress!,
-        service.id,
+        service,
       );
 
       setState(() {
@@ -92,9 +92,10 @@ class ServicesScreenState extends State<ServicesScreen> {
             isSubscribed: status.subscribed,
             oauthConnected: oauthStatus,
             canCreateWebhooks: status.canCreateWebhooks,
-            subscribeEndpoint: service.subscribeEndpoint,
             statusEndpoint: service.statusEndpoint,
             loginStatusEndpoint: service.loginStatusEndpoint,
+            authEndpoint: service.authEndpoint,
+            subscribeEndpoint: service.subscribeEndpoint,
             unsubscribeEndpoint: service.unsubscribeEndpoint,
           );
         }
@@ -130,7 +131,10 @@ class ServicesScreenState extends State<ServicesScreen> {
       final success = await MobileOAuthService.handleServiceSubscription(
         context: context,
         backendAddress: backendAddress,
-        serviceId: service.id,
+        subscriptionUrl: ServiceSubscriptionService.getSubscriptionUrl(
+          backendAddress,
+          service,
+        ),
         serviceName: service.name,
       );
 
@@ -161,20 +165,13 @@ class ServicesScreenState extends State<ServicesScreen> {
     try {
       _showLoading('Unsubscribing from ${service.name}...');
 
-      final success = await ServiceSubscriptionService.unsubscribeFromService(
-        backendAddress,
-        service.id,
-      );
+      await ServiceSubscriptionService.unsubscribeFromService(backendAddress, service);
 
       if (mounted) {
         Navigator.of(context).pop();
       }
-      if (success) {
-        _showSuccess('Unsubscribed from ${service.name}');
-        await _refreshServiceStatus(service);
-      } else {
-        _showError('Failed to unsubscribe from ${service.name}');
-      }
+      _showSuccess('Unsubscribed from ${service.name}');
+      await _refreshServiceStatus(service);
     } catch (e) {
       if (mounted) {
         Navigator.of(context).pop();

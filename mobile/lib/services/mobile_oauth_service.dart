@@ -1,5 +1,4 @@
 import 'package:area/core/config/app_config.dart';
-import 'package:area/services/service_subscription_service.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -8,22 +7,16 @@ class MobileOAuthService {
   static Future<bool> handleServiceSubscription({
     required BuildContext context,
     required String backendAddress,
-    required String serviceId,
+    required String subscriptionUrl,
     required String serviceName,
   }) async {
     try {
-      final subscriptionUrl = ServiceSubscriptionService.getSubscriptionUrl(
-        backendAddress,
-        serviceId,
-      );
-
       final result = await Navigator.push<bool>(
         context,
         MaterialPageRoute(
           builder: (context) => ServiceSubscriptionWebView(
             subscriptionUrl: subscriptionUrl,
             serviceName: serviceName,
-            serviceId: serviceId,
           ),
         ),
       );
@@ -71,13 +64,11 @@ class MobileOAuthService {
 class ServiceSubscriptionWebView extends StatefulWidget {
   final String subscriptionUrl;
   final String serviceName;
-  final String serviceId;
 
   const ServiceSubscriptionWebView({
     super.key,
     required this.subscriptionUrl,
     required this.serviceName,
-    required this.serviceId,
   });
 
   @override
