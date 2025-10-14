@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:area/core/constants/app_constants.dart';
 import 'package:area/models/action_models.dart';
+import 'package:area/models/automation_models.dart';
 import 'package:area/models/reaction_with_delay_model.dart';
 import 'package:area/services/secure_http_client.dart';
 import 'package:area/services/secure_storage.dart';
@@ -56,5 +57,98 @@ class ApiMappingActionReaction {
       final errorData = jsonDecode(response.body);
       throw Exception(errorData['error'] ?? 'Failed to create automation');
     }
+  }
+
+  static Future<List<AutomationModel>> getAutomations(String backendAddress) async {
+    final jwt = await getJwt();
+    final url = Uri.parse("$backendAddress${AppRoutes.getAutomations}");
+
+    final headers = <String, String>{'Content-Type': 'application/json'};
+
+    if (jwt == null) {
+      throw Exception('JWT token is missing');
+    }
+
+    headers['Authorization'] = 'Bearer $jwt';
+
+    final client = SecureHttpClient.getClient();
+    final response = await client.get(url, headers: headers);
+
+    if (response.statusCode == 200) {
+      final data = await jsonDecode(response.body);
+      return (data['mappings'] as List<dynamic>)
+          .map((automation) => AutomationModel.fromJson(automation as Map<String, dynamic>))
+          .toList();
+    } else {
+      final errorData = jsonDecode(response.body);
+      throw Exception(errorData['error'] ?? 'Failed to fetch automations');
+    }
+  }
+
+  static Future<void> deleteAutomation(String backendAddress, int automationId) async {
+    final jwt = await getJwt();
+    final url = Uri.parse(
+      "$backendAddress${AppRoutes.deleteAutomation(automationId.toString())}",
+    );
+
+    final headers = <String, String>{'Content-Type': 'application/json'};
+
+    if (jwt != null) {
+      headers['Authorization'] = 'Bearer $jwt';
+    }
+
+    final client = SecureHttpClient.getClient();
+    final response = await client.delete(url, headers: headers);
+
+    if (response.statusCode != 200 && response.statusCode != 204) {
+      final errorData = jsonDecode(response.body);
+      throw Exception(errorData['error'] ?? 'Failed to delete automation');
+    }
+  }
+
+  static Future<String> activateAutomation(String backendAddress, int automationId) async {
+    final jwt = await getJwt();
+    final url = Uri.parse(
+      "$backendAddress${AppRoutes.activateAutomation(automationId.toString())}",
+    );
+
+    final headers = <String, String>{'Content-Type': 'application/json'};
+
+    if (jwt != null) {
+      headers['Authorization'] = 'Bearer $jwt';
+    }
+
+    final client = SecureHttpClient.getClient();
+    final response = await client.post(url, headers: headers);
+
+    if (response.statusCode != 200) {
+      final errorData = jsonDecode(response.body);
+      throw Exception(errorData['error'] ?? 'Failed to activate automation');
+    }
+    final data = jsonDecode(response.body);
+    return data['mapping']['updated_at'];
+  }
+
+  static Future<String> deactivateAutomation(String backendAddress, int automationId) async {
+    final jwt = await getJwt();
+    final url = Uri.parse(
+      "$backendAddress${AppRoutes.deactivateAutomation(automationId.toString())}",
+    );
+
+    final headers = <String, String>{'Content-Type': 'application/json'};
+
+    if (jwt != null) {
+      headers['Authorization'] = 'Bearer $jwt';
+    }
+
+    final client = SecureHttpClient.getClient();
+    final response = await client.post(url, headers: headers);
+
+    if (response.statusCode != 200) {
+      final errorData = jsonDecode(response.body);
+      throw Exception(errorData['error'] ?? 'Failed to deactivate automation');
+    }
+    final data = jsonDecode(response.body);
+    return data['mapping']['updated_at'];
   }
 }
