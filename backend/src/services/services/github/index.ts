@@ -17,7 +17,8 @@ const githubService: Service = {
     supportsLogin: true,
     getSubscriptionUrl: (userId: number) => {
       const appSlug = process.env.GITHUB_APP_SLUG || 'area-cafe-sur-cours';
-      return `https://github.com/apps/${appSlug}/installations/new?state=${userId}`;
+      const randomState = `${userId}_${Date.now()}_${Math.random().toString(36).substring(2)}`;
+      return `https://github.com/apps/${appSlug}/installations/new?state=${randomState}`;
     },
   },
   getCredentials: async (userId: number) => {
