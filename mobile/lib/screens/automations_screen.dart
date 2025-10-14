@@ -97,18 +97,6 @@ class AutomationsScreenState extends State<AutomationsScreen> {
       setState(() {
         _automations.removeWhere((automation) => automation.id == automationId);
       });
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Automation deleted successfully',
-              style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
-            ),
-            backgroundColor: AppColors.error,
-          ),
-        );
-      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -142,16 +130,29 @@ class AutomationsScreenState extends State<AutomationsScreen> {
 
     late String updatedAt;
 
-    if (automation.isActive) {
-      updatedAt = await ApiMappingActionReaction.deactivateAutomation(
-        backendAddressNotifier.backendAddress!,
-        automation.id,
+    try {
+      if (automation.isActive) {
+        updatedAt = await ApiMappingActionReaction.deactivateAutomation(
+          backendAddressNotifier.backendAddress!,
+          automation.id,
+        );
+      } else {
+        updatedAt = await ApiMappingActionReaction.activateAutomation(
+          backendAddressNotifier.backendAddress!,
+          automation.id,
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            e.toString(),
+            style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
+          ),
+          backgroundColor: AppColors.error,
+        ),
       );
-    } else {
-      updatedAt = await ApiMappingActionReaction.activateAutomation(
-        backendAddressNotifier.backendAddress!,
-        automation.id,
-      );
+      return;
     }
 
     setState(() {
@@ -163,114 +164,6 @@ class AutomationsScreenState extends State<AutomationsScreen> {
         );
       }
     });
-
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            automation.isActive
-                ? 'Automation deactivated (local only)'
-                : 'Automation activated (local only)',
-          ),
-          backgroundColor: Colors.orange,
-        ),
-      );
-    }
-  }
-
-  void _showAutomationDetails(AutomationModel automation) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(automation.name),
-          content: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'Description:',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: AppDimensions.paddingSM),
-                Text(automation.description),
-                const SizedBox(height: AppDimensions.paddingMD),
-
-                Text(
-                  'Action:',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: AppDimensions.paddingSM),
-                Text('Type: ${automation.action.type}'),
-                if (automation.action.config.isNotEmpty) ...[
-                  const SizedBox(height: AppDimensions.paddingSM),
-                  Text('Config: ${automation.action.config}'),
-                ],
-                const SizedBox(height: AppDimensions.paddingMD),
-
-                Text(
-                  'Reactions:',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: AppDimensions.paddingSM),
-                ...automation.reactions.map(
-                  (reaction) => Padding(
-                    padding: const EdgeInsets.only(bottom: AppDimensions.paddingSM),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('• Type: ${reaction.type}'),
-                        if (reaction.delay > 0) Text('  Delay: ${reaction.delay} seconds'),
-                        if (reaction.config.isNotEmpty) Text('  Config: ${reaction.config}'),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: AppDimensions.paddingMD),
-
-                Row(
-                  children: [
-                    Text(
-                      'Status: ',
-                      style: Theme.of(
-                        context,
-                      ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: AppDimensions.paddingSM,
-                        vertical: AppDimensions.paddingXS,
-                      ),
-                      decoration: BoxDecoration(
-                        color: automation.isActive ? Colors.green : Colors.red,
-                        borderRadius: BorderRadius.circular(AppDimensions.borderRadiusSM),
-                      ),
-                      child: Text(
-                        automation.isActive ? 'Active' : 'Inactive',
-                        style: const TextStyle(color: Colors.white, fontSize: 12),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Close'),
-            ),
-          ],
-        );
-      },
-    );
   }
 
   void _showDeleteConfirmation(AutomationModel automation) {
@@ -305,185 +198,190 @@ class AutomationsScreenState extends State<AutomationsScreen> {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _errorMessage != null
-          ? Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.error_outline, size: AppDimensions.iconSizeXL, color: Colors.red),
-                const SizedBox(height: AppDimensions.paddingMD),
-                Text(
-                  'Error loading automations',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : _errorMessage != null
+            ? Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.error_outline, size: AppDimensions.iconSizeXL, color: Colors.red),
+                  const SizedBox(height: AppDimensions.paddingMD),
+                  Text(
+                    'Error loading automations',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
 
-                const SizedBox(height: AppDimensions.paddingSM),
+                  const SizedBox(height: AppDimensions.paddingSM),
 
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: AppDimensions.paddingMD),
-                  child: Text(
-                    _errorMessage!,
-                    textAlign: TextAlign.center,
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: AppDimensions.paddingMD),
+                    child: Text(
+                      _errorMessage!,
+                      textAlign: TextAlign.center,
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+                    ),
+                  ),
+
+                  const SizedBox(height: AppDimensions.paddingLG),
+
+                  ElevatedButton(onPressed: _loadAutomations, child: const Text('Retry')),
+                ],
+              )
+            : _automations.isEmpty
+            ? Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.auto_awesome_outlined,
+                    size: AppDimensions.iconSizeXL,
+                    color: Colors.grey[400],
+                  ),
+
+                  const SizedBox(height: AppDimensions.paddingMD),
+
+                  Text('No automations yet', style: Theme.of(context).textTheme.titleLarge),
+
+                  const SizedBox(height: AppDimensions.paddingSM),
+
+                  Text(
+                    _notConnected
+                        ? 'Connect to create your first automation'
+                        : 'Create your first automation to get started',
                     style: Theme.of(
                       context,
                     ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
                   ),
-                ),
+                ],
+              )
+            : RefreshIndicator(
+                onRefresh: _loadAutomations,
+                child: Column(
+                  children: [
+                    const SizedBox(height: 50),
 
-                const SizedBox(height: AppDimensions.paddingLG),
-
-                ElevatedButton(onPressed: _loadAutomations, child: const Text('Retry')),
-              ],
-            )
-          : _automations.isEmpty
-          ? Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.auto_awesome_outlined,
-                  size: AppDimensions.iconSizeXL,
-                  color: Colors.grey[400],
-                ),
-
-                const SizedBox(height: AppDimensions.paddingMD),
-
-                Text('No automations yet', style: Theme.of(context).textTheme.titleLarge),
-
-                const SizedBox(height: AppDimensions.paddingSM),
-
-                Text(
-                  _notConnected
-                      ? 'Connect to create your first automation'
-                      : 'Create your first automation to get started',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
-                ),
-              ],
-            )
-          : RefreshIndicator(
-              onRefresh: _loadAutomations,
-              child: ListView.builder(
-                padding: const EdgeInsets.all(AppDimensions.paddingMD),
-                itemCount: _automations.length,
-                itemBuilder: (context, index) {
-                  final automation = _automations[index];
-                  return Card(
-                    margin: const EdgeInsets.only(bottom: AppDimensions.paddingMD),
-                    elevation: 2,
-                    child: Padding(
-                      padding: const EdgeInsets.all(AppDimensions.paddingMD),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  automation.name,
-                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: AppDimensions.paddingSM,
-                                  vertical: AppDimensions.paddingXS,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: automation.isActive ? Colors.green : Colors.red,
-                                  borderRadius: BorderRadius.circular(
-                                    AppDimensions.borderRadiusSM,
-                                  ),
-                                ),
-                                child: Text(
-                                  automation.isActive ? 'Active' : 'Inactive',
-                                  style: const TextStyle(color: Colors.white, fontSize: 12),
-                                ),
-                              ),
-                            ],
-                          ),
-
-                          const SizedBox(height: AppDimensions.paddingSM),
-
-                          Text(
-                            automation.description,
-                            style: Theme.of(
-                              context,
-                            ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-
-                          const SizedBox(height: AppDimensions.paddingSM),
-
-                          Row(
-                            children: [
-                              Text(
-                                'Action: ${automation.action.type}',
-                                style: Theme.of(context).textTheme.bodySmall,
-                              ),
-                              const Spacer(),
-                              Text(
-                                '${automation.reactions.length} reaction${automation.reactions.length != 1 ? 's' : ''}',
-                                style: Theme.of(context).textTheme.bodySmall,
-                              ),
-                            ],
-                          ),
-
-                          const SizedBox(height: AppDimensions.paddingMD),
-
-                          Row(
-                            children: [
-                              ElevatedButton.icon(
-                                onPressed: () => _showAutomationDetails(automation),
-                                icon: const Icon(
-                                  Icons.info_outline,
-                                  size: AppDimensions.iconSizeSM,
-                                ),
-                                label: const Text('Details'),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.blue,
-                                  foregroundColor: Colors.white,
-                                ),
-                              ),
-
-                              const SizedBox(width: AppDimensions.paddingSM),
-
-                              ElevatedButton.icon(
-                                onPressed: () => _toggleAutomationStatus(automation),
-                                icon: Icon(
-                                  automation.isActive ? Icons.pause : Icons.play_arrow,
-                                  size: AppDimensions.iconSizeSM,
-                                ),
-                                label: Text(automation.isActive ? 'Deactivate' : 'Activate'),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: automation.isActive
-                                      ? Colors.orange
-                                      : Colors.green,
-                                  foregroundColor: Colors.white,
-                                ),
-                              ),
-
-                              const Spacer(),
-
-                              IconButton(
-                                onPressed: () => _showDeleteConfirmation(automation),
-                                icon: const Icon(Icons.delete_outline),
-                                color: Colors.red,
-                                tooltip: 'Delete automation',
-                              ),
-                            ],
-                          ),
-                        ],
+                    Text(
+                      'My AREAs',
+                      style: TextStyle(
+                        fontFamily: 'Montserrat',
+                        fontWeight: FontWeight.w700,
+                        fontSize: 50,
                       ),
                     ),
-                  );
-                },
+                    const SizedBox(height: 50),
+
+                    for (int index = 0; index < _automations.length; index++) ...[
+                      Card(
+                        margin: const EdgeInsets.only(bottom: AppDimensions.paddingMD),
+                        elevation: 2,
+                        child: Padding(
+                          padding: const EdgeInsets.all(AppDimensions.paddingMD),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      _automations[index].name,
+                                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: AppDimensions.paddingSM,
+                                      vertical: AppDimensions.paddingXS,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: _automations[index].isActive
+                                          ? Colors.green
+                                          : Colors.red,
+                                      borderRadius: BorderRadius.circular(
+                                        AppDimensions.borderRadiusSM,
+                                      ),
+                                    ),
+                                    child: Text(
+                                      _automations[index].isActive ? 'Active' : 'Inactive',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+
+                              const SizedBox(height: AppDimensions.paddingSM),
+
+                              Text(
+                                _automations[index].description,
+                                style: Theme.of(
+                                  context,
+                                ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+
+                              const SizedBox(height: AppDimensions.paddingSM),
+
+                              Row(
+                                children: [
+                                  Text(
+                                    'Action: ${_automations[index].action.type}',
+                                    style: Theme.of(context).textTheme.bodySmall,
+                                  ),
+                                  const Spacer(),
+                                  Text(
+                                    '${_automations[index].reactions.length} reaction${_automations[index].reactions.length != 1 ? 's' : ''}',
+                                    style: Theme.of(context).textTheme.bodySmall,
+                                  ),
+                                ],
+                              ),
+
+                              const SizedBox(height: AppDimensions.paddingMD),
+
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  IconButton(
+                                    onPressed: () =>
+                                        _toggleAutomationStatus(_automations[index]),
+                                    icon: Icon(
+                                      _automations[index].isActive
+                                          ? Icons.pause
+                                          : Icons.play_arrow,
+                                    ),
+                                    color: _automations[index].isActive
+                                        ? Colors.orange
+                                        : Colors.green,
+                                    tooltip: _automations[index].isActive
+                                        ? 'Deactivate automation'
+                                        : 'Activate automation',
+                                  ),
+
+                                  IconButton(
+                                    onPressed: () =>
+                                        _showDeleteConfirmation(_automations[index]),
+                                    icon: const Icon(Icons.delete_outline),
+                                    color: Colors.red,
+                                    tooltip: 'Delete automation',
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
               ),
-            ),
+      ),
     );
   }
 }

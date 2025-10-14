@@ -119,7 +119,7 @@ class ApiMappingActionReaction {
     }
 
     final client = SecureHttpClient.getClient();
-    final response = await client.post(url, headers: headers);
+    final response = await client.put(url, headers: headers);
 
     if (response.statusCode != 200) {
       final errorData = jsonDecode(response.body);
@@ -142,7 +142,7 @@ class ApiMappingActionReaction {
     }
 
     final client = SecureHttpClient.getClient();
-    final response = await client.post(url, headers: headers);
+    final response = await client.put(url, headers: headers);
 
     if (response.statusCode != 200) {
       final errorData = jsonDecode(response.body);
