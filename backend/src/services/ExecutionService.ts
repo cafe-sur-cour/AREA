@@ -226,6 +226,22 @@ export class ExecutionService {
         `🔍 [ExecutionService] Searching for mappings with shared action type: ${actionType} for all users`
       );
 
+      // Debug: Let's see what mappings exist in the database
+      const allMappings = await mappingRepository.find({
+        where: { is_active: true },
+        select: ['id', 'name', 'action', 'created_by'],
+      });
+      console.log(
+        `🔍 [ExecutionService] All active mappings in DB:`,
+        allMappings.map(m => ({
+          id: m.id,
+          name: m.name,
+          action_type: m.action?.type,
+          action_json: JSON.stringify(m.action),
+          created_by: m.created_by,
+        }))
+      );
+
       const result = await mappingRepository.find({
         where: {
           is_active: true,
@@ -235,14 +251,50 @@ export class ExecutionService {
         },
       });
 
+      console.log(
+        `🔍 [ExecutionService] Raw query result for type '${actionType}': ${result.length} mappings`
+      );
+
+      // Debug: Show all active mappings with full action JSON
+      const debugMappings = await mappingRepository.find({
+        where: { is_active: true },
+      });
+      console.log(
+        `🔍 [ExecutionService] All active mappings (${debugMappings.length}):`
+      );
+      debugMappings.forEach((mapping, index) => {
+        console.log(
+          `  ${index + 1}. ID: ${mapping.id}, Action: ${JSON.stringify(mapping.action)}`
+        );
+      });
+
       let filteredResult = result;
       if (actionDefinition.metadata?.sharedEventFilter) {
-        filteredResult = result.filter(mapping =>
-          actionDefinition.metadata!.sharedEventFilter!(
-            { source: event.source, payload: event.payload },
-            { action: mapping.action || {} }
-          )
-        );
+        if (
+          actionDefinition.metadata.sharedEventFilter.constructor.name ===
+          'AsyncFunction'
+        ) {
+          filteredResult = [];
+          for (const mapping of result) {
+            const shouldInclude =
+              await actionDefinition.metadata.sharedEventFilter(
+                { source: event.source, payload: event.payload },
+                { action: mapping.action || {} },
+                mapping.created_by || event.user_id
+              );
+            if (shouldInclude) {
+              filteredResult.push(mapping);
+            }
+          }
+        } else {
+          filteredResult = result.filter(mapping =>
+            actionDefinition.metadata!.sharedEventFilter!(
+              { source: event.source, payload: event.payload },
+              { action: mapping.action || {} },
+              mapping.created_by || event.user_id
+            )
+          );
+        }
       }
 
       console.log(
@@ -607,9 +659,18 @@ export class ExecutionService {
     }
 
     const serviceId = mapping.action.type.split('.')[0];
-    if (serviceId === 'github') {
-      const { ensureWebhookForMapping } = await import('./services/github');
-      await ensureWebhookForMapping(mapping, userId, actionDefinition);
+    if (!serviceId) {
+      return;
+    }
+
+    const serviceDefinition = serviceRegistry.getService(serviceId);
+
+    if (serviceDefinition?.ensureWebhookForMapping) {
+      await serviceDefinition.ensureWebhookForMapping(
+        mapping,
+        userId,
+        actionDefinition
+      );
     }
   }
 }

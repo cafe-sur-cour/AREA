@@ -12,6 +12,10 @@ const slackService: Service = {
   icon: getIconSvg('FaSlack'),
   actions: slackActions,
   reactions: slackReactions,
+  oauth: {
+    enabled: true,
+    supportsLogin: false,
+  },
   getCredentials: async (userId: number) => {
     const { slackOAuth } = await import('./oauth');
     const userToken = await slackOAuth.getUserToken(userId);
@@ -25,7 +29,8 @@ export const executor = slackReactionExecutor;
 
 export async function initialize(): Promise<void> {
   console.log('Initializing Slack service...');
-  // TODO: Initialize Slack scheduler if needed
+  const { initializeSlackPassport } = await import('./passport');
+  initializeSlackPassport();
   console.log('Slack service initialized');
 }
 

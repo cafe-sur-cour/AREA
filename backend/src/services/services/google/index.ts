@@ -9,12 +9,18 @@ const googleService: Service = {
   icon: getIconSvg('FaGoogle'),
   actions: [],
   reactions: [],
+  oauth: {
+    enabled: true,
+    supportsLogin: true,
+  },
 };
 
 export default googleService;
 
 export async function initialize(): Promise<void> {
   console.log('Initializing Google service...');
+  const { initializeGooglePassport } = await import('./passport');
+  initializeGooglePassport();
   console.log('Google service initialized');
 }
 

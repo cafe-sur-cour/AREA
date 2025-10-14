@@ -10,12 +10,18 @@ const microsoftService: Service = {
   icon: getIconSvg('FaMicrosoft'),
   actions: [],
   reactions: [],
+  oauth: {
+    enabled: true,
+    supportsLogin: true,
+  },
 };
 
 export default microsoftService;
 
 export async function initialize(): Promise<void> {
   console.log('Initializing Microsoft service...');
+  const { initializeMicrosoftPassport } = await import('./passport');
+  initializeMicrosoftPassport();
   console.log('Microsoft service initialized');
 }
 

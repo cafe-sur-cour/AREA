@@ -9,6 +9,10 @@ const twitchService: Service = {
   icon: getIconSvg('FaTwitch'),
   actions: [],
   reactions: [],
+  oauth: {
+    enabled: true,
+    supportsLogin: false,
+  },
   getCredentials: async (userId: number) => {
     const { twitchOAuth } = await import('./oauth');
     const userToken = await twitchOAuth.getUserToken(userId);
@@ -19,6 +23,9 @@ const twitchService: Service = {
 export default twitchService;
 
 export async function initialize(): Promise<void> {
+  console.log('Initializing Twitch service...');
+  const { initializeTwitchPassport } = await import('./passport');
+  initializeTwitchPassport();
   console.log('✅ Twitch service initialized');
 }
 

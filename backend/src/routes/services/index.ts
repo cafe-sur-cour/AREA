@@ -5,66 +5,25 @@ import { extractPayloadFields } from '../../utils/payloadFields';
 import { serviceSubscriptionManager } from '../../services/ServiceSubscriptionManager';
 import subscriptionRoutes from './subscription';
 
-const serviceEndpoints: Record<
-  string,
-  {
-    auth: string;
-    status: string;
-    loginStatus: string;
-    subscribe: string;
-    unsubscribe: string;
-  }
-> = {
-  github: {
-    auth: '/auth/github/login',
-    status: '/github/subscribe/status',
-    loginStatus: '/github/login/status',
-    subscribe: '/auth/github/subscribe',
-    unsubscribe: '/github/unsubscribe',
-  },
-  google: {
-    auth: '/auth/google/login',
-    status: '/google/subscribe/status',
-    loginStatus: '/google/login/status',
-    subscribe: '/auth/google/subscribe',
-    unsubscribe: '/google/unsubscribe',
-  },
-  spotify: {
-    auth: '/auth/spotify/subscribe',
-    status: '/spotify/subscribe/status',
-    loginStatus: '/spotify/login/status',
-    subscribe: '/auth/spotify/subscribe',
-    unsubscribe: '/spotify/unsubscribe',
-  },
-  microsoft: {
-    auth: '/auth/microsoft/subscribe',
-    status: '/microsoft/subscribe/status',
-    loginStatus: '/microsoft/login/status',
-    subscribe: '/microsoft/subscribe',
-    unsubscribe: '/microsoft/unsubscribe',
-  },
-  slack: {
-    auth: '/auth/slack/subscribe',
-    status: '/slack/subscribe/status',
-    loginStatus: '/slack/login/status',
-    subscribe: '/auth/slack/subscribe',
-    unsubscribe: '/slack/unsubscribe',
-  },
-  twitch: {
-    auth: '/auth/twitch/login',
-    status: '/twitch/subscribe/status',
-    loginStatus: '/twitch/login/status',
-    subscribe: '/auth/twitch/subscribe',
-    unsubscribe: '/twitch/unsubscribe',
-  },
-  timer: {
-    auth: '',
-    status: '/services/timer/subscribe/status',
-    loginStatus: '',
-    subscribe: '/auth/timer/subscribe',
-    unsubscribe: '',
-  },
-};
+function generateServiceEndpoints(serviceId: string): {
+  auth?: string;
+  status: string;
+  loginStatus?: string;
+  subscribe: string;
+  unsubscribe: string;
+} {
+  const service = serviceRegistry.getService(serviceId);
+  const supportsLogin = service?.oauth?.supportsLogin ?? false;
+  const hasOAuth = service?.oauth?.enabled ?? false;
+
+  return {
+    ...(supportsLogin && { auth: `/auth/${serviceId}/login` }),
+    status: `/auth/${serviceId}/subscribe/status`,
+    ...(hasOAuth && { loginStatus: `/auth/${serviceId}/login/status` }),
+    subscribe: `/auth/${serviceId}/subscribe`,
+    unsubscribe: `/auth/${serviceId}/unsubscribe`,
+  };
+}
 
 const router = express.Router();
 router.use('/auth', subscriptionRoutes);
@@ -148,13 +107,7 @@ router.get(
               service.id
             );
 
-          const endpoints = serviceEndpoints[service.id] || {
-            auth: '',
-            status: '',
-            loginStatus: '',
-            subscribe: '',
-            unsubscribe: '',
-          };
+          const endpoints = generateServiceEndpoints(service.id);
 
           return {
             id: service.id,
@@ -249,82 +202,6 @@ router.get(
       return res
         .status(500)
         .json({ error: 'Internal Server Error in get subscribed services' });
-    }
-  }
-);
-
-/**
- * @swagger
- * /api/services/timer/subscribe/status:
- *   get:
- *     summary: Get timer subscription status
- *     tags:
- *       - Services
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Timer subscription status
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 subscribed:
- *                   type: boolean
- *                   description: Whether the user is subscribed to timer
- *                 oauth_connected:
- *                   type: boolean
- *                   description: Always true for timer (no OAuth required)
- *       401:
- *         description: Unauthorized
- *       500:
- *         description: Internal server error
- */
-router.get(
-  '/timer/subscribe/status',
-  token,
-  async (req: Request, res: Response): Promise<Response> => {
-    try {
-      const userId = (req.auth as { id: number }).id;
-
-      console.log(
-        `🔄 [STATUS] Checking timer subscription status for user ${userId}`
-      );
-      const subscription = await serviceSubscriptionManager.getUserSubscription(
-        userId,
-        'timer'
-      );
-
-      const isSubscribed = subscription?.subscribed || false;
-      console.log(
-        `✅ [STATUS] Timer subscription status for user ${userId}: subscribed=${isSubscribed}`
-      );
-
-      if (!isSubscribed) {
-        return res.status(404).json({
-          subscribed: false,
-          oauth_connected: true,
-          can_create_webhooks: false,
-          message: 'Not subscribed to Timer events',
-        });
-      }
-
-      return res.status(200).json({
-        subscribed: true,
-        oauth_connected: true,
-        can_create_webhooks: true,
-        subscribed_at: subscription?.subscribed_at || null,
-        unsubscribed_at: subscription?.unsubscribed_at || null,
-      });
-    } catch (err) {
-      console.error(
-        `❌ [STATUS] Error fetching timer subscription status for user ${(req.auth as { id: number }).id}:`,
-        err
-      );
-      return res
-        .status(500)
-        .json({ error: 'Internal Server Error in timer subscribe status' });
     }
   }
 );

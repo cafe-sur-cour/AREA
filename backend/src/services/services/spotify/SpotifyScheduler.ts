@@ -53,7 +53,7 @@ export class SpotifyScheduler {
   >();
   private activeUserIdsCache: number[] = [];
   private lastCacheUpdate = 0;
-  private readonly CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+  private readonly CACHE_TTL = 5 * 1000; // 5 seconds
 
   private readonly MIN_REQUEST_INTERVAL = 1000; // 1 second
   private readonly MAX_REQUESTS_PER_WINDOW = 180;
@@ -104,6 +104,7 @@ export class SpotifyScheduler {
         userIds = this.activeUserIdsCache;
       } else {
         const mappingRepository = AppDataSource.getRepository(WebhookConfigs);
+
         const activeMappings = await mappingRepository.find({
           where: {
             is_active: true,
@@ -148,7 +149,6 @@ export class SpotifyScheduler {
     try {
       const userToken = await spotifyOAuth.getUserToken(userId);
       if (!userToken) {
-        console.log(`No token found for user ${userId}`);
         return;
       }
 
@@ -158,7 +158,6 @@ export class SpotifyScheduler {
       const hasLibraryScope = userToken.scopes?.includes('user-library-read');
 
       if (!hasPlaybackScope && !hasLibraryScope) {
-        console.warn(`Token for user ${userId} lacks required Spotify scopes`);
         return;
       }
 
@@ -175,7 +174,20 @@ export class SpotifyScheduler {
         userId,
         `${this.SPOTIFY_API_BASE_URL}/me/player`
       );
-      if (!response) return;
+      if (!response) {
+        return;
+      }
+
+      if (response.status === 204) {
+        const userState = this.getUserState(userId);
+        if (userState.isInitialized && userState.lastPlaybackState === true) {
+          await this.triggerPlaybackPaused(userId, userState.lastTrack, null);
+        }
+        userState.lastPlaybackState = false;
+        userState.lastTrack = null;
+        userState.isInitialized = true;
+        return;
+      }
 
       const playbackState: SpotifyPlaybackState = await response.json();
 
@@ -184,11 +196,7 @@ export class SpotifyScheduler {
       const isPlaying = playbackState.is_playing;
 
       if (userState.isInitialized) {
-        if (
-          userState.lastTrack?.id !== currentTrack?.id &&
-          currentTrack &&
-          isPlaying
-        ) {
+        if (userState.lastTrack?.id !== currentTrack?.id && currentTrack) {
           await this.triggerTrackChanged(
             userId,
             userState.lastTrack,
@@ -262,9 +270,6 @@ export class SpotifyScheduler {
         );
 
         if (newTrackIds.length > 0) {
-          console.log(
-            `🎵 [Spotify] User ${userId} has ${newTrackIds.length} new liked tracks`
-          );
           this.lastLikedTrackDetection.set(userId, now);
 
           const newTracks = likedTracks.items.filter(item =>
@@ -300,13 +305,11 @@ export class SpotifyScheduler {
     }
 
     const userToken = await spotifyOAuth.getUserToken(userId);
-    if (!userToken) return null;
+    if (!userToken) {
+      return null;
+    }
 
     if (!this.hasRequiredScopes(userToken, url)) {
-      const requiredScopes = this.getRequiredScopesForUrl(url);
-      console.error(
-        `Token missing required scopes [${requiredScopes.join(', ')}] for ${url} for user ${userId}`
-      );
       return null;
     }
 
@@ -336,7 +339,6 @@ export class SpotifyScheduler {
       this.updateRequestCount(userId);
 
       if (response.status === 401) {
-        console.log(`Token expired for user ${userId}, attempting refresh`);
         const refreshedToken = await spotifyOAuth.getUserToken(userId);
         if (refreshedToken) {
           const retryResponse = await fetch(url, {
@@ -367,15 +369,6 @@ export class SpotifyScheduler {
       }
 
       if (!response.ok) {
-        if (response.status === 403) {
-          console.error(
-            `Spotify API access forbidden for user ${userId} - token may lack required scopes`
-          );
-        } else {
-          console.error(
-            `Spotify API error for user ${userId}: ${response.status} ${response.statusText}`
-          );
-        }
         return null;
       }
 
@@ -475,16 +468,16 @@ export class SpotifyScheduler {
         ? {
             id: previousTrack.id,
             name: previousTrack.name,
-            artist: previousTrack.artists[0]?.name || 'Unknown',
-            album: previousTrack.album.name,
+            artist: previousTrack.artists?.[0]?.name || 'Unknown',
+            album: previousTrack.album?.name || 'Unknown',
             uri: previousTrack.uri,
           }
         : null,
       current_track: {
         id: currentTrack.id,
         name: currentTrack.name,
-        artist: currentTrack.artists[0]?.name || 'Unknown',
-        album: currentTrack.album.name,
+        artist: currentTrack.artists?.[0]?.name || 'Unknown',
+        album: currentTrack.album?.name || 'Unknown',
         uri: currentTrack.uri,
       },
       timestamp: new Date().toISOString(),
@@ -502,8 +495,8 @@ export class SpotifyScheduler {
       track: {
         id: track.id,
         name: track.name,
-        artist: track.artists[0]?.name || 'Unknown',
-        album: track.album.name,
+        artist: track.artists?.[0]?.name || 'Unknown',
+        album: track.album?.name || 'Unknown',
         uri: track.uri,
       },
       device: device
@@ -528,8 +521,8 @@ export class SpotifyScheduler {
       track: {
         id: track.id,
         name: track.name,
-        artist: track.artists[0]?.name || 'Unknown',
-        album: track.album.name,
+        artist: track.artists?.[0]?.name || 'Unknown',
+        album: track.album?.name || 'Unknown',
         uri: track.uri,
       },
       device: device
@@ -552,8 +545,8 @@ export class SpotifyScheduler {
       track: {
         id: track.id,
         name: track.name,
-        artist: track.artists[0]?.name || 'Unknown',
-        album: track.album.name,
+        artist: track.artists?.[0]?.name || 'Unknown',
+        album: track.album?.name || 'Unknown',
         uri: track.uri,
         duration_ms: track.duration_ms,
       },
@@ -580,3 +573,5 @@ export class SpotifyScheduler {
     await eventRepository.save(event);
   }
 }
+
+export const spotifyScheduler = new SpotifyScheduler();

@@ -2,6 +2,21 @@
 
 This document outlines the frontend flow for subscribing to services in AREA.
 
+:::tip 🎯 Automatic Route Generation
+
+**All service routes are generated automatically** from the ServiceRegistry!
+
+When you add a new service to `/backend/src/services/services/{service}/`, the system automatically:
+- ✅ Creates OAuth routes: `/api/auth/{service}/login`, `/api/auth/{service}/callback`
+- ✅ Creates subscription routes: `/api/auth/{service}/subscribe`
+- ✅ Creates status routes: `/api/{service}/subscribe/status`
+- ✅ Generates Swagger documentation
+- ✅ Adds service to `/api/services/` endpoint
+
+**No manual route registration required!**
+
+:::
+
 ## Important: Use API Instead of Hardcoding
 
 **Never hardcode service information in your frontend code.** All service data (names, descriptions, endpoints, actions, reactions, schemas) must be retrieved dynamically through API endpoints. This ensures:

@@ -4,6 +4,7 @@ import { UserServiceSubscriptions } from './entity/UserServiceSubscriptions';
 import { WebhookConfigs } from './entity/WebhookConfigs';
 import { WebhookStats } from './entity/WebhookStats';
 import { UserActivityLogs } from './entity/UserActivityLogs';
+import { serviceRegistry } from '../services/ServiceRegistry';
 
 export interface DashboardData {
   users: {
@@ -90,7 +91,7 @@ export class DashboardService {
         console.error('Error fetching service statistics:', error);
       }
 
-      let serviceDistribution: unknown[] = [];
+      let serviceDistribution: Array<{ service: string; count: string }> = [];
 
       try {
         serviceDistribution = await subscriptionRepo
@@ -113,7 +114,11 @@ export class DashboardService {
         console.error('Error fetching webhook statistics:', error);
       }
 
-      let webhookStats: unknown[] = [];
+      let webhookStats: Array<{
+        date: string;
+        success_count: number;
+        error_count: number;
+      }> = [];
 
       try {
         webhookStats = await webhookStatsRepo.find({
@@ -219,12 +224,9 @@ export class DashboardService {
                   service: item.service,
                   count: parseInt(item.count),
                 }))
-              : [
-                  { service: 'GitHub', count: 0 },
-                  { service: 'Discord', count: 0 },
-                  { service: 'Slack', count: 0 },
-                  { service: 'Google', count: 0 },
-                ],
+              : serviceRegistry
+                  .getAllServices()
+                  .map(service => ({ service: service.name, count: 0 })),
         },
         webhooks: {
           total: totalWebhooks,

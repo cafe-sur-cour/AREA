@@ -12,23 +12,23 @@ graph TB
         WEB[Web Application<br/>Next.js + React]
         MOBILE[Mobile Application<br/>Flutter]
     end
-    
+
     subgraph "API Gateway"
         BACKEND[Backend Server<br/>Express.js + TypeScript]
     end
-    
+
     subgraph "Data Layer"
         DB[PostgreSQL Database]
         REDIS[Session Store]
     end
-    
+
     subgraph "External Services"
         GITHUB[GitHub API]
         SMTP[Email Service]
         DISCORD[Discord API]
         SPOTIFY[Spotify API]
     end
-    
+
     WEB --> BACKEND
     MOBILE --> BACKEND
     BACKEND --> DB
@@ -76,20 +76,20 @@ graph TD
         MIDDLEWARE[Middleware Stack]
         ROUTES[Route Handlers]
     end
-    
+
     subgraph "Service Layer"
         SERVICES[Service Registry]
         ACTIONS[Action Handlers]
         REACTIONS[Reaction Executors]
         WEBHOOKS[Webhook Manager]
     end
-    
+
     subgraph "Data Access Layer"
         TYPEORM[TypeORM]
         ENTITIES[Entity Models]
         MIGRATIONS[Database Migrations]
     end
-    
+
     EXPRESS --> MIDDLEWARE
     MIDDLEWARE --> ROUTES
     ROUTES --> SERVICES
@@ -142,7 +142,7 @@ erDiagram
         timestamp created_at
         timestamp updated_at
     }
-    
+
     USER_OAUTH_PROVIDERS {
         int id PK
         int user_id FK
@@ -150,7 +150,7 @@ erDiagram
         string provider_id
         string access_token
     }
-    
+
     WEBHOOK_CONFIGS {
         int id PK
         string name UK
@@ -159,7 +159,7 @@ erDiagram
         boolean is_active
         timestamp created_at
     }
-    
+
     WEBHOOK_EVENTS {
         int id PK
         int config_id FK
@@ -167,21 +167,13 @@ erDiagram
         string status
         timestamp triggered_at
     }
-    
-    USER_SESSIONS {
-        int id PK
-        int user_id FK
-        string session_token
-        timestamp expires_at
-    }
-    
+
     USERS ||--o{ USER_OAUTH_PROVIDERS : "has"
-    USERS ||--o{ USER_SESSIONS : "has"
     WEBHOOK_CONFIGS ||--o{ WEBHOOK_EVENTS : "triggers"
 ```
 
 #### Table Categories
-- **User Management**: `users`, `user_oauth_providers`, `user_sessions`, `user_tokens`
+- **User Management**: `users`, `user_oauth_providers`, `user_tokens`
 - **Automation**: `webhook_configs`, `webhook_events`, `webhook_reactions`
 - **System**: `user_activity_logs`, `webhook_stats`, `webhook_failures`
 
@@ -194,26 +186,26 @@ graph LR
         LOADER[Service Loader]
         REGISTRY[Service Registry]
     end
-    
+
     subgraph "Service Types"
         GITHUB_SVC[GitHub Service]
         EMAIL_SVC[Email Service]
         DISCORD_SVC[Discord Service]
         CUSTOM_SVC[Custom Services]
     end
-    
+
     subgraph "Execution Engine"
         ACTION_EXEC[Action Executor]
         REACTION_EXEC[Reaction Executor]
         WEBHOOK_EXEC[Webhook Handler]
     end
-    
+
     LOADER --> REGISTRY
     REGISTRY --> GITHUB_SVC
     REGISTRY --> EMAIL_SVC
     REGISTRY --> DISCORD_SVC
     REGISTRY --> CUSTOM_SVC
-    
+
     GITHUB_SVC --> ACTION_EXEC
     EMAIL_SVC --> REACTION_EXEC
     DISCORD_SVC --> WEBHOOK_EXEC
@@ -236,7 +228,7 @@ sequenceDiagram
     participant Backend
     participant OAuth Provider
     participant Database
-    
+
     Client->>Backend: Login Request
     Backend->>OAuth Provider: OAuth Authorization
     OAuth Provider->>Backend: Authorization Code
@@ -263,18 +255,18 @@ graph TB
             WEB_CONTAINER[Web Container<br/>Nginx + Next.js]
             MOBILE_CONTAINER[Mobile Build<br/>Flutter Web]
         end
-        
+
         subgraph "Backend Services"
             API_CONTAINER[API Container<br/>Node.js + Express]
             DB_CONTAINER[Database<br/>PostgreSQL 16]
         end
-        
+
         subgraph "Volumes"
             PG_DATA[PostgreSQL Data]
             MOBILE_BUILD[Mobile Build Assets]
         end
     end
-    
+
     WEB_CONTAINER --> API_CONTAINER
     MOBILE_CONTAINER --> MOBILE_BUILD
     WEB_CONTAINER --> MOBILE_BUILD
@@ -298,12 +290,12 @@ sequenceDiagram
     participant Backend
     participant Service
     participant External API
-    
+
     User->>Frontend: Create Automation
     Frontend->>Backend: POST /api/webhooks/config
     Backend->>Service: Register Action Trigger
     Service->>External API: Setup Webhook
-    
+
     External API->>Backend: Webhook Event
     Backend->>Service: Process Action
     Service->>Backend: Execute Reactions

@@ -6,6 +6,17 @@ sidebar_position: 5
 
 This guide explains how to create actions (triggers) for services in the AREA platform. Actions are events that initiate automation workflows when specific conditions are met.
 
+:::tip 🎯 Modular Architecture
+
+Actions should be defined **inside your service folder**:
+- ✅ Place actions in: `/backend/src/services/services/your-service/actions.ts`
+- ✅ Place schemas in: `/backend/src/services/services/your-service/schemas.ts`
+- ❌ Don't modify central files to register actions
+
+Actions are **automatically registered** by the ServiceRegistry. No need to edit central files!
+
+:::
+
 ## Overview
 
 Actions in AREA represent triggers or events that occur in external services. When an action is triggered (via webhook, polling, or manual execution), it can activate one or more reactions. Actions define what data is available for reactions and how the trigger conditions are configured.
@@ -391,12 +402,12 @@ inputSchema: {
         id: { type: 'string', description: 'Unique event identifier' },
         timestamp: { type: 'string', format: 'date-time' },
         type: { type: 'string', description: 'Event type' },
-        
+
         // Service-specific fields
         title: { type: 'string' },
         description: { type: 'string' },
         url: { type: 'string', format: 'uri' },
-        
+
         // Nested objects for complex data
         author: {
           type: 'object',
@@ -406,14 +417,14 @@ inputSchema: {
             email: { type: 'string', format: 'email' },
           },
         },
-        
+
         // Arrays for lists
         tags: {
           type: 'array',
           items: { type: 'string' },
           description: 'Associated tags',
         },
-        
+
         // Flexible metadata object
         metadata: {
           type: 'object',
@@ -423,7 +434,7 @@ inputSchema: {
       },
       required: ['id', 'timestamp', 'type'],
     },
-    
+
     // Context information
     context: {
       type: 'object',
@@ -618,7 +629,7 @@ import { executionService } from '../../services/ExecutionService';
 export class DiscordWebhookHandler {
   async handle(req: Request, res: Response): Promise<void> {
     const payload = req.body;
-    
+
     // Transform Discord webhook payload to action input format
     const actionInput = {
       message: {
@@ -634,10 +645,10 @@ export class DiscordWebhookHandler {
       channel: payload.channel,
       guild: payload.guild,
     };
-    
+
     // Trigger action processing
     await executionService.processAction('discord.new_message', actionInput);
-    
+
     res.status(200).json({ received: true });
   }
 }
@@ -655,13 +666,13 @@ describe('Discord Actions', () => {
   describe('new_message action', () => {
     it('should have correct structure', () => {
       const action = discordActions.find(a => a.id === 'discord.new_message');
-      
+
       expect(action).toBeDefined();
       expect(action?.name).toBe('New Message');
       expect(action?.configSchema.fields).toHaveLength(4);
       expect(action?.metadata.requiresAuth).toBe(true);
     });
-    
+
     it('should validate input schema', () => {
       const action = discordActions.find(a => a.id === 'discord.new_message');
       const validInput = {
@@ -673,7 +684,7 @@ describe('Discord Actions', () => {
           timestamp: '2023-01-01T00:00:00Z',
         },
       };
-      
+
       // Test input validation using a JSON schema validator
       // expect(validateSchema(action.inputSchema, validInput)).toBe(true);
     });
@@ -696,12 +707,12 @@ describe('Action Execution', () => {
         timestamp: new Date().toISOString(),
       },
     };
-    
+
     const result = await executionService.processAction(
       'discord.new_message',
       actionInput
     );
-    
+
     expect(result.success).toBe(true);
   });
 });

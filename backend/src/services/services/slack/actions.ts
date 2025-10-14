@@ -5,6 +5,57 @@ import {
   slackChannelCreatedSchema,
   slackReactionAddedSchema,
 } from '../slack/schemas';
+import { AppDataSource } from '../../../config/db';
+import { UserToken } from '../../../config/entity/UserToken';
+import { slackReactionExecutor } from './executor';
+
+async function resolveChannelId(
+  channelInput: string,
+  userId: number
+): Promise<string> {
+  try {
+    const tokenRepository = AppDataSource.getRepository(UserToken);
+    const userToken = await tokenRepository.findOne({
+      where: {
+        user_id: userId,
+        token_type: 'slack_access_token',
+        is_revoked: false,
+      },
+    });
+
+    if (!userToken) {
+      console.log(`❌ [SLACK FILTER] No token found for user ${userId}`);
+      return channelInput;
+    }
+
+    const decryptedToken = decryptToken(userToken.token_value, userId);
+    return await slackReactionExecutor.resolveChannelId(
+      decryptedToken,
+      channelInput
+    );
+  } catch (error) {
+    console.error('❌ [SLACK FILTER] Error resolving channel ID:', error);
+    return channelInput;
+  }
+}
+
+function decryptToken(encryptedToken: string, userId: number): string {
+  try {
+    const decoded = Buffer.from(encryptedToken, 'base64').toString('utf-8');
+    const parts = decoded.split(':::');
+    if (parts.length !== 2 || !parts[0] || !parts[1]) {
+      throw new Error('Invalid encrypted token format');
+    }
+    const [token, tokenUserId] = parts;
+    if (parseInt(tokenUserId) !== userId) {
+      throw new Error('Token user ID mismatch');
+    }
+    return token;
+  } catch (error) {
+    console.error('Error decrypting token:', error);
+    throw error;
+  }
+}
 
 // Slack actions
 export const slackActions: ActionDefinition[] = [
@@ -39,7 +90,7 @@ export const slackActions: ActionDefinition[] = [
       requiresAuth: true,
       webhookPattern: 'message.channels',
       sharedEvents: true,
-      sharedEventFilter: (event, mapping) => {
+      sharedEventFilter: async (event, mapping, userId) => {
         const eventData = event.payload as {
           channel?: string;
           channel_type?: string;
@@ -49,7 +100,11 @@ export const slackActions: ActionDefinition[] = [
         const mappingChannel = mapping.action.config?.channel as string;
         if (!mappingChannel) return true;
 
-        return eventData.channel === mappingChannel;
+        const resolvedMappingChannel = userId
+          ? await resolveChannelId(mappingChannel, userId)
+          : mappingChannel;
+
+        return eventData.channel === resolvedMappingChannel;
       },
     },
   },
@@ -154,15 +209,23 @@ export const slackActions: ActionDefinition[] = [
       requiresAuth: true,
       webhookPattern: 'reaction_added',
       sharedEvents: true,
-      sharedEventFilter: (event, mapping) => {
+      sharedEventFilter: async (event, mapping, userId) => {
         const eventData = event.payload as {
           item?: { channel?: string };
           reaction?: string;
         };
 
         const mappingChannel = mapping.action.config?.channel as string;
-        if (mappingChannel && eventData.item?.channel !== mappingChannel) {
-          return false;
+        if (mappingChannel) {
+          if (!eventData.item?.channel) return false;
+
+          const resolvedMappingChannel = userId
+            ? await resolveChannelId(mappingChannel, userId)
+            : mappingChannel;
+
+          if (eventData.item.channel !== resolvedMappingChannel) {
+            return false;
+          }
         }
 
         const mappingEmoji = mapping.action.config?.emoji as string;
