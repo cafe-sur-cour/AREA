@@ -270,7 +270,9 @@ export class ExecutionService {
 
       let filteredResult = result;
       if (actionDefinition.metadata?.sharedEventFilter) {
-        console.log(`🔍 [ExecutionService] Applying shared event filter for ${actionType}`);
+        console.log(
+          `🔍 [ExecutionService] Applying shared event filter for ${actionType}`
+        );
 
         if (
           actionDefinition.metadata.sharedEventFilter.constructor.name ===
@@ -280,19 +282,26 @@ export class ExecutionService {
           filteredResult = [];
           for (const mapping of result) {
             try {
-              console.log(`🔍 [ExecutionService] Testing mapping ${mapping.id} with async filter`);
+              console.log(
+                `🔍 [ExecutionService] Testing mapping ${mapping.id} with async filter`
+              );
               const shouldInclude =
                 await actionDefinition.metadata.sharedEventFilter(
                   { source: event.source, payload: event.payload },
                   { action: mapping.action || {} },
                   mapping.created_by || event.user_id
                 );
-              console.log(`🔍 [ExecutionService] Mapping ${mapping.id} filter result: ${shouldInclude}`);
+              console.log(
+                `🔍 [ExecutionService] Mapping ${mapping.id} filter result: ${shouldInclude}`
+              );
               if (shouldInclude) {
                 filteredResult.push(mapping);
               }
             } catch (error) {
-              console.error(`❌ [ExecutionService] Error in async filter for mapping ${mapping.id}:`, error);
+              console.error(
+                `❌ [ExecutionService] Error in async filter for mapping ${mapping.id}:`,
+                error
+              );
               // Skip this mapping if filter fails
             }
           }
@@ -300,15 +309,21 @@ export class ExecutionService {
           console.log(`🔍 [ExecutionService] Using sync filter`);
           filteredResult = result.filter(mapping => {
             try {
-              const shouldInclude = actionDefinition.metadata!.sharedEventFilter!(
+              const shouldInclude = actionDefinition.metadata!
+                .sharedEventFilter!(
                 { source: event.source, payload: event.payload },
                 { action: mapping.action || {} },
                 mapping.created_by || event.user_id
               );
-              console.log(`🔍 [ExecutionService] Mapping ${mapping.id} sync filter result: ${shouldInclude}`);
+              console.log(
+                `🔍 [ExecutionService] Mapping ${mapping.id} sync filter result: ${shouldInclude}`
+              );
               return shouldInclude;
             } catch (error) {
-              console.error(`❌ [ExecutionService] Error in sync filter for mapping ${mapping.id}:`, error);
+              console.error(
+                `❌ [ExecutionService] Error in sync filter for mapping ${mapping.id}:`,
+                error
+              );
               return false; // Skip this mapping if filter fails
             }
           });
