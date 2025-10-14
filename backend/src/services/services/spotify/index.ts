@@ -22,9 +22,6 @@ const spotifyService: Service = {
     const userToken = await spotifyOAuth.getUserToken(userId);
     return userToken ? { access_token: userToken.token_value } : {};
   },
-  ensureWebhookForMapping: async (mapping, userId) => {
-    await spotifyScheduler.ensureWebhookCreated(userId, mapping.action.type);
-  },
 };
 
 export default spotifyService;

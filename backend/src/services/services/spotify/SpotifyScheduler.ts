@@ -53,7 +53,7 @@ export class SpotifyScheduler {
   >();
   private activeUserIdsCache: number[] = [];
   private lastCacheUpdate = 0;
-  private readonly CACHE_TTL = 30 * 1000; // 30 seconds
+  private readonly CACHE_TTL = 5 * 1000; // 5 seconds
 
   private readonly MIN_REQUEST_INTERVAL = 1000; // 1 second
   private readonly MAX_REQUESTS_PER_WINDOW = 180;
@@ -92,21 +92,6 @@ export class SpotifyScheduler {
     this.userStates.clear();
   }
 
-  async ensureWebhookCreated(
-    userId: number,
-    actionType: string
-  ): Promise<void> {
-    if (!actionType.startsWith('spotify.')) {
-      return;
-    }
-
-    console.log(
-      `[Spotify] New mapping created for user ${userId}, invalidating cache`
-    );
-    this.lastCacheUpdate = 0;
-    this.activeUserIdsCache = [];
-  }
-
   private async pollActiveUsers(): Promise<void> {
     try {
       const now = Date.now();
@@ -139,10 +124,6 @@ export class SpotifyScheduler {
 
         this.activeUserIdsCache = userIds;
         this.lastCacheUpdate = now;
-        console.log(
-          `[Spotify Polling] Found ${userIds.length} active users with Spotify mappings:`,
-          userIds
-        );
       }
 
       if (userIds.length === 0) {
@@ -167,10 +148,11 @@ export class SpotifyScheduler {
     try {
       const userToken = await spotifyOAuth.getUserToken(userId);
       if (!userToken) {
-        console.log(`[Spotify] No token found for user ${userId}`);
+        console.warn(
+          `[Spotify Poll] ❌ User ${userId} - Token not found or invalid. Possible causes: token not in database, token expired without refresh_token, or token revoked by user.`
+        );
         return;
       }
-      console.log(`[Spotify] Polling user ${userId}`);
 
       const hasPlaybackScope = userToken.scopes?.includes(
         'user-read-playback-state'
@@ -178,7 +160,9 @@ export class SpotifyScheduler {
       const hasLibraryScope = userToken.scopes?.includes('user-library-read');
 
       if (!hasPlaybackScope && !hasLibraryScope) {
-        console.warn(`Token for user ${userId} lacks required Spotify scopes`);
+        console.warn(
+          `[Spotify Poll] ❌ User ${userId} - Token missing required scopes. Current scopes: [${userToken.scopes?.join(', ') || 'NONE'}]. Required: 'user-read-playback-state' OR 'user-library-read'. User needs to re-authorize Spotify connection.`
+        );
         return;
       }
 
@@ -196,12 +180,10 @@ export class SpotifyScheduler {
         `${this.SPOTIFY_API_BASE_URL}/me/player`
       );
       if (!response) {
-        console.log(`[Spotify] User ${userId} - No response from Spotify API`);
         return;
       }
 
       if (response.status === 204) {
-        console.log(`[Spotify] User ${userId} - No playback active (204)`);
         const userState = this.getUserState(userId);
         if (userState.isInitialized && userState.lastPlaybackState === true) {
           await this.triggerPlaybackPaused(userId, userState.lastTrack, null);
@@ -218,27 +200,16 @@ export class SpotifyScheduler {
       const currentTrack = playbackState.item;
       const isPlaying = playbackState.is_playing;
 
-      console.log(
-        `[Spotify] User ${userId} - Track: ${currentTrack?.name || 'null'}, Playing: ${isPlaying}, Initialized: ${userState.isInitialized}, LastTrack: ${userState.lastTrack?.name || 'null'}`
-      );
-
       if (userState.isInitialized) {
         if (
           userState.lastTrack?.id !== currentTrack?.id &&
           currentTrack &&
           isPlaying
         ) {
-          console.log(
-            `[Spotify] User ${userId} - Track changed detected: ${userState.lastTrack?.name || 'null'} -> ${currentTrack.name}`
-          );
           await this.triggerTrackChanged(
             userId,
             userState.lastTrack,
             currentTrack
-          );
-        } else {
-          console.log(
-            `[Spotify] User ${userId} - No track change: lastId=${userState.lastTrack?.id}, currentId=${currentTrack?.id}, isPlaying=${isPlaying}`
           );
         }
 
@@ -260,10 +231,6 @@ export class SpotifyScheduler {
             );
           }
         }
-      } else {
-        console.log(
-          `[Spotify] User ${userId} - First poll, initializing with track: ${currentTrack?.name || 'null'}`
-        );
       }
 
       this.updateUserState(userId, {
@@ -350,12 +317,17 @@ export class SpotifyScheduler {
     }
 
     const userToken = await spotifyOAuth.getUserToken(userId);
-    if (!userToken) return null;
+    if (!userToken) {
+      console.warn(
+        `[Spotify API] ❌ User ${userId} - Cannot make request: token not available (expired, revoked, or missing from database).`
+      );
+      return null;
+    }
 
     if (!this.hasRequiredScopes(userToken, url)) {
       const requiredScopes = this.getRequiredScopesForUrl(url);
       console.error(
-        `Token missing required scopes [${requiredScopes.join(', ')}] for ${url} for user ${userId}`
+        `[Spotify API] ❌ User ${userId} - Token missing required scopes [${requiredScopes.join(', ')}] for ${url}. Current scopes: [${userToken.scopes?.join(', ') || 'NONE'}]. User must re-authorize.`
       );
       return null;
     }
@@ -386,7 +358,9 @@ export class SpotifyScheduler {
       this.updateRequestCount(userId);
 
       if (response.status === 401) {
-        console.log(`Token expired for user ${userId}, attempting refresh`);
+        console.warn(
+          `[Spotify API] ⚠️ User ${userId} - Token rejected by Spotify (401 Unauthorized). Attempting token refresh...`
+        );
         const refreshedToken = await spotifyOAuth.getUserToken(userId);
         if (refreshedToken) {
           const retryResponse = await fetch(url, {
@@ -396,8 +370,16 @@ export class SpotifyScheduler {
             },
           });
           this.updateRequestCount(userId);
+          if (retryResponse.status === 401) {
+            console.error(
+              `[Spotify API] ❌ User ${userId} - Token refresh failed. Spotify still rejects the token. User needs to re-authorize the Spotify connection.`
+            );
+          }
           return retryResponse;
         }
+        console.error(
+          `[Spotify API] ❌ User ${userId} - Token refresh failed: no refresh_token available or refresh returned null. User must re-connect Spotify.`
+        );
         return null;
       }
 
@@ -419,7 +401,7 @@ export class SpotifyScheduler {
       if (!response.ok) {
         if (response.status === 403) {
           console.error(
-            `Spotify API access forbidden for user ${userId} - token may lack required scopes`
+            `[Spotify API] ❌ User ${userId} - Access forbidden (403). Token may lack required scopes or Spotify Premium subscription may be required for this endpoint.`
           );
         } else {
           console.error(
@@ -520,24 +502,21 @@ export class SpotifyScheduler {
     previousTrack: SpotifyTrack | null,
     currentTrack: SpotifyTrack
   ): Promise<void> {
-    console.log(
-      `[Spotify] Track changed for user ${userId}: ${previousTrack?.name || 'null'} -> ${currentTrack.name}`
-    );
     await this.createEvent(userId, 'spotify.track_changed', {
       previous_track: previousTrack
         ? {
             id: previousTrack.id,
             name: previousTrack.name,
-            artist: previousTrack.artists[0]?.name || 'Unknown',
-            album: previousTrack.album.name,
+            artist: previousTrack.artists?.[0]?.name || 'Unknown',
+            album: previousTrack.album?.name || 'Unknown',
             uri: previousTrack.uri,
           }
         : null,
       current_track: {
         id: currentTrack.id,
         name: currentTrack.name,
-        artist: currentTrack.artists[0]?.name || 'Unknown',
-        album: currentTrack.album.name,
+        artist: currentTrack.artists?.[0]?.name || 'Unknown',
+        album: currentTrack.album?.name || 'Unknown',
         uri: currentTrack.uri,
       },
       timestamp: new Date().toISOString(),
@@ -555,8 +534,8 @@ export class SpotifyScheduler {
       track: {
         id: track.id,
         name: track.name,
-        artist: track.artists[0]?.name || 'Unknown',
-        album: track.album.name,
+        artist: track.artists?.[0]?.name || 'Unknown',
+        album: track.album?.name || 'Unknown',
         uri: track.uri,
       },
       device: device
@@ -581,8 +560,8 @@ export class SpotifyScheduler {
       track: {
         id: track.id,
         name: track.name,
-        artist: track.artists[0]?.name || 'Unknown',
-        album: track.album.name,
+        artist: track.artists?.[0]?.name || 'Unknown',
+        album: track.album?.name || 'Unknown',
         uri: track.uri,
       },
       device: device
@@ -605,8 +584,8 @@ export class SpotifyScheduler {
       track: {
         id: track.id,
         name: track.name,
-        artist: track.artists[0]?.name || 'Unknown',
-        album: track.album.name,
+        artist: track.artists?.[0]?.name || 'Unknown',
+        album: track.album?.name || 'Unknown',
         uri: track.uri,
         duration_ms: track.duration_ms,
       },
