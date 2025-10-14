@@ -99,12 +99,6 @@ class ServiceSubscriptionService {
     };
   }
 
-  static const Map<String, Map<String, String>> _loginServices = {
-    'github': {'name': 'GitHub', 'login': 'api/auth/github/login'},
-    'google': {'name': 'Google', 'login': 'api/auth/google/login'},
-    'microsoft': {'name': 'Microsoft', 'login': 'api/auth/microsoft/login'},
-  };
-
   static Future<List<ServiceInfo>> getAllServices(String backendAddress) async {
     try {
       final jwt = await getJwt();
@@ -213,21 +207,6 @@ class ServiceSubscriptionService {
     final routes = _getServiceRoutes(serviceId);
     final subscribeEndpoint = routes['subscribe']!;
     return '$backendAddress$subscribeEndpoint?is_mobile=true';
-  }
-
-  static String getLoginUrl(String backendAddress, String serviceId) {
-    final routes = _getServiceRoutes(serviceId);
-    final loginEndpoint = routes['login']!;
-
-    if (loginEndpoint.isEmpty) {
-      return getSubscriptionUrl(backendAddress, serviceId);
-    }
-
-    return '$backendAddress$loginEndpoint?is_mobile=true';
-  }
-
-  static Map<String, String> getLoginServices() {
-    return _loginServices.map((key, value) => MapEntry(key, value['name']!));
   }
 
   static Future<bool> unsubscribeFromService(String backendAddress, String serviceId) async {
