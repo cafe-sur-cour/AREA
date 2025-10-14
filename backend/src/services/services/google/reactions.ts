@@ -1,12 +1,9 @@
 import type { ReactionDefinition } from '../../../types/service';
 import {
   googleSendEmailSchema,
-  googleAddLabelToEmailSchema,
   googleCreateCalendarEventSchema,
-  googleDeleteNextCalendarEventSchema,
   googleCreateDocumentSchema,
-  googleUploadFileToDriveSchema,
-  googleShareFileSchema,
+  googleUploadFileToDriveSchema
 } from './schemas';
 
 export const googleReactions: ReactionDefinition[] = [
@@ -42,6 +39,44 @@ export const googleReactions: ReactionDefinition[] = [
       tags: ['email', 'send', 'communication'],
       requiresAuth: true,
       estimatedDuration: 2000,
+    },
+  },
+  {
+    id: 'google.create_calendar_event',
+    name: 'Create Calendar Event',
+    description: 'Creates a new event in Google Calendar',
+    configSchema: googleCreateCalendarEventSchema,
+    outputSchema: {
+      type: 'object',
+      properties: {
+        event_id: {
+          type: 'string',
+          description: 'The ID of the created calendar event',
+        },
+        summary: {
+          type: 'string',
+          description: 'The title of the event',
+        },
+        start_datetime: {
+          type: 'string',
+          description: 'The start date/time of the event',
+        },
+        end_datetime: {
+          type: 'string',
+          description: 'The end date/time of the event',
+        },
+        success: {
+          type: 'boolean',
+          description: 'Whether the creation operation was successful',
+        },
+      },
+      required: ['event_id', 'summary', 'start_datetime', 'end_datetime', 'success'],
+    },
+    metadata: {
+      category: 'Calendar',
+      tags: ['calendar', 'event', 'schedule'],
+      requiresAuth: true,
+      estimatedDuration: 3000,
     },
   }
 ];

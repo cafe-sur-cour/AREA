@@ -28,20 +28,6 @@ export const googleSendEmailSchema: ActionReactionSchema = {
   ],
 };
 
-export const googleAddLabelToEmailSchema: ActionReactionSchema = {
-  name: 'Add Label to Latest Email',
-  description: 'Adds a label to the most recent email',
-  fields: [
-    {
-      name: 'label_name',
-      type: 'text',
-      label: 'Label Name',
-      required: true,
-      placeholder: 'Important',
-    },
-  ],
-};
-
 export const googleCreateCalendarEventSchema: ActionReactionSchema = {
   name: 'Create Calendar Event',
   description: 'Creates a new event in Google Calendar',
@@ -82,12 +68,6 @@ export const googleCreateCalendarEventSchema: ActionReactionSchema = {
       placeholder: 'john@example.com, jane@example.com',
     },
   ],
-};
-
-export const googleDeleteNextCalendarEventSchema: ActionReactionSchema = {
-  name: 'Delete Next Calendar Event',
-  description: 'Deletes the next upcoming event in Google Calendar',
-  fields: [],
 };
 
 export const googleCreateDocumentSchema: ActionReactionSchema = {
@@ -142,34 +122,6 @@ export const googleUploadFileToDriveSchema: ActionReactionSchema = {
       label: 'Folder ID (optional, root if empty)',
       required: false,
       placeholder: '1a2b3c4d5e6f',
-    },
-  ],
-};
-
-export const googleShareFileSchema: ActionReactionSchema = {
-  name: 'Share File',
-  description: 'Shares a file or folder with specific users',
-  fields: [
-    {
-      name: 'file_id',
-      type: 'text',
-      label: 'File/Folder ID',
-      required: true,
-      placeholder: '1a2b3c4d5e6f',
-    },
-    {
-      name: 'email',
-      type: 'text',
-      label: 'Email to Share With',
-      required: true,
-      placeholder: 'user@example.com',
-    },
-    {
-      name: 'role',
-      type: 'text',
-      label: 'Permission Role (reader, writer, commenter)',
-      required: false,
-      placeholder: 'reader',
     },
   ],
 };
