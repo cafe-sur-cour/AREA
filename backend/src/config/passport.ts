@@ -261,6 +261,13 @@ passport.use(
   )
 );
 
+const googleScopes = [
+  'openid',
+  'https://www.googleapis.com/auth/userinfo.email',
+  'https://www.googleapis.com/auth/userinfo.profile',
+  'https://www.googleapis.com/auth/gmail.send',
+];
+
 passport.use(
   'google-login',
   new GoogleStrategy(
@@ -268,7 +275,7 @@ passport.use(
       clientID: process.env.SERVICE_GOOGLE_CLIENT_ID || '',
       clientSecret: process.env.SERVICE_GOOGLE_CLIENT_SECRET || '',
       callbackURL: process.env.SERVICE_GOOGLE_REDIRECT_URI || '',
-      scope: ['openid', 'email', 'profile'],
+      scope: googleScopes,
       passReqToCallback: true,
     },
     async (
@@ -302,7 +309,7 @@ passport.use(
           token_type: 'bearer',
           expires_in: params.expires_in || 3600,
           refresh_token: refreshToken,
-          scope: 'openid email profile',
+          scope: googleScopes.join(' ')
         };
 
         const decoded = jwt.verify(userToken, JWT_SECRET as string) as {
@@ -333,7 +340,7 @@ passport.use(
       clientID: process.env.SERVICE_GOOGLE_CLIENT_ID || '',
       clientSecret: process.env.SERVICE_GOOGLE_CLIENT_SECRET || '',
       callbackURL: process.env.SERVICE_GOOGLE_REDIRECT_URI || '',
-      scope: ['openid', 'email', 'profile'],
+      scope: googleScopes,
       passReqToCallback: true,
     },
     async (
@@ -373,7 +380,7 @@ passport.use(
           token_type: 'bearer',
           expires_in: params.expires_in || 3600,
           refresh_token: refreshToken,
-          scope: 'openid email profile',
+          scope: googleScopes.join(' '),
         };
 
         const decoded = jwt.verify(userToken, JWT_SECRET as string) as {

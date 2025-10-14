@@ -121,7 +121,6 @@ async function handleGoogleSubscription(
     `Starting OAuth flow for user ${userId} to subscribe to ${service}`
   );
   passport.authenticate('google-subscribe', {
-    scope: ['openid', 'email', 'profile'],
     session: false,
   })(req, res, next);
   return null;

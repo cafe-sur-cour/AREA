@@ -64,16 +64,9 @@ export class GoogleOAuth {
     this.ensureInitialized();
     const scopes = [
       'openid',
-      'email',
-      'profile',
-      'https://www.googleapis.com/auth/gmail.send',
-      'https://www.googleapis.com/auth/gmail.modify',
       'https://www.googleapis.com/auth/userinfo.email',
-      'https://www.googleapis.com/auth/calendar',
-      'https://www.googleapis.com/auth/calendar.events',
-      'https://www.googleapis.com/auth/drive',
-      'https://www.googleapis.com/auth/drive.file',
-      'https://www.googleapis.com/auth/documents',
+      'https://www.googleapis.com/auth/userinfo.profile',
+      'https://www.googleapis.com/auth/gmail.send',
     ];
 
     const params = new URLSearchParams({
@@ -117,6 +110,41 @@ export class GoogleOAuth {
 
     if ('error' in data) {
       throw new Error(`Google OAuth error: ${data.error}`);
+    }
+
+    return data;
+  }
+
+  async refreshAccessToken(
+    refreshToken: string
+  ): Promise<GoogleTokenResponse> {
+    this.ensureInitialized();
+    const response = await fetch(`${this.googleAuthBaseUrl}/o/oauth2/token`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Accept: 'application/json',
+      },
+      body: new URLSearchParams({
+        client_id: this.clientId,
+        client_secret: this.clientSecret,
+        grant_type: 'refresh_token',
+        refresh_token: refreshToken,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        `Google OAuth token refresh failed: ${response.statusText}`
+      );
+    }
+
+    const data = (await response.json()) as
+      | GoogleTokenResponse
+      | GoogleErrorResponse;
+
+    if ('error' in data) {
+      throw new Error(`Google OAuth refresh error: ${data.error}`);
     }
 
     return data;
@@ -208,7 +236,37 @@ export class GoogleOAuth {
       },
     });
 
+    if (!token) {
+      return null;
+    }
+
     if (token && token.expires_at && token.expires_at < new Date()) {
+      const refreshToken = await tokenRepository.findOne({
+        where: {
+          user_id: userId,
+          token_type: 'google_refresh_token',
+          is_revoked: false,
+        },
+      });
+
+      if (refreshToken) {
+        try {
+          const newTokenData = await this.refreshAccessToken(
+            refreshToken.token_value
+          );
+          await this.storeUserToken(userId, newTokenData);
+          return await tokenRepository.findOne({
+            where: {
+              user_id: userId,
+              token_type: 'google_access_token',
+              is_revoked: false,
+            },
+          });
+        } catch (error) {
+          console.error('Failed to refresh Google token:', error);
+          return null;
+        }
+      }
       return null;
     }
 
@@ -219,10 +277,16 @@ export class GoogleOAuth {
     const tokenRepository = AppDataSource.getRepository(UserToken);
 
     const tokens = await tokenRepository.find({
-      where: {
-        user_id: userId,
-        token_type: 'google_access_token',
-      },
+      where: [
+        {
+          user_id: userId,
+          token_type: 'google_access_token',
+        },
+        {
+          user_id: userId,
+          token_type: 'google_refresh_token',
+        },
+      ],
     });
 
     for (const token of tokens) {
