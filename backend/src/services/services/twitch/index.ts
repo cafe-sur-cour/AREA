@@ -1,5 +1,9 @@
 import type { Service } from '../../../types/service';
 import { getIconSvg } from '../../../utils/iconMapping';
+import {
+  twitchFollowChannelSchema,
+  twitchUnfollowChannelSchema,
+} from './schemas';
 
 const twitchService: Service = {
   id: 'twitch',
@@ -8,7 +12,62 @@ const twitchService: Service = {
   version: '1.0.0',
   icon: getIconSvg('FaTwitch'),
   actions: [],
-  reactions: [],
+  reactions: [
+    {
+      id: 'twitch.follow_channel',
+      name: 'Follow a Channel',
+      description:
+        'Follows a specified Twitch channel on behalf of the authenticated user',
+      configSchema: twitchFollowChannelSchema,
+      outputSchema: {
+        type: 'object',
+        properties: {
+          broadcaster_id: {
+            type: 'string',
+            description: 'The ID of the channel that was followed',
+          },
+          success: {
+            type: 'boolean',
+            description: 'Whether the follow was successful',
+          },
+        },
+        required: ['success'],
+      },
+      metadata: {
+        category: 'Social',
+        tags: ['twitch', 'follow', 'channel', 'streaming'],
+        requiresAuth: true,
+        estimatedDuration: 2000,
+      },
+    },
+    {
+      id: 'twitch.unfollow_channel',
+      name: 'Unfollow a Channel',
+      description:
+        'Unfollows a specified Twitch channel on behalf of the authenticated user',
+      configSchema: twitchUnfollowChannelSchema,
+      outputSchema: {
+        type: 'object',
+        properties: {
+          broadcaster_id: {
+            type: 'string',
+            description: 'The ID of the channel that was unfollowed',
+          },
+          success: {
+            type: 'boolean',
+            description: 'Whether the unfollow was successful',
+          },
+        },
+        required: ['success'],
+      },
+      metadata: {
+        category: 'Social',
+        tags: ['twitch', 'unfollow', 'channel', 'streaming'],
+        requiresAuth: true,
+        estimatedDuration: 2000,
+      },
+    },
+  ],
   oauth: {
     enabled: true,
     supportsLogin: false,
@@ -32,3 +91,5 @@ export async function initialize(): Promise<void> {
 export async function cleanup(): Promise<void> {
   console.log('🔄 Twitch service cleanup complete');
 }
+
+export { twitchReactionExecutor as executor } from './executor';
