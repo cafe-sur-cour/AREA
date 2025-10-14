@@ -124,6 +124,7 @@ export class SpotifyScheduler {
 
         this.activeUserIdsCache = userIds;
         this.lastCacheUpdate = now;
+        console.log(`[Spotify Polling] Found ${userIds.length} active users with Spotify mappings:`, userIds);
       }
 
       if (userIds.length === 0) {
@@ -148,9 +149,10 @@ export class SpotifyScheduler {
     try {
       const userToken = await spotifyOAuth.getUserToken(userId);
       if (!userToken) {
-        console.log(`No token found for user ${userId}`);
+        console.log(`[Spotify] No token found for user ${userId}`);
         return;
       }
+      console.log(`[Spotify] Polling user ${userId}`);
 
       const hasPlaybackScope = userToken.scopes?.includes(
         'user-read-playback-state'
@@ -481,6 +483,7 @@ export class SpotifyScheduler {
     previousTrack: SpotifyTrack | null,
     currentTrack: SpotifyTrack
   ): Promise<void> {
+    console.log(`[Spotify] Track changed for user ${userId}: ${previousTrack?.name || 'null'} -> ${currentTrack.name}`);
     await this.createEvent(userId, 'spotify.track_changed', {
       previous_track: previousTrack
         ? {
