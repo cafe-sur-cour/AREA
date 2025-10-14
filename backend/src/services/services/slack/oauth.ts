@@ -182,10 +182,12 @@ export class SlackOAuth {
   ): Promise<void> {
     const tokenRepository = AppDataSource.getRepository(UserToken);
 
+    const appTokenType = `slack_access_token_user_${userId}`;
+
     const existingToken = await tokenRepository.findOne({
       where: {
         user_id: userId,
-        token_type: 'slack_access_token',
+        token_type: appTokenType,
       },
     });
 
@@ -195,7 +197,7 @@ export class SlackOAuth {
     } else {
       const newToken = tokenRepository.create({
         user_id: userId,
-        token_type: 'slack_access_token',
+        token_type: appTokenType,
         token_value: tokenData.access_token,
         scopes: tokenData.scope.split(','),
       });
@@ -203,10 +205,11 @@ export class SlackOAuth {
     }
 
     if (tokenData.authed_user?.access_token) {
+      const userTokenType = `slack_user_access_token_user_${userId}`;
       const existingUserToken = await tokenRepository.findOne({
         where: {
           user_id: userId,
-          token_type: 'slack_user_access_token',
+          token_type: userTokenType,
         },
       });
 
@@ -216,7 +219,7 @@ export class SlackOAuth {
       } else {
         const newUserToken = tokenRepository.create({
           user_id: userId,
-          token_type: 'slack_user_access_token',
+          token_type: userTokenType,
           token_value: tokenData.authed_user.access_token,
           scopes: tokenData.authed_user.scope?.split(',') || [],
         });
@@ -231,7 +234,7 @@ export class SlackOAuth {
     const token = await tokenRepository.findOne({
       where: {
         user_id: userId,
-        token_type: 'slack_access_token',
+        token_type: `slack_access_token_user_${userId}`,
         is_revoked: false,
       },
     });
@@ -245,7 +248,7 @@ export class SlackOAuth {
     const token = await tokenRepository.findOne({
       where: {
         user_id: userId,
-        token_type: 'slack_user_access_token',
+        token_type: `slack_user_access_token_user_${userId}`,
         is_revoked: false,
       },
     });
@@ -260,11 +263,11 @@ export class SlackOAuth {
       where: [
         {
           user_id: userId,
-          token_type: 'slack_access_token',
+          token_type: `slack_access_token_user_${userId}`,
         },
         {
           user_id: userId,
-          token_type: 'slack_user_access_token',
+          token_type: `slack_user_access_token_user_${userId}`,
         },
       ],
     });

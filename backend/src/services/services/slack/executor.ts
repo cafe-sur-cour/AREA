@@ -105,7 +105,9 @@ export class SlackReactionExecutor implements ReactionExecutor {
       }
 
       const accessToken = userToken.token_value;
-      const isUserToken = userToken.token_type === 'slack_user_access_token';
+      const isUserToken = userToken.token_type.startsWith(
+        'slack_user_access_token_user_'
+      );
 
       switch (reaction.type) {
         case 'slack.send_message':

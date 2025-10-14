@@ -3,6 +3,7 @@ import crypto from 'crypto';
 import { AppDataSource } from '../../../../config/db';
 import { WebhookEvents } from '../../../../config/entity/WebhookEvents';
 import { UserToken } from '../../../../config/entity/UserToken';
+import { Raw } from 'typeorm';
 import type { WebhookHandler } from '../../../../types/webhook';
 
 class SlackWebhookHandler implements WebhookHandler {
@@ -190,7 +191,7 @@ class SlackWebhookHandler implements WebhookHandler {
 
     const slackTokens = await tokenRepository.find({
       where: {
-        token_type: 'slack_access_token',
+        token_type: Raw(alias => `${alias} LIKE 'slack_access_token_user_%'`),
         is_revoked: false,
       },
     });
@@ -359,7 +360,7 @@ class SlackWebhookHandler implements WebhookHandler {
       const userToken = await tokenRepository.findOne({
         where: {
           user_id: userId,
-          token_type: 'user_access_token',
+          token_type: `slack_user_access_token_user_${userId}`,
         },
       });
 
