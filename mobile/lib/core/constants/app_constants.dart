@@ -7,6 +7,7 @@ class AppRoutes {
   static const String register = "api/auth/register";
   static const String logout = "api/auth/logout";
   static const String forgotPassword = "api/auth/forgot-password";
+  static const String jwtCheck = "api/auth/login/status";
 
   // Profile
   static const String me = "api/user/me";
@@ -27,7 +28,11 @@ class AppRoutes {
   static String reactionsFromService(String serviceId) => "api/services/$serviceId/reactions";
 
   // Action Reaction mapping
-  static String createAutomation = "api/mappings";
+  static const String createAutomation = "api/mappings";
+  static const String getAutomations = "api/mappings";
+  static String deleteAutomation(String id) => "api/mappings/$id";
+  static String activateAutomation(String id) => "api/mappings/$id/activate";
+  static String deactivateAutomation(String id) => "api/mappings/$id/deactivate";
 }
 
 class AppDimensions {
