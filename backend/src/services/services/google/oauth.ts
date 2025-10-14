@@ -67,7 +67,7 @@ export class GoogleOAuth {
       'https://www.googleapis.com/auth/userinfo.email',
       'https://www.googleapis.com/auth/userinfo.profile',
       'https://www.googleapis.com/auth/gmail.send',
-      'https://www.googleapis.com/auth/calendar.events'
+      'https://www.googleapis.com/auth/calendar'
     ];
 
     const params = new URLSearchParams({
