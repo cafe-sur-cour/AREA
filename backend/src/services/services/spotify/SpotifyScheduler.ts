@@ -177,6 +177,17 @@ export class SpotifyScheduler {
       );
       if (!response) return;
 
+      if (response.status === 204) {
+        const userState = this.getUserState(userId);
+        if (userState.isInitialized && userState.lastPlaybackState === true) {
+          await this.triggerPlaybackPaused(userId, userState.lastTrack, null);
+        }
+        userState.lastPlaybackState = false;
+        userState.lastTrack = null;
+        userState.isInitialized = true;
+        return;
+      }
+
       const playbackState: SpotifyPlaybackState = await response.json();
 
       const userState = this.getUserState(userId);
