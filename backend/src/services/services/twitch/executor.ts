@@ -59,10 +59,8 @@ export class TwitchReactionExecutor implements ReactionExecutor {
   ): Promise<string | null> {
     try {
       const clientId = process.env.SERVICE_TWITCH_CLIENT_ID || '';
-      console.log(`🔍 [Twitch] Looking up broadcaster ID for "${login}"`);
 
       if (!clientId) {
-        console.error('❌ [Twitch] SERVICE_TWITCH_CLIENT_ID not configured');
         return null;
       }
 
@@ -76,13 +74,7 @@ export class TwitchReactionExecutor implements ReactionExecutor {
         }
       );
 
-      console.log(`📡 [Twitch] API response status: ${response.status}`);
-
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error(
-          `❌ [Twitch] API error for "${login}": ${response.status} - ${errorText}`
-        );
         return null;
       }
 
@@ -90,26 +82,17 @@ export class TwitchReactionExecutor implements ReactionExecutor {
         data: Array<{ id: string; login: string; display_name: string }>;
       };
 
-      console.log(`📊 [Twitch] API response data:`, data);
-
       if (!data.data || data.data.length === 0) {
-        console.log(`⚠️ [Twitch] No user found for login "${login}"`);
         return null;
       }
 
       const user = data.data[0];
       if (!user) {
-        console.log(`⚠️ [Twitch] User data is empty for "${login}"`);
         return null;
       }
 
-      console.log(`✅ [Twitch] Found user: ${user.login} (ID: ${user.id})`);
       return user.id;
-    } catch (error) {
-      console.error(
-        `❌ [Twitch] Error fetching broadcaster ID for "${login}":`,
-        error
-      );
+    } catch {
       return null;
     }
   }
@@ -117,10 +100,8 @@ export class TwitchReactionExecutor implements ReactionExecutor {
   private async getUserTwitchId(accessToken: string): Promise<string | null> {
     try {
       const clientId = process.env.SERVICE_TWITCH_CLIENT_ID || '';
-      console.log(`🔍 [Twitch] Getting authenticated user ID`);
 
       if (!clientId) {
-        console.error('❌ [Twitch] SERVICE_TWITCH_CLIENT_ID not configured');
         return null;
       }
 
@@ -131,15 +112,7 @@ export class TwitchReactionExecutor implements ReactionExecutor {
         },
       });
 
-      console.log(
-        `📡 [Twitch] User info API response status: ${response.status}`
-      );
-
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error(
-          `❌ [Twitch] Failed to get user info: ${response.status} - ${errorText}`
-        );
         return null;
       }
 
@@ -147,25 +120,17 @@ export class TwitchReactionExecutor implements ReactionExecutor {
         data: Array<{ id: string; login: string; display_name: string }>;
       };
 
-      console.log(`📊 [Twitch] User info response data:`, data);
-
       if (!data.data || data.data.length === 0) {
-        console.log(`⚠️ [Twitch] No user data returned`);
         return null;
       }
 
       const user = data.data[0];
       if (!user) {
-        console.log(`⚠️ [Twitch] User data is empty`);
         return null;
       }
 
-      console.log(
-        `✅ [Twitch] Authenticated user: ${user.login} (ID: ${user.id})`
-      );
       return user.id;
-    } catch (error) {
-      console.error('❌ [Twitch] Error fetching user Twitch ID:', error);
+    } catch {
       return null;
     }
   }
@@ -175,10 +140,6 @@ export class TwitchReactionExecutor implements ReactionExecutor {
     accessToken: string
   ): Promise<ReactionExecutionResult> {
     const { description } = config as { description: string };
-
-    console.log(
-      `🎯 [Twitch] Starting update_channel reaction with description: "${description}"`
-    );
 
     if (!description || description.trim().length === 0) {
       return {
@@ -195,19 +156,14 @@ export class TwitchReactionExecutor implements ReactionExecutor {
     }
 
     try {
-      console.log(`🔑 [Twitch] Getting authenticated user ID...`);
       const userId = await this.getUserTwitchId(accessToken);
       if (!userId) {
-        console.log(`❌ [Twitch] Failed to get authenticated user ID`);
         return {
           success: false,
           error: 'Failed to get authenticated user information',
         };
       }
-      console.log(`✅ [Twitch] Authenticated user ID: ${userId}`);
 
-      // Get current user information to capture old description
-      console.log(`📡 [Twitch] Getting current user information...`);
       const currentUserResponse = await fetch(
         `${this.apiBaseUrl}/users?id=${userId}`,
         {
@@ -223,24 +179,15 @@ export class TwitchReactionExecutor implements ReactionExecutor {
         const currentUserData = (await currentUserResponse.json()) as {
           data: Array<{ description: string }>;
         };
-        console.log(`📊 [Twitch] Current user data:`, currentUserData);
         if (
           currentUserData.data &&
           currentUserData.data.length > 0 &&
           currentUserData.data[0]
         ) {
           oldDescription = currentUserData.data[0].description || '';
-          console.log(`📝 [Twitch] Current description: "${oldDescription}"`);
         }
-      } else {
-        console.log(
-          `⚠️ [Twitch] Failed to get current user info: ${currentUserResponse.status}`
-        );
       }
 
-      console.log(
-        `📡 [Twitch] Updating channel description to: "${description}"`
-      );
       const response = await fetch(
         `${this.apiBaseUrl}/users?description=${encodeURIComponent(description.trim())}`,
         {
@@ -252,10 +199,6 @@ export class TwitchReactionExecutor implements ReactionExecutor {
         }
       );
 
-      console.log(
-        `📡 [Twitch] Update user API response status: ${response.status}`
-      );
-
       if (!response.ok) {
         const errorData = (await response
           .json()
@@ -263,8 +206,6 @@ export class TwitchReactionExecutor implements ReactionExecutor {
         const errorMessage =
           errorData.message ||
           `HTTP ${response.status}: ${response.statusText}`;
-
-        console.log(`❌ [Twitch] Update user API error: ${errorMessage}`);
 
         if (response.status === 401) {
           return {
@@ -295,12 +236,6 @@ export class TwitchReactionExecutor implements ReactionExecutor {
         };
       }
 
-      console.log(
-        `✅ [Twitch] Successfully updated channel description to: "${description}"`
-      );
-      console.log(
-        `📊 [Twitch] Description changed from "${oldDescription}" to "${description.trim()}"`
-      );
       return {
         success: true,
         output: {
@@ -311,7 +246,6 @@ export class TwitchReactionExecutor implements ReactionExecutor {
         },
       };
     } catch (error) {
-      console.error(`❌ [Twitch] Network error while updating channel:`, error);
       return {
         success: false,
         error: `Network error while updating channel: ${(error as Error).message}`,

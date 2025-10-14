@@ -14,7 +14,7 @@ const twitchService: Service = {
       id: 'twitch.update_channel',
       name: 'Update Channel Description',
       description:
-        'Updates the description of the authenticated user\'s own Twitch channel',
+        "Updates the description of the authenticated user's own Twitch channel",
       configSchema: twitchUpdateChannelSchema,
       outputSchema: {
         type: 'object',

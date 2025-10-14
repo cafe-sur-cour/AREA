@@ -12,6 +12,8 @@ export const twitchUpdateChannelSchema: ActionReactionSchema = {
       required: true,
       placeholder:
         'Welcome to my channel! I stream games and have fun with viewers.',
+      dynamic: true,
+      dynamicPlaceholder: 'Now playing: {{action.payload.track.name}}',
     },
   ],
 };
