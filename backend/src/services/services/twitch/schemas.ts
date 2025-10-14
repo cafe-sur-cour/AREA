@@ -17,3 +17,51 @@ export const twitchUpdateChannelSchema: ActionReactionSchema = {
     },
   ],
 };
+
+export const twitchBanUserSchema: ActionReactionSchema = {
+  name: 'Ban User',
+  description:
+    "Bans or times out a user from the authenticated user's Twitch channel chat",
+  fields: [
+    {
+      name: 'username',
+      type: 'text',
+      label: 'Username to Ban/Timeout',
+      required: true,
+      placeholder: 'twitchuser123',
+      dynamic: true,
+      dynamicPlaceholder: '{{action.payload.user.login}}',
+    },
+    {
+      name: 'duration',
+      type: 'number',
+      label: 'Timeout Duration (seconds, optional for permanent ban)',
+      required: false,
+      placeholder: '300',
+    },
+    {
+      name: 'reason',
+      type: 'text',
+      label: 'Reason (optional)',
+      required: false,
+      placeholder: 'Violation of chat rules',
+    },
+  ],
+};
+
+export const twitchUnbanUserSchema: ActionReactionSchema = {
+  name: 'Unban User',
+  description:
+    "Unbans a user from the authenticated user's Twitch channel chat",
+  fields: [
+    {
+      name: 'username',
+      type: 'text',
+      label: 'Username to Unban',
+      required: true,
+      placeholder: 'twitchuser123',
+      dynamic: true,
+      dynamicPlaceholder: '{{action.payload.user.login}}',
+    },
+  ],
+};

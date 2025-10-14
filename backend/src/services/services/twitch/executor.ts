@@ -11,6 +11,12 @@ interface TwitchErrorResponse {
   message: string;
 }
 
+interface TwitchBanRequest {
+  user_id: string;
+  duration?: number;
+  reason?: string;
+}
+
 export class TwitchReactionExecutor implements ReactionExecutor {
   private apiBaseUrl: string;
 
@@ -38,6 +44,10 @@ export class TwitchReactionExecutor implements ReactionExecutor {
       switch (reaction.type) {
         case 'twitch.update_channel':
           return await this.updateChannel(reaction.config, validToken);
+        case 'twitch.ban_user':
+          return await this.banUser(reaction.config, validToken);
+        case 'twitch.unban_user':
+          return await this.unbanUser(reaction.config, validToken);
         default:
           return {
             success: false,
@@ -249,6 +259,238 @@ export class TwitchReactionExecutor implements ReactionExecutor {
       return {
         success: false,
         error: `Network error while updating channel: ${(error as Error).message}`,
+      };
+    }
+  }
+
+  private async banUser(
+    config: Record<string, unknown>,
+    accessToken: string
+  ): Promise<ReactionExecutionResult> {
+    const { username, duration, reason } = config as {
+      username: string;
+      duration?: number;
+      reason?: string;
+    };
+
+    if (!username || username.trim().length === 0) {
+      return {
+        success: false,
+        error: 'Username is required and cannot be empty',
+      };
+    }
+
+    if (duration !== undefined && (duration < 1 || duration > 1209600)) {
+      return {
+        success: false,
+        error:
+          'Timeout duration must be between 1 and 1,209,600 seconds (2 weeks)',
+      };
+    }
+
+    if (reason && reason.length > 500) {
+      return {
+        success: false,
+        error: 'Ban reason cannot exceed 500 characters',
+      };
+    }
+
+    try {
+      // First, get the user ID from the username
+      const targetUserId = await this.getBroadcasterId(
+        username.trim(),
+        accessToken
+      );
+      if (!targetUserId) {
+        return {
+          success: false,
+          error: `User "${username.trim()}" not found`,
+        };
+      }
+
+      const broadcasterId = await this.getUserTwitchId(accessToken);
+      if (!broadcasterId) {
+        return {
+          success: false,
+          error: 'Failed to get authenticated user information',
+        };
+      }
+
+      const requestBody: TwitchBanRequest = {
+        user_id: targetUserId,
+      };
+
+      if (duration !== undefined) {
+        requestBody.duration = duration;
+      }
+
+      if (reason) {
+        requestBody.reason = reason.trim();
+      }
+
+      const response = await fetch(
+        `${this.apiBaseUrl}/moderation/bans?broadcaster_id=${broadcasterId}&moderator_id=${broadcasterId}`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'Client-Id': process.env.SERVICE_TWITCH_CLIENT_ID || '',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ data: requestBody }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = (await response
+          .json()
+          .catch(() => ({}))) as TwitchErrorResponse;
+        const errorMessage =
+          errorData.message ||
+          `HTTP ${response.status}: ${response.statusText}`;
+
+        if (response.status === 401) {
+          return {
+            success: false,
+            error:
+              'Authentication failed. Please reauthorize your Twitch account.',
+          };
+        } else if (response.status === 403) {
+          return {
+            success: false,
+            error:
+              'Insufficient permissions. The moderator:manage:banned_users scope is required.',
+          };
+        } else if (response.status === 400) {
+          return {
+            success: false,
+            error: `Invalid request: ${errorMessage}`,
+          };
+        } else if (response.status === 409) {
+          return {
+            success: false,
+            error: 'User is already banned or timed out',
+          };
+        }
+
+        return {
+          success: false,
+          error: `Twitch API error: ${errorMessage}`,
+        };
+      }
+
+      return {
+        success: true,
+        output: {
+          broadcaster_id: broadcasterId,
+          username: username.trim(),
+          duration: duration || null,
+          success: true,
+        },
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: `Network error while banning user: ${(error as Error).message}`,
+      };
+    }
+  }
+
+  private async unbanUser(
+    config: Record<string, unknown>,
+    accessToken: string
+  ): Promise<ReactionExecutionResult> {
+    const { username } = config as { username: string };
+
+    if (!username || username.trim().length === 0) {
+      return {
+        success: false,
+        error: 'Username is required and cannot be empty',
+      };
+    }
+
+    try {
+      // First, get the user ID from the username
+      const targetUserId = await this.getBroadcasterId(
+        username.trim(),
+        accessToken
+      );
+      if (!targetUserId) {
+        return {
+          success: false,
+          error: `User "${username.trim()}" not found`,
+        };
+      }
+
+      const broadcasterId = await this.getUserTwitchId(accessToken);
+      if (!broadcasterId) {
+        return {
+          success: false,
+          error: 'Failed to get authenticated user information',
+        };
+      }
+
+      const response = await fetch(
+        `${this.apiBaseUrl}/moderation/bans?broadcaster_id=${broadcasterId}&moderator_id=${broadcasterId}&user_id=${encodeURIComponent(targetUserId)}`,
+        {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'Client-Id': process.env.SERVICE_TWITCH_CLIENT_ID || '',
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = (await response
+          .json()
+          .catch(() => ({}))) as TwitchErrorResponse;
+        const errorMessage =
+          errorData.message ||
+          `HTTP ${response.status}: ${response.statusText}`;
+
+        if (response.status === 401) {
+          return {
+            success: false,
+            error:
+              'Authentication failed. Please reauthorize your Twitch account.',
+          };
+        } else if (response.status === 403) {
+          return {
+            success: false,
+            error:
+              'Insufficient permissions. The moderator:manage:banned_users scope is required.',
+          };
+        } else if (response.status === 400) {
+          return {
+            success: false,
+            error: `Invalid request: ${errorMessage}`,
+          };
+        } else if (response.status === 404) {
+          return {
+            success: false,
+            error: 'User is not currently banned',
+          };
+        }
+
+        return {
+          success: false,
+          error: `Twitch API error: ${errorMessage}`,
+        };
+      }
+
+      return {
+        success: true,
+        output: {
+          broadcaster_id: broadcasterId,
+          username: username.trim(),
+          success: true,
+        },
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: `Network error while unbanning user: ${(error as Error).message}`,
       };
     }
   }

@@ -1,6 +1,10 @@
 import type { Service } from '../../../types/service';
 import { getIconSvg } from '../../../utils/iconMapping';
-import { twitchUpdateChannelSchema } from './schemas';
+import {
+  twitchUpdateChannelSchema,
+  twitchBanUserSchema,
+  twitchUnbanUserSchema,
+} from './schemas';
 
 const twitchService: Service = {
   id: 'twitch',
@@ -43,6 +47,74 @@ const twitchService: Service = {
         tags: ['twitch', 'channel', 'update', 'description', 'streaming'],
         requiresAuth: true,
         estimatedDuration: 3000,
+      },
+    },
+    {
+      id: 'twitch.ban_user',
+      name: 'Ban User',
+      description:
+        "Bans or times out a user from the authenticated user's Twitch channel chat",
+      configSchema: twitchBanUserSchema,
+      outputSchema: {
+        type: 'object',
+        properties: {
+          broadcaster_id: {
+            type: 'string',
+            description:
+              'The ID of the channel where the user was banned/timed out',
+          },
+          username: {
+            type: 'string',
+            description: 'The username of the user who was banned/timed out',
+          },
+          duration: {
+            type: 'number',
+            description:
+              'The timeout duration in seconds (null for permanent ban)',
+          },
+          success: {
+            type: 'boolean',
+            description: 'Whether the ban/timeout was successful',
+          },
+        },
+        required: ['success'],
+      },
+      metadata: {
+        category: 'Moderation',
+        tags: ['twitch', 'moderation', 'ban', 'chat', 'user'],
+        requiresAuth: true,
+        estimatedDuration: 2000,
+      },
+    },
+    {
+      id: 'twitch.unban_user',
+      name: 'Unban User',
+      description:
+        "Unbans a user from the authenticated user's Twitch channel chat",
+      configSchema: twitchUnbanUserSchema,
+      outputSchema: {
+        type: 'object',
+        properties: {
+          broadcaster_id: {
+            type: 'string',
+            description: 'The ID of the channel where the user was unbanned',
+          },
+          username: {
+            type: 'string',
+            description: 'The username of the user who was unbanned',
+          },
+          success: {
+            type: 'boolean',
+            description: 'Whether the unban was successful',
+          },
+        },
+        required: ['success'],
+      },
+      metadata: {
+        category: 'Moderation',
+        tags: ['twitch', 'moderation', 'unban', 'chat', 'user'],
+        requiresAuth: true,
+        estimatedDuration: 2000,
       },
     },
   ],
