@@ -303,7 +303,11 @@ export default function MyAreasPage() {
                   Create Area
                 </Button>
                 <DrawerClose asChild>
-                  <Button className=' cursor-pointer' variant='outline' onClick={() => router.replace("/my-areas")}>
+                  <Button
+                    className=' cursor-pointer'
+                    variant='outline'
+                    onClick={() => router.replace('/my-areas')}
+                  >
                     Cancel
                   </Button>
                 </DrawerClose>

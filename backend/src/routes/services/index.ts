@@ -1044,7 +1044,6 @@ router.get(
  *         description: Internal server error
  */
 
-
 router.get(
   '/:serviceName/actions/:id',
   token,
@@ -1058,7 +1057,7 @@ router.get(
 
       const service = serviceRegistry.getService(serviceName);
 
-      if (!service || !service.actions.find((element) => element.id === id)) {
+      if (!service || !service.actions.find(element => element.id === id)) {
         return res.status(404).json({
           error: 'Service name or id not found',
           service_id: serviceName,
@@ -1066,7 +1065,12 @@ router.get(
         });
       }
 
-      return res.status(200).json({serviceId: service.id, ...service.actions.find((element) => element.id === id)});
+      return res
+        .status(200)
+        .json({
+          serviceId: service.id,
+          ...service.actions.find(element => element.id === id),
+        });
     } catch (err) {
       console.error('Error fetching service actions:', err);
       return res
@@ -1075,7 +1079,6 @@ router.get(
     }
   }
 );
-
 
 /**
  * @swagger
@@ -1454,12 +1457,14 @@ router.get(
       const { serviceName, id } = req.params;
 
       if (!id || !serviceName) {
-        return res.status(400).json({ error: 'Service ID and Reaction ID is required' });
+        return res
+          .status(400)
+          .json({ error: 'Service ID and Reaction ID is required' });
       }
 
       const service = serviceRegistry.getService(serviceName);
 
-      if (!service || !service.reactions.find((element) => element.id === id)) {
+      if (!service || !service.reactions.find(element => element.id === id)) {
         return res.status(404).json({
           error: 'Service or reaction not found',
           service_id: serviceName,
@@ -1467,7 +1472,12 @@ router.get(
         });
       }
 
-      return res.status(200).json({serviceId: service.id, ...service.reactions.find((element) => element.id === id)});
+      return res
+        .status(200)
+        .json({
+          serviceId: service.id,
+          ...service.reactions.find(element => element.id === id),
+        });
     } catch (err) {
       console.error('Error fetching service reactions:', err);
       return res

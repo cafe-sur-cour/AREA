@@ -58,7 +58,8 @@ export default function ActionForm({
           setIsFirstTime(true);
           setSelectedServiceAction(selectedAction.serviceId);
           setListAction(
-            res.services.find(action => action.id === selectedAction.serviceId)?.actions || []
+            res.services.find(action => action.id === selectedAction.serviceId)
+              ?.actions || []
           );
         }
       } finally {
@@ -69,8 +70,7 @@ export default function ActionForm({
     fetchAction();
   }, []);
 
-  useEffect(() => {
-  }, [selectedAction]);
+  useEffect(() => {}, [selectedAction]);
 
   if (isLoading) return null;
   return (

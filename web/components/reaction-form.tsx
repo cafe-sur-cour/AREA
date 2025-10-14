@@ -27,7 +27,7 @@ interface ReactionInstance {
 interface ReactionFormProps {
   onReactionsChange: (reactions: Reaction[]) => void;
   onConfigChange: (config: Record<string, unknown>[]) => void;
-  defaultReaction: Reaction | null
+  defaultReaction: Reaction | null;
 }
 
 const getStringValue = (value: unknown): string => {
@@ -39,13 +39,13 @@ const getStringValue = (value: unknown): string => {
 export default function ReactionForm({
   onReactionsChange,
   onConfigChange,
-  defaultReaction
+  defaultReaction,
 }: ReactionFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [ServiceReactions, setServiceReactions] = useState<ServiceReaction[]>(
     []
   );
-  console.log("DEFAULT REACTION: ", defaultReaction);
+  console.log('DEFAULT REACTION: ', defaultReaction);
   const [reactionInstances, setReactionInstances] = useState<
     ReactionInstance[]
   >([
