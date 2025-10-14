@@ -95,7 +95,9 @@ export class SpotifyScheduler {
   private async pollActiveUsers(): Promise<void> {
     try {
       const now = Date.now();
-      console.log(`[Spotify Poll] 🚀 Starting poll cycle at ${new Date(now).toISOString()}`);
+      console.log(
+        `[Spotify Poll] 🚀 Starting poll cycle at ${new Date(now).toISOString()}`
+      );
 
       let userIds: number[];
       if (
@@ -103,11 +105,17 @@ export class SpotifyScheduler {
         this.activeUserIdsCache.length > 0
       ) {
         userIds = this.activeUserIdsCache;
-        console.log(`[Spotify Poll] 💾 Using cached users: [${userIds.join(', ')}]`);
+        console.log(
+          `[Spotify Poll] 💾 Using cached users: [${userIds.join(', ')}]`
+        );
       } else {
-        console.log(`[Spotify Poll] 🔄 Cache expired or empty (${now - this.lastCacheUpdate}ms since last update), refreshing...`);
+        console.log(
+          `[Spotify Poll] 🔄 Cache expired or empty (${now - this.lastCacheUpdate}ms since last update), refreshing...`
+        );
         const mappingRepository = AppDataSource.getRepository(WebhookConfigs);
-        console.log(`[Spotify Poll] 🔍 Searching for active Spotify mappings...`);
+        console.log(
+          `[Spotify Poll] 🔍 Searching for active Spotify mappings...`
+        );
 
         const activeMappings = await mappingRepository.find({
           where: {
@@ -119,7 +127,9 @@ export class SpotifyScheduler {
           select: ['created_by'],
         });
 
-        console.log(`[Spotify Poll] 📋 Found ${activeMappings.length} active Spotify mappings:`);
+        console.log(
+          `[Spotify Poll] 📋 Found ${activeMappings.length} active Spotify mappings:`
+        );
         activeMappings.forEach(mapping => {
           console.log(`  - Mapping created_by user ${mapping.created_by}`);
         });
@@ -132,7 +142,9 @@ export class SpotifyScheduler {
           ),
         ];
 
-        console.log(`[Spotify Poll] 👥 Deduplicated to ${userIds.length} unique users: [${userIds.join(', ')}]`);
+        console.log(
+          `[Spotify Poll] 👥 Deduplicated to ${userIds.length} unique users: [${userIds.join(', ')}]`
+        );
 
         this.activeUserIdsCache = userIds;
         this.lastCacheUpdate = now;
@@ -143,7 +155,9 @@ export class SpotifyScheduler {
         return;
       }
 
-      console.log(`[Spotify Poll] 🎯 Polling ${userIds.length} users: [${userIds.join(', ')}]`);
+      console.log(
+        `[Spotify Poll] 🎯 Polling ${userIds.length} users: [${userIds.join(', ')}]`
+      );
 
       const chunks = this.chunkArray(userIds, this.MAX_CONCURRENT_USERS);
       for (const chunk of chunks) {
@@ -161,7 +175,6 @@ export class SpotifyScheduler {
 
   private async pollUser(userId: number): Promise<void> {
     try {
-      console.log(`[Spotify Poll] 🔍 Starting to poll user ${userId}`);
       const userToken = await spotifyOAuth.getUserToken(userId);
       if (!userToken) {
         console.warn(
@@ -182,11 +195,8 @@ export class SpotifyScheduler {
         return;
       }
 
-      console.log(`[Spotify Poll] ✅ User ${userId} - Token valid, scopes: [${userToken.scopes?.join(', ') || 'NONE'}]`);
-
       await this.checkPlaybackState(userId);
       await this.checkLikedTracks(userId);
-      console.log(`[Spotify Poll] ✅ User ${userId} - Polling completed`);
     } catch (error) {
       console.error(`Error polling user ${userId}:`, error);
     }
@@ -194,21 +204,17 @@ export class SpotifyScheduler {
 
   private async checkPlaybackState(userId: number): Promise<void> {
     try {
-      console.log(`[Spotify Poll] 🎵 User ${userId} - Checking playback state...`);
       const response = await this.makeSpotifyRequest(
         userId,
         `${this.SPOTIFY_API_BASE_URL}/me/player`
       );
       if (!response) {
-        console.log(`[Spotify Poll] ❌ User ${userId} - No response from Spotify API`);
         return;
       }
 
       if (response.status === 204) {
         const userState = this.getUserState(userId);
-        console.log(`[Spotify Poll] 💤 User ${userId} - No active playback (204 response)`);
         if (userState.isInitialized && userState.lastPlaybackState === true) {
-          console.log(`[Spotify Poll] ⏸️ User ${userId} - Triggering playback paused (was playing)`);
           await this.triggerPlaybackPaused(userId, userState.lastTrack, null);
         }
         userState.lastPlaybackState = false;
@@ -218,18 +224,13 @@ export class SpotifyScheduler {
       }
 
       const playbackState: SpotifyPlaybackState = await response.json();
-      console.log(`[Spotify Poll] 🎶 User ${userId} - Playback state: playing=${playbackState.is_playing}, track=${playbackState.item?.name || 'none'}`);
 
       const userState = this.getUserState(userId);
       const currentTrack = playbackState.item;
       const isPlaying = playbackState.is_playing;
 
       if (userState.isInitialized) {
-        if (
-          userState.lastTrack?.id !== currentTrack?.id &&
-          currentTrack
-        ) {
-          console.log(`[Spotify Poll] 🔄 User ${userId} - Track changed: "${userState.lastTrack?.name || 'none'}" → "${currentTrack.name}" (playing: ${isPlaying})`);
+        if (userState.lastTrack?.id !== currentTrack?.id && currentTrack) {
           await this.triggerTrackChanged(
             userId,
             userState.lastTrack,
@@ -242,14 +243,12 @@ export class SpotifyScheduler {
           userState.lastPlaybackState !== isPlaying
         ) {
           if (isPlaying) {
-            console.log(`[Spotify Poll] ▶️ User ${userId} - Playback started`);
             await this.triggerPlaybackStarted(
               userId,
               currentTrack,
               playbackState.device
             );
           } else {
-            console.log(`[Spotify Poll] ⏸️ User ${userId} - Playback paused`);
             await this.triggerPlaybackPaused(
               userId,
               currentTrack,
@@ -257,8 +256,6 @@ export class SpotifyScheduler {
             );
           }
         }
-      } else {
-        console.log(`[Spotify Poll] 🆕 User ${userId} - Initializing state: playing=${isPlaying}, track="${currentTrack?.name || 'none'}"`);
       }
 
       this.updateUserState(userId, {
@@ -376,7 +373,6 @@ export class SpotifyScheduler {
     this.lastRequestTime.set(userId, Date.now());
 
     try {
-      console.log(`[Spotify API] 🌐 User ${userId} - Making request to: ${url}`);
       const response = await fetch(url, {
         headers: {
           Authorization: `Bearer ${userToken.token_value}`,
@@ -440,7 +436,6 @@ export class SpotifyScheduler {
         return null;
       }
 
-      console.log(`[Spotify API] ✅ User ${userId} - Request successful (${response.status})`);
       return response;
     } catch (error) {
       console.error(`Network error for user ${userId}:`, error);
@@ -631,8 +626,6 @@ export class SpotifyScheduler {
   ): Promise<void> {
     const eventRepository = AppDataSource.getRepository(WebhookEvents);
 
-    console.log(`[Spotify Poll] 📝 User ${userId} - Creating event: ${actionType}`);
-
     const event = eventRepository.create({
       action_type: actionType,
       user_id: userId,
@@ -642,7 +635,6 @@ export class SpotifyScheduler {
     });
 
     await eventRepository.save(event);
-    console.log(`[Spotify Poll] ✅ User ${userId} - Event created: ${actionType} (ID: ${event.id})`);
   }
 }
 
