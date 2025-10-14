@@ -216,6 +216,15 @@ class ProfileScreenState extends State<ProfileScreen> {
       final data = await jsonDecode(response.body);
 
       if (response.statusCode != 200) {
+        if (response.statusCode == 401 || response.statusCode == 404) {
+          await deleteJwt();
+          setState(() {
+            _isConnected = false;
+            _isLoading = false;
+            _userName = "";
+            _userProfileIcon = Icons.account_circle;
+          });
+        }
         throw data['error'];
       }
 
