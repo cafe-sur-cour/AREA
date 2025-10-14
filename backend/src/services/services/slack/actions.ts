@@ -14,10 +14,6 @@ async function resolveChannelId(
   userId: number
 ): Promise<string> {
   try {
-    console.log(
-      `🔍 [SLACK FILTER] Resolving channel "${channelInput}" for user ${userId}`
-    );
-
     const tokenRepository = AppDataSource.getRepository(UserToken);
     const userToken = await tokenRepository.findOne({
       where: {
@@ -32,26 +28,11 @@ async function resolveChannelId(
       return channelInput;
     }
 
-    console.log(
-      `✅ [SLACK FILTER] Found token for user ${userId}, decrypting...`
-    );
-
     const decryptedToken = decryptToken(userToken.token_value, userId);
-
-    console.log(
-      `🔄 [SLACK FILTER] Calling slackReactionExecutor.resolveChannelId...`
-    );
-
-    const resolvedId = await slackReactionExecutor.resolveChannelId(
+    return await slackReactionExecutor.resolveChannelId(
       decryptedToken,
       channelInput
     );
-
-    console.log(
-      `✅ [SLACK FILTER] Channel "${channelInput}" resolved to "${resolvedId}"`
-    );
-
-    return resolvedId;
   } catch (error) {
     console.error('❌ [SLACK FILTER] Error resolving channel ID:', error);
     return channelInput;
@@ -126,44 +107,14 @@ export const slackActions: ActionDefinition[] = [
           channel_type: slackEvent?.channel_type,
         };
 
-        console.log(
-          `🔍 [SLACK FILTER] Extracted event channel: "${eventData.channel}"`
-        );
-        console.log(
-          `🔍 [SLACK FILTER] Extracted event channel_type: "${eventData.channel_type}"`
-        );
-
-        if (!eventData.channel) {
-          console.log(`🔍 [SLACK FILTER] No channel in event, returning false`);
-          return false;
-        }
+        if (!eventData.channel) return false;
 
         const mappingChannel = mapping.action.config?.channel as string;
-        console.log(
-          `🔍 [SLACK FILTER] Mapping channel config: "${mappingChannel}"`
-        );
+        if (!mappingChannel) return true;
 
-        if (!mappingChannel) {
-          console.log(
-            `🔍 [SLACK FILTER] No channel in mapping config, returning true`
-          );
-          return true;
-        }
-
-        console.log(
-          `🔍 [SLACK FILTER] Calling resolveChannelId for user ${userId}...`
-        );
         const resolvedMappingChannel = userId
           ? await resolveChannelId(mappingChannel, userId)
           : mappingChannel;
-
-        console.log(
-          `🔍 [SLACK FILTER] Resolved mapping channel: "${resolvedMappingChannel}"`
-        );
-        console.log(`🔍 [SLACK FILTER] Event channel: "${eventData.channel}"`);
-        console.log(
-          `🔍 [SLACK FILTER] Match result: ${eventData.channel === resolvedMappingChannel}`
-        );
 
         return eventData.channel === resolvedMappingChannel;
       },
