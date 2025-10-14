@@ -226,19 +226,6 @@ export class ExecutionService {
         `🔍 [ExecutionService] Searching for mappings with shared action type: ${actionType} for all users`
       );
 
-      // Log all mappings first to debug
-      const allMappings = await mappingRepository.find({
-        select: ['id', 'action', 'is_active', 'created_by', 'name'],
-      });
-      console.log(`🔍 [ExecutionService] ALL mappings in database:`, allMappings.map(m => ({
-        id: m.id,
-        name: m.name,
-        action_type: m.action?.type,
-        action_json: JSON.stringify(m.action),
-        is_active: m.is_active,
-        created_by: m.created_by
-      })));
-
       const result = await mappingRepository.find({
         where: {
           is_active: true,
@@ -248,21 +235,33 @@ export class ExecutionService {
         },
       });
 
-      console.log(`🔍 [ExecutionService] Raw query result for shared action ${actionType}:`, result.map(m => ({
-        id: m.id,
-        action_json: m.action,
-        is_active: m.is_active,
-        created_by: m.created_by
-      })));
-
       let filteredResult = result;
       if (actionDefinition.metadata?.sharedEventFilter) {
-        filteredResult = result.filter(mapping =>
-          actionDefinition.metadata!.sharedEventFilter!(
-            { source: event.source, payload: event.payload },
-            { action: mapping.action || {} }
-          )
-        );
+        if (
+          actionDefinition.metadata.sharedEventFilter.constructor.name ===
+          'AsyncFunction'
+        ) {
+          filteredResult = [];
+          for (const mapping of result) {
+            const shouldInclude =
+              await actionDefinition.metadata.sharedEventFilter(
+                { source: event.source, payload: event.payload },
+                { action: mapping.action || {} },
+                mapping.created_by || event.user_id
+              );
+            if (shouldInclude) {
+              filteredResult.push(mapping);
+            }
+          }
+        } else {
+          filteredResult = result.filter(mapping =>
+            actionDefinition.metadata!.sharedEventFilter!(
+              { source: event.source, payload: event.payload },
+              { action: mapping.action || {} },
+              mapping.created_by || event.user_id
+            )
+          );
+        }
       }
 
       console.log(

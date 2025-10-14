@@ -82,8 +82,9 @@ export interface ActionMetadata {
       source: string | null | undefined;
       payload: Record<string, unknown>;
     },
-    mapping: { action: { config?: Record<string, unknown> } }
-  ) => boolean;
+    mapping: { action: { config?: Record<string, unknown> } },
+    userId?: number
+  ) => boolean | Promise<boolean>;
 }
 
 export interface ReactionMetadata {
