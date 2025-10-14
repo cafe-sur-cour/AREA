@@ -280,7 +280,12 @@ export class TwitchReactionExecutor implements ReactionExecutor {
       };
     }
 
-    if (duration !== undefined && duration !== null && typeof duration === 'number' && (duration < 1 || duration > 1209600)) {
+    if (
+      duration !== undefined &&
+      duration !== null &&
+      typeof duration === 'number' &&
+      (duration < 1 || duration > 1209600)
+    ) {
       return {
         success: false,
         error:
@@ -296,7 +301,6 @@ export class TwitchReactionExecutor implements ReactionExecutor {
     }
 
     try {
-      // First, get the user ID from the username
       const targetUserId = await this.getBroadcasterId(
         username.trim(),
         accessToken
@@ -320,7 +324,11 @@ export class TwitchReactionExecutor implements ReactionExecutor {
         user_id: targetUserId,
       };
 
-      if (duration !== undefined && duration !== null && typeof duration === 'number') {
+      if (
+        duration !== undefined &&
+        duration !== null &&
+        typeof duration === 'number'
+      ) {
         requestBody.duration = duration;
       }
 
@@ -410,7 +418,6 @@ export class TwitchReactionExecutor implements ReactionExecutor {
     }
 
     try {
-      // First, get the user ID from the username
       const targetUserId = await this.getBroadcasterId(
         username.trim(),
         accessToken
