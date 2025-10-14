@@ -14,6 +14,10 @@ async function resolveChannelId(
   userId: number
 ): Promise<string> {
   try {
+    console.log(
+      `🔍 [SLACK FILTER] Resolving channel "${channelInput}" for user ${userId}`
+    );
+
     const tokenRepository = AppDataSource.getRepository(UserToken);
     const userToken = await tokenRepository.findOne({
       where: {
@@ -28,11 +32,26 @@ async function resolveChannelId(
       return channelInput;
     }
 
+    console.log(
+      `✅ [SLACK FILTER] Found token for user ${userId}, decrypting...`
+    );
+
     const decryptedToken = decryptToken(userToken.token_value, userId);
-    return await slackReactionExecutor.resolveChannelId(
+
+    console.log(
+      `🔄 [SLACK FILTER] Calling slackReactionExecutor.resolveChannelId...`
+    );
+
+    const resolvedId = await slackReactionExecutor.resolveChannelId(
       decryptedToken,
       channelInput
     );
+
+    console.log(
+      `✅ [SLACK FILTER] Channel "${channelInput}" resolved to "${resolvedId}"`
+    );
+
+    return resolvedId;
   } catch (error) {
     console.error('❌ [SLACK FILTER] Error resolving channel ID:', error);
     return channelInput;
@@ -100,9 +119,22 @@ export const slackActions: ActionDefinition[] = [
         const mappingChannel = mapping.action.config?.channel as string;
         if (!mappingChannel) return true;
 
+        console.log(`🔍 [SLACK FILTER] Filtering mapping for user ${userId}`);
+        console.log(`🔍 [SLACK FILTER] Event channel: ${eventData.channel}`);
+        console.log(
+          `🔍 [SLACK FILTER] Mapping channel config: ${mappingChannel}`
+        );
+
         const resolvedMappingChannel = userId
           ? await resolveChannelId(mappingChannel, userId)
           : mappingChannel;
+
+        console.log(
+          `🔍 [SLACK FILTER] Resolved mapping channel: ${resolvedMappingChannel}`
+        );
+        console.log(
+          `🔍 [SLACK FILTER] Channel match: ${eventData.channel === resolvedMappingChannel}`
+        );
 
         return eventData.channel === resolvedMappingChannel;
       },
