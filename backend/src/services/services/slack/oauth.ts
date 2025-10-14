@@ -71,6 +71,25 @@ export class SlackOAuth {
     }
   }
 
+  private encryptToken(token: string, userId: number): string {
+    const uniqueToken = `${token}:::${userId}`;
+    return Buffer.from(uniqueToken).toString('base64');
+  }
+
+  private decryptToken(encryptedToken: string, userId: number): string {
+    const decoded = Buffer.from(encryptedToken, 'base64').toString('utf8');
+    const parts = decoded.split(':::');
+    if (
+      parts.length !== 2 ||
+      !parts[0] ||
+      !parts[1] ||
+      parseInt(parts[1]) !== userId
+    ) {
+      throw new Error('Invalid token or user mismatch');
+    }
+    return parts[0];
+  }
+
   async createIncomingWebhook(
     accessToken: string,
     channel: string
@@ -182,45 +201,49 @@ export class SlackOAuth {
   ): Promise<void> {
     const tokenRepository = AppDataSource.getRepository(UserToken);
 
-    const appTokenType = `slack_access_token_user_${userId}`;
-
     const existingToken = await tokenRepository.findOne({
       where: {
         user_id: userId,
-        token_type: appTokenType,
+        token_type: 'slack_access_token',
       },
     });
 
+    const encryptedToken = this.encryptToken(tokenData.access_token, userId);
+
     if (existingToken) {
-      existingToken.token_value = tokenData.access_token;
+      existingToken.token_value = encryptedToken;
       await tokenRepository.save(existingToken);
     } else {
       const newToken = tokenRepository.create({
         user_id: userId,
-        token_type: appTokenType,
-        token_value: tokenData.access_token,
+        token_type: 'slack_access_token',
+        token_value: encryptedToken,
         scopes: tokenData.scope.split(','),
       });
       await tokenRepository.save(newToken);
     }
 
     if (tokenData.authed_user?.access_token) {
-      const userTokenType = `slack_user_access_token_user_${userId}`;
       const existingUserToken = await tokenRepository.findOne({
         where: {
           user_id: userId,
-          token_type: userTokenType,
+          token_type: 'slack_user_access_token',
         },
       });
 
+      const encryptedUserToken = this.encryptToken(
+        tokenData.authed_user.access_token,
+        userId
+      );
+
       if (existingUserToken) {
-        existingUserToken.token_value = tokenData.authed_user.access_token;
+        existingUserToken.token_value = encryptedUserToken;
         await tokenRepository.save(existingUserToken);
       } else {
         const newUserToken = tokenRepository.create({
           user_id: userId,
-          token_type: userTokenType,
-          token_value: tokenData.authed_user.access_token,
+          token_type: 'slack_user_access_token',
+          token_value: encryptedUserToken,
           scopes: tokenData.authed_user.scope?.split(',') || [],
         });
         await tokenRepository.save(newUserToken);
@@ -234,10 +257,14 @@ export class SlackOAuth {
     const token = await tokenRepository.findOne({
       where: {
         user_id: userId,
-        token_type: `slack_access_token_user_${userId}`,
+        token_type: 'slack_access_token',
         is_revoked: false,
       },
     });
+
+    if (token) {
+      token.token_value = this.decryptToken(token.token_value, userId);
+    }
 
     return token;
   }
@@ -248,10 +275,14 @@ export class SlackOAuth {
     const token = await tokenRepository.findOne({
       where: {
         user_id: userId,
-        token_type: `slack_user_access_token_user_${userId}`,
+        token_type: 'slack_user_access_token',
         is_revoked: false,
       },
     });
+
+    if (token) {
+      token.token_value = this.decryptToken(token.token_value, userId);
+    }
 
     return token;
   }

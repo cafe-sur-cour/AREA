@@ -3,7 +3,6 @@ import crypto from 'crypto';
 import { AppDataSource } from '../../../../config/db';
 import { WebhookEvents } from '../../../../config/entity/WebhookEvents';
 import { UserToken } from '../../../../config/entity/UserToken';
-import { Raw } from 'typeorm';
 import type { WebhookHandler } from '../../../../types/webhook';
 
 class SlackWebhookHandler implements WebhookHandler {
@@ -160,6 +159,24 @@ class SlackWebhookHandler implements WebhookHandler {
     }
   }
 
+  private decryptToken(encryptedToken: string, userId: number): string {
+    try {
+      const decoded = Buffer.from(encryptedToken, 'base64').toString('utf-8');
+      const parts = decoded.split(':::');
+      if (parts.length !== 2 || !parts[0] || !parts[1]) {
+        throw new Error('Invalid encrypted token format');
+      }
+      const [token, tokenUserId] = parts;
+      if (parseInt(tokenUserId) !== userId) {
+        throw new Error('Token user ID mismatch');
+      }
+      return token;
+    } catch (error) {
+      console.error('Error decrypting token:', error);
+      throw error;
+    }
+  }
+
   private getActionTypeFromEvent(
     event: Record<string, unknown>
   ): string | null {
@@ -191,7 +208,7 @@ class SlackWebhookHandler implements WebhookHandler {
 
     const slackTokens = await tokenRepository.find({
       where: {
-        token_type: Raw(alias => `${alias} LIKE 'slack_access_token_user_%'`),
+        token_type: 'slack_access_token',
         is_revoked: false,
       },
     });
@@ -201,9 +218,15 @@ class SlackWebhookHandler implements WebhookHandler {
     for (const token of slackTokens) {
       try {
         console.log(`🔑 [SLACK TEAM] Testing token for user ${token.user_id}`);
+
+        const decryptedToken = this.decryptToken(
+          token.token_value,
+          token.user_id
+        );
+
         const authResponse = await fetch(`${apiBaseUrl}/auth.test`, {
           headers: {
-            Authorization: `Bearer ${token.token_value}`,
+            Authorization: `Bearer ${decryptedToken}`,
             'Content-Type': 'application/json',
           },
         });
@@ -223,6 +246,7 @@ class SlackWebhookHandler implements WebhookHandler {
             console.log(
               `🎯 [SLACK TEAM] Token matches team ${teamId} for user ${token.user_id}`
             );
+            token.token_value = decryptedToken;
             return token;
           }
         } else {
@@ -360,13 +384,17 @@ class SlackWebhookHandler implements WebhookHandler {
       const userToken = await tokenRepository.findOne({
         where: {
           user_id: userId,
-          token_type: `slack_user_access_token_user_${userId}`,
+          token_type: 'slack_user_access_token',
         },
       });
 
       if (userToken) {
         console.log(
           `✅ [SLACK TOKEN] Found user access token for user ${userId}`
+        );
+        userToken.token_value = this.decryptToken(
+          userToken.token_value,
+          userId
         );
       } else {
         console.log(

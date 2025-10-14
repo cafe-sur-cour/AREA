@@ -95,9 +95,6 @@ export class SpotifyScheduler {
   private async pollActiveUsers(): Promise<void> {
     try {
       const now = Date.now();
-      console.log(
-        `[Spotify Poll] 🚀 Starting poll cycle at ${new Date(now).toISOString()}`
-      );
 
       let userIds: number[];
       if (
@@ -105,17 +102,8 @@ export class SpotifyScheduler {
         this.activeUserIdsCache.length > 0
       ) {
         userIds = this.activeUserIdsCache;
-        console.log(
-          `[Spotify Poll] 💾 Using cached users: [${userIds.join(', ')}]`
-        );
       } else {
-        console.log(
-          `[Spotify Poll] 🔄 Cache expired or empty (${now - this.lastCacheUpdate}ms since last update), refreshing...`
-        );
         const mappingRepository = AppDataSource.getRepository(WebhookConfigs);
-        console.log(
-          `[Spotify Poll] 🔍 Searching for active Spotify mappings...`
-        );
 
         const activeMappings = await mappingRepository.find({
           where: {
@@ -127,13 +115,6 @@ export class SpotifyScheduler {
           select: ['created_by'],
         });
 
-        console.log(
-          `[Spotify Poll] 📋 Found ${activeMappings.length} active Spotify mappings:`
-        );
-        activeMappings.forEach(mapping => {
-          console.log(`  - Mapping created_by user ${mapping.created_by}`);
-        });
-
         userIds = [
           ...new Set(
             activeMappings
@@ -142,22 +123,13 @@ export class SpotifyScheduler {
           ),
         ];
 
-        console.log(
-          `[Spotify Poll] 👥 Deduplicated to ${userIds.length} unique users: [${userIds.join(', ')}]`
-        );
-
         this.activeUserIdsCache = userIds;
         this.lastCacheUpdate = now;
       }
 
       if (userIds.length === 0) {
-        console.log(`[Spotify Poll] ⚠️ No users to poll, skipping cycle`);
         return;
       }
-
-      console.log(
-        `[Spotify Poll] 🎯 Polling ${userIds.length} users: [${userIds.join(', ')}]`
-      );
 
       const chunks = this.chunkArray(userIds, this.MAX_CONCURRENT_USERS);
       for (const chunk of chunks) {
@@ -177,9 +149,6 @@ export class SpotifyScheduler {
     try {
       const userToken = await spotifyOAuth.getUserToken(userId);
       if (!userToken) {
-        console.warn(
-          `[Spotify Poll] ❌ User ${userId} - Token not found or invalid. Possible causes: token not in database, token expired without refresh_token, or token revoked by user.`
-        );
         return;
       }
 
@@ -189,9 +158,6 @@ export class SpotifyScheduler {
       const hasLibraryScope = userToken.scopes?.includes('user-library-read');
 
       if (!hasPlaybackScope && !hasLibraryScope) {
-        console.warn(
-          `[Spotify Poll] ❌ User ${userId} - Token missing required scopes. Current scopes: [${userToken.scopes?.join(', ') || 'NONE'}]. Required: 'user-read-playback-state' OR 'user-library-read'. User needs to re-authorize Spotify connection.`
-        );
         return;
       }
 
@@ -304,9 +270,6 @@ export class SpotifyScheduler {
         );
 
         if (newTrackIds.length > 0) {
-          console.log(
-            `🎵 [Spotify] User ${userId} has ${newTrackIds.length} new liked tracks`
-          );
           this.lastLikedTrackDetection.set(userId, now);
 
           const newTracks = likedTracks.items.filter(item =>
@@ -343,17 +306,10 @@ export class SpotifyScheduler {
 
     const userToken = await spotifyOAuth.getUserToken(userId);
     if (!userToken) {
-      console.warn(
-        `[Spotify API] ❌ User ${userId} - Cannot make request: token not available (expired, revoked, or missing from database).`
-      );
       return null;
     }
 
     if (!this.hasRequiredScopes(userToken, url)) {
-      const requiredScopes = this.getRequiredScopesForUrl(url);
-      console.error(
-        `[Spotify API] ❌ User ${userId} - Token missing required scopes [${requiredScopes.join(', ')}] for ${url}. Current scopes: [${userToken.scopes?.join(', ') || 'NONE'}]. User must re-authorize.`
-      );
       return null;
     }
 
@@ -383,9 +339,6 @@ export class SpotifyScheduler {
       this.updateRequestCount(userId);
 
       if (response.status === 401) {
-        console.warn(
-          `[Spotify API] ⚠️ User ${userId} - Token rejected by Spotify (401 Unauthorized). Attempting token refresh...`
-        );
         const refreshedToken = await spotifyOAuth.getUserToken(userId);
         if (refreshedToken) {
           const retryResponse = await fetch(url, {
@@ -395,16 +348,8 @@ export class SpotifyScheduler {
             },
           });
           this.updateRequestCount(userId);
-          if (retryResponse.status === 401) {
-            console.error(
-              `[Spotify API] ❌ User ${userId} - Token refresh failed. Spotify still rejects the token. User needs to re-authorize the Spotify connection.`
-            );
-          }
           return retryResponse;
         }
-        console.error(
-          `[Spotify API] ❌ User ${userId} - Token refresh failed: no refresh_token available or refresh returned null. User must re-connect Spotify.`
-        );
         return null;
       }
 
@@ -424,15 +369,6 @@ export class SpotifyScheduler {
       }
 
       if (!response.ok) {
-        if (response.status === 403) {
-          console.error(
-            `[Spotify API] ❌ User ${userId} - Access forbidden (403). Token may lack required scopes or Spotify Premium subscription may be required for this endpoint.`
-          );
-        } else {
-          console.error(
-            `Spotify API error for user ${userId}: ${response.status} ${response.statusText}`
-          );
-        }
         return null;
       }
 
