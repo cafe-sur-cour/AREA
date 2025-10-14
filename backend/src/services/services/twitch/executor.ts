@@ -84,6 +84,29 @@ export class TwitchReactionExecutor implements ReactionExecutor {
     }
   }
 
+  private async getUserTwitchId(accessToken: string): Promise<string | null> {
+    try {
+      const response = await fetch(`${this.apiBaseUrl}/users`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Client-Id': process.env.SERVICE_TWITCH_CLIENT_ID || '',
+        },
+      });
+
+      if (!response.ok) {
+        return null;
+      }
+
+      const data = (await response.json()) as {
+        data: Array<{ id: string; login: string }>;
+      };
+      return data.data?.[0]?.id || null;
+    } catch (error) {
+      console.error('Error fetching user Twitch ID:', error);
+      return null;
+    }
+  }
+
   private async followChannel(
     config: Record<string, unknown>,
     accessToken: string
@@ -98,6 +121,14 @@ export class TwitchReactionExecutor implements ReactionExecutor {
     }
 
     try {
+      const userId = await this.getUserTwitchId(accessToken);
+      if (!userId) {
+        return {
+          success: false,
+          error: 'Failed to get authenticated user information',
+        };
+      }
+
       const broadcasterId = await this.getBroadcasterId(
         broadcaster_login,
         accessToken
@@ -117,6 +148,7 @@ export class TwitchReactionExecutor implements ReactionExecutor {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          from_id: userId,
           to_id: broadcasterId,
         }),
       });
@@ -164,6 +196,7 @@ export class TwitchReactionExecutor implements ReactionExecutor {
         output: {
           broadcaster_login: broadcaster_login,
           broadcaster_id: broadcasterId,
+          user_id: userId,
           success: true,
         },
       };
