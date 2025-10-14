@@ -7,12 +7,12 @@ import {
 } from '../slack/schemas';
 import { AppDataSource } from '../../../config/db';
 import { UserToken } from '../../../config/entity/UserToken';
+import { slackReactionExecutor } from './executor';
 
-// Helper function to get channel ID from name
-async function getChannelIdFromName(
-  channelName: string,
+async function resolveChannelId(
+  channelInput: string,
   userId: number
-): Promise<string | null> {
+): Promise<string> {
   try {
     const tokenRepository = AppDataSource.getRepository(UserToken);
     const userToken = await tokenRepository.findOne({
@@ -25,63 +25,17 @@ async function getChannelIdFromName(
 
     if (!userToken) {
       console.log(`❌ [SLACK FILTER] No token found for user ${userId}`);
-      return null;
+      return channelInput;
     }
 
     const decryptedToken = decryptToken(userToken.token_value, userId);
-
-    const apiBaseUrl =
-      process.env.SERVICE_SLACK_API_BASE_URL || 'https://slack.com/api';
-
-    const cleanChannelName = channelName.startsWith('#')
-      ? channelName.slice(1)
-      : channelName;
-
-    console.log(
-      `🔍 [SLACK FILTER] Looking up channel ID for "${cleanChannelName}"`
+    return await slackReactionExecutor.resolveChannelId(
+      decryptedToken,
+      channelInput
     );
-
-    const response = await fetch(
-      `${apiBaseUrl}/conversations.list?types=public_channel,private_channel&limit=1000`,
-      {
-        headers: {
-          Authorization: `Bearer ${decryptedToken}`,
-          'Content-Type': 'application/json',
-        },
-      }
-    );
-
-    if (!response.ok) {
-      console.log(
-        `❌ [SLACK FILTER] Failed to list channels: ${response.status}`
-      );
-      return null;
-    }
-
-    const data = (await response.json()) as {
-      ok: boolean;
-      channels?: Array<{ id: string; name: string }>;
-      error?: string;
-    };
-
-    if (!data.ok || !data.channels) {
-      console.log(`❌ [SLACK FILTER] API error: ${data.error}`);
-      return null;
-    }
-
-    const channel = data.channels.find(ch => ch.name === cleanChannelName);
-    if (channel) {
-      console.log(
-        `✅ [SLACK FILTER] Found channel "${cleanChannelName}" → ${channel.id}`
-      );
-      return channel.id;
-    }
-
-    console.log(`❌ [SLACK FILTER] Channel "${cleanChannelName}" not found`);
-    return null;
   } catch (error) {
-    console.error('❌ [SLACK FILTER] Error getting channel ID:', error);
-    return null;
+    console.error('❌ [SLACK FILTER] Error resolving channel ID:', error);
+    return channelInput;
   }
 }
 
@@ -146,30 +100,11 @@ export const slackActions: ActionDefinition[] = [
         const mappingChannel = mapping.action.config?.channel as string;
         if (!mappingChannel) return true;
 
-        if (!mappingChannel.startsWith('#')) {
-          return eventData.channel === mappingChannel;
-        }
+        const resolvedMappingChannel = userId
+          ? await resolveChannelId(mappingChannel, userId)
+          : mappingChannel;
 
-        if (!userId) {
-          return false;
-        }
-
-        try {
-          const channelId = await getChannelIdFromName(mappingChannel, userId);
-          if (!channelId) {
-            console.log(
-              `❌ [SLACK FILTER] Could not resolve channel name "${mappingChannel}"`
-            );
-            return false;
-          }
-          return eventData.channel === channelId;
-        } catch (error) {
-          console.error(
-            '❌ [SLACK FILTER] Error in channel name resolution:',
-            error
-          );
-          return false;
-        }
+        return eventData.channel === resolvedMappingChannel;
       },
     },
   },
@@ -284,36 +219,12 @@ export const slackActions: ActionDefinition[] = [
         if (mappingChannel) {
           if (!eventData.item?.channel) return false;
 
-          if (mappingChannel.startsWith('#')) {
-            if (!userId) {
-              return false;
-            }
+          const resolvedMappingChannel = userId
+            ? await resolveChannelId(mappingChannel, userId)
+            : mappingChannel;
 
-            try {
-              const channelId = await getChannelIdFromName(
-                mappingChannel,
-                userId
-              );
-              if (!channelId) {
-                console.log(
-                  `❌ [SLACK FILTER] Could not resolve channel name "${mappingChannel}"`
-                );
-                return false;
-              }
-              if (eventData.item.channel !== channelId) {
-                return false;
-              }
-            } catch (error) {
-              console.error(
-                '❌ [SLACK FILTER] Error in channel name resolution:',
-                error
-              );
-              return false;
-            }
-          } else {
-            if (eventData.item.channel !== mappingChannel) {
-              return false;
-            }
+          if (eventData.item.channel !== resolvedMappingChannel) {
+            return false;
           }
         }
 

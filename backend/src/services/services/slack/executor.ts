@@ -42,7 +42,7 @@ interface PinMessageConfig {
 }
 
 export class SlackReactionExecutor implements ReactionExecutor {
-  private async resolveChannelId(
+  public async resolveChannelId(
     accessToken: string,
     channelInput: string
   ): Promise<string> {
