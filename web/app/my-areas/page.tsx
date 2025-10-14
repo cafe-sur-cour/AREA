@@ -34,6 +34,7 @@ import ActionForm from '@/components/action-form';
 import ReactionForm from '@/components/reaction-form';
 import { TbLoader3 } from 'react-icons/tb';
 import { toast } from 'sonner';
+import { useSearchParams } from 'next/navigation';
 
 export default function MyAreasPage() {
   const router = useRouter();
@@ -41,6 +42,15 @@ export default function MyAreasPage() {
   const [loadingData, setLoadingData] = useState(true);
   const [data, setData] = useState<Mapping[]>([]);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const searchParams = useSearchParams();
+
+  const [selectedAction, setSelectedAction] = useState<Action | null>(null);
+  const [actionConfig, setActionConfig] = useState<Record<string, unknown>>({});
+
+  const [selectedReactions, setSelectedReactions] = useState<Reaction[]>([]);
+  const [reactionsConfig, setReactionsConfig] = useState<
+    Record<string, unknown>[]
+  >([]);
 
   const [formData, setFormData] = useState<formMapping>({
     name: '',
@@ -50,13 +60,52 @@ export default function MyAreasPage() {
     is_active: true,
   });
 
-  const [selectedAction, setSelectedAction] = useState<Action | null>(null);
-  const [actionConfig, setActionConfig] = useState<Record<string, unknown>>({});
+  const selectActionUsingFetch = async (name: string, id: string) => {
+    try {
+      const res = (
+        await api.get<Action>({ endpoint: `/services/${name}/actions/${id}` })
+      ).data;
+      console.log(res);
+      if (res) setSelectedAction(res);
+    } catch (err: unknown) {
+      console.error(err);
+    }
+  };
 
-  const [selectedReactions, setSelectedReactions] = useState<Reaction[]>([]);
-  const [reactionsConfig, setReactionsConfig] = useState<
-    Record<string, unknown>[]
-  >([]);
+  const selectReactionUsingFetch = async (name: string, id: string) => {
+    try {
+      const res = (
+        await api.get<Reaction>({
+          endpoint: `/services/${name}/reactions/${id}`,
+        })
+      ).data;
+      console.log(res);
+      if (res) setSelectedReactions([res]);
+    } catch (err: unknown) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    if (
+      searchParams.get('service') &&
+      searchParams.get('id') &&
+      searchParams.get('isAction')
+    ) {
+      if (searchParams.get('isAction') == 'true') {
+        selectActionUsingFetch(
+          searchParams.get('service')!,
+          searchParams.get('id')!
+        );
+      } else {
+        selectReactionUsingFetch(
+          searchParams.get('service')!,
+          searchParams.get('id')!
+        );
+      }
+      setIsDrawerOpen(true);
+    }
+  }, [searchParams]);
 
   const fetchData = async () => {
     setLoadingData(true);
@@ -102,7 +151,7 @@ export default function MyAreasPage() {
         is_active: true,
       });
       setIsDrawerOpen(false);
-
+      router.replace('/my-areas');
       fetchData();
     } catch (error) {
       console.error('Error creating mapping:', error);
@@ -139,6 +188,21 @@ export default function MyAreasPage() {
     router.push('/login');
     return null;
   }
+
+  const switchActiveModeArea = async (mapping: Mapping) => {
+    try {
+      if (mapping.is_active == false) {
+        await api.put(`/mappings/${mapping.id}/activate`);
+        fetchData();
+      } else {
+        await api.put(`/mappings/${mapping.id}/deactivate`);
+        fetchData();
+      }
+    } catch (error) {
+      console.error('Error switching active mode:', error);
+      toast.error('Failed to switch active mode.');
+    }
+  };
 
   return (
     <div className='min-h-screen bg-gradient-to-br from-jeb-gradient-from to-jeb-gradient-to/50 flex flex-col'>
@@ -215,7 +279,7 @@ export default function MyAreasPage() {
                   <ReactionForm
                     onReactionsChange={setSelectedReactions}
                     onConfigChange={setReactionsConfig}
-                    selectedAction={selectedAction}
+                    defaultReaction={selectedReactions[0]}
                   />
                 </div>
 
@@ -239,7 +303,7 @@ export default function MyAreasPage() {
                   Create Area
                 </Button>
                 <DrawerClose asChild>
-                  <Button className=' cursor-pointer' variant='outline'>
+                  <Button className=' cursor-pointer' variant='outline' onClick={() => router.replace("/my-areas")}>
                     Cancel
                   </Button>
                 </DrawerClose>
@@ -277,9 +341,23 @@ export default function MyAreasPage() {
                     </div>
                     <div className='flex items-center gap-2'>
                       {mapping.is_active ? (
-                        <Power className='w-4 h-4 text-green-500' />
+                        <Button
+                          variant='ghost'
+                          size='sm'
+                          className='cursor-pointer'
+                          onClick={() => switchActiveModeArea(mapping)}
+                        >
+                          <Power className='w-4 h-4 text-green-500' />
+                        </Button>
                       ) : (
-                        <PowerOff className='w-4 h-4 text-gray-400' />
+                        <Button
+                          variant='ghost'
+                          size='sm'
+                          className='cursor-pointer'
+                          onClick={() => switchActiveModeArea(mapping)}
+                        >
+                          <PowerOff className='w-4 h-4 text-gray-400' />
+                        </Button>
                       )}
                     </div>
                   </div>

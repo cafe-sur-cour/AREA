@@ -1,4 +1,5 @@
 export interface Action {
+  serviceId: string;
   id: string;
   name: string;
   description: string;

@@ -1457,7 +1457,7 @@ router.get(
         return res.status(400).json({ error: 'Service ID and Reaction ID is required' });
       }
 
-      const service = serviceRegistry.getService(id);
+      const service = serviceRegistry.getService(serviceName);
 
       if (!service || !service.reactions.find((element) => element.id === id)) {
         return res.status(404).json({

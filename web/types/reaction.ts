@@ -1,4 +1,5 @@
 export interface Reaction {
+  serviceId: string;
   id: string;
   name: string;
   description: string;
