@@ -1065,12 +1065,10 @@ router.get(
         });
       }
 
-      return res
-        .status(200)
-        .json({
-          serviceId: service.id,
-          ...service.actions.find(element => element.id === id),
-        });
+      return res.status(200).json({
+        serviceId: service.id,
+        ...service.actions.find(element => element.id === id),
+      });
     } catch (err) {
       console.error('Error fetching service actions:', err);
       return res
@@ -1472,12 +1470,10 @@ router.get(
         });
       }
 
-      return res
-        .status(200)
-        .json({
-          serviceId: service.id,
-          ...service.reactions.find(element => element.id === id),
-        });
+      return res.status(200).json({
+        serviceId: service.id,
+        ...service.reactions.find(element => element.id === id),
+      });
     } catch (err) {
       console.error('Error fetching service reactions:', err);
       return res

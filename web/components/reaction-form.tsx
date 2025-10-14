@@ -54,7 +54,7 @@ export default function ReactionForm({
       reaction: defaultReaction,
       config: {},
       delay: 0,
-      selectedService: defaultReaction?.serviceId!,
+      selectedService: defaultReaction?.serviceId || null,
     },
   ]);
 

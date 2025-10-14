@@ -4,17 +4,11 @@ import Navigation from '@/components/header';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle2 } from 'lucide-react';
-import { Service } from '@/types/service';
-import { TbLoader3 } from 'react-icons/tb';
-import api from '@/lib/api';
 import { About, AboutAREA } from '@/types/about';
 import { useEffect, useState } from 'react';
 import { getBackendUrl } from '@/lib/config';
-import { useRouter } from 'next/navigation';
 
 export default function CataloguePage() {
-  const router = useRouter();
   const [about, setAbout] = useState<About | null>(null);
 
   const fetchApiAR = async () => {
@@ -46,7 +40,7 @@ export default function CataloguePage() {
             about.server.services.map((service: AboutAREA, index: number) => (
               <>
                 {service.actions.length > 0 &&
-                  service.actions.map((action, idx) => (
+                  service.actions.map(action => (
                     <>
                       <Card
                         key={index}
@@ -88,7 +82,7 @@ export default function CataloguePage() {
                     </>
                   ))}
                 {service.reactions.length > 0 &&
-                  service.reactions.map((reaction, idx) => (
+                  service.reactions.map(reaction => (
                     <>
                       <Card
                         key={index}
