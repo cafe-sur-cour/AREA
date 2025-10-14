@@ -51,7 +51,7 @@ export class TwitchOAuth {
       client_id: this.clientId,
       redirect_uri: this.redirectUri,
       response_type: 'code',
-      scope: 'user:read:email user:edit:follows',
+      scope: 'user:read:email channel:manage:broadcast',
       state: state,
     });
     return `${this.twitchAuthBaseUrl}/authorize?${params.toString()}`;
