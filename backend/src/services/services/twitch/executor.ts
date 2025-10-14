@@ -280,7 +280,7 @@ export class TwitchReactionExecutor implements ReactionExecutor {
       };
     }
 
-    if (duration !== undefined && (duration < 1 || duration > 1209600)) {
+    if (duration !== undefined && duration !== null && typeof duration === 'number' && (duration < 1 || duration > 1209600)) {
       return {
         success: false,
         error:
@@ -320,7 +320,7 @@ export class TwitchReactionExecutor implements ReactionExecutor {
         user_id: targetUserId,
       };
 
-      if (duration !== undefined) {
+      if (duration !== undefined && duration !== null && typeof duration === 'number') {
         requestBody.duration = duration;
       }
 
