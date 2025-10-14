@@ -95,6 +95,7 @@ export class SpotifyScheduler {
   private async pollActiveUsers(): Promise<void> {
     try {
       const now = Date.now();
+      console.log(`[Spotify Poll] 🚀 Starting poll cycle at ${new Date(now).toISOString()}`);
 
       let userIds: number[];
       if (
@@ -102,8 +103,12 @@ export class SpotifyScheduler {
         this.activeUserIdsCache.length > 0
       ) {
         userIds = this.activeUserIdsCache;
+        console.log(`[Spotify Poll] 💾 Using cached users: [${userIds.join(', ')}]`);
       } else {
+        console.log(`[Spotify Poll] 🔄 Cache expired or empty (${now - this.lastCacheUpdate}ms since last update), refreshing...`);
         const mappingRepository = AppDataSource.getRepository(WebhookConfigs);
+        console.log(`[Spotify Poll] 🔍 Searching for active Spotify mappings...`);
+
         const activeMappings = await mappingRepository.find({
           where: {
             is_active: true,
@@ -114,6 +119,11 @@ export class SpotifyScheduler {
           select: ['created_by'],
         });
 
+        console.log(`[Spotify Poll] 📋 Found ${activeMappings.length} active Spotify mappings:`);
+        activeMappings.forEach(mapping => {
+          console.log(`  - Mapping created_by user ${mapping.created_by}`);
+        });
+
         userIds = [
           ...new Set(
             activeMappings
@@ -122,13 +132,18 @@ export class SpotifyScheduler {
           ),
         ];
 
+        console.log(`[Spotify Poll] 👥 Deduplicated to ${userIds.length} unique users: [${userIds.join(', ')}]`);
+
         this.activeUserIdsCache = userIds;
         this.lastCacheUpdate = now;
       }
 
       if (userIds.length === 0) {
+        console.log(`[Spotify Poll] ⚠️ No users to poll, skipping cycle`);
         return;
       }
+
+      console.log(`[Spotify Poll] 🎯 Polling ${userIds.length} users: [${userIds.join(', ')}]`);
 
       const chunks = this.chunkArray(userIds, this.MAX_CONCURRENT_USERS);
       for (const chunk of chunks) {
