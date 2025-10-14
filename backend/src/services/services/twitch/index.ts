@@ -1,9 +1,4 @@
-import type     {
-      id: 'twitch.update_channel',
-      name: 'Update Channel Title',
-      description:
-        'Updates the title of the authenticated user\'s own Twitch channel',
-      configSchema: twitchUpdateChannelSchema,ice } from '../../../types/service';
+import type { Service } from '../../../types/service';
 import { getIconSvg } from '../../../utils/iconMapping';
 import { twitchUpdateChannelSchema } from './schemas';
 
