@@ -8,18 +8,18 @@ export class TwitchEventSubManager {
   private twitchAuthBaseUrl: string;
 
   constructor() {
-    this.clientId = process.env.TWITCH_CLIENT_ID || '';
-    this.clientSecret = process.env.TWITCH_CLIENT_SECRET || '';
+    this.clientId = process.env.SERVICE_TWITCH_CLIENT_ID || '';
+    this.clientSecret = process.env.SERVICE_TWITCH_CLIENT_SECRET || '';
     this.webhookBaseUrl = process.env.WEBHOOK_BASE_URL || '';
     this.twitchApiBaseUrl =
-      process.env.TWITCH_API_BASE_URL || 'https://api.twitch.tv';
+      process.env.SERVICE_TWITCH_API_BASE_URL || 'https://api.twitch.tv';
     this.twitchAuthBaseUrl =
-      process.env.TWITCH_AUTH_BASE_URL || 'https://id.twitch.tv';
+      process.env.SERVICE_TWITCH_AUTH_BASE_URL || 'https://id.twitch.tv';
   }
 
   private async getAppAccessToken(): Promise<string> {
     try {
-      const response = await fetch(`${this.twitchAuthBaseUrl}/oauth2/token`, {
+      const response = await fetch(`${this.twitchAuthBaseUrl}/token`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -66,7 +66,7 @@ export class TwitchEventSubManager {
       };
 
       const response = await fetch(
-        `${this.twitchApiBaseUrl}/helix/eventsub/subscriptions`,
+        `${this.twitchApiBaseUrl}/eventsub/subscriptions`,
         {
           method: 'POST',
           headers: {
@@ -128,7 +128,7 @@ export class TwitchEventSubManager {
       const appToken = await this.getAppAccessToken();
 
       const response = await fetch(
-        `${this.twitchApiBaseUrl}/helix/eventsub/subscriptions?id=${subscriptionId}`,
+        `${this.twitchApiBaseUrl}/eventsub/subscriptions?id=${subscriptionId}`,
         {
           method: 'DELETE',
           headers: {
@@ -154,7 +154,7 @@ export class TwitchEventSubManager {
       const appToken = await this.getAppAccessToken();
 
       const response = await fetch(
-        `${this.twitchApiBaseUrl}/helix/eventsub/subscriptions`,
+        `${this.twitchApiBaseUrl}/eventsub/subscriptions`,
         {
           method: 'GET',
           headers: {
@@ -181,7 +181,7 @@ export class TwitchEventSubManager {
       const appToken = await this.getAppAccessToken();
 
       const response = await fetch(
-        `${this.twitchApiBaseUrl}/helix/users?login=${encodeURIComponent(username)}`,
+        `${this.twitchApiBaseUrl}/users?login=${encodeURIComponent(username)}`,
         {
           method: 'GET',
           headers: {
@@ -216,7 +216,7 @@ export class TwitchEventSubManager {
       const appToken = await this.getAppAccessToken();
 
       const response = await fetch(
-        `${this.twitchApiBaseUrl}/helix/users?id=${userId}`,
+        `${this.twitchApiBaseUrl}/users?id=${userId}`,
         {
           method: 'GET',
           headers: {
