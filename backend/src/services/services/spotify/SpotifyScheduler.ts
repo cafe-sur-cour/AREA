@@ -195,9 +195,13 @@ export class SpotifyScheduler {
         userId,
         `${this.SPOTIFY_API_BASE_URL}/me/player`
       );
-      if (!response) return;
+      if (!response) {
+        console.log(`[Spotify] User ${userId} - No response from Spotify API`);
+        return;
+      }
 
       if (response.status === 204) {
+        console.log(`[Spotify] User ${userId} - No playback active (204)`);
         const userState = this.getUserState(userId);
         if (userState.isInitialized && userState.lastPlaybackState === true) {
           await this.triggerPlaybackPaused(userId, userState.lastTrack, null);
@@ -214,16 +218,27 @@ export class SpotifyScheduler {
       const currentTrack = playbackState.item;
       const isPlaying = playbackState.is_playing;
 
+      console.log(
+        `[Spotify] User ${userId} - Track: ${currentTrack?.name || 'null'}, Playing: ${isPlaying}, Initialized: ${userState.isInitialized}, LastTrack: ${userState.lastTrack?.name || 'null'}`
+      );
+
       if (userState.isInitialized) {
         if (
           userState.lastTrack?.id !== currentTrack?.id &&
           currentTrack &&
           isPlaying
         ) {
+          console.log(
+            `[Spotify] User ${userId} - Track changed detected: ${userState.lastTrack?.name || 'null'} -> ${currentTrack.name}`
+          );
           await this.triggerTrackChanged(
             userId,
             userState.lastTrack,
             currentTrack
+          );
+        } else {
+          console.log(
+            `[Spotify] User ${userId} - No track change: lastId=${userState.lastTrack?.id}, currentId=${currentTrack?.id}, isPlaying=${isPlaying}`
           );
         }
 
@@ -245,6 +260,10 @@ export class SpotifyScheduler {
             );
           }
         }
+      } else {
+        console.log(
+          `[Spotify] User ${userId} - First poll, initializing with track: ${currentTrack?.name || 'null'}`
+        );
       }
 
       this.updateUserState(userId, {
