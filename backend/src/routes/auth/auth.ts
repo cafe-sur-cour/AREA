@@ -39,6 +39,7 @@ const router = express.Router();
  */
 router.get(
   '/login/status',
+  token,
   async (req: Request, res: Response): Promise<Response | void> => {
     try {
       if (req.auth) {
