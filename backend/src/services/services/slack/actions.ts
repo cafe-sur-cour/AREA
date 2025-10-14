@@ -110,31 +110,38 @@ export const slackActions: ActionDefinition[] = [
       webhookPattern: 'message.channels',
       sharedEvents: true,
       sharedEventFilter: async (event, mapping, userId) => {
+        console.log(`🔍 [SLACK FILTER] ===== STARTING FILTER =====`);
+        console.log(`🔍 [SLACK FILTER] Event payload:`, JSON.stringify(event.payload, null, 2));
+
         const eventData = event.payload as {
           channel?: string;
           channel_type?: string;
         };
-        if (!eventData.channel) return false;
+
+        console.log(`🔍 [SLACK FILTER] Event channel: "${eventData.channel}"`);
+        console.log(`🔍 [SLACK FILTER] Event channel_type: "${eventData.channel_type}"`);
+
+        if (!eventData.channel) {
+          console.log(`🔍 [SLACK FILTER] No channel in event, returning false`);
+          return false;
+        }
 
         const mappingChannel = mapping.action.config?.channel as string;
-        if (!mappingChannel) return true;
+        console.log(`🔍 [SLACK FILTER] Mapping channel config: "${mappingChannel}"`);
 
-        console.log(`🔍 [SLACK FILTER] Filtering mapping for user ${userId}`);
-        console.log(`🔍 [SLACK FILTER] Event channel: ${eventData.channel}`);
-        console.log(
-          `🔍 [SLACK FILTER] Mapping channel config: ${mappingChannel}`
-        );
+        if (!mappingChannel) {
+          console.log(`🔍 [SLACK FILTER] No channel in mapping config, returning true`);
+          return true;
+        }
 
+        console.log(`🔍 [SLACK FILTER] Calling resolveChannelId for user ${userId}...`);
         const resolvedMappingChannel = userId
           ? await resolveChannelId(mappingChannel, userId)
           : mappingChannel;
 
-        console.log(
-          `🔍 [SLACK FILTER] Resolved mapping channel: ${resolvedMappingChannel}`
-        );
-        console.log(
-          `🔍 [SLACK FILTER] Channel match: ${eventData.channel === resolvedMappingChannel}`
-        );
+        console.log(`🔍 [SLACK FILTER] Resolved mapping channel: "${resolvedMappingChannel}"`);
+        console.log(`🔍 [SLACK FILTER] Event channel: "${eventData.channel}"`);
+        console.log(`🔍 [SLACK FILTER] Match result: ${eventData.channel === resolvedMappingChannel}`);
 
         return eventData.channel === resolvedMappingChannel;
       },
