@@ -2,7 +2,7 @@ import type { Service } from '../../../types/service';
 import { spotifyActions } from './actions';
 import { spotifyReactions } from './reactions';
 import { spotifyReactionExecutor } from './executor';
-import { SpotifyScheduler } from './SpotifyScheduler';
+import { spotifyScheduler } from './SpotifyScheduler';
 import { getIconSvg } from '../../../utils/iconMapping';
 
 const spotifyService: Service = {
@@ -22,13 +22,14 @@ const spotifyService: Service = {
     const userToken = await spotifyOAuth.getUserToken(userId);
     return userToken ? { access_token: userToken.token_value } : {};
   },
+  ensureWebhookForMapping: async (mapping, userId) => {
+    await spotifyScheduler.ensureWebhookCreated(userId, mapping.action.type);
+  },
 };
 
 export default spotifyService;
 
 export const executor = spotifyReactionExecutor;
-
-const spotifyScheduler = new SpotifyScheduler();
 
 export async function initialize(): Promise<void> {
   console.log('Initializing Spotify service...');

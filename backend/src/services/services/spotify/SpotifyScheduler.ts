@@ -53,7 +53,7 @@ export class SpotifyScheduler {
   >();
   private activeUserIdsCache: number[] = [];
   private lastCacheUpdate = 0;
-  private readonly CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+  private readonly CACHE_TTL = 30 * 1000; // 30 seconds
 
   private readonly MIN_REQUEST_INTERVAL = 1000; // 1 second
   private readonly MAX_REQUESTS_PER_WINDOW = 180;
@@ -92,6 +92,21 @@ export class SpotifyScheduler {
     this.userStates.clear();
   }
 
+  async ensureWebhookCreated(
+    userId: number,
+    actionType: string
+  ): Promise<void> {
+    if (!actionType.startsWith('spotify.')) {
+      return;
+    }
+
+    console.log(
+      `[Spotify] New mapping created for user ${userId}, invalidating cache`
+    );
+    this.lastCacheUpdate = 0;
+    this.activeUserIdsCache = [];
+  }
+
   private async pollActiveUsers(): Promise<void> {
     try {
       const now = Date.now();
@@ -124,7 +139,10 @@ export class SpotifyScheduler {
 
         this.activeUserIdsCache = userIds;
         this.lastCacheUpdate = now;
-        console.log(`[Spotify Polling] Found ${userIds.length} active users with Spotify mappings:`, userIds);
+        console.log(
+          `[Spotify Polling] Found ${userIds.length} active users with Spotify mappings:`,
+          userIds
+        );
       }
 
       if (userIds.length === 0) {
@@ -483,7 +501,9 @@ export class SpotifyScheduler {
     previousTrack: SpotifyTrack | null,
     currentTrack: SpotifyTrack
   ): Promise<void> {
-    console.log(`[Spotify] Track changed for user ${userId}: ${previousTrack?.name || 'null'} -> ${currentTrack.name}`);
+    console.log(
+      `[Spotify] Track changed for user ${userId}: ${previousTrack?.name || 'null'} -> ${currentTrack.name}`
+    );
     await this.createEvent(userId, 'spotify.track_changed', {
       previous_track: previousTrack
         ? {
@@ -594,3 +614,5 @@ export class SpotifyScheduler {
     await eventRepository.save(event);
   }
 }
+
+export const spotifyScheduler = new SpotifyScheduler();
