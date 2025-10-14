@@ -60,49 +60,103 @@ export class TwitchReactionExecutor implements ReactionExecutor {
     accessToken: string
   ): Promise<string | null> {
     try {
+      const clientId = process.env.SERVICE_TWITCH_CLIENT_ID || '';
+      console.log(`🔍 [Twitch] Looking up broadcaster ID for "${login}"`);
+
+      if (!clientId) {
+        console.error('❌ [Twitch] SERVICE_TWITCH_CLIENT_ID not configured');
+        return null;
+      }
+
       const response = await fetch(
         `${this.apiBaseUrl}/users?login=${encodeURIComponent(login)}`,
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
-            'Client-Id': process.env.SERVICE_TWITCH_CLIENT_ID || '',
+            'Client-Id': clientId,
           },
         }
       );
 
+      console.log(`📡 [Twitch] API response status: ${response.status}`);
+
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`❌ [Twitch] API error for "${login}": ${response.status} - ${errorText}`);
         return null;
       }
 
       const data = (await response.json()) as {
-        data: Array<{ id: string; login: string }>;
+        data: Array<{ id: string; login: string; display_name: string }>;
       };
-      return data.data?.[0]?.id || null;
+
+      console.log(`📊 [Twitch] API response data:`, data);
+
+      if (!data.data || data.data.length === 0) {
+        console.log(`⚠️ [Twitch] No user found for login "${login}"`);
+        return null;
+      }
+
+      const user = data.data[0];
+      if (!user) {
+        console.log(`⚠️ [Twitch] User data is empty for "${login}"`);
+        return null;
+      }
+
+      console.log(`✅ [Twitch] Found user: ${user.login} (ID: ${user.id})`);
+      return user.id;
     } catch (error) {
-      console.error('Error fetching broadcaster ID:', error);
+      console.error(`❌ [Twitch] Error fetching broadcaster ID for "${login}":`, error);
       return null;
     }
   }
 
   private async getUserTwitchId(accessToken: string): Promise<string | null> {
     try {
+      const clientId = process.env.SERVICE_TWITCH_CLIENT_ID || '';
+      console.log(`🔍 [Twitch] Getting authenticated user ID`);
+
+      if (!clientId) {
+        console.error('❌ [Twitch] SERVICE_TWITCH_CLIENT_ID not configured');
+        return null;
+      }
+
       const response = await fetch(`${this.apiBaseUrl}/users`, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
-          'Client-Id': process.env.SERVICE_TWITCH_CLIENT_ID || '',
+          'Client-Id': clientId,
         },
       });
 
+      console.log(`📡 [Twitch] User info API response status: ${response.status}`);
+
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`❌ [Twitch] Failed to get user info: ${response.status} - ${errorText}`);
         return null;
       }
 
       const data = (await response.json()) as {
-        data: Array<{ id: string; login: string }>;
+        data: Array<{ id: string; login: string; display_name: string }>;
       };
-      return data.data?.[0]?.id || null;
+
+      console.log(`📊 [Twitch] User info response data:`, data);
+
+      if (!data.data || data.data.length === 0) {
+        console.log(`⚠️ [Twitch] No user data returned`);
+        return null;
+      }
+
+      const user = data.data[0];
+      if (!user) {
+        console.log(`⚠️ [Twitch] User data is empty`);
+        return null;
+      }
+
+      console.log(`✅ [Twitch] Authenticated user: ${user.login} (ID: ${user.id})`);
+      return user.id;
     } catch (error) {
-      console.error('Error fetching user Twitch ID:', error);
+      console.error('❌ [Twitch] Error fetching user Twitch ID:', error);
       return null;
     }
   }
@@ -113,6 +167,8 @@ export class TwitchReactionExecutor implements ReactionExecutor {
   ): Promise<ReactionExecutionResult> {
     const { broadcaster_login } = config as { broadcaster_login: string };
 
+    console.log(`🎯 [Twitch] Starting follow_channel reaction for "${broadcaster_login}"`);
+
     if (!broadcaster_login) {
       return {
         success: false,
@@ -121,25 +177,32 @@ export class TwitchReactionExecutor implements ReactionExecutor {
     }
 
     try {
+      console.log(`🔑 [Twitch] Getting authenticated user ID...`);
       const userId = await this.getUserTwitchId(accessToken);
       if (!userId) {
+        console.log(`❌ [Twitch] Failed to get authenticated user ID`);
         return {
           success: false,
           error: 'Failed to get authenticated user information',
         };
       }
+      console.log(`✅ [Twitch] Authenticated user ID: ${userId}`);
 
+      console.log(`🔍 [Twitch] Looking up broadcaster ID for "${broadcaster_login}"...`);
       const broadcasterId = await this.getBroadcasterId(
         broadcaster_login,
         accessToken
       );
       if (!broadcasterId) {
+        console.log(`❌ [Twitch] Broadcaster "${broadcaster_login}" not found`);
         return {
           success: false,
           error: `Streamer "${broadcaster_login}" not found`,
         };
       }
+      console.log(`✅ [Twitch] Broadcaster ID: ${broadcasterId}`);
 
+      console.log(`📡 [Twitch] Making follow request...`);
       const response = await fetch(`${this.apiBaseUrl}/users/follows`, {
         method: 'POST',
         headers: {
@@ -153,6 +216,8 @@ export class TwitchReactionExecutor implements ReactionExecutor {
         }),
       });
 
+      console.log(`📡 [Twitch] Follow API response status: ${response.status}`);
+
       if (!response.ok) {
         const errorData = (await response
           .json()
@@ -160,6 +225,8 @@ export class TwitchReactionExecutor implements ReactionExecutor {
         const errorMessage =
           errorData.message ||
           `HTTP ${response.status}: ${response.statusText}`;
+
+        console.log(`❌ [Twitch] Follow API error: ${errorMessage}`);
 
         if (response.status === 401) {
           return {
@@ -191,6 +258,7 @@ export class TwitchReactionExecutor implements ReactionExecutor {
         };
       }
 
+      console.log(`✅ [Twitch] Successfully followed "${broadcaster_login}"`);
       return {
         success: true,
         output: {
@@ -201,6 +269,7 @@ export class TwitchReactionExecutor implements ReactionExecutor {
         },
       };
     } catch (error) {
+      console.error(`❌ [Twitch] Network error while following channel:`, error);
       return {
         success: false,
         error: `Network error while following channel: ${(error as Error).message}`,
