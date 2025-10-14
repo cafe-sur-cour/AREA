@@ -1,4 +1,9 @@
-import type { Service } from '../../../types/service';
+import type     {
+      id: 'twitch.update_channel',
+      name: 'Update Channel Title',
+      description:
+        'Updates the title of the authenticated user\'s own Twitch channel',
+      configSchema: twitchUpdateChannelSchema,ice } from '../../../types/service';
 import { getIconSvg } from '../../../utils/iconMapping';
 import { twitchUpdateChannelSchema } from './schemas';
 
@@ -14,7 +19,7 @@ const twitchService: Service = {
       id: 'twitch.update_channel',
       name: 'Update Channel Description',
       description:
-        "Updates the title/description of the authenticated user's own Twitch channel",
+        'Updates the description of the authenticated user\'s own Twitch channel',
       configSchema: twitchUpdateChannelSchema,
       outputSchema: {
         type: 'object',
@@ -23,13 +28,13 @@ const twitchService: Service = {
             type: 'string',
             description: 'The ID of the channel that was updated',
           },
-          old_title: {
+          old_description: {
             type: 'string',
-            description: 'The previous channel title',
+            description: 'The previous channel description',
           },
-          new_title: {
+          new_description: {
             type: 'string',
-            description: 'The new channel title',
+            description: 'The new channel description',
           },
           success: {
             type: 'boolean',
@@ -40,7 +45,7 @@ const twitchService: Service = {
       },
       metadata: {
         category: 'Content Management',
-        tags: ['twitch', 'channel', 'update', 'title', 'streaming'],
+        tags: ['twitch', 'channel', 'update', 'description', 'streaming'],
         requiresAuth: true,
         estimatedDuration: 3000,
       },

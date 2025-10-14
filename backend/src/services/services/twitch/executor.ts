@@ -174,23 +174,23 @@ export class TwitchReactionExecutor implements ReactionExecutor {
     config: Record<string, unknown>,
     accessToken: string
   ): Promise<ReactionExecutionResult> {
-    const { title } = config as { title: string };
+    const { description } = config as { description: string };
 
     console.log(
-      `🎯 [Twitch] Starting update_channel reaction with title: "${title}"`
+      `🎯 [Twitch] Starting update_channel reaction with description: "${description}"`
     );
 
-    if (!title || title.trim().length === 0) {
+    if (!description || description.trim().length === 0) {
       return {
         success: false,
-        error: 'Channel title is required and cannot be empty',
+        error: 'Channel description is required and cannot be empty',
       };
     }
 
-    if (title.length > 140) {
+    if (description.length > 300) {
       return {
         success: false,
-        error: 'Channel title cannot exceed 140 characters',
+        error: 'Channel description cannot exceed 300 characters',
       };
     }
 
@@ -206,9 +206,10 @@ export class TwitchReactionExecutor implements ReactionExecutor {
       }
       console.log(`✅ [Twitch] Authenticated user ID: ${userId}`);
 
-      console.log(`📡 [Twitch] Getting current channel information...`);
-      const currentChannelResponse = await fetch(
-        `${this.apiBaseUrl}/channels?broadcaster_id=${userId}`,
+      // Get current user information to capture old description
+      console.log(`📡 [Twitch] Getting current user information...`);
+      const currentUserResponse = await fetch(
+        `${this.apiBaseUrl}/users?id=${userId}`,
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -217,38 +218,42 @@ export class TwitchReactionExecutor implements ReactionExecutor {
         }
       );
 
-      let oldTitle = '';
-      if (currentChannelResponse.ok) {
-        const currentChannelData = (await currentChannelResponse.json()) as {
-          data: Array<{ title: string }>;
+      let oldDescription = '';
+      if (currentUserResponse.ok) {
+        const currentUserData = (await currentUserResponse.json()) as {
+          data: Array<{ description: string }>;
         };
+        console.log(`📊 [Twitch] Current user data:`, currentUserData);
         if (
-          currentChannelData.data &&
-          currentChannelData.data.length > 0 &&
-          currentChannelData.data[0]
+          currentUserData.data &&
+          currentUserData.data.length > 0 &&
+          currentUserData.data[0]
         ) {
-          oldTitle = currentChannelData.data[0].title;
+          oldDescription = currentUserData.data[0].description || '';
+          console.log(`📝 [Twitch] Current description: "${oldDescription}"`);
         }
+      } else {
+        console.log(
+          `⚠️ [Twitch] Failed to get current user info: ${currentUserResponse.status}`
+        );
       }
 
-      console.log(`📡 [Twitch] Updating channel title to: "${title}"`);
+      console.log(
+        `📡 [Twitch] Updating channel description to: "${description}"`
+      );
       const response = await fetch(
-        `${this.apiBaseUrl}/channels?broadcaster_id=${userId}`,
+        `${this.apiBaseUrl}/users?description=${encodeURIComponent(description.trim())}`,
         {
-          method: 'PATCH',
+          method: 'PUT',
           headers: {
             Authorization: `Bearer ${accessToken}`,
             'Client-Id': process.env.SERVICE_TWITCH_CLIENT_ID || '',
-            'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            title: title.trim(),
-          }),
         }
       );
 
       console.log(
-        `📡 [Twitch] Update channel API response status: ${response.status}`
+        `📡 [Twitch] Update user API response status: ${response.status}`
       );
 
       if (!response.ok) {
@@ -259,7 +264,7 @@ export class TwitchReactionExecutor implements ReactionExecutor {
           errorData.message ||
           `HTTP ${response.status}: ${response.statusText}`;
 
-        console.log(`❌ [Twitch] Update channel API error: ${errorMessage}`);
+        console.log(`❌ [Twitch] Update user API error: ${errorMessage}`);
 
         if (response.status === 401) {
           return {
@@ -270,13 +275,12 @@ export class TwitchReactionExecutor implements ReactionExecutor {
         } else if (response.status === 403) {
           return {
             success: false,
-            error:
-              'Insufficient permissions. The channel:manage:broadcast scope is required.',
+            error: 'Insufficient permissions. The user:edit scope is required.',
           };
         } else if (response.status === 400) {
           return {
             success: false,
-            error: `Invalid title: ${errorMessage}`,
+            error: `Invalid description: ${errorMessage}`,
           };
         } else if (response.status === 500) {
           return {
@@ -292,14 +296,17 @@ export class TwitchReactionExecutor implements ReactionExecutor {
       }
 
       console.log(
-        `✅ [Twitch] Successfully updated channel title to: "${title}"`
+        `✅ [Twitch] Successfully updated channel description to: "${description}"`
+      );
+      console.log(
+        `📊 [Twitch] Description changed from "${oldDescription}" to "${description.trim()}"`
       );
       return {
         success: true,
         output: {
           broadcaster_id: userId,
-          old_title: oldTitle,
-          new_title: title.trim(),
+          old_description: oldDescription,
+          new_description: description.trim(),
           success: true,
         },
       };

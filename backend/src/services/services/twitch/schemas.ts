@@ -3,14 +3,15 @@ import type { ActionReactionSchema } from '../../../types/mapping';
 export const twitchUpdateChannelSchema: ActionReactionSchema = {
   name: 'Update Channel Description',
   description:
-    "Updates the title/description of the authenticated user's own Twitch channel",
+    "Updates the description of the authenticated user's own Twitch channel",
   fields: [
     {
-      name: 'title',
-      type: 'text',
-      label: 'New Channel Title',
+      name: 'description',
+      type: 'textarea',
+      label: 'New Channel Description',
       required: true,
-      placeholder: 'My Awesome Stream Title!',
+      placeholder:
+        'Welcome to my channel! I stream games and have fun with viewers.',
     },
   ],
 };
