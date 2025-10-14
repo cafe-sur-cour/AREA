@@ -1,31 +1,16 @@
 import type { ActionReactionSchema } from '../../../types/mapping';
 
-export const twitchFollowChannelSchema: ActionReactionSchema = {
-  name: 'Follow a Channel',
+export const twitchUpdateChannelSchema: ActionReactionSchema = {
+  name: 'Update Channel Description',
   description:
-    'Follows a specified Twitch channel on behalf of the authenticated user',
+    "Updates the title/description of the authenticated user's own Twitch channel",
   fields: [
     {
-      name: 'broadcaster_login',
+      name: 'title',
       type: 'text',
-      label: 'Streamer Username',
+      label: 'New Channel Title',
       required: true,
-      placeholder: 'ninja (the streamer username to follow)',
-    },
-  ],
-};
-
-export const twitchUnfollowChannelSchema: ActionReactionSchema = {
-  name: 'Unfollow a Channel',
-  description:
-    'Unfollows a specified Twitch channel on behalf of the authenticated user',
-  fields: [
-    {
-      name: 'broadcaster_login',
-      type: 'text',
-      label: 'Streamer Username',
-      required: true,
-      placeholder: 'ninja (the streamer username to unfollow)',
+      placeholder: 'My Awesome Stream Title!',
     },
   ],
 };

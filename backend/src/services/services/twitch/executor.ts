@@ -36,10 +36,8 @@ export class TwitchReactionExecutor implements ReactionExecutor {
       const validToken = userToken.token_value;
 
       switch (reaction.type) {
-        case 'twitch.follow_channel':
-          return await this.followChannel(reaction.config, validToken);
-        case 'twitch.unfollow_channel':
-          return await this.unfollowChannel(reaction.config, validToken);
+        case 'twitch.update_channel':
+          return await this.updateChannel(reaction.config, validToken);
         default:
           return {
             success: false,
@@ -82,7 +80,9 @@ export class TwitchReactionExecutor implements ReactionExecutor {
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error(`❌ [Twitch] API error for "${login}": ${response.status} - ${errorText}`);
+        console.error(
+          `❌ [Twitch] API error for "${login}": ${response.status} - ${errorText}`
+        );
         return null;
       }
 
@@ -106,7 +106,10 @@ export class TwitchReactionExecutor implements ReactionExecutor {
       console.log(`✅ [Twitch] Found user: ${user.login} (ID: ${user.id})`);
       return user.id;
     } catch (error) {
-      console.error(`❌ [Twitch] Error fetching broadcaster ID for "${login}":`, error);
+      console.error(
+        `❌ [Twitch] Error fetching broadcaster ID for "${login}":`,
+        error
+      );
       return null;
     }
   }
@@ -128,11 +131,15 @@ export class TwitchReactionExecutor implements ReactionExecutor {
         },
       });
 
-      console.log(`📡 [Twitch] User info API response status: ${response.status}`);
+      console.log(
+        `📡 [Twitch] User info API response status: ${response.status}`
+      );
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error(`❌ [Twitch] Failed to get user info: ${response.status} - ${errorText}`);
+        console.error(
+          `❌ [Twitch] Failed to get user info: ${response.status} - ${errorText}`
+        );
         return null;
       }
 
@@ -153,7 +160,9 @@ export class TwitchReactionExecutor implements ReactionExecutor {
         return null;
       }
 
-      console.log(`✅ [Twitch] Authenticated user: ${user.login} (ID: ${user.id})`);
+      console.log(
+        `✅ [Twitch] Authenticated user: ${user.login} (ID: ${user.id})`
+      );
       return user.id;
     } catch (error) {
       console.error('❌ [Twitch] Error fetching user Twitch ID:', error);
@@ -161,18 +170,27 @@ export class TwitchReactionExecutor implements ReactionExecutor {
     }
   }
 
-  private async followChannel(
+  private async updateChannel(
     config: Record<string, unknown>,
     accessToken: string
   ): Promise<ReactionExecutionResult> {
-    const { broadcaster_login } = config as { broadcaster_login: string };
+    const { title } = config as { title: string };
 
-    console.log(`🎯 [Twitch] Starting follow_channel reaction for "${broadcaster_login}"`);
+    console.log(
+      `🎯 [Twitch] Starting update_channel reaction with title: "${title}"`
+    );
 
-    if (!broadcaster_login) {
+    if (!title || title.trim().length === 0) {
       return {
         success: false,
-        error: 'Streamer username is required',
+        error: 'Channel title is required and cannot be empty',
+      };
+    }
+
+    if (title.length > 140) {
+      return {
+        success: false,
+        error: 'Channel title cannot exceed 140 characters',
       };
     }
 
@@ -188,124 +206,10 @@ export class TwitchReactionExecutor implements ReactionExecutor {
       }
       console.log(`✅ [Twitch] Authenticated user ID: ${userId}`);
 
-      console.log(`🔍 [Twitch] Looking up broadcaster ID for "${broadcaster_login}"...`);
-      const broadcasterId = await this.getBroadcasterId(
-        broadcaster_login,
-        accessToken
-      );
-      if (!broadcasterId) {
-        console.log(`❌ [Twitch] Broadcaster "${broadcaster_login}" not found`);
-        return {
-          success: false,
-          error: `Streamer "${broadcaster_login}" not found`,
-        };
-      }
-      console.log(`✅ [Twitch] Broadcaster ID: ${broadcasterId}`);
-
-      console.log(`📡 [Twitch] Making follow request...`);
-      const response = await fetch(`${this.apiBaseUrl}/users/follows`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          'Client-Id': process.env.SERVICE_TWITCH_CLIENT_ID || '',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          from_id: userId,
-          to_id: broadcasterId,
-        }),
-      });
-
-      console.log(`📡 [Twitch] Follow API response status: ${response.status}`);
-
-      if (!response.ok) {
-        const errorData = (await response
-          .json()
-          .catch(() => ({}))) as TwitchErrorResponse;
-        const errorMessage =
-          errorData.message ||
-          `HTTP ${response.status}: ${response.statusText}`;
-
-        console.log(`❌ [Twitch] Follow API error: ${errorMessage}`);
-
-        if (response.status === 401) {
-          return {
-            success: false,
-            error:
-              'Authentication failed. Please reauthorize your Twitch account.',
-          };
-        } else if (response.status === 403) {
-          return {
-            success: false,
-            error:
-              'Insufficient permissions. The user:edit:follows scope is required.',
-          };
-        } else if (response.status === 404) {
-          return {
-            success: false,
-            error: `Channel "${broadcaster_login}" not found.`,
-          };
-        } else if (response.status === 422) {
-          return {
-            success: false,
-            error: `Invalid streamer username: ${broadcaster_login}`,
-          };
-        }
-
-        return {
-          success: false,
-          error: `Twitch API error: ${errorMessage}`,
-        };
-      }
-
-      console.log(`✅ [Twitch] Successfully followed "${broadcaster_login}"`);
-      return {
-        success: true,
-        output: {
-          broadcaster_login: broadcaster_login,
-          broadcaster_id: broadcasterId,
-          user_id: userId,
-          success: true,
-        },
-      };
-    } catch (error) {
-      console.error(`❌ [Twitch] Network error while following channel:`, error);
-      return {
-        success: false,
-        error: `Network error while following channel: ${(error as Error).message}`,
-      };
-    }
-  }
-
-  private async unfollowChannel(
-    config: Record<string, unknown>,
-    accessToken: string
-  ): Promise<ReactionExecutionResult> {
-    const { broadcaster_login } = config as { broadcaster_login: string };
-
-    if (!broadcaster_login) {
-      return {
-        success: false,
-        error: 'Streamer username is required',
-      };
-    }
-
-    try {
-      const broadcasterId = await this.getBroadcasterId(
-        broadcaster_login,
-        accessToken
-      );
-      if (!broadcasterId) {
-        return {
-          success: false,
-          error: `Streamer "${broadcaster_login}" not found`,
-        };
-      }
-
-      const response = await fetch(
-        `${this.apiBaseUrl}/users/follows?to_id=${broadcasterId}`,
+      console.log(`📡 [Twitch] Getting current channel information...`);
+      const currentChannelResponse = await fetch(
+        `${this.apiBaseUrl}/channels?broadcaster_id=${userId}`,
         {
-          method: 'DELETE',
           headers: {
             Authorization: `Bearer ${accessToken}`,
             'Client-Id': process.env.SERVICE_TWITCH_CLIENT_ID || '',
@@ -313,6 +217,40 @@ export class TwitchReactionExecutor implements ReactionExecutor {
         }
       );
 
+      let oldTitle = '';
+      if (currentChannelResponse.ok) {
+        const currentChannelData = (await currentChannelResponse.json()) as {
+          data: Array<{ title: string }>;
+        };
+        if (
+          currentChannelData.data &&
+          currentChannelData.data.length > 0 &&
+          currentChannelData.data[0]
+        ) {
+          oldTitle = currentChannelData.data[0].title;
+        }
+      }
+
+      console.log(`📡 [Twitch] Updating channel title to: "${title}"`);
+      const response = await fetch(
+        `${this.apiBaseUrl}/channels?broadcaster_id=${userId}`,
+        {
+          method: 'PATCH',
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'Client-Id': process.env.SERVICE_TWITCH_CLIENT_ID || '',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            title: title.trim(),
+          }),
+        }
+      );
+
+      console.log(
+        `📡 [Twitch] Update channel API response status: ${response.status}`
+      );
+
       if (!response.ok) {
         const errorData = (await response
           .json()
@@ -320,6 +258,8 @@ export class TwitchReactionExecutor implements ReactionExecutor {
         const errorMessage =
           errorData.message ||
           `HTTP ${response.status}: ${response.statusText}`;
+
+        console.log(`❌ [Twitch] Update channel API error: ${errorMessage}`);
 
         if (response.status === 401) {
           return {
@@ -331,12 +271,17 @@ export class TwitchReactionExecutor implements ReactionExecutor {
           return {
             success: false,
             error:
-              'Insufficient permissions. The user:edit:follows scope is required.',
+              'Insufficient permissions. The channel:manage:broadcast scope is required.',
           };
-        } else if (response.status === 404) {
+        } else if (response.status === 400) {
           return {
             success: false,
-            error: `Channel "${broadcaster_login}" not found or not followed.`,
+            error: `Invalid title: ${errorMessage}`,
+          };
+        } else if (response.status === 500) {
+          return {
+            success: false,
+            error: 'Twitch API server error. Please try again later.',
           };
         }
 
@@ -346,18 +291,23 @@ export class TwitchReactionExecutor implements ReactionExecutor {
         };
       }
 
+      console.log(
+        `✅ [Twitch] Successfully updated channel title to: "${title}"`
+      );
       return {
         success: true,
         output: {
-          broadcaster_login: broadcaster_login,
-          broadcaster_id: broadcasterId,
+          broadcaster_id: userId,
+          old_title: oldTitle,
+          new_title: title.trim(),
           success: true,
         },
       };
     } catch (error) {
+      console.error(`❌ [Twitch] Network error while updating channel:`, error);
       return {
         success: false,
-        error: `Network error while unfollowing channel: ${(error as Error).message}`,
+        error: `Network error while updating channel: ${(error as Error).message}`,
       };
     }
   }

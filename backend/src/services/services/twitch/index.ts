@@ -1,9 +1,6 @@
 import type { Service } from '../../../types/service';
 import { getIconSvg } from '../../../utils/iconMapping';
-import {
-  twitchFollowChannelSchema,
-  twitchUnfollowChannelSchema,
-} from './schemas';
+import { twitchUpdateChannelSchema } from './schemas';
 
 const twitchService: Service = {
   id: 'twitch',
@@ -14,57 +11,38 @@ const twitchService: Service = {
   actions: [],
   reactions: [
     {
-      id: 'twitch.follow_channel',
-      name: 'Follow a Channel',
+      id: 'twitch.update_channel',
+      name: 'Update Channel Description',
       description:
-        'Follows a specified Twitch channel on behalf of the authenticated user',
-      configSchema: twitchFollowChannelSchema,
+        "Updates the title/description of the authenticated user's own Twitch channel",
+      configSchema: twitchUpdateChannelSchema,
       outputSchema: {
         type: 'object',
         properties: {
           broadcaster_id: {
             type: 'string',
-            description: 'The ID of the channel that was followed',
+            description: 'The ID of the channel that was updated',
           },
-          success: {
-            type: 'boolean',
-            description: 'Whether the follow was successful',
-          },
-        },
-        required: ['success'],
-      },
-      metadata: {
-        category: 'Social',
-        tags: ['twitch', 'follow', 'channel', 'streaming'],
-        requiresAuth: true,
-        estimatedDuration: 2000,
-      },
-    },
-    {
-      id: 'twitch.unfollow_channel',
-      name: 'Unfollow a Channel',
-      description:
-        'Unfollows a specified Twitch channel on behalf of the authenticated user',
-      configSchema: twitchUnfollowChannelSchema,
-      outputSchema: {
-        type: 'object',
-        properties: {
-          broadcaster_id: {
+          old_title: {
             type: 'string',
-            description: 'The ID of the channel that was unfollowed',
+            description: 'The previous channel title',
+          },
+          new_title: {
+            type: 'string',
+            description: 'The new channel title',
           },
           success: {
             type: 'boolean',
-            description: 'Whether the unfollow was successful',
+            description: 'Whether the update was successful',
           },
         },
         required: ['success'],
       },
       metadata: {
-        category: 'Social',
-        tags: ['twitch', 'unfollow', 'channel', 'streaming'],
+        category: 'Content Management',
+        tags: ['twitch', 'channel', 'update', 'title', 'streaming'],
         requiresAuth: true,
-        estimatedDuration: 2000,
+        estimatedDuration: 3000,
       },
     },
   ],
