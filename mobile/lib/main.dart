@@ -1,4 +1,5 @@
 import 'package:area/core/config/app_config.dart';
+import 'package:area/core/constants/app_constants.dart';
 import 'package:area/l10n/app_localizations.dart';
 import 'package:area/screens/action_services_screen.dart';
 import 'package:area/screens/reaction_services_screen.dart';
@@ -11,6 +12,8 @@ import 'package:area/core/themes/app_theme.dart';
 import 'package:area/core/notifiers/backend_address_notifier.dart';
 import 'package:area/core/notifiers/locale_notifier.dart';
 import 'package:area/core/notifiers/automation_builder_notifier.dart';
+import 'package:area/services/secure_http_client.dart';
+import 'package:area/services/secure_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
@@ -21,8 +24,10 @@ void main() {
       providers: [
         ChangeNotifierProvider(create: (context) => LocaleNotifier()),
         ChangeNotifierProvider(
-          create: (context) =>
-              BackendAddressNotifier()..setBackendAddress(AppConfig.backendUrl),
+          create: (context) => BackendAddressNotifier()
+            ..setBackendAddress(
+              AppConfig.backendUrl + (AppConfig.backendUrl.endsWith("/") ? "" : "/"),
+            ),
         ),
         ChangeNotifierProvider(create: (context) => AutomationBuilderNotifier()),
       ],
@@ -34,9 +39,34 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
+  void _checkJWT(String backendAddress) async {
+    final jwt = await getJwt();
+    final url = Uri.parse(backendAddress + AppRoutes.jwtCheck);
+
+    if (jwt == null) {
+      return;
+    }
+    final headers = {'Authorization': "Bearer $jwt"};
+    final client = SecureHttpClient.getClient();
+
+    try {
+      final response = await client.get(url, headers: headers);
+      if (response.statusCode != 200) {
+        await deleteJwt();
+      }
+    } catch (e) {
+      await deleteJwt();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final locale = Provider.of<LocaleNotifier>(context).locale;
+
+    final backendAddressNotifier = Provider.of<BackendAddressNotifier>(context);
+    if (backendAddressNotifier.backendAddress != null) {
+      _checkJWT(backendAddressNotifier.backendAddress!);
+    }
 
     return MaterialApp(
       localizationsDelegates: const [
