@@ -240,8 +240,6 @@ class TwitchWebhookHandler implements WebhookHandler {
         return 'twitch.new_follower';
       case 'channel.subscribe':
         return 'twitch.new_subscription';
-      case 'channel.subscription.message':
-        return 'twitch.new_subscription';
       case 'stream.online':
         return 'twitch.stream_online';
       case 'stream.offline':
@@ -266,11 +264,6 @@ class TwitchWebhookHandler implements WebhookHandler {
       case 'channel.subscribe':
         console.log(
           `⭐ New subscription: ${event.user_name} subscribed to ${event.broadcaster_user_name} (Tier ${event.tier})`
-        );
-        break;
-      case 'channel.subscription.message':
-        console.log(
-          `🔄 Subscription message: ${event.user_name} resubscribed to ${event.broadcaster_user_name} (${event.cumulative_months} months)`
         );
         break;
       case 'stream.online':

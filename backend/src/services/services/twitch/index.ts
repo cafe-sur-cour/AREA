@@ -138,19 +138,39 @@ const twitchService: Service = {
         throw new Error('No Twitch token found for user');
       }
 
-      const broadcasterUsername = mapping.action.config
-        ?.broadcaster_username as string;
-      if (!broadcasterUsername) {
-        throw new Error('Broadcaster username not found in mapping config');
+      const userInfo = await twitchOAuth.getUserInfo(userToken.token_value);
+      const moderatorId = userInfo.id;
+
+      let broadcasterId: string;
+      let broadcasterUsername: string;
+
+      if (
+        mapping.action.type === 'twitch.new_follower' ||
+        mapping.action.type === 'twitch.new_subscription'
+      ) {
+        broadcasterId = userInfo.id;
+        broadcasterUsername = userInfo.login;
+      } else {
+        broadcasterUsername = mapping.action.config
+          ?.broadcaster_username as string;
+        if (!broadcasterUsername) {
+          throw new Error('Broadcaster username not found in mapping config');
+        }
+
+        const foundBroadcasterId =
+          await twitchEventSubManager.getUserId(broadcasterUsername);
+        if (!foundBroadcasterId) {
+          throw new Error(`Could not find Twitch user: ${broadcasterUsername}`);
+        }
+        broadcasterId = foundBroadcasterId;
       }
 
-      const broadcasterId =
-        await twitchEventSubManager.getUserId(broadcasterUsername);
-      if (!broadcasterId) {
-        throw new Error(`Could not find Twitch user: ${broadcasterUsername}`);
-      }
-
-      await twitchEventSubManager.createAllSubscriptions(userId, broadcasterId);
+      await twitchEventSubManager.createSubscriptionForAction(
+        userId,
+        mapping.action.type,
+        broadcasterId,
+        moderatorId
+      );
 
       console.log(
         `✅ Created EventSub subscriptions for Twitch mapping (user: ${userId}, broadcaster: ${broadcasterId})`

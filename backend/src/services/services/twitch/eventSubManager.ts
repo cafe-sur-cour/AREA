@@ -46,15 +46,25 @@ export class TwitchEventSubManager {
   async createSubscription(
     userId: number,
     broadcasterId: string,
-    subscriptionType: string
+    subscriptionType: string,
+    moderatorId?: string
   ): Promise<Record<string, unknown>> {
     try {
       const appToken = await this.getAppAccessToken();
       const webhookUrl = `${this.webhookBaseUrl}/webhooks/twitch`;
 
-      const subscriptionData = {
+      const subscriptionData: {
+        type: string;
+        version: string;
+        condition: Record<string, string>;
+        transport: {
+          method: string;
+          callback: string;
+          secret: string;
+        };
+      } = {
         type: subscriptionType,
-        version: '1',
+        version: subscriptionType === 'channel.follow' ? '2' : '1',
         condition: {
           broadcaster_user_id: broadcasterId,
         },
@@ -64,6 +74,17 @@ export class TwitchEventSubManager {
           secret: this.generateSecret(),
         },
       };
+
+      const moderatorRequiredEvents = ['channel.follow', 'channel.subscribe'];
+
+      if (moderatorRequiredEvents.includes(subscriptionType)) {
+        if (!moderatorId) {
+          throw new Error(
+            `moderatorId is required for ${subscriptionType} subscription`
+          );
+        }
+        subscriptionData.condition.moderator_user_id = moderatorId;
+      }
 
       const response = await fetch(
         `${this.twitchApiBaseUrl}/eventsub/subscriptions`,
@@ -99,28 +120,37 @@ export class TwitchEventSubManager {
     }
   }
 
-  async createAllSubscriptions(
+  async createSubscriptionForAction(
     userId: number,
-    broadcasterId: string
+    actionType: string,
+    broadcasterId: string,
+    moderatorId?: string
   ): Promise<void> {
-    const subscriptionTypes = [
-      'channel.follow',
-      'channel.subscribe',
-      'channel.subscription.message',
-      'stream.online',
-      'stream.offline',
-    ];
+    let subscriptionType: string;
 
-    for (const type of subscriptionTypes) {
-      try {
-        await this.createSubscription(userId, broadcasterId, type);
-      } catch (error) {
-        console.error(
-          `Failed to create ${type} subscription for user ${userId}:`,
-          error
-        );
-      }
+    switch (actionType) {
+      case 'twitch.new_follower':
+        subscriptionType = 'channel.follow';
+        break;
+      case 'twitch.new_subscription':
+        subscriptionType = 'channel.subscribe';
+        break;
+      case 'twitch.stream_online':
+        subscriptionType = 'stream.online';
+        break;
+      case 'twitch.stream_offline':
+        subscriptionType = 'stream.offline';
+        break;
+      default:
+        throw new Error(`Unknown action type: ${actionType}`);
     }
+
+    await this.createSubscription(
+      userId,
+      broadcasterId,
+      subscriptionType,
+      moderatorId
+    );
   }
 
   async deleteSubscription(subscriptionId: string): Promise<void> {

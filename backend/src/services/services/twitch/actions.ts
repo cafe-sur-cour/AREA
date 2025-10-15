@@ -10,7 +10,7 @@ export const twitchActions: ActionDefinition[] = [
   {
     id: 'twitch.new_follower',
     name: 'Twitch New Follower',
-    description: 'Triggers when someone follows the specified Twitch channel',
+    description: 'Triggers when someone follows your Twitch channel',
     configSchema: twitchNewFollowerSchema,
     inputSchema: {
       type: 'object',
@@ -66,7 +66,7 @@ export const twitchActions: ActionDefinition[] = [
     id: 'twitch.new_subscription',
     name: 'Twitch New Subscription',
     description:
-      'Triggers when someone subscribes or renews a subscription to the specified channel',
+      'Triggers when someone subscribes or renews a subscription to your channel',
     configSchema: twitchNewSubscriptionSchema,
     inputSchema: {
       type: 'object',
