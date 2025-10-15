@@ -53,6 +53,7 @@ export const twitchActions: ActionDefinition[] = [
       webhookPattern: 'channel.follow',
       sharedEvents: true,
       sharedEventFilter: event => {
+        console.log('Filter payload:', event.payload);
         const broadcasterUserId = (
           event.payload as { broadcaster_user_id?: string }
         )?.broadcaster_user_id;
