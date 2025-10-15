@@ -56,12 +56,12 @@ export class TwitchEventSubManager {
       broadcasterId,
       subscriptionType,
       moderatorId: moderatorId || 'none',
-      webhookUrl: `${this.webhookBaseUrl}/webhooks/twitch`,
+      webhookUrl: `${this.webhookBaseUrl}/api/webhooks/twitch`,
     });
 
     try {
       const appToken = await this.getAppAccessToken();
-      const webhookUrl = `${this.webhookBaseUrl}/webhooks/twitch`;
+      const webhookUrl = `${this.webhookBaseUrl}/api/webhooks/twitch`;
 
       const subscriptionData: {
         type: string;
@@ -129,19 +129,27 @@ export class TwitchEventSubManager {
       }
 
       const data = await response.json();
+      const subscription = data.data?.[0]; // Twitch returns an array in data property
+
+      if (!subscription) {
+        console.error('❌ [TWITCH API] No subscription data in response');
+        throw new Error('Invalid response from Twitch API');
+      }
+
       console.log(
         `✅ [TWITCH API] Successfully created ${subscriptionType} subscription:`,
         {
-          id: data.id,
-          status: data.status,
-          type: data.type,
-          version: data.version,
-          broadcaster_user_id: data.condition?.broadcaster_user_id,
-          moderator_user_id: data.condition?.moderator_user_id,
-          full_response: JSON.stringify(data, null, 2),
+          id: subscription.id,
+          status: subscription.status,
+          type: subscription.type,
+          version: subscription.version,
+          broadcaster_user_id: subscription.condition?.broadcaster_user_id,
+          moderator_user_id: subscription.condition?.moderator_user_id,
+          created_at: subscription.created_at,
+          cost: subscription.cost,
         }
       );
-      return data;
+      return subscription;
     } catch (error) {
       console.error(
         `Failed to create ${subscriptionType} subscription:`,
@@ -224,7 +232,7 @@ export class TwitchEventSubManager {
     externalWebhook.service = 'twitch';
     externalWebhook.external_id = subscriptionData.id as string;
     externalWebhook.repository = broadcasterId;
-    externalWebhook.url = `${this.webhookBaseUrl}/webhooks/twitch`;
+    externalWebhook.url = `${this.webhookBaseUrl}/api/webhooks/twitch`;
     externalWebhook.secret = this.generateSecret();
     externalWebhook.events = [actionType];
     externalWebhook.is_active = true;

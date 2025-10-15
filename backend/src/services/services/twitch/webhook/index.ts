@@ -42,6 +42,10 @@ class TwitchWebhookHandler implements WebhookHandler {
 
       const webhookUrl = `${process.env.WEBHOOK_BASE_URL || ''}${req.originalUrl}`;
 
+      console.log(
+        `🔍 [TWITCH WEBHOOK] Looking for webhook with URL: ${webhookUrl}`
+      );
+
       const externalWebhook = await AppDataSource.getRepository(
         ExternalWebhooks
       ).findOne({
@@ -132,7 +136,7 @@ class TwitchWebhookHandler implements WebhookHandler {
     ] as string;
 
     console.log(
-      `🔍 [TWITCH WEBHOOK] Verification challenge for ${subscriptionType}`
+      `🔍 [TWITCH WEBHOOK] Verification challenge received for ${subscriptionType} - responding with challenge: ${challenge}`
     );
 
     if (!challenge) {
