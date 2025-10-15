@@ -128,6 +128,48 @@ export class TwitchEventSubManager {
       );
 
       if (!response.ok) {
+        if (response.status === 409) {
+          console.log(
+            `⚠️  [TWITCH API] Subscription already exists for ${subscriptionType}, trying to find it...`
+          );
+
+          const existingSubscriptions = await this.getSubscriptions();
+          const existingSubscription = existingSubscriptions.find(
+            (sub: Record<string, unknown>) =>
+              sub.type === subscriptionType &&
+              (sub.condition as Record<string, string>)?.broadcaster_user_id ===
+                broadcasterId &&
+              sub.status === 'webhook_callback_verification_pending'
+          );
+
+          if (existingSubscription) {
+            console.log(
+              `✅ [TWITCH API] Found existing subscription: ${existingSubscription.id}`
+            );
+            return {
+              id: existingSubscription.id as string,
+              status: existingSubscription.status as string,
+              type: existingSubscription.type as string,
+              version: existingSubscription.version as string,
+              condition: existingSubscription.condition as Record<
+                string,
+                string
+              >,
+              created_at: existingSubscription.created_at as string,
+              cost: existingSubscription.cost as number,
+              transport: {
+                method: 'webhook',
+                callback: webhookUrl,
+                secret: secret,
+              },
+            };
+          } else {
+            console.error(
+              '❌ [TWITCH API] Could not find existing subscription'
+            );
+          }
+        }
+
         const errorData = await response.json();
         console.error(
           `❌ [TWITCH API] Failed to create ${subscriptionType} subscription:`,
@@ -143,7 +185,7 @@ export class TwitchEventSubManager {
       }
 
       const data = await response.json();
-      const subscription = data.data?.[0]; // Twitch returns an array in data property
+      const subscription = data.data?.[0];
 
       if (!subscription) {
         console.error('❌ [TWITCH API] No subscription data in response');
@@ -224,13 +266,20 @@ export class TwitchEventSubManager {
       `🔧 [WEBHOOK] Creating Twitch webhook for ${actionType} (user: ${userId})`
     );
 
+    const subscriptionData = await this.createSubscription(
+      userId,
+      broadcasterId,
+      this.getSubscriptionType(actionType),
+      moderatorId
+    );
+
     const existingWebhook = await AppDataSource.getRepository(
       ExternalWebhooks
     ).findOne({
       where: {
         user_id: userId,
         service: 'twitch',
-        external_id: `${actionType}_${broadcasterId}`,
+        external_id: subscriptionData.id,
         is_active: true,
       },
     });
@@ -241,13 +290,6 @@ export class TwitchEventSubManager {
       );
       return existingWebhook;
     }
-
-    const subscriptionData = await this.createSubscription(
-      userId,
-      broadcasterId,
-      this.getSubscriptionType(actionType),
-      moderatorId
-    );
 
     const externalWebhook = new ExternalWebhooks();
     externalWebhook.user_id = userId;
