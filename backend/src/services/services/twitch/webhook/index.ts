@@ -10,10 +10,6 @@ class TwitchWebhookHandler implements WebhookHandler {
 
   async handle(req: Request, res: Response): Promise<Response> {
     try {
-      console.log(
-        `\n🎣 [TWITCH WEBHOOK] Event received (${req.headers['twitch-eventsub-message-id']})`
-      );
-
       const messageId = req.headers['twitch-eventsub-message-id'] as string;
       const messageTimestamp = req.headers[
         'twitch-eventsub-message-timestamp'
@@ -42,10 +38,6 @@ class TwitchWebhookHandler implements WebhookHandler {
 
       const webhookUrl = `${process.env.WEBHOOK_BASE_URL || ''}${req.originalUrl}`;
 
-      console.log(
-        `🔍 [TWITCH WEBHOOK] Looking for webhook with URL: ${webhookUrl}`
-      );
-
       const externalWebhook = await AppDataSource.getRepository(
         ExternalWebhooks
       ).findOne({
@@ -63,10 +55,6 @@ class TwitchWebhookHandler implements WebhookHandler {
         return res.status(404).json({ error: 'Webhook not found' });
       }
 
-      console.log(
-        `✅ [TWITCH WEBHOOK] Found webhook for broadcaster ${externalWebhook.repository} (user: ${externalWebhook.user_id})`
-      );
-
       const { serviceSubscriptionManager } = await import(
         '../../../ServiceSubscriptionManager'
       );
@@ -76,9 +64,6 @@ class TwitchWebhookHandler implements WebhookHandler {
       );
 
       if (!isSubscribed) {
-        console.log(
-          `⚠️  [Twitch Webhook] User ${externalWebhook.user_id} not subscribed - ignoring`
-        );
         return res
           .status(200)
           .json({ message: 'User not subscribed to service' });
@@ -100,9 +85,6 @@ class TwitchWebhookHandler implements WebhookHandler {
       }
 
       if (messageType === 'revocation') {
-        console.log(
-          `🔄 [TWITCH WEBHOOK] Subscription revoked: ${subscriptionType}`
-        );
         return res.status(200).json({ message: 'Revocation acknowledged' });
       }
 
@@ -116,9 +98,6 @@ class TwitchWebhookHandler implements WebhookHandler {
         );
       }
 
-      console.log(
-        `⚠️  [Twitch Webhook] Unsupported message type: ${messageType}`
-      );
       return res.status(200).json({ message: 'Message type not supported' });
     } catch (error) {
       console.error('Error processing Twitch webhook:', error);
@@ -131,13 +110,6 @@ class TwitchWebhookHandler implements WebhookHandler {
     res: Response
   ): Promise<Response> {
     const challenge = req.body.challenge;
-    const subscriptionType = req.headers[
-      'twitch-eventsub-subscription-type'
-    ] as string;
-
-    console.log(
-      `🔍 [TWITCH WEBHOOK] Verification challenge received for ${subscriptionType} - responding with challenge: ${challenge}`
-    );
 
     if (!challenge) {
       console.error(
@@ -166,28 +138,16 @@ class TwitchWebhookHandler implements WebhookHandler {
     });
 
     if (existingEvent) {
-      console.log(
-        `⚠️  [TWITCH WEBHOOK] Duplicate message ID: ${messageId} - ignoring`
-      );
       return res.status(200).json({ message: 'Duplicate message ignored' });
     }
 
     const actionType = this.getActionTypeFromSubscription(subscriptionType);
 
     if (!actionType) {
-      console.log(
-        `⚠️  [Twitch Webhook] Unsupported subscription type: ${subscriptionType}`
-      );
       return res
         .status(200)
         .json({ message: 'Subscription type not supported' });
     }
-
-    console.log(
-      `🎣 [Twitch Webhook] Processing ${subscriptionType} → ${actionType}`
-    );
-
-    this.logEventDetails(subscriptionType, req.body);
 
     const webhookEvent = new WebhookEvents();
     webhookEvent.action_type = actionType;
@@ -203,10 +163,6 @@ class TwitchWebhookHandler implements WebhookHandler {
 
     externalWebhook.last_triggered_at = new Date();
     await AppDataSource.getRepository(ExternalWebhooks).save(externalWebhook);
-
-    console.log(
-      `✅ [Twitch Webhook] Event processed successfully (ID: ${webhookEvent.id})`
-    );
 
     return res.status(200).json({ message: 'Webhook processed successfully' });
   }
@@ -244,42 +200,8 @@ class TwitchWebhookHandler implements WebhookHandler {
         return 'twitch.new_follower';
       case 'channel.subscribe':
         return 'twitch.new_subscription';
-      case 'stream.online':
-        return 'twitch.stream_online';
-      case 'stream.offline':
-        return 'twitch.stream_offline';
       default:
         return null;
-    }
-  }
-
-  private logEventDetails(
-    subscriptionType: string,
-    payload: Record<string, unknown>
-  ): void {
-    const event = payload as Record<string, unknown>;
-
-    switch (subscriptionType) {
-      case 'channel.follow':
-        console.log(
-          `👤 New follower: ${event.user_name} (${event.user_login}) followed ${event.broadcaster_user_name}`
-        );
-        break;
-      case 'channel.subscribe':
-        console.log(
-          `⭐ New subscription: ${event.user_name} subscribed to ${event.broadcaster_user_name} (Tier ${event.tier})`
-        );
-        break;
-      case 'stream.online':
-        console.log(
-          `🟢 Stream online: ${event.broadcaster_user_name} started streaming`
-        );
-        break;
-      case 'stream.offline':
-        console.log(
-          `🔴 Stream offline: ${event.broadcaster_user_name} stopped streaming`
-        );
-        break;
     }
   }
 }

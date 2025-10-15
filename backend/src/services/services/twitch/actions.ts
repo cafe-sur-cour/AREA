@@ -2,8 +2,6 @@ import type { ActionDefinition } from '../../../types/service';
 import {
   twitchNewFollowerSchema,
   twitchNewSubscriptionSchema,
-  twitchStreamOnlineSchema,
-  twitchStreamOfflineSchema,
 } from './schemas';
 
 export const twitchActions: ActionDefinition[] = [
@@ -127,102 +125,6 @@ export const twitchActions: ActionDefinition[] = [
       requiresAuth: true,
       webhookPattern: 'channel.subscribe',
       sharedEvents: false,
-    },
-  },
-  {
-    id: 'twitch.stream_online',
-    name: 'Twitch Stream Online',
-    description: 'Triggers when the specified Twitch channel goes online',
-    configSchema: twitchStreamOnlineSchema,
-    inputSchema: {
-      type: 'object',
-      properties: {
-        id: {
-          type: 'string',
-          description: 'The stream ID',
-        },
-        broadcaster_user_id: {
-          type: 'string',
-          description: 'The broadcaster user ID',
-        },
-        broadcaster_user_login: {
-          type: 'string',
-          description: 'The broadcaster user login',
-        },
-        broadcaster_user_name: {
-          type: 'string',
-          description: 'The broadcaster display name',
-        },
-        type: {
-          type: 'string',
-          description: 'The stream type (live)',
-        },
-        started_at: {
-          type: 'string',
-          description: 'RFC3339 timestamp of when the stream started',
-        },
-      },
-      required: [
-        'id',
-        'broadcaster_user_id',
-        'broadcaster_user_login',
-        'type',
-        'started_at',
-      ],
-    },
-    metadata: {
-      category: 'Twitch',
-      tags: ['twitch', 'stream', 'online'],
-      requiresAuth: true,
-      webhookPattern: 'stream.online',
-      sharedEvents: true,
-      sharedEventFilter: event => {
-        const broadcasterUserId = (
-          event.payload as { event?: { broadcaster_user_id?: string } }
-        )?.event?.broadcaster_user_id;
-        if (!broadcasterUserId) return false;
-
-        return true;
-      },
-    },
-  },
-  {
-    id: 'twitch.stream_offline',
-    name: 'Twitch Stream Offline',
-    description: 'Triggers when the specified Twitch channel goes offline',
-    configSchema: twitchStreamOfflineSchema,
-    inputSchema: {
-      type: 'object',
-      properties: {
-        broadcaster_user_id: {
-          type: 'string',
-          description: 'The broadcaster user ID',
-        },
-        broadcaster_user_login: {
-          type: 'string',
-          description: 'The broadcaster user login',
-        },
-        broadcaster_user_name: {
-          type: 'string',
-          description: 'The broadcaster display name',
-        },
-      },
-      required: ['broadcaster_user_id', 'broadcaster_user_login'],
-    },
-    metadata: {
-      category: 'Twitch',
-      tags: ['twitch', 'stream', 'offline'],
-      requiresAuth: true,
-      webhookPattern: 'stream.offline',
-      sharedEvents: true,
-      sharedEventFilter: event => {
-        const broadcasterUserId = (
-          event.payload as { event?: { broadcaster_user_id?: string } }
-        )?.event?.broadcaster_user_id;
-        if (!broadcasterUserId) return false;
-
-        return true;
-      },
     },
   },
 ];

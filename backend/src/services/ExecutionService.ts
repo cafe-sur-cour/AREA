@@ -228,15 +228,6 @@ export class ExecutionService {
         },
       });
 
-      console.log(
-        `📊 [ExecutionService] Query result for shared action ${actionType}:`,
-        result.map(m => ({
-          id: m.id,
-          action: m.action,
-          is_active: m.is_active,
-        }))
-      );
-
       let filteredResult = result;
       if (actionDefinition.metadata?.sharedEventFilter) {
         if (

@@ -179,10 +179,6 @@ const twitchService: Service = {
       moderatorId = userInfo.id;
     }
 
-    console.log(
-      `Ensuring Twitch webhook exists for ${broadcasterId} with action: ${actionDefinition.id}`
-    );
-
     try {
       await twitchEventSubManager.createWebhook(
         userId,
@@ -190,7 +186,6 @@ const twitchService: Service = {
         broadcasterId,
         moderatorId
       );
-      console.log(`✅ Webhook ensured for mapping`);
     } catch (error) {
       console.error(`❌ Failed to create webhook for mapping:`, error);
     }
@@ -200,14 +195,10 @@ const twitchService: Service = {
 export default twitchService;
 
 export async function initialize(): Promise<void> {
-  console.log('Initializing Twitch service...');
   const { initializeTwitchPassport } = await import('./passport');
   initializeTwitchPassport();
-  console.log('✅ Twitch service initialized');
 }
 
-export async function cleanup(): Promise<void> {
-  console.log('🔄 Twitch service cleanup complete');
-}
+export async function cleanup(): Promise<void> {}
 
 export { twitchReactionExecutor as executor } from './executor';
