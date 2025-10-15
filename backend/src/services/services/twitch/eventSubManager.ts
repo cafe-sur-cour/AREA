@@ -1,4 +1,6 @@
 import crypto from 'crypto';
+import { AppDataSource } from '../../../config/db';
+import { ExternalWebhooks } from '../../../config/entity/ExternalWebhooks';
 
 export class TwitchEventSubManager {
   private clientId: string;
@@ -151,6 +153,76 @@ export class TwitchEventSubManager {
       subscriptionType,
       moderatorId
     );
+  }
+
+  async createWebhook(
+    userId: number,
+    actionType: string,
+    broadcasterId: string,
+    moderatorId?: string
+  ): Promise<ExternalWebhooks> {
+    console.log(
+      `🔧 [WEBHOOK] Creating Twitch webhook for ${actionType} (user: ${userId})`
+    );
+
+    const existingWebhook = await AppDataSource.getRepository(
+      ExternalWebhooks
+    ).findOne({
+      where: {
+        user_id: userId,
+        service: 'twitch',
+        external_id: `${actionType}_${broadcasterId}`,
+        is_active: true,
+      },
+    });
+
+    if (existingWebhook) {
+      console.log(
+        `♻️  [WEBHOOK] Using existing webhook (ID: ${existingWebhook.id}) for ${actionType}`
+      );
+      return existingWebhook;
+    }
+
+    await this.createSubscription(
+      userId,
+      broadcasterId,
+      this.getSubscriptionType(actionType),
+      moderatorId
+    );
+
+    const externalWebhook = new ExternalWebhooks();
+    externalWebhook.user_id = userId;
+    externalWebhook.service = 'twitch';
+    externalWebhook.external_id = `${actionType}_${broadcasterId}`;
+    externalWebhook.repository = broadcasterId;
+    externalWebhook.url = `${this.webhookBaseUrl}/webhooks/twitch`;
+    externalWebhook.secret = this.generateSecret();
+    externalWebhook.events = [actionType];
+    externalWebhook.is_active = true;
+
+    const savedWebhook =
+      await AppDataSource.getRepository(ExternalWebhooks).save(externalWebhook);
+
+    console.log(
+      `✅ [WEBHOOK] Twitch webhook saved to database (ID: ${savedWebhook.id})`
+    );
+
+    return savedWebhook;
+  }
+
+  private getSubscriptionType(actionType: string): string {
+    switch (actionType) {
+      case 'twitch.new_follower':
+        return 'channel.follow';
+      case 'twitch.new_subscription':
+        return 'channel.subscribe';
+      case 'twitch.stream_online':
+        return 'stream.online';
+      case 'twitch.stream_offline':
+        return 'stream.offline';
+      default:
+        throw new Error(`Unknown action type: ${actionType}`);
+    }
   }
 
   async deleteSubscription(subscriptionId: string): Promise<void> {

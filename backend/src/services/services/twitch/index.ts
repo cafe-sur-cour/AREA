@@ -1,7 +1,6 @@
 import type { Service } from '../../../types/service';
 import { getIconSvg } from '../../../utils/iconMapping';
 import { twitchActions } from './actions';
-import { twitchEventSubManager } from './eventSubManager';
 import {
   twitchUpdateChannelSchema,
   twitchBanUserSchema,
@@ -129,55 +128,37 @@ const twitchService: Service = {
     const userToken = await twitchOAuth.getUserToken(userId);
     return userToken ? { access_token: userToken.token_value } : {};
   },
-  ensureWebhookForMapping: async (mapping, userId) => {
+  ensureWebhookForMapping: async (mapping, userId, actionDefinition) => {
+    const { twitchEventSubManager } = await import('./eventSubManager');
+
+    if (!actionDefinition?.metadata?.webhookPattern) {
+      return;
+    }
+
+    const broadcasterId = mapping.action.config?.broadcasterId as string;
+    if (!broadcasterId) {
+      console.warn(
+        `Cannot create webhook for mapping: missing broadcasterId in config`
+      );
+      return;
+    }
+
+    const moderatorId = mapping.action.config?.moderatorId as string;
+
+    console.log(
+      `Ensuring Twitch webhook exists for ${broadcasterId} with action: ${actionDefinition.id}`
+    );
+
     try {
-      const { twitchOAuth } = await import('./oauth');
-      const userToken = await twitchOAuth.getUserToken(userId);
-
-      if (!userToken) {
-        throw new Error('No Twitch token found for user');
-      }
-
-      const userInfo = await twitchOAuth.getUserInfo(userToken.token_value);
-      const moderatorId = userInfo.id;
-
-      let broadcasterId: string;
-      let broadcasterUsername: string;
-
-      if (
-        mapping.action.type === 'twitch.new_follower' ||
-        mapping.action.type === 'twitch.new_subscription'
-      ) {
-        broadcasterId = userInfo.id;
-        broadcasterUsername = userInfo.login;
-      } else {
-        broadcasterUsername = mapping.action.config
-          ?.broadcaster_username as string;
-        if (!broadcasterUsername) {
-          throw new Error('Broadcaster username not found in mapping config');
-        }
-
-        const foundBroadcasterId =
-          await twitchEventSubManager.getUserId(broadcasterUsername);
-        if (!foundBroadcasterId) {
-          throw new Error(`Could not find Twitch user: ${broadcasterUsername}`);
-        }
-        broadcasterId = foundBroadcasterId;
-      }
-
-      await twitchEventSubManager.createSubscriptionForAction(
+      await twitchEventSubManager.createWebhook(
         userId,
-        mapping.action.type,
+        actionDefinition.id,
         broadcasterId,
         moderatorId
       );
-
-      console.log(
-        `✅ Created EventSub subscriptions for Twitch mapping (user: ${userId}, broadcaster: ${broadcasterId})`
-      );
+      console.log(`✅ Webhook ensured for mapping`);
     } catch (error) {
-      console.error('Failed to create Twitch EventSub subscriptions:', error);
-      throw error;
+      console.error(`❌ Failed to create webhook for mapping:`, error);
     }
   },
 };
