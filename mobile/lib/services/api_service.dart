@@ -107,4 +107,54 @@ class ApiService {
 
     return reactionsJson.map((json) => ReactionModel.fromJson(json)).toList();
   }
+
+  static Future<ActionModel> fetchActionById(
+    String backendAddress,
+    String serviceName,
+    String actionId,
+  ) async {
+    final jwt = await getJwt();
+    final url = Uri.parse("$backendAddress${AppRoutes.actionById(serviceName, actionId)}");
+
+    final headers = <String, String>{'Content-Type': 'application/json'};
+    if (jwt != null) {
+      headers['Authorization'] = 'Bearer $jwt';
+    }
+
+    final client = SecureHttpClient.getClient();
+    final response = await client.get(url, headers: headers);
+
+    if (response.statusCode != 200) {
+      final errorData = jsonDecode(response.body);
+      throw Exception(errorData['error'] ?? 'Failed to fetch action');
+    }
+
+    final data = jsonDecode(response.body);
+    return ActionModel.fromJson(data);
+  }
+
+  static Future<ReactionModel> fetchReactionById(
+    String backendAddress,
+    String serviceName,
+    String reactionId,
+  ) async {
+    final jwt = await getJwt();
+    final url = Uri.parse("$backendAddress${AppRoutes.reactionById(serviceName, reactionId)}");
+
+    final headers = <String, String>{'Content-Type': 'application/json'};
+    if (jwt != null) {
+      headers['Authorization'] = 'Bearer $jwt';
+    }
+
+    final client = SecureHttpClient.getClient();
+    final response = await client.get(url, headers: headers);
+
+    if (response.statusCode != 200) {
+      final errorData = jsonDecode(response.body);
+      throw Exception(errorData['error'] ?? 'Failed to fetch reaction');
+    }
+
+    final data = jsonDecode(response.body);
+    return ReactionModel.fromJson(data);
+  }
 }
