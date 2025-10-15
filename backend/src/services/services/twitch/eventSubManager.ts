@@ -158,10 +158,11 @@ export class TwitchEventSubManager {
 
             if (
               existingSubscription.status ===
-              'webhook_callback_verification_failed'
+                'webhook_callback_verification_failed' ||
+              existingSubscription.status === 'enabled'
             ) {
               console.log(
-                `🔄 [TWITCH API] Deleting failed subscription ${existingSubscription.id} and creating new one...`
+                `🔄 [TWITCH API] Deleting ${existingSubscription.status} subscription ${existingSubscription.id} and creating new one...`
               );
               await this.deleteSubscription(existingSubscription.id as string);
 
