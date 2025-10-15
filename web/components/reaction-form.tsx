@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { Plus, Trash2 } from 'lucide-react';
 
 const DynamicTextarea: React.FC<DynamicTextareaProps> = ({
@@ -435,26 +436,135 @@ export default function ReactionForm({
                           />
                         </div>
                       ) : (
-                        <textarea
-                          name={field.name}
-                          placeholder={field.placeholder}
-                          required={field.required}
-                          value={
-                            getStringValue(instance.config[field.name]) ||
-                            getStringValue(field.default) ||
-                            ''
-                          }
-                          onChange={e => {
+                        (() => {
+                          const currentValue = instance.config[field.name];
+                          const defaultValue = field.default;
+
+                          const getFieldValue = () => {
+                            if (currentValue !== undefined) return currentValue;
+                            if (defaultValue !== undefined) return defaultValue;
+                            return field.type === 'checkbox' ? [] : '';
+                          };
+
+                          const fieldValue = getFieldValue();
+
+                          const handleValueChange = (value: unknown) => {
                             updateReactionInstance(instance.id, {
                               config: {
                                 ...instance.config,
-                                [field.name]: e.target.value,
+                                [field.name]: value,
                               },
                             });
-                          }}
-                          className='mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 text-sm'
-                          rows={field.type === 'textarea' ? 3 : 1}
-                        />
+                          };
+
+                          if (field.type === 'select' && field.options) {
+                            return (
+                              <Select
+                                value={String(fieldValue || '')}
+                                onValueChange={value =>
+                                  handleValueChange(value)
+                                }
+                              >
+                                <SelectTrigger className='w-full mt-1'>
+                                  <SelectValue
+                                    placeholder={
+                                      field.placeholder || 'Select an option'
+                                    }
+                                  />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectGroup>
+                                    {field.options.map(option => (
+                                      <SelectItem
+                                        key={option.value}
+                                        value={option.value}
+                                      >
+                                        {option.label}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectGroup>
+                                </SelectContent>
+                              </Select>
+                            );
+                          } else if (
+                            field.type === 'checkbox' &&
+                            field.options
+                          ) {
+                            return (
+                              <div className='mt-1 space-y-2'>
+                                {field.options.map(option => {
+                                  const isChecked = Array.isArray(fieldValue)
+                                    ? fieldValue.includes(option.value)
+                                    : false;
+                                  return (
+                                    <label
+                                      key={option.value}
+                                      className='flex items-center space-x-2'
+                                    >
+                                      <input
+                                        type='checkbox'
+                                        checked={isChecked}
+                                        onChange={e => {
+                                          const currentArray = Array.isArray(
+                                            fieldValue
+                                          )
+                                            ? fieldValue
+                                            : [];
+                                          const newArray = e.target.checked
+                                            ? [...currentArray, option.value]
+                                            : currentArray.filter(
+                                                v => v !== option.value
+                                              );
+                                          handleValueChange(newArray);
+                                        }}
+                                        className='rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer'
+                                      />
+                                      <span className='text-sm text-gray-700'>
+                                        {option.label}
+                                      </span>
+                                    </label>
+                                  );
+                                })}
+                              </div>
+                            );
+                          } else if (field.type === 'textarea') {
+                            return (
+                              <textarea
+                                name={field.name}
+                                placeholder={field.placeholder}
+                                required={field.required}
+                                value={String(fieldValue || '')}
+                                onChange={e =>
+                                  handleValueChange(e.target.value)
+                                }
+                                className='mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 text-sm'
+                                rows={3}
+                              />
+                            );
+                          } else {
+                            return (
+                              <Input
+                                type={
+                                  field.type === 'number' ? 'number' : 'text'
+                                }
+                                name={field.name}
+                                placeholder={field.placeholder}
+                                required={field.required}
+                                value={String(fieldValue || '')}
+                                onChange={e => {
+                                  const value =
+                                    field.type === 'number'
+                                      ? e.target.value
+                                        ? Number(e.target.value)
+                                        : ''
+                                      : e.target.value;
+                                  handleValueChange(value);
+                                }}
+                                className='mt-1'
+                              />
+                            );
+                          }
+                        })()
                       )}
                     </div>
                   );
