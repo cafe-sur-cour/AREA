@@ -134,22 +134,46 @@ export class TwitchEventSubManager {
           );
 
           const existingSubscriptions = await this.getSubscriptions();
-          console.log(`🔍 [TWITCH API] Found ${existingSubscriptions.length} total subscriptions`);
+          console.log(
+            `🔍 [TWITCH API] Found ${existingSubscriptions.length} total subscriptions`
+          );
 
           const existingSubscription = existingSubscriptions.find(
             (sub: Record<string, unknown>) => {
-              const matches = sub.type === subscriptionType &&
-                (sub.condition as Record<string, string>)?.broadcaster_user_id ===
-                  broadcasterId;
-              console.log(`🔍 [TWITCH API] Checking subscription ${sub.id}: type=${sub.type}, broadcaster=${(sub.condition as Record<string, string>)?.broadcaster_user_id}, status=${sub.status}, matches=${matches}`);
+              const matches =
+                sub.type === subscriptionType &&
+                (sub.condition as Record<string, string>)
+                  ?.broadcaster_user_id === broadcasterId;
+              console.log(
+                `🔍 [TWITCH API] Checking subscription ${sub.id}: type=${sub.type}, broadcaster=${(sub.condition as Record<string, string>)?.broadcaster_user_id}, status=${sub.status}, matches=${matches}`
+              );
               return matches;
             }
           );
 
           if (existingSubscription) {
             console.log(
-              `✅ [TWITCH API] Found existing subscription: ${existingSubscription.id}`
+              `✅ [TWITCH API] Found existing subscription: ${existingSubscription.id} (status: ${existingSubscription.status})`
             );
+
+            if (
+              existingSubscription.status ===
+              'webhook_callback_verification_failed'
+            ) {
+              console.log(
+                `🔄 [TWITCH API] Deleting failed subscription ${existingSubscription.id} and creating new one...`
+              );
+              await this.deleteSubscription(existingSubscription.id as string);
+
+              console.log(`🔄 [TWITCH API] Retrying subscription creation...`);
+              return await this.createSubscription(
+                userId,
+                broadcasterId,
+                subscriptionType,
+                moderatorId
+              );
+            }
+
             return {
               id: existingSubscription.id as string,
               status: existingSubscription.status as string,
@@ -173,8 +197,9 @@ export class TwitchEventSubManager {
               existingSubscriptions.map((s: Record<string, unknown>) => ({
                 id: s.id,
                 type: s.type,
-                broadcaster: (s.condition as Record<string, string>)?.broadcaster_user_id,
-                status: s.status
+                broadcaster: (s.condition as Record<string, string>)
+                  ?.broadcaster_user_id,
+                status: s.status,
               }))
             );
           }
