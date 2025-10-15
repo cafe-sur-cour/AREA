@@ -5,7 +5,7 @@ import { Request } from 'express';
 import jwt from 'jsonwebtoken';
 import {
   oauthLogin,
-//   connectOAuthProvider,
+  //   connectOAuthProvider,
 } from '../../../routes/auth/auth.service';
 import { JWT_SECRET } from '../../../../index';
 // import { getCurrentUser } from '../../../utils/auth';
@@ -17,9 +17,9 @@ export interface MetaUser {
   token: string;
 }
 export interface FacebookUser {
-	id: string;
-	name: string;
-	email?: string;
+  id: string;
+  name: string;
+  email?: string;
 }
 
 export function initializeFacebookPassport(): void {
@@ -31,7 +31,7 @@ export function initializeFacebookPassport(): void {
         clientSecret: process.env.SERVICE_FACEBOOK_CLIENT_SECRET,
         callbackURL: process.env.SERVICE_FACEBOOK_REDIRECT_URI,
         profileFields: ['id', 'displayName', 'email', 'picture.type(large)'],
-        passReqToCallback: true
+        passReqToCallback: true,
       },
       async (
         req: Request,
@@ -57,7 +57,9 @@ export function initializeFacebookPassport(): void {
           const user: FacebookUser = {
             id: fbProfile.id || '',
             name: fbProfile.displayName || '',
-            ...(fbProfile.emails?.[0]?.value && { email: fbProfile.emails[0].value }),
+            ...(fbProfile.emails?.[0]?.value && {
+              email: fbProfile.emails[0].value,
+            }),
           };
 
           const token = await oauthLogin(
@@ -75,18 +77,15 @@ export function initializeFacebookPassport(): void {
             id: number;
           };
 
-          await facebookOAuth.storeUserToken(
-            decoded.id,
-            {
-              access_token: accessToken,
-              token_type: 'bearer',
-              expires_in: 5184000
-            }
-          );
+          await facebookOAuth.storeUserToken(decoded.id, {
+            access_token: accessToken,
+            token_type: 'bearer',
+            expires_in: 5184000,
+          });
 
           const userWithToken = {
             ...user,
-            token
+            token,
           };
 
           return doneCallback(null, userWithToken);
@@ -97,9 +96,6 @@ export function initializeFacebookPassport(): void {
     )
   );
 }
-
-
-
 
 // /**
 //  * * @swagger

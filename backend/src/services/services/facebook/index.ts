@@ -4,7 +4,8 @@ import { getIconSvg } from '../../../utils/iconMapping';
 const facebookservice: Service = {
   id: 'facebook',
   name: 'Facebook',
-  description: 'Facebook OAuth service for authentication and platform integration',
+  description:
+    'Facebook OAuth service for authentication and platform integration',
   version: '1.0.0',
   icon: getIconSvg('FaMeta'),
   actions: [],
