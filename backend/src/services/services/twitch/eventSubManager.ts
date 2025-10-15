@@ -80,7 +80,7 @@ export class TwitchEventSubManager {
         };
       } = {
         type: subscriptionType,
-        version: subscriptionType === 'channel.follow' ? '2' : '1',
+        version: '2',
         condition: {
           broadcaster_user_id: broadcasterId,
         },

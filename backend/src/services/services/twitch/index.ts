@@ -7,6 +7,17 @@ import {
   twitchUnbanUserSchema,
 } from './schemas';
 
+function getSubscriptionTypeFromAction(actionType: string): string | null {
+  switch (actionType) {
+    case 'twitch.new_follower':
+      return 'channel.follow';
+    case 'twitch.new_subscription':
+      return 'channel.subscribe';
+    default:
+      return null;
+  }
+}
+
 const twitchService: Service = {
   id: 'twitch',
   name: 'Twitch',
@@ -180,9 +191,17 @@ const twitchService: Service = {
     }
 
     try {
+      const subscriptionType = getSubscriptionTypeFromAction(
+        actionDefinition.id
+      );
+      if (!subscriptionType) {
+        console.error(`❌ Unsupported action type: ${actionDefinition.id}`);
+        return;
+      }
+
       await twitchEventSubManager.createWebhook(
         userId,
-        actionDefinition.id,
+        subscriptionType,
         broadcasterId,
         moderatorId
       );
