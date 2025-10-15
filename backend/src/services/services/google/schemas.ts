@@ -90,38 +90,3 @@ export const googleCreateDocumentSchema: ActionReactionSchema = {
     },
   ],
 };
-
-export const googleUploadFileToDriveSchema: ActionReactionSchema = {
-  name: 'Upload File to Drive',
-  description: 'Uploads a file to Google Drive',
-  fields: [
-    {
-      name: 'file_name',
-      type: 'text',
-      label: 'File Name',
-      required: true,
-      placeholder: 'document.txt',
-    },
-    {
-      name: 'file_content',
-      type: 'text',
-      label: 'File Content',
-      required: true,
-      placeholder: 'Content of the file',
-    },
-    {
-      name: 'mime_type',
-      type: 'text',
-      label: 'MIME Type',
-      required: false,
-      placeholder: 'text/plain',
-    },
-    {
-      name: 'folder_id',
-      type: 'text',
-      label: 'Folder ID (optional, root if empty)',
-      required: false,
-      placeholder: '1a2b3c4d5e6f',
-    },
-  ],
-};

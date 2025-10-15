@@ -3,7 +3,6 @@ import {
   googleSendEmailSchema,
   googleCreateCalendarEventSchema,
   googleCreateDocumentSchema,
-  googleUploadFileToDriveSchema
 } from './schemas';
 
 export const googleReactions: ReactionDefinition[] = [

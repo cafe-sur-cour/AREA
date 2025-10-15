@@ -18,12 +18,6 @@ interface GoogleCalendarEvent {
   attendees?: Array<{ email: string }>;
 }
 
-interface GoogleDriveFile {
-  name: string;
-  mimeType: string;
-  parents?: string[];
-}
-
 export class GoogleReactionExecutor implements ReactionExecutor {
   private apiBaseUrl: string;
 
@@ -51,18 +45,10 @@ export class GoogleReactionExecutor implements ReactionExecutor {
       switch (reaction.type) {
         case 'google.send_email':
           return await this.sendEmail(reaction.config, validToken);
-        case 'google.add_label_to_email':
-          return await this.addLabelToEmail(reaction.config, validToken);
         case 'google.create_calendar_event':
           return await this.createCalendarEvent(reaction.config, validToken);
-        case 'google.delete_next_calendar_event':
-          return await this.deleteNextCalendarEvent(validToken);
         case 'google.create_document':
           return await this.createDocument(reaction.config, validToken);
-        case 'google.upload_file_to_drive':
-          return await this.uploadFileToDrive(reaction.config, validToken);
-        case 'google.share_file':
-          return await this.shareFile(reaction.config, validToken);
         default:
           return {
             success: false,
@@ -150,113 +136,6 @@ export class GoogleReactionExecutor implements ReactionExecutor {
     }
   }
 
-  private async addLabelToEmail(
-    config: Record<string, unknown>,
-    accessToken: string
-  ): Promise<ReactionExecutionResult> {
-    const { label_name } = config as { label_name: string };
-
-    if (!label_name) {
-      return {
-        success: false,
-        error: 'Missing required field: label_name',
-      };
-    }
-
-    try {
-      const labelsResponse = await fetch(
-        `${this.apiBaseUrl}/gmail/v1/users/me/labels`,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
-
-      if (!labelsResponse.ok) {
-        return {
-          success: false,
-          error: 'Failed to fetch labels',
-        };
-      }
-
-      const labelsData = (await labelsResponse.json()) as any;
-      const label = labelsData.labels?.find(
-        (l: any) => l.name.toLowerCase() === label_name.toLowerCase()
-      );
-
-      if (!label) {
-        return {
-          success: false,
-          error: `Label "${label_name}" not found`,
-        };
-      }
-
-      const messagesResponse = await fetch(
-        `${this.apiBaseUrl}/gmail/v1/users/me/messages?maxResults=1`,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
-
-      if (!messagesResponse.ok) {
-        return {
-          success: false,
-          error: 'Failed to fetch messages',
-        };
-      }
-
-      const messagesData = (await messagesResponse.json()) as any;
-      const messageId = messagesData.messages?.[0]?.id;
-
-      if (!messageId) {
-        return {
-          success: false,
-          error: 'No messages found',
-        };
-      }
-
-      const modifyResponse = await fetch(
-        `${this.apiBaseUrl}/gmail/v1/users/me/messages/${messageId}/modify`,
-        {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            addLabelIds: [label.id],
-          }),
-        }
-      );
-
-      if (!modifyResponse.ok) {
-        const errorData = await modifyResponse.json().catch(() => ({}));
-        return {
-          success: false,
-          error: `Gmail API error: ${modifyResponse.status} - ${(errorData as any).error?.message || 'Unknown error'}`,
-        };
-      }
-
-      return {
-        success: true,
-        output: {
-          message_id: messageId,
-          label_name,
-          label_id: label.id,
-          success: true,
-        },
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: `Network error while adding label: ${(error as Error).message}`,
-      };
-    }
-  }
-
   private async createCalendarEvent(
     config: Record<string, unknown>,
     accessToken: string
@@ -334,72 +213,6 @@ export class GoogleReactionExecutor implements ReactionExecutor {
       return {
         success: false,
         error: `Network error while creating event: ${(error as Error).message}`,
-      };
-    }
-  }
-
-  private async deleteNextCalendarEvent(
-    accessToken: string
-  ): Promise<ReactionExecutionResult> {
-    try {
-      const now = new Date().toISOString();
-      const response = await fetch(
-        `${this.apiBaseUrl}/calendar/v3/calendars/primary/events?timeMin=${now}&maxResults=1&orderBy=startTime&singleEvents=true`,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        return {
-          success: false,
-          error: `Calendar API error: ${response.status} - ${(errorData as any).error?.message || 'Unknown error'}`,
-        };
-      }
-
-      const data = (await response.json()) as any;
-      const event = data.items?.[0];
-
-      if (!event) {
-        return {
-          success: false,
-          error: 'No upcoming events found',
-        };
-      }
-
-      const deleteResponse = await fetch(
-        `${this.apiBaseUrl}/calendar/v3/calendars/primary/events/${event.id}`,
-        {
-          method: 'DELETE',
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
-
-      if (!deleteResponse.ok && deleteResponse.status !== 204) {
-        const errorData = await deleteResponse.json().catch(() => ({}));
-        return {
-          success: false,
-          error: `Calendar API error: ${deleteResponse.status} - ${(errorData as any).error?.message || 'Unknown error'}`,
-        };
-      }
-
-      return {
-        success: true,
-        output: {
-          deleted_event_id: event.id,
-          deleted_event_summary: event.summary,
-          success: true,
-        },
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: `Network error while deleting event: ${(error as Error).message}`,
       };
     }
   }
@@ -485,146 +298,6 @@ export class GoogleReactionExecutor implements ReactionExecutor {
       return {
         success: false,
         error: `Network error while creating document: ${(error as Error).message}`,
-      };
-    }
-  }
-
-  private async uploadFileToDrive(
-    config: Record<string, unknown>,
-    accessToken: string
-  ): Promise<ReactionExecutionResult> {
-    const { file_name, file_content, mime_type, folder_id } = config as {
-      file_name: string;
-      file_content: string;
-      mime_type?: string;
-      folder_id?: string;
-    };
-
-    if (!file_name || !file_content) {
-      return {
-        success: false,
-        error: 'Missing required fields: file_name, file_content',
-      };
-    }
-
-    try {
-      const metadata: GoogleDriveFile = {
-        name: file_name,
-        mimeType: mime_type || 'text/plain',
-      };
-
-      if (folder_id) {
-        metadata.parents = [folder_id];
-      }
-
-      const boundary = '-------314159265358979323846';
-      const delimiter = `\r\n--${boundary}\r\n`;
-      const closeDelimiter = `\r\n--${boundary}--`;
-
-      const multipartRequestBody =
-        delimiter +
-        'Content-Type: application/json\r\n\r\n' +
-        JSON.stringify(metadata) +
-        delimiter +
-        `Content-Type: ${metadata.mimeType}\r\n\r\n` +
-        file_content +
-        closeDelimiter;
-
-      const response = await fetch(
-        `${this.apiBaseUrl}/upload/drive/v3/files?uploadType=multipart`,
-        {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            'Content-Type': `multipart/related; boundary=${boundary}`,
-          },
-          body: multipartRequestBody,
-        }
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        return {
-          success: false,
-          error: `Drive API error: ${response.status} - ${(errorData as any).error?.message || 'Unknown error'}`,
-        };
-      }
-
-      const result = (await response.json()) as any;
-      return {
-        success: true,
-        output: {
-          file_id: result.id,
-          file_name: result.name,
-          file_url: `https://drive.google.com/file/d/${result.id}/view`,
-          success: true,
-        },
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: `Network error while uploading file: ${(error as Error).message}`,
-      };
-    }
-  }
-
-  private async shareFile(
-    config: Record<string, unknown>,
-    accessToken: string
-  ): Promise<ReactionExecutionResult> {
-    const { file_id, email, role } = config as {
-      file_id: string;
-      email: string;
-      role?: string;
-    };
-
-    if (!file_id || !email) {
-      return {
-        success: false,
-        error: 'Missing required fields: file_id, email',
-      };
-    }
-
-    try {
-      const response = await fetch(
-        `${this.apiBaseUrl}/drive/v3/files/${file_id}/permissions`,
-        {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            type: 'user',
-            role: role || 'reader',
-            emailAddress: email,
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        return {
-          success: false,
-          error: `Drive API error: ${response.status} - ${(errorData as any).error?.message || 'Unknown error'}`,
-        };
-      }
-
-      const result = (await response.json()) as any;
-      return {
-        success: true,
-        output: {
-          permission_id: result.id,
-          file_id,
-          email,
-          role: role || 'reader',
-          success: true,
-        },
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: `Network error while sharing file: ${(error as Error).message}`,
       };
     }
   }
