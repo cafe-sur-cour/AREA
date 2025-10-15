@@ -51,16 +51,7 @@ export const twitchActions: ActionDefinition[] = [
       tags: ['twitch', 'follower', 'channel'],
       requiresAuth: true,
       webhookPattern: 'channel.follow',
-      sharedEvents: true,
-      sharedEventFilter: event => {
-        console.log('Filter payload:', event.payload);
-        const broadcasterUserId = (
-          event.payload as { broadcaster_user_id?: string }
-        )?.broadcaster_user_id;
-        if (!broadcasterUserId) return false;
-
-        return true;
-      },
+      sharedEvents: false,
     },
   },
   {
@@ -135,15 +126,7 @@ export const twitchActions: ActionDefinition[] = [
       tags: ['twitch', 'subscription', 'channel'],
       requiresAuth: true,
       webhookPattern: 'channel.subscribe',
-      sharedEvents: true,
-      sharedEventFilter: event => {
-        const broadcasterUserId = (
-          event.payload as { broadcaster_user_id?: string }
-        )?.broadcaster_user_id;
-        if (!broadcasterUserId) return false;
-
-        return true;
-      },
+      sharedEvents: false,
     },
   },
   {
@@ -195,8 +178,8 @@ export const twitchActions: ActionDefinition[] = [
       sharedEvents: true,
       sharedEventFilter: event => {
         const broadcasterUserId = (
-          event.payload as { broadcaster_user_id?: string }
-        )?.broadcaster_user_id;
+          event.payload as { event?: { broadcaster_user_id?: string } }
+        )?.event?.broadcaster_user_id;
         if (!broadcasterUserId) return false;
 
         return true;
@@ -234,8 +217,8 @@ export const twitchActions: ActionDefinition[] = [
       sharedEvents: true,
       sharedEventFilter: event => {
         const broadcasterUserId = (
-          event.payload as { broadcaster_user_id?: string }
-        )?.broadcaster_user_id;
+          event.payload as { event?: { broadcaster_user_id?: string } }
+        )?.event?.broadcaster_user_id;
         if (!broadcasterUserId) return false;
 
         return true;
