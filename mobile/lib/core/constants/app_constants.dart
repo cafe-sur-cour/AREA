@@ -33,6 +33,9 @@ class AppRoutes {
   static String deleteAutomation(String id) => "api/mappings/$id";
   static String activateAutomation(String id) => "api/mappings/$id/activate";
   static String deactivateAutomation(String id) => "api/mappings/$id/deactivate";
+
+  // About
+  static const String about = "about.json";
 }
 
 class AppDimensions {
