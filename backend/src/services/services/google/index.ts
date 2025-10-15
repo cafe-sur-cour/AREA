@@ -13,6 +13,10 @@ const googleService: Service = {
   icon: getIconSvg('FaGoogle'),
   actions: googleActions,
   reactions: googleReactions,
+  oauth: {
+    enabled: true,
+    supportsLogin: true,
+  },
   getCredentials: async (userId: number) => {
     const { googleOAuth } = await import('./oauth');
     const userToken = await googleOAuth.getUserToken(userId);
