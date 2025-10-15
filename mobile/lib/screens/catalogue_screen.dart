@@ -6,15 +6,20 @@ import 'package:area/core/notifiers/backend_address_notifier.dart';
 import 'package:area/core/notifiers/automation_builder_notifier.dart';
 import 'package:area/services/secure_http_client.dart';
 import 'package:area/services/secure_storage.dart';
+import 'package:area/services/api_service.dart';
+import 'package:area/models/service_models.dart';
+import 'package:area/models/reaction_with_delay_model.dart';
 import 'dart:convert';
 
 class CatalogueItem {
+  final String id;
   final String name;
   final String description;
   final String serviceName;
   final bool isAction;
 
   CatalogueItem({
+    required this.id,
     required this.name,
     required this.description,
     required this.serviceName,
@@ -88,6 +93,7 @@ class CatalogueScreenState extends State<CatalogueScreen> {
             for (var action in actions) {
               items.add(
                 CatalogueItem(
+                  id: action['id'] as String,
                   name: action['name'] as String,
                   description: action['description'] as String? ?? '',
                   serviceName: serviceName,
@@ -102,6 +108,7 @@ class CatalogueScreenState extends State<CatalogueScreen> {
             for (var reaction in reactions) {
               items.add(
                 CatalogueItem(
+                  id: reaction['id'] as String,
                   name: reaction['name'] as String,
                   description: reaction['description'] as String? ?? '',
                   serviceName: serviceName,
@@ -206,22 +213,98 @@ class CatalogueScreenState extends State<CatalogueScreen> {
     );
   }
 
-  void _useItemInAutomation(CatalogueItem item) {
+  Future<void> _useItemInAutomation(CatalogueItem item) async {
     final automationBuilder = Provider.of<AutomationBuilderNotifier>(context, listen: false);
+    final backendAddressNotifier = Provider.of<BackendAddressNotifier>(context, listen: false);
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          item.isAction
-              ? 'Please select the service and action from the Add AREA page'
-              : 'Please select the service and reaction from the Add AREA page',
-        ),
-        backgroundColor: AppColors.areaBlue3,
-        duration: const Duration(seconds: 3),
-      ),
-    );
+    if (backendAddressNotifier.backendAddress == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Backend server address is not configured'),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 3),
+          ),
+        );
+      }
+      return;
+    }
 
-    Navigator.of(context).pushReplacementNamed('/');
+    try {
+      if (item.isAction) {
+        final action = await ApiService.fetchActionById(
+          backendAddressNotifier.backendAddress!,
+          item.serviceName,
+          item.id,
+        );
+
+        final services = await ApiService.fetchServicesWithActions(
+          backendAddressNotifier.backendAddress!,
+        );
+
+        final service = services.firstWhere(
+          (s) => s.name == item.serviceName,
+          orElse: () => ServiceModel(
+            id: item.serviceName,
+            name: item.serviceName,
+            description: '',
+            iconUrl: null,
+            isSubscribed: false,
+          ),
+        );
+
+        automationBuilder.setAction(action, service);
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Action "${item.name}" added to automation builder'),
+              backgroundColor: Colors.green,
+              duration: const Duration(seconds: 2),
+            ),
+          );
+
+          Navigator.of(context).pushReplacementNamed('/');
+        }
+      } else {
+        final reaction = await ApiService.fetchReactionById(
+          backendAddressNotifier.backendAddress!,
+          item.serviceName,
+          item.id,
+        );
+
+        automationBuilder.addReaction(
+          ReactionWithDelayModel(reaction: reaction, delayInSeconds: 0),
+        );
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Reaction "${item.name}" added to automation builder'),
+              backgroundColor: Colors.green,
+              duration: const Duration(seconds: 2),
+            ),
+          );
+
+          Navigator.of(context).pushReplacementNamed('/');
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Failed to load ${item.isAction ? 'action' : 'reaction'}: ${e.toString().replaceAll('Exception: ', '')}',
+            ),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
   }
 
   @override
