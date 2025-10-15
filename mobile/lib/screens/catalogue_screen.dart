@@ -242,66 +242,55 @@ class CatalogueScreenState extends State<CatalogueScreen> {
       return;
     }
 
-    final services = await ApiService.fetchServicesWithActions(
-      backendAddressNotifier.backendAddress!,
-    );
-
-    final service = services.firstWhere(
-      (s) => s.id == item.serviceId,
-      orElse: () => ServiceModel(
-        id: item.serviceId,
-        name: item.serviceName,
-        description: '',
-        icon: null,
-        color: '',
-      ),
-    );
-
     try {
       if (item.isAction) {
         final action = await ApiService.fetchActionById(
           backendAddressNotifier.backendAddress!,
-          item.serviceName,
+          item.serviceId,
           item.id,
         );
 
+        final services = await ApiService.fetchServicesWithActions(
+          backendAddressNotifier.backendAddress!,
+        );
+
+        final service = services.firstWhere(
+          (s) => s.id == item.serviceId,
+          orElse: () => ServiceModel(
+            id: item.serviceId,
+            name: item.serviceName,
+            description: '',
+            icon: null,
+            color: '',
+          ),
+        );
+
         automationBuilder.setAction(action, service);
-
-        if (mounted) {
-          ScaffoldMessenger.of(context).hideCurrentSnackBar();
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Action "${item.name}" added to automation builder'),
-              backgroundColor: Colors.green,
-              duration: const Duration(seconds: 2),
-            ),
-          );
-
-          Navigator.of(context).pushReplacementNamed('/');
-        }
       } else {
         final reaction = await ApiService.fetchReactionById(
           backendAddressNotifier.backendAddress!,
-          item.serviceName,
+          item.serviceId,
           item.id,
+        );
+
+        final services = await ApiService.fetchServicesWithReactions(
+          backendAddressNotifier.backendAddress!,
+        );
+
+        final service = services.firstWhere(
+          (s) => s.id == item.serviceId,
+          orElse: () => ServiceModel(
+            id: item.serviceId,
+            name: item.serviceName,
+            description: '',
+            icon: null,
+            color: '',
+          ),
         );
 
         automationBuilder.addReaction(
           ReactionWithDelayModel(reaction: reaction, delayInSeconds: 0, service: service),
         );
-
-        if (mounted) {
-          ScaffoldMessenger.of(context).hideCurrentSnackBar();
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Reaction "${item.name}" added to automation builder'),
-              backgroundColor: Colors.green,
-              duration: const Duration(seconds: 2),
-            ),
-          );
-
-          Navigator.of(context).pushReplacementNamed('/');
-        }
       }
     } catch (e) {
       if (mounted) {

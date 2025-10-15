@@ -26,10 +26,10 @@ class AppRoutes {
   // Service-specific routes
   static String actionsFromService(String serviceId) => "api/services/$serviceId/actions";
   static String reactionsFromService(String serviceId) => "api/services/$serviceId/reactions";
-  static String actionById(String serviceName, String actionId) =>
-      "api/services/$serviceName/actions/$actionId";
-  static String reactionById(String serviceName, String reactionId) =>
-      "api/services/$serviceName/reactions/$reactionId";
+  static String actionById(String serviceId, String actionId) =>
+      "api/services/$serviceId/actions/$actionId";
+  static String reactionById(String serviceId, String reactionId) =>
+      "api/services/$serviceId/reactions/$reactionId";
 
   // Action Reaction mapping
   static const String createAutomation = "api/mappings";

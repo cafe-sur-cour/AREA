@@ -110,11 +110,11 @@ class ApiService {
 
   static Future<ActionModel> fetchActionById(
     String backendAddress,
-    String serviceName,
+    String serviceId,
     String actionId,
   ) async {
     final jwt = await getJwt();
-    final url = Uri.parse("$backendAddress${AppRoutes.actionById(serviceName, actionId)}");
+    final url = Uri.parse("$backendAddress${AppRoutes.actionById(serviceId, actionId)}");
 
     final headers = <String, String>{'Content-Type': 'application/json'};
     if (jwt != null) {
@@ -135,11 +135,11 @@ class ApiService {
 
   static Future<ReactionModel> fetchReactionById(
     String backendAddress,
-    String serviceName,
+    String serviceId,
     String reactionId,
   ) async {
     final jwt = await getJwt();
-    final url = Uri.parse("$backendAddress${AppRoutes.reactionById(serviceName, reactionId)}");
+    final url = Uri.parse("$backendAddress${AppRoutes.reactionById(serviceId, reactionId)}");
 
     final headers = <String, String>{'Content-Type': 'application/json'};
     if (jwt != null) {
