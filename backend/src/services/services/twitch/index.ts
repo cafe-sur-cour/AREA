@@ -1,5 +1,7 @@
 import type { Service } from '../../../types/service';
 import { getIconSvg } from '../../../utils/iconMapping';
+import { twitchActions } from './actions';
+import { twitchEventSubManager } from './eventSubManager';
 import {
   twitchUpdateChannelSchema,
   twitchBanUserSchema,
@@ -12,7 +14,7 @@ const twitchService: Service = {
   description: 'Twitch service for live streaming integration',
   version: '1.0.0',
   icon: getIconSvg('FaTwitch'),
-  actions: [],
+  actions: twitchActions,
   reactions: [
     {
       id: 'twitch.update_channel',
