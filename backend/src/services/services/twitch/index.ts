@@ -199,6 +199,10 @@ const twitchService: Service = {
         return;
       }
 
+      console.log(
+        `🔧 Creating webhook for ${actionDefinition.id} -> ${subscriptionType}`
+      );
+
       await twitchEventSubManager.createWebhook(
         userId,
         subscriptionType,
