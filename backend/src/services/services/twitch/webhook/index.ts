@@ -194,7 +194,7 @@ class TwitchWebhookHandler implements WebhookHandler {
     webhookEvent.user_id = externalWebhook.user_id;
     webhookEvent.source = 'twitch';
     webhookEvent.external_id = messageId;
-    webhookEvent.payload = req.body;
+    webhookEvent.payload = req.body.event;
     webhookEvent.status = 'received';
     webhookEvent.user_agent = req.get('User-Agent') || null;
     webhookEvent.signature_verified = !!externalWebhook.secret;
@@ -257,7 +257,7 @@ class TwitchWebhookHandler implements WebhookHandler {
     subscriptionType: string,
     payload: Record<string, unknown>
   ): void {
-    const event = payload.event as Record<string, unknown>;
+    const event = payload as Record<string, unknown>;
 
     switch (subscriptionType) {
       case 'channel.follow':
