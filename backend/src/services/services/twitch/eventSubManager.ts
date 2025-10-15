@@ -220,15 +220,15 @@ export class TwitchEventSubManager {
 
   async createWebhook(
     userId: number,
+    actionType: string,
     broadcasterId: string,
-    subscriptionType: string,
     moderatorId?: string
   ): Promise<ExternalWebhooks> {
     try {
       const subscription = await this.createSubscription(
         userId,
         broadcasterId,
-        subscriptionType,
+        this.getSubscriptionType(actionType),
         moderatorId
       );
 
@@ -238,7 +238,7 @@ export class TwitchEventSubManager {
       webhook.external_id = subscription.id;
       webhook.url = subscription.transport.callback;
       webhook.secret = subscription.transport.secret;
-      webhook.events = [subscriptionType];
+      webhook.events = [actionType];
       webhook.is_active = subscription.status === 'enabled';
 
       const savedWebhook =

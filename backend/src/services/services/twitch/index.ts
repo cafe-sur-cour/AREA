@@ -205,7 +205,7 @@ const twitchService: Service = {
 
       await twitchEventSubManager.createWebhook(
         userId,
-        subscriptionType,
+        actionDefinition.id,
         broadcasterId,
         moderatorId
       );
