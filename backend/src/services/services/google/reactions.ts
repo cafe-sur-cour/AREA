@@ -3,6 +3,7 @@ import {
   googleSendEmailSchema,
   googleCreateCalendarEventSchema,
   googleCreateDocumentSchema,
+  googleDriveUploadFileSchema,
 } from './schemas';
 
 export const googleReactions: ReactionDefinition[] = [
@@ -107,5 +108,43 @@ export const googleReactions: ReactionDefinition[] = [
       requiresAuth: true,
       estimatedDuration: 2500,
     },
-  }
+  },
+  {
+    id: 'google.drive.upload_file',
+    name: 'Upload File to Google Drive',
+    description: 'Uploads a file to Google Drive',
+    configSchema: googleDriveUploadFileSchema,
+    outputSchema: {
+      type: 'object',
+      properties: {
+        file_id: {
+          type: 'string',
+          description: 'The ID of the uploaded file',
+        },
+        file_name: {
+          type: 'string',
+          description: 'The name of the file',
+        },
+        web_view_link: {
+          type: 'string',
+          description: 'Link to view the file in a browser',
+        },
+        web_content_link: {
+          type: 'string',
+          description: 'Link to download the file',
+        },
+        success: {
+          type: 'boolean',
+          description: 'Whether the upload operation was successful',
+        },
+      },
+      required: ['file_id', 'file_name', 'success'],
+    },
+    metadata: {
+      category: 'Drive',
+      tags: ['drive', 'upload', 'file', 'storage'],
+      requiresAuth: true,
+      estimatedDuration: 3000,
+    },
+  },
 ];

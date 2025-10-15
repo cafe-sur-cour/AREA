@@ -49,6 +49,8 @@ export class GoogleReactionExecutor implements ReactionExecutor {
           return await this.createCalendarEvent(reaction.config, validToken);
         case 'google.create_document':
           return await this.createDocument(reaction.config, validToken);
+        case 'google.drive.upload_file':
+          return await this.uploadFileToDrive(reaction.config, validToken);
         default:
           return {
             success: false,
@@ -298,6 +300,99 @@ export class GoogleReactionExecutor implements ReactionExecutor {
       return {
         success: false,
         error: `Network error while creating document: ${(error as Error).message}`,
+      };
+    }
+  }
+
+  private async uploadFileToDrive(
+    config: Record<string, unknown>,
+    accessToken: string
+  ): Promise<ReactionExecutionResult> {
+    const { fileName, fileContent, mimeType, folderId } = config as {
+      fileName: string;
+      fileContent: string;
+      mimeType?: string;
+      folderId?: string;
+    };
+
+    if (!fileName || !fileContent) {
+      return {
+        success: false,
+        error: 'Missing required fields: fileName, fileContent',
+      };
+    }
+
+    try {
+      // Detect if content is base64 or plain text
+      let contentBuffer: Buffer;
+      try {
+        contentBuffer = Buffer.from(fileContent, 'base64');
+        // Verify it's valid base64 by checking if decoding and re-encoding gives same result
+        if (contentBuffer.toString('base64') !== fileContent) {
+          // Not valid base64, treat as plain text
+          contentBuffer = Buffer.from(fileContent, 'utf-8');
+        }
+      } catch {
+        contentBuffer = Buffer.from(fileContent, 'utf-8');
+      }
+
+      const detectedMimeType = mimeType || 'text/plain';
+      const boundary = '-------314159265358979323846';
+      const delimiter = `\r\n--${boundary}\r\n`;
+      const closeDelimiter = `\r\n--${boundary}--`;
+
+      const metadata = {
+        name: fileName,
+        mimeType: detectedMimeType,
+        ...(folderId && folderId !== 'root' ? { parents: [folderId] } : {}),
+      };
+
+      const multipartRequestBody =
+        delimiter +
+        'Content-Type: application/json; charset=UTF-8\r\n\r\n' +
+        JSON.stringify(metadata) +
+        delimiter +
+        `Content-Type: ${detectedMimeType}\r\n` +
+        'Content-Transfer-Encoding: base64\r\n\r\n' +
+        contentBuffer.toString('base64') +
+        closeDelimiter;
+
+      const response = await fetch(
+        `${this.apiBaseUrl}/upload/drive/v3/files?uploadType=multipart`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'Content-Type': `multipart/related; boundary=${boundary}`,
+          },
+          body: multipartRequestBody,
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        return {
+          success: false,
+          error: `Drive API error: ${response.status} - ${(errorData as any).error?.message || 'Unknown error'}`,
+        };
+      }
+
+      const result = (await response.json()) as any;
+
+      return {
+        success: true,
+        output: {
+          file_id: result.id,
+          file_name: result.name,
+          web_view_link: result.webViewLink || `https://drive.google.com/file/d/${result.id}/view`,
+          web_content_link: result.webContentLink || '',
+          success: true,
+        },
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: `Network error while uploading file: ${(error as Error).message}`,
       };
     }
   }

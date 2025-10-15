@@ -3,6 +3,7 @@ import {
   googleCalendarEventCreatedSchema,
   googleGmailNewEmailSchema,
   googleDocsDocumentCreatedSchema,
+  googleDriveFileUploadedSchema,
 } from './schemas';
 
 export const googleActions: ActionDefinition[] = [
@@ -327,6 +328,122 @@ export const googleActions: ActionDefinition[] = [
         const folderId = (event.payload as { folderId?: string })?.folderId;
         const configFolderId = mapping.action.config?.folderId || 'root';
         return folderId ? configFolderId === folderId : true;
+      },
+    },
+  },
+  {
+    id: 'google.drive.file_uploaded',
+    name: 'Google Drive File Uploaded',
+    description: 'Triggers when a new file is uploaded to Google Drive',
+    configSchema: googleDriveFileUploadedSchema,
+    inputSchema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'object',
+          description: 'File information',
+          properties: {
+            id: {
+              type: 'string',
+              description: 'File ID',
+            },
+            name: {
+              type: 'string',
+              description: 'File name',
+            },
+            mimeType: {
+              type: 'string',
+              description: 'MIME type of the file',
+            },
+            size: {
+              type: 'number',
+              description: 'File size in bytes',
+            },
+            createdTime: {
+              type: 'string',
+              description: 'Creation time in ISO 8601 format',
+            },
+            modifiedTime: {
+              type: 'string',
+              description: 'Last modification time in ISO 8601 format',
+            },
+            webViewLink: {
+              type: 'string',
+              description: 'Link to view the file in a browser',
+            },
+            webContentLink: {
+              type: 'string',
+              description: 'Link to download the file',
+            },
+            thumbnailLink: {
+              type: 'string',
+              description: 'Link to the file thumbnail',
+            },
+            owners: {
+              type: 'array',
+              description: 'File owners',
+              items: {
+                type: 'object',
+                description: 'Owner information',
+                properties: {
+                  displayName: {
+                    type: 'string',
+                    description: 'Owner display name',
+                  },
+                  emailAddress: {
+                    type: 'string',
+                    description: 'Owner email address',
+                  },
+                  photoLink: {
+                    type: 'string',
+                    description: 'Link to owner photo',
+                  },
+                },
+              },
+            },
+            parents: {
+              type: 'array',
+              description: 'Parent folder IDs',
+              items: {
+                type: 'string',
+                description: 'Parent folder ID',
+              },
+            },
+          },
+        },
+        folderId: {
+          type: 'string',
+          description: 'Parent folder ID where the file was uploaded',
+        },
+      },
+      required: ['file'],
+    },
+    metadata: {
+      category: 'Google Drive',
+      tags: ['drive', 'file', 'upload'],
+      requiresAuth: true,
+      webhookPattern: 'drive.file.uploaded',
+      sharedEvents: true,
+      sharedEventFilter: (event, mapping) => {
+        const file = (event.payload as { file?: { mimeType?: string; parents?: string[] } })?.file;
+        const folderId = (event.payload as { folderId?: string })?.folderId;
+        const configFolderId = mapping.action.config?.folderId as string | undefined;
+        const configMimeType = mapping.action.config?.mimeType as string | undefined;
+
+        // Check folder filter
+        if (configFolderId && configFolderId !== 'root') {
+          const parentMatch = file?.parents?.includes(configFolderId) || folderId === configFolderId;
+          if (!parentMatch) {
+            return false;
+          }
+        }
+
+        // Check MIME type filter
+        if (configMimeType && file?.mimeType) {
+          return file.mimeType === configMimeType;
+        }
+
+        return true;
       },
     },
   },
