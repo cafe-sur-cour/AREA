@@ -91,12 +91,6 @@ export const slackActions: ActionDefinition[] = [
       webhookPattern: 'message.channels',
       sharedEvents: true,
       sharedEventFilter: async (event, mapping, userId) => {
-        console.log(`🔍 [SLACK FILTER] ===== STARTING FILTER =====`);
-        console.log(
-          `🔍 [SLACK FILTER] Event payload:`,
-          JSON.stringify(event.payload, null, 2)
-        );
-
         const slackEvent = (
           event.payload as {
             event?: { channel?: string; channel_type?: string };
