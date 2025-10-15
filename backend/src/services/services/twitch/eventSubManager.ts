@@ -51,6 +51,14 @@ export class TwitchEventSubManager {
     subscriptionType: string,
     moderatorId?: string
   ): Promise<Record<string, unknown>> {
+    console.log(`🔧 [TWITCH API] Preparing ${subscriptionType} subscription:`, {
+      userId,
+      broadcasterId,
+      subscriptionType,
+      moderatorId: moderatorId || 'none',
+      webhookUrl: `${this.webhookBaseUrl}/webhooks/twitch`,
+    });
+
     try {
       const appToken = await this.getAppAccessToken();
       const webhookUrl = `${this.webhookBaseUrl}/webhooks/twitch`;
@@ -101,8 +109,20 @@ export class TwitchEventSubManager {
         }
       );
 
+      console.log(
+        `🔄 [TWITCH API] Creating ${subscriptionType} subscription for broadcaster ${broadcasterId}...`
+      );
+
       if (!response.ok) {
         const errorData = await response.json();
+        console.error(
+          `❌ [TWITCH API] Failed to create ${subscriptionType} subscription:`,
+          {
+            status: response.status,
+            statusText: response.statusText,
+            error: errorData,
+          }
+        );
         throw new Error(
           `HTTP ${response.status}: ${JSON.stringify(errorData)}`
         );
@@ -110,7 +130,15 @@ export class TwitchEventSubManager {
 
       const data = await response.json();
       console.log(
-        `✅ Created ${subscriptionType} subscription for user ${userId}`
+        `✅ [TWITCH API] Successfully created ${subscriptionType} subscription:`,
+        {
+          id: data.id,
+          status: data.status,
+          type: data.type,
+          version: data.version,
+          broadcaster_user_id: data.condition?.broadcaster_user_id,
+          moderator_user_id: data.condition?.moderator_user_id,
+        }
       );
       return data;
     } catch (error) {

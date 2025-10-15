@@ -130,20 +130,54 @@ const twitchService: Service = {
   },
   ensureWebhookForMapping: async (mapping, userId, actionDefinition) => {
     const { twitchEventSubManager } = await import('./eventSubManager');
+    const { twitchOAuth } = await import('./oauth');
 
     if (!actionDefinition?.metadata?.webhookPattern) {
       return;
     }
 
-    const broadcasterId = mapping.action.config?.broadcasterId as string;
-    if (!broadcasterId) {
-      console.warn(
-        `Cannot create webhook for mapping: missing broadcasterId in config`
-      );
+    const userToken = await twitchOAuth.getUserToken(userId);
+    if (!userToken) {
+      console.warn('Cannot create webhook: no Twitch token found for user');
       return;
     }
 
-    const moderatorId = mapping.action.config?.moderatorId as string;
+    const userInfo = await twitchOAuth.getUserInfo(userToken.token_value);
+    if (!userInfo) {
+      console.warn('Cannot create webhook: failed to get user info');
+      return;
+    }
+
+    let broadcasterId: string;
+    let moderatorId: string;
+
+    if (
+      actionDefinition.id === 'twitch.new_follower' ||
+      actionDefinition.id === 'twitch.new_subscription'
+    ) {
+      broadcasterId = userInfo.id;
+      moderatorId = userInfo.id;
+    } else {
+      const broadcasterUsername = mapping.action.config
+        ?.broadcaster_username as string;
+      if (!broadcasterUsername) {
+        console.warn(
+          `Cannot create webhook for mapping: missing broadcaster_username in config`
+        );
+        return;
+      }
+
+      const foundBroadcasterId =
+        await twitchEventSubManager.getUserId(broadcasterUsername);
+      if (!foundBroadcasterId) {
+        console.warn(
+          `Cannot create webhook: could not find Twitch user ${broadcasterUsername}`
+        );
+        return;
+      }
+      broadcasterId = foundBroadcasterId;
+      moderatorId = userInfo.id;
+    }
 
     console.log(
       `Ensuring Twitch webhook exists for ${broadcasterId} with action: ${actionDefinition.id}`
