@@ -86,6 +86,8 @@ export interface ConfigField {
   placeholder?: string;
   options?: SelectOption[];
   default?: string | number | boolean;
+  dynamic?: boolean;
+  dynamicPlaceholder?: string;
 }
 
 export interface ActionReactionSchema {

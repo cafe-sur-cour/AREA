@@ -1,6 +1,5 @@
 import { User } from './entity/User';
 import { UserToken } from './entity/UserToken';
-import { UserSessions } from './entity/UserSessions';
 import { UserActivityLogs } from './entity/UserActivityLogs';
 import { UserServiceSubscriptions } from './entity/UserServiceSubscriptions';
 import { ExternalWebhooks } from './entity/ExternalWebhooks';
@@ -61,7 +60,6 @@ const AdminRouter = async (
     resources: [
       User,
       UserToken,
-      UserSessions,
       UserActivityLogs,
       UserServiceSubscriptions,
       ExternalWebhooks,

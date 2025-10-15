@@ -14,34 +14,8 @@ export class Logger extends BaseEntity {
   @Column({ type: 'enum', enum: ['info', 'succ', 'warn', 'err'] })
   type!: 'info' | 'succ' | 'warn' | 'err';
 
-  @Column({
-    type: 'enum',
-    enum: [
-      'login',
-      'logout',
-      'register',
-      'user',
-      'github',
-      'google',
-      'spotify',
-      'microsoft',
-      'slack',
-      'facebook',
-      'other',
-    ],
-  })
-  kind!:
-    | 'login'
-    | 'logout'
-    | 'register'
-    | 'user'
-    | 'github'
-    | 'google'
-    | 'spotify'
-    | 'microsoft'
-    | 'slack'
-    | 'facebook'
-    | 'other';
+  @Column({ type: 'varchar', length: 50 })
+  kind!: string;
 
   @CreateDateColumn({ type: 'timestamp' })
   created_at!: Date;

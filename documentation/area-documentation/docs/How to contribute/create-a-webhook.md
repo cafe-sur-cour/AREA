@@ -6,6 +6,16 @@ sidebar_position: 3
 
 This guide explains how to implement webhook handlers for external services in the AREA platform. Webhooks enable real-time event processing from external services.
 
+:::tip 🎯 Modular Architecture
+
+Webhook handlers should be placed **inside your service folder**:
+- ✅ Place webhooks in: `/backend/src/services/services/your-service/webhooks/`
+- ❌ Don't create webhooks in central `/backend/src/webhooks/` folder
+
+This keeps all service-specific code modular and maintainable.
+
+:::
+
 ## Overview
 
 Webhooks in AREA allow external services to notify the platform about events in real-time. When an event occurs (like a GitHub push or Discord message), the external service sends an HTTP POST request to your webhook endpoint, triggering automation workflows.
@@ -23,7 +33,16 @@ Webhooks in AREA allow external services to notify the platform about events in 
 
 Create a webhook handler for your service:
 
-**File**: `backend/src/webhooks/your-service/index.ts`
+**File**: `backend/src/services/services/your-service/webhooks/index.ts` *(Modular approach)*
+
+:::info ℹ️ Folder Location Update
+
+In the new modular architecture, webhooks should be placed **inside the service folder**, not in a central webhooks directory. This ensures all service code is self-contained.
+
+:::
+
+**Old location** ❌: `backend/src/webhooks/your-service/index.ts`
+**New location** ✅: `backend/src/services/services/your-service/webhooks/index.ts`
 
 ```typescript
 import { Request, Response } from 'express';
@@ -55,7 +74,7 @@ export class YourServiceWebhookHandler implements WebhookHandler {
       .createHmac('sha256', secret)
       .update(payload)
       .digest('hex');
-    
+
     return crypto.timingSafeEqual(
       Buffer.from(signature),
       Buffer.from(`sha256=${expectedSignature}`)
@@ -70,7 +89,7 @@ export class YourServiceWebhookHandler implements WebhookHandler {
       // Extract signature from headers
       const signature = req.headers['x-yourservice-signature'] as string;
       const eventType = req.headers['x-yourservice-event'] as string;
-      
+
       if (!signature || !eventType) {
         res.status(400).json({ error: 'Missing required headers' });
         return;
@@ -79,7 +98,7 @@ export class YourServiceWebhookHandler implements WebhookHandler {
       // Verify webhook signature
       const secret = process.env.YOURSERVICE_WEBHOOK_SECRET || '';
       const payload = JSON.stringify(req.body);
-      
+
       if (!this.verifySignature(payload, signature, secret)) {
         console.warn('Invalid webhook signature from YourService');
         res.status(401).json({ error: 'Invalid signature' });
@@ -88,13 +107,13 @@ export class YourServiceWebhookHandler implements WebhookHandler {
 
       // Parse webhook payload
       const webhookPayload: YourServiceWebhookPayload = req.body;
-      
+
       // Process the webhook based on event type
       await this.processWebhook(eventType, webhookPayload);
-      
+
       // Acknowledge receipt
       res.status(200).json({ received: true });
-      
+
     } catch (error) {
       console.error('YourService webhook processing error:', error);
       res.status(500).json({ error: 'Internal server error' });
@@ -107,7 +126,7 @@ export class YourServiceWebhookHandler implements WebhookHandler {
   private async processWebhook(eventType: string, payload: YourServiceWebhookPayload): Promise<void> {
     // Map webhook event to AREA action type
     const actionType = this.mapEventToAction(eventType);
-    
+
     if (!actionType) {
       console.log(`Unhandled YourService event type: ${eventType}`);
       return;
@@ -115,7 +134,7 @@ export class YourServiceWebhookHandler implements WebhookHandler {
 
     // Transform webhook payload to action input format
     const actionInput = this.transformPayload(eventType, payload);
-    
+
     // Trigger execution service
     await executionService.processAction(actionType, actionInput);
   }
@@ -147,7 +166,7 @@ export class YourServiceWebhookHandler implements WebhookHandler {
           pusher: payload.data.pusher,
           timestamp: payload.timestamp
         };
-        
+
       case 'issue.opened':
         return {
           issue: payload.data.issue,
@@ -155,7 +174,7 @@ export class YourServiceWebhookHandler implements WebhookHandler {
           action: 'opened',
           timestamp: payload.timestamp
         };
-        
+
       default:
         return payload.data;
     }
@@ -255,7 +274,7 @@ export class YourServiceWebhookManager {
     }
 
     const result = await response.json() as { id: string };
-    
+
     // Store webhook registration in database
     await this.saveWebhookRegistration({
       user_id: config.user_id,
@@ -323,7 +342,7 @@ export class YourServiceWebhookManager {
     is_active: boolean;
   }): Promise<void> {
     const webhookRepo = AppDataSource.getRepository(ExternalWebhooks);
-    
+
     const externalWebhook = new ExternalWebhooks();
     externalWebhook.user_id = data.user_id;
     externalWebhook.service = data.service;
@@ -440,7 +459,7 @@ describe('YourService Webhook Handler', () => {
     } as any;
 
     await webhookHandler.handle(req, res);
-    
+
     expect(res.status).toHaveBeenCalledWith(200);
   });
 });
@@ -490,9 +509,9 @@ private verifySignature(payload: string, signature: string, secret: string): boo
       .createHmac('sha256', secret)
       .update(payload, 'utf8')
       .digest('hex');
-    
+
     const providedSignature = signature.replace(/^sha256=/, '');
-    
+
     return crypto.timingSafeEqual(
       Buffer.from(expectedSignature, 'hex'),
       Buffer.from(providedSignature, 'hex')
@@ -537,17 +556,17 @@ router.post('/register', authenticateToken, async (req: Request, res: Response) 
   try {
     const { service, resource_id, events } = req.body;
     const userId = (req as any).user.id;
-    
+
     // Get user's access token for the service
     const accessToken = await getUserServiceToken(userId, service);
-    
+
     const webhookManager = new YourServiceWebhookManager(accessToken);
     const webhookId = await webhookManager.registerWebhook({
       resource_id,
       events,
       user_id: userId
     });
-    
+
     res.status(201).json({ webhook_id: webhookId });
   } catch (error) {
     console.error('Webhook registration error:', error);

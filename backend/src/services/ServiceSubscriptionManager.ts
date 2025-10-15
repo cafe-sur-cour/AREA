@@ -1,11 +1,13 @@
 import { AppDataSource } from '../config/db';
 import { UserServiceSubscriptions } from '../config/entity/UserServiceSubscriptions';
-import { githubWebhookManager } from './services/github/webhookManager';
 import { ExternalWebhooks } from '../config/entity/ExternalWebhooks';
+import { serviceRegistry } from './ServiceRegistry';
 
 export class ServiceSubscriptionManager {
   async isUserSubscribed(userId: number, service: string): Promise<boolean> {
-    if (service === 'timer') {
+    const serviceDefinition = serviceRegistry.getService(service);
+
+    if (serviceDefinition?.alwaysSubscribed) {
       return true;
     }
 
@@ -118,10 +120,12 @@ export class ServiceSubscriptionManager {
       `Deleting ${activeWebhooks.length} active webhooks for user ${userId} service ${service}`
     );
 
+    const serviceDefinition = serviceRegistry.getService(service);
+
     for (const webhook of activeWebhooks) {
       try {
-        if (service === 'github') {
-          await githubWebhookManager.deleteWebhook(userId, webhook.id);
+        if (serviceDefinition?.deleteWebhook) {
+          await serviceDefinition.deleteWebhook(userId, webhook.id);
         }
 
         console.log(

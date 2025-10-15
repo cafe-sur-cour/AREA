@@ -27,6 +27,7 @@ interface ReactionInstance {
 interface ReactionFormProps {
   onReactionsChange: (reactions: Reaction[]) => void;
   onConfigChange: (config: Record<string, unknown>[]) => void;
+  defaultReaction: Reaction | null;
 }
 
 const getStringValue = (value: unknown): string => {
@@ -38,20 +39,22 @@ const getStringValue = (value: unknown): string => {
 export default function ReactionForm({
   onReactionsChange,
   onConfigChange,
+  defaultReaction,
 }: ReactionFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [ServiceReactions, setServiceReactions] = useState<ServiceReaction[]>(
     []
   );
+  console.log('DEFAULT REACTION: ', defaultReaction);
   const [reactionInstances, setReactionInstances] = useState<
     ReactionInstance[]
   >([
     {
       id: `reaction-${Date.now()}`,
-      reaction: null,
+      reaction: defaultReaction,
       config: {},
       delay: 0,
-      selectedService: null,
+      selectedService: defaultReaction?.serviceId || null,
     },
   ]);
 
@@ -116,7 +119,6 @@ export default function ReactionForm({
       .filter(instance => instance.reaction)
       .map(instance => {
         if (instance.reaction) {
-          // Attacher le delay à la réaction avant de l'envoyer au parent
           return {
             ...instance.reaction,
             delay: instance.delay || 0,

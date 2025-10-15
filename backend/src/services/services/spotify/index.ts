@@ -2,7 +2,7 @@ import type { Service } from '../../../types/service';
 import { spotifyActions } from './actions';
 import { spotifyReactions } from './reactions';
 import { spotifyReactionExecutor } from './executor';
-import { SpotifyScheduler } from './SpotifyScheduler';
+import { spotifyScheduler } from './SpotifyScheduler';
 import { getIconSvg } from '../../../utils/iconMapping';
 
 const spotifyService: Service = {
@@ -13,6 +13,10 @@ const spotifyService: Service = {
   icon: getIconSvg('FaSpotify'),
   actions: spotifyActions,
   reactions: spotifyReactions,
+  oauth: {
+    enabled: true,
+    supportsLogin: false,
+  },
   getCredentials: async (userId: number) => {
     const { spotifyOAuth } = await import('./oauth');
     const userToken = await spotifyOAuth.getUserToken(userId);
@@ -24,10 +28,10 @@ export default spotifyService;
 
 export const executor = spotifyReactionExecutor;
 
-const spotifyScheduler = new SpotifyScheduler();
-
 export async function initialize(): Promise<void> {
   console.log('Initializing Spotify service...');
+  const { initializeSpotifyPassport } = await import('./passport');
+  initializeSpotifyPassport();
   await spotifyScheduler.start();
   console.log('Spotify service initialized');
 }

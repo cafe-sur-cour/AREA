@@ -9,6 +9,18 @@ export interface Service {
   actions: ActionDefinition[];
   reactions: ReactionDefinition[];
   getCredentials?: (userId: number) => Promise<Record<string, string>>;
+  oauth?: {
+    enabled: boolean;
+    supportsLogin?: boolean;
+    getSubscriptionUrl?: (userId: number) => string;
+  };
+  alwaysSubscribed?: boolean;
+  deleteWebhook?: (userId: number, webhookId: number) => Promise<void>;
+  ensureWebhookForMapping?: (
+    mapping: { action: { type: string; config: Record<string, unknown> } },
+    userId: number,
+    actionDefinition?: ActionDefinition
+  ) => Promise<void>;
 }
 
 export interface ActionDefinition {
@@ -70,8 +82,9 @@ export interface ActionMetadata {
       source: string | null | undefined;
       payload: Record<string, unknown>;
     },
-    mapping: { action: { config?: Record<string, unknown> } }
-  ) => boolean;
+    mapping: { action: { config?: Record<string, unknown> } },
+    userId?: number
+  ) => boolean | Promise<boolean>;
 }
 
 export interface ReactionMetadata {

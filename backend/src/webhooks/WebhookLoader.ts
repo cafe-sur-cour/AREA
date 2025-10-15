@@ -6,30 +6,35 @@ import type { WebhookHandler, WebhookConfig } from '../types/webhook';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export class WebhookLoader {
-  private webhooksPath: string;
+  private servicesPath: string;
   private handlers: Map<string, WebhookHandler> = new Map();
 
-  constructor(webhooksPath: string = path.join(__dirname, '..', 'webhooks')) {
-    this.webhooksPath = webhooksPath;
+  constructor(
+    servicesPath: string = path.join(__dirname, '..', 'services', 'services')
+  ) {
+    this.servicesPath = servicesPath;
   }
 
   async loadAllWebhooks(): Promise<void> {
-    if (!fs.existsSync(this.webhooksPath)) {
-      console.warn(`Webhooks directory not found: ${this.webhooksPath}`);
+    if (!fs.existsSync(this.servicesPath)) {
+      console.warn(`Services directory not found: ${this.servicesPath}`);
       return;
     }
 
-    const entries = fs.readdirSync(this.webhooksPath, { withFileTypes: true });
+    const entries = fs.readdirSync(this.servicesPath, { withFileTypes: true });
 
     for (const entry of entries) {
       if (entry.isDirectory()) {
-        await this.loadWebhook(entry.name);
+        const webhookPath = path.join(this.servicesPath, entry.name, 'webhook');
+        if (fs.existsSync(webhookPath)) {
+          await this.loadWebhook(entry.name);
+        }
       }
     }
   }
 
   async loadWebhook(serviceName: string): Promise<void> {
-    const webhookPath = path.join(this.webhooksPath, serviceName);
+    const webhookPath = path.join(this.servicesPath, serviceName, 'webhook');
 
     if (!fs.existsSync(webhookPath)) {
       throw new Error(`Webhook directory not found: ${webhookPath}`);
@@ -77,7 +82,7 @@ export class WebhookLoader {
   }
 
   async unloadWebhook(serviceName: string): Promise<void> {
-    const webhookPath = path.join(this.webhooksPath, serviceName);
+    const webhookPath = path.join(this.servicesPath, serviceName, 'webhook');
     const indexPath = path.join(webhookPath, 'index.ts');
 
     try {
@@ -106,13 +111,17 @@ export class WebhookLoader {
   }
 
   getAvailableWebhooks(): string[] {
-    if (!fs.existsSync(this.webhooksPath)) {
+    if (!fs.existsSync(this.servicesPath)) {
       return [];
     }
 
     return fs
-      .readdirSync(this.webhooksPath, { withFileTypes: true })
-      .filter(entry => entry.isDirectory())
+      .readdirSync(this.servicesPath, { withFileTypes: true })
+      .filter(entry => {
+        if (!entry.isDirectory()) return false;
+        const webhookPath = path.join(this.servicesPath, entry.name, 'webhook');
+        return fs.existsSync(webhookPath);
+      })
       .map(entry => entry.name);
   }
 

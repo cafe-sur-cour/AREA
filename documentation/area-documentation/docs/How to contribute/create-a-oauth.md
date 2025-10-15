@@ -117,7 +117,7 @@ export class YourServiceOAuth {
 
   async saveUserToken(userId: number, tokenData: YourServiceTokenResponse): Promise<void> {
     const userTokenRepo = AppDataSource.getRepository(UserToken);
-    
+
     // Check if token already exists
     let userToken = await userTokenRepo.findOne({
       where: { user_id: userId, service: 'yourservice' }
@@ -133,7 +133,7 @@ export class YourServiceOAuth {
     userToken.token_type = tokenData.token_type;
     userToken.scope = tokenData.scope;
     userToken.refresh_token = tokenData.refresh_token || null;
-    
+
     if (tokenData.expires_in) {
       userToken.expires_at = new Date(Date.now() + tokenData.expires_in * 1000);
     }
@@ -201,7 +201,7 @@ router.get('/auth', (req: Request, res: Response) => {
       redirect_url: redirectUrl || process.env.FRONTEND_URL,
       timestamp: Date.now()
     });
-    
+
     const authUrl = oauth.getAuthorizationUrl(Buffer.from(state).toString('base64'));
     res.redirect(authUrl);
   } catch (error) {
@@ -214,7 +214,7 @@ router.get('/auth', (req: Request, res: Response) => {
 router.get('/callback', async (req: Request, res: Response) => {
   try {
     const { code, state } = req.query;
-    
+
     if (!code || !state) {
       throw new Error('Missing required parameters');
     }
@@ -225,10 +225,10 @@ router.get('/callback', async (req: Request, res: Response) => {
 
     // Exchange code for token
     const tokenData = await oauth.exchangeCodeForToken(code as string);
-    
+
     // Get user info
     const userInfo = await oauth.getUserInfo(tokenData.access_token);
-    
+
     // Save or update OAuth provider
     const oauthRepo = AppDataSource.getRepository(UserOAuthProvider);
     let oauthProvider = await oauthRepo.findOne({
@@ -319,7 +319,7 @@ useEffect(() => {
   const urlParams = new URLSearchParams(window.location.search);
   const success = urlParams.get('success');
   const error = urlParams.get('error');
-  
+
   if (success === 'oauth_connected') {
     // Show success message and refresh user data
     setNotification('Service connected successfully!');
@@ -337,13 +337,13 @@ useEffect(() => {
 // Flutter OAuth handling
 Future<void> initiateOAuth(String service) async {
   final url = '${ApiConfig.baseUrl}/api/$service/auth';
-  
+
   // Use flutter_web_auth or similar package
   final result = await FlutterWebAuth.authenticate(
     url: url,
     callbackUrlScheme: 'area',
   );
-  
+
   // Handle the result
   if (result.contains('success=oauth_connected')) {
     // Show success and refresh data
@@ -377,10 +377,10 @@ const encryptToken = (token: string): string => {
   const key = process.env.TOKEN_ENCRYPTION_KEY!;
   const iv = crypto.randomBytes(16);
   const cipher = crypto.createCipher(algorithm, key);
-  
+
   let encrypted = cipher.update(token, 'utf8', 'hex');
   encrypted += cipher.final('hex');
-  
+
   return `${iv.toString('hex')}:${encrypted}`;
 };
 ```
@@ -395,7 +395,7 @@ describe('YourService OAuth', () => {
   it('should generate valid authorization URL', () => {
     const oauth = new YourServiceOAuth();
     const url = oauth.getAuthorizationUrl('test-state');
-    
+
     expect(url).toContain('client_id=');
     expect(url).toContain('state=test-state');
   });
@@ -416,7 +416,7 @@ describe('OAuth Routes', () => {
     const response = await request(app)
       .get('/api/yourservice/auth')
       .expect(302);
-    
+
     expect(response.headers.location).toContain('yourservice.com');
   });
 });
@@ -447,6 +447,124 @@ describe('OAuth Routes', () => {
 5. **Testing**: Test OAuth flow thoroughly in different environments
 
 :::
+
+## ⚡ Automatic Route Generation
+
+:::info IMPORTANT - No Manual Route Registration Required
+
+Since the modularization update, **OAuth routes are generated automatically** for all services with `oauth.enabled = true`.
+
+You **DO NOT** need to:
+- ❌ Add routes manually in `auth.ts`
+- ❌ Register Passport strategies in central files
+- ❌ Update Swagger documentation manually
+
+The system automatically creates:
+- ✅ `/api/auth/{service}/login` (if `supportsLogin: true`)
+- ✅ `/api/auth/{service}/callback`
+- ✅ Swagger documentation for all OAuth routes
+
+### How It Works
+
+1. **Your OAuth Class** with `getAuthorizationUrl()` method
+2. **Service Definition** in `index.ts` with `oauth: { enabled: true }`
+3. **Routes Generated** automatically by `oauth.router.ts`
+
+### Custom Strategies
+
+For services that need Passport OAuth2Strategy (like GitHub, Google):
+- The system detects if `getAuthorizationUrl()` exists
+- If **YES**: Uses manual redirect (Microsoft style)
+- If **NO**: Falls back to `passport.authenticate()` (GitHub style)
+
+:::
+
+## 🔗 Custom Subscription URLs
+
+Some services require special subscription flows beyond standard OAuth (e.g., GitHub App installation). Use the `getSubscriptionUrl` property to define custom subscription endpoints.
+
+### When to Use `getSubscriptionUrl`
+
+Use this property when your service requires:
+- **App installations** (like GitHub Apps)
+- **Organization-level permissions**
+- **Additional setup steps** after OAuth
+- **Custom subscription flows** not covered by OAuth alone
+
+### Implementation
+
+In your service definition (`index.ts`), add the `getSubscriptionUrl` function to your `oauth` configuration:
+
+```typescript
+import type { Service } from '../../../types/service';
+
+export const yourService: Service = {
+  id: 'yourservice',
+  name: 'Your Service',
+  description: 'Description of your service',
+  oauth: {
+    enabled: true,
+    supportsLogin: true,
+    // Custom subscription URL generator
+    getSubscriptionUrl: (userId: number) => {
+      const appSlug = process.env.YOURSERVICE_APP_SLUG || 'your-app-name';
+      return `https://yourservice.com/install/app/${appSlug}?state=${userId}`;
+    },
+  },
+  actions: [],
+  reactions: [],
+};
+```
+
+### How It Works
+
+1. **User clicks "Subscribe"** on frontend
+2. **Backend checks** for `oauth.getSubscriptionUrl` in service definition
+3. **If defined**: User is redirected to the custom URL
+4. **If not defined**: Standard OAuth flow is used
+5. **After installation**: External service redirects back to your callback
+
+### Real Example: GitHub App Installation
+
+```typescript
+export const githubService: Service = {
+  id: 'github',
+  name: 'GitHub',
+  description: 'Version control and collaboration platform',
+  oauth: {
+    enabled: true,
+    supportsLogin: true,
+    getSubscriptionUrl: (userId: number) => {
+      const appSlug = process.env.GITHUB_APP_SLUG || 'area-cafe-sur-cours';
+      // Redirects to GitHub App installation page
+      return `https://github.com/apps/${appSlug}/installations/new?state=${userId}`;
+    },
+  },
+  // ... actions and reactions
+};
+```
+
+### Parameters
+
+- **`userId`**: The current user's ID, automatically passed by the system
+  - Use this to track which user initiated the subscription
+  - Include it in the `state` parameter for callback verification
+
+### Benefits
+
+✅ **Flexible**: Support any subscription flow, not just OAuth
+✅ **Automatic**: No need to modify central routing code
+✅ **Type-safe**: TypeScript ensures proper implementation
+✅ **Modular**: All service logic stays in the service folder
+
+### Notes
+
+- The `getSubscriptionUrl` function is **optional**
+- If not provided, the system uses standard OAuth subscribe flow
+- The returned URL should include user identification (via `state` or similar)
+- Your callback endpoint should handle the external service's redirect
+
+````
 
 ## Next Steps
 

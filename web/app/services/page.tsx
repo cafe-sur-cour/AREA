@@ -104,57 +104,9 @@ export default function ServicesPage() {
   const handleConnect = async (service: Service) => {
     const apiUrl = await getAPIUrl();
 
-    if (service.id === 'timer') {
-      try {
-        await api.get({ endpoint: service.endpoints.subscribe! });
-        setServices(
-          services?.map(s =>
-            s.id === service.id
-              ? {
-                  ...s,
-                  isConnected: true,
-                  subscribed: true,
-                }
-              : s
-          )
-        );
-      } catch (error) {
-        console.error(`Error subscribing to ${service.name}:`, error);
-      }
+    if (service.endpoints.subscribe) {
+      window.location.href = `${apiUrl}${service.endpoints.subscribe}`;
       return;
-    }
-
-    if (service.id === 'spotify' || service.id === 'microsoft') {
-      window.location.href = `${apiUrl}${service.endpoints.auth}`;
-      return;
-    }
-
-    // If user hasn't connected OAuth yet, start the OAuth flow
-    if (!service.oauthConnected) {
-      window.location.href = `${apiUrl}${service.endpoints.auth}`;
-      return;
-    }
-
-    // If user is connected via OAuth but not subscribed, call subscribe API
-    if (service.oauthConnected && !service.subscribed) {
-      try {
-        await api.post(service.endpoints.subscribe!, {});
-        // Ensure oauthConnected is set to true alongside subscribed/isConnected
-        setServices(
-          services?.map(s =>
-            s.id === service.id
-              ? {
-                  ...s,
-                  isConnected: true,
-                  oauthConnected: true,
-                  subscribed: true,
-                }
-              : s
-          )
-        );
-      } catch (error) {
-        console.log(`User not connected to ${service.name}, `, error);
-      }
     }
   };
 

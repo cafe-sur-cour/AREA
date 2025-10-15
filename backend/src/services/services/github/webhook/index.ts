@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
 import crypto from 'crypto';
-import { AppDataSource } from '../../config/db';
-import { WebhookEvents } from '../../config/entity/WebhookEvents';
-import { ExternalWebhooks } from '../../config/entity/ExternalWebhooks';
-import type { WebhookHandler } from '../../types/webhook';
+import { AppDataSource } from '../../../../config/db';
+import { WebhookEvents } from '../../../../config/entity/WebhookEvents';
+import { ExternalWebhooks } from '../../../../config/entity/ExternalWebhooks';
+import type { WebhookHandler } from '../../../../types/webhook';
 
 class GitHubWebhookHandler implements WebhookHandler {
   service = 'github';
@@ -47,7 +47,7 @@ class GitHubWebhookHandler implements WebhookHandler {
       );
 
       const { serviceSubscriptionManager } = await import(
-        '../../services/ServiceSubscriptionManager'
+        '../../../ServiceSubscriptionManager'
       );
       const isSubscribed = await serviceSubscriptionManager.isUserSubscribed(
         externalWebhook.user_id,

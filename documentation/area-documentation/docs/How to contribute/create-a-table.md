@@ -40,7 +40,7 @@ CREATE TABLE service_configurations (
     "is_active" BOOLEAN DEFAULT TRUE,
     "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    
+
     -- Constraints
     CONSTRAINT "unique_user_service" UNIQUE ("user_id", "service_name")
 );
@@ -69,9 +69,9 @@ If your table has foreign key relationships, create or update the relation file:
 -- ===========================================
 
 -- Add foreign key constraints
-ALTER TABLE service_configurations 
-ADD CONSTRAINT fk_service_configs_user 
-FOREIGN KEY ("user_id") REFERENCES users("id") 
+ALTER TABLE service_configurations
+ADD CONSTRAINT fk_service_configs_user
+FOREIGN KEY ("user_id") REFERENCES users("id")
 ON DELETE CASCADE;
 
 -- ===========================================
@@ -244,9 +244,9 @@ Make sure your SQL files follow the naming convention to ensure proper execution
 ## Best Practices
 
 ### 1. Naming Conventions
-- **Tables**: `snake_case`, plural (e.g., `user_sessions`)
-- **Columns**: `snake_case` (e.g., `created_at`)
-- **Entities**: `PascalCase`, singular (e.g., `UserSession`)
+- **Tables**: `snake_case`, plural (e.g., `user_tokens`, `webhook_configs`)
+- **Columns**: `snake_case` (e.g., `created_at`, `user_id`)
+- **Entities**: `PascalCase`, singular (e.g., `UserToken`, `WebhookConfig`)
 - **Foreign Keys**: `{table}_id` (e.g., `user_id`)
 
 ### 2. Required Fields
@@ -288,17 +288,17 @@ CREATE TABLE notifications (
     "is_read" BOOLEAN DEFAULT FALSE,
     "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     "read_at" TIMESTAMP,
-    
-    CONSTRAINT "valid_notification_type" 
+
+    CONSTRAINT "valid_notification_type"
     CHECK ("type" IN ('info', 'warning', 'error', 'success'))
 );
 ```
 
 **2. Relations** (`database/relation/notifications.sql`):
 ```sql
-ALTER TABLE notifications 
-ADD CONSTRAINT fk_notifications_user 
-FOREIGN KEY ("user_id") REFERENCES users("id") 
+ALTER TABLE notifications
+ADD CONSTRAINT fk_notifications_user
+FOREIGN KEY ("user_id") REFERENCES users("id")
 ON DELETE CASCADE;
 
 CREATE INDEX "idx_notifications_user_id" ON notifications("user_id");

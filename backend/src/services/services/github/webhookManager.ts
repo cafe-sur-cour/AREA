@@ -23,11 +23,12 @@ export class GitHubWebhookManager {
     config: GitHubWebhookConfig
   ): Promise<ExternalWebhooks> {
     console.log(
-      `🔧 [WEBHOOK] Creating webhook for ${config.repository} (user: ${userId})`
+      `🔧 [WEBHOOK] Creating webhook for ${config.repository} (user: ${userId}) with events: [${config.events.join(', ')}]`
     );
-    const existingWebhookInDb = await AppDataSource.getRepository(
+
+    const existingWebhooks = await AppDataSource.getRepository(
       ExternalWebhooks
-    ).findOne({
+    ).find({
       where: {
         user_id: userId,
         service: 'github',
@@ -36,9 +37,13 @@ export class GitHubWebhookManager {
       },
     });
 
+    const existingWebhookInDb = existingWebhooks.find(webhook =>
+      this.arraysEqual((webhook.events || []).sort(), config.events.sort())
+    );
+
     if (existingWebhookInDb) {
       console.log(
-        `♻️  [WEBHOOK] Using existing webhook (ID: ${existingWebhookInDb.id})`
+        `♻️  [WEBHOOK] Using existing webhook (ID: ${existingWebhookInDb.id}) for events [${config.events.join(', ')}]`
       );
       return existingWebhookInDb;
     }
@@ -334,6 +339,14 @@ export class GitHubWebhookManager {
 
   private generateSecret(): string {
     return crypto.randomBytes(32).toString('hex');
+  }
+
+  private arraysEqual(a: string[], b: string[]): boolean {
+    if (a.length !== b.length) return false;
+    for (let i = 0; i < a.length; i++) {
+      if (a[i] !== b[i]) return false;
+    }
+    return true;
   }
 }
 

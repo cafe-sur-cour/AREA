@@ -1,4 +1,5 @@
 export interface Reaction {
+  serviceId: string;
   id: string;
   name: string;
   description: string;
@@ -19,6 +20,8 @@ export interface Reaction {
           },
         ];
         default: string;
+        dynamic?: boolean;
+        dynamicPlaceholder?: string;
       },
     ];
   };
