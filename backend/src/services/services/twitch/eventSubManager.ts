@@ -138,6 +138,7 @@ export class TwitchEventSubManager {
           version: data.version,
           broadcaster_user_id: data.condition?.broadcaster_user_id,
           moderator_user_id: data.condition?.moderator_user_id,
+          full_response: JSON.stringify(data, null, 2),
         }
       );
       return data;
@@ -211,7 +212,7 @@ export class TwitchEventSubManager {
       return existingWebhook;
     }
 
-    await this.createSubscription(
+    const subscriptionData = await this.createSubscription(
       userId,
       broadcasterId,
       this.getSubscriptionType(actionType),
@@ -221,7 +222,7 @@ export class TwitchEventSubManager {
     const externalWebhook = new ExternalWebhooks();
     externalWebhook.user_id = userId;
     externalWebhook.service = 'twitch';
-    externalWebhook.external_id = `${actionType}_${broadcasterId}`;
+    externalWebhook.external_id = subscriptionData.id as string;
     externalWebhook.repository = broadcasterId;
     externalWebhook.url = `${this.webhookBaseUrl}/webhooks/twitch`;
     externalWebhook.secret = this.generateSecret();
