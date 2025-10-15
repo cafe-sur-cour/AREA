@@ -50,7 +50,20 @@ export class TwitchEventSubManager {
     broadcasterId: string,
     subscriptionType: string,
     moderatorId?: string
-  ): Promise<Record<string, unknown>> {
+  ): Promise<{
+    id: string;
+    status: string;
+    type: string;
+    version: string;
+    condition: Record<string, string>;
+    transport: {
+      method: string;
+      callback: string;
+      secret: string;
+    };
+    created_at: string;
+    cost: number;
+  }> {
     console.log(`🔧 [TWITCH API] Preparing ${subscriptionType} subscription:`, {
       userId,
       broadcasterId,
@@ -62,6 +75,7 @@ export class TwitchEventSubManager {
     try {
       const appToken = await this.getAppAccessToken();
       const webhookUrl = `${this.webhookBaseUrl}/api/webhooks/twitch`;
+      const secret = this.generateSecret();
 
       const subscriptionData: {
         type: string;
@@ -81,7 +95,7 @@ export class TwitchEventSubManager {
         transport: {
           method: 'webhook',
           callback: webhookUrl,
-          secret: this.generateSecret(),
+          secret: secret,
         },
       };
 
@@ -149,7 +163,15 @@ export class TwitchEventSubManager {
           cost: subscription.cost,
         }
       );
-      return subscription;
+
+      return {
+        ...subscription,
+        transport: {
+          method: 'webhook',
+          callback: webhookUrl,
+          secret: secret,
+        },
+      };
     } catch (error) {
       console.error(
         `Failed to create ${subscriptionType} subscription:`,
@@ -233,7 +255,7 @@ export class TwitchEventSubManager {
     externalWebhook.external_id = subscriptionData.id as string;
     externalWebhook.repository = broadcasterId;
     externalWebhook.url = `${this.webhookBaseUrl}/api/webhooks/twitch`;
-    externalWebhook.secret = this.generateSecret();
+    externalWebhook.secret = subscriptionData.transport?.secret as string;
     externalWebhook.events = [actionType];
     externalWebhook.is_active = true;
 
