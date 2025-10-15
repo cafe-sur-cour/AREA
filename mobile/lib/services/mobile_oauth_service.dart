@@ -1,4 +1,5 @@
 import 'package:area/core/config/app_config.dart';
+import 'package:area/services/secure_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -76,7 +77,7 @@ class ServiceSubscriptionWebView extends StatefulWidget {
 }
 
 class _ServiceSubscriptionWebViewState extends State<ServiceSubscriptionWebView> {
-  late final WebViewController _controller;
+  WebViewController? _controller;
   bool _isLoading = true;
 
   @override
@@ -85,7 +86,16 @@ class _ServiceSubscriptionWebViewState extends State<ServiceSubscriptionWebView>
     _initializeWebView();
   }
 
-  void _initializeWebView() {
+  void _initializeWebView() async {
+    final cookieManager = WebViewCookieManager();
+    final jwt = await getJwt();
+
+    if (jwt != null) {
+      cookieManager.setCookie(
+        WebViewCookie(name: 'auth_token', value: jwt, domain: widget.subscriptionUrl),
+      );
+    }
+
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..enableZoom(true)
@@ -169,7 +179,9 @@ class _ServiceSubscriptionWebViewState extends State<ServiceSubscriptionWebView>
             ),
         ],
       ),
-      body: WebViewWidget(controller: _controller),
+      body: _controller == null
+          ? const Center(child: CircularProgressIndicator())
+          : WebViewWidget(controller: _controller!),
     );
   }
 }

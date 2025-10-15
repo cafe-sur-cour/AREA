@@ -16,6 +16,7 @@ class CatalogueItem {
   final String name;
   final String description;
   final String serviceName;
+  final String serviceId;
   final bool isAction;
 
   CatalogueItem({
@@ -23,6 +24,7 @@ class CatalogueItem {
     required this.name,
     required this.description,
     required this.serviceName,
+    required this.serviceId,
     required this.isAction,
   });
 }
@@ -87,6 +89,7 @@ class CatalogueScreenState extends State<CatalogueScreen> {
 
         for (var service in services) {
           final serviceName = service['name'] as String;
+          final serviceId = service['id'] as String;
 
           if (service['actions'] != null) {
             final actions = service['actions'] as List;
@@ -97,6 +100,7 @@ class CatalogueScreenState extends State<CatalogueScreen> {
                   name: action['name'] as String,
                   description: action['description'] as String? ?? '',
                   serviceName: serviceName,
+                  serviceId: serviceId,
                   isAction: true,
                 ),
               );
@@ -112,6 +116,7 @@ class CatalogueScreenState extends State<CatalogueScreen> {
                   name: reaction['name'] as String,
                   description: reaction['description'] as String? ?? '',
                   serviceName: serviceName,
+                  serviceId: serviceId,
                   isAction: false,
                 ),
               );
@@ -155,7 +160,9 @@ class CatalogueScreenState extends State<CatalogueScreen> {
               item.isAction ? Icons.play_arrow : Icons.bolt,
               color: item.isAction ? AppColors.areaBlue3 : AppColors.areaBlue1,
             ),
+
             const SizedBox(width: 8),
+
             Expanded(
               child: Text(
                 item.name,
@@ -184,7 +191,9 @@ class CatalogueScreenState extends State<CatalogueScreen> {
                   ),
                 ),
               ),
+
               const SizedBox(height: 12),
+
               Text(
                 item.description.isNotEmpty ? item.description : 'No description available',
                 style: const TextStyle(fontSize: 14),
@@ -205,6 +214,9 @@ class CatalogueScreenState extends State<CatalogueScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.areaBlue3,
               foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppDimensions.borderRadiusSM),
+              ),
             ),
             child: Text(item.isAction ? 'Use as Action' : 'Use as Reaction'),
           ),
@@ -230,27 +242,27 @@ class CatalogueScreenState extends State<CatalogueScreen> {
       return;
     }
 
+    final services = await ApiService.fetchServicesWithActions(
+      backendAddressNotifier.backendAddress!,
+    );
+
+    final service = services.firstWhere(
+      (s) => s.id == item.serviceId,
+      orElse: () => ServiceModel(
+        id: item.serviceId,
+        name: item.serviceName,
+        description: '',
+        icon: null,
+        color: '',
+      ),
+    );
+
     try {
       if (item.isAction) {
         final action = await ApiService.fetchActionById(
           backendAddressNotifier.backendAddress!,
           item.serviceName,
           item.id,
-        );
-
-        final services = await ApiService.fetchServicesWithActions(
-          backendAddressNotifier.backendAddress!,
-        );
-
-        final service = services.firstWhere(
-          (s) => s.name == item.serviceName,
-          orElse: () => ServiceModel(
-            id: item.serviceName,
-            name: item.serviceName,
-            description: '',
-            iconUrl: null,
-            isSubscribed: false,
-          ),
         );
 
         automationBuilder.setAction(action, service);
@@ -275,7 +287,7 @@ class CatalogueScreenState extends State<CatalogueScreen> {
         );
 
         automationBuilder.addReaction(
-          ReactionWithDelayModel(reaction: reaction, delayInSeconds: 0),
+          ReactionWithDelayModel(reaction: reaction, delayInSeconds: 0, service: service),
         );
 
         if (mounted) {
@@ -331,7 +343,7 @@ class CatalogueScreenState extends State<CatalogueScreen> {
             onSelected: (selected) {
               if (selected) setState(() => _filter = 'all');
             },
-            selectedColor: AppColors.areaDarkGray.withValues(alpha: 0.2),
+            selectedColor: AppColors.areaBlue1.withValues(alpha: 0.5),
           ),
           const SizedBox(width: 8),
           FilterChip(
@@ -340,12 +352,7 @@ class CatalogueScreenState extends State<CatalogueScreen> {
             onSelected: (selected) {
               if (selected) setState(() => _filter = 'actions');
             },
-            selectedColor: AppColors.areaBlue3.withValues(alpha: 0.2),
-            avatar: Icon(
-              Icons.play_arrow,
-              size: 18,
-              color: _filter == 'actions' ? AppColors.areaBlue3 : null,
-            ),
+            selectedColor: AppColors.areaBlue1.withValues(alpha: 0.5),
           ),
           const SizedBox(width: 8),
           FilterChip(
@@ -354,12 +361,7 @@ class CatalogueScreenState extends State<CatalogueScreen> {
             onSelected: (selected) {
               if (selected) setState(() => _filter = 'reactions');
             },
-            selectedColor: AppColors.areaBlue1.withValues(alpha: 0.3),
-            avatar: Icon(
-              Icons.bolt,
-              size: 18,
-              color: _filter == 'reactions' ? AppColors.areaBlue1 : null,
-            ),
+            selectedColor: AppColors.areaBlue1.withValues(alpha: 0.5),
           ),
         ],
       ),
