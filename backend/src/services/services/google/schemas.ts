@@ -1,5 +1,58 @@
 import type { ActionReactionSchema } from '../../../types/mapping';
 
+// ==================== ACTIONS (Triggers) ====================
+
+export const googleCalendarEventCreatedSchema: ActionReactionSchema = {
+  name: 'Google Calendar Event Created',
+  description: 'Triggers when a new calendar event is created',
+  fields: [
+    {
+      name: 'calendarId',
+      type: 'text',
+      label: 'Calendar ID (optional, defaults to primary)',
+      required: false,
+      placeholder: 'primary',
+    },
+  ],
+};
+
+export const googleGmailNewEmailSchema: ActionReactionSchema = {
+  name: 'Google Gmail New Email',
+  description: 'Triggers when a new email is received',
+  fields: [
+    {
+      name: 'labelIds',
+      type: 'text',
+      label: 'Label IDs (comma-separated, optional)',
+      required: false,
+      placeholder: 'INBOX,IMPORTANT',
+    },
+    {
+      name: 'query',
+      type: 'text',
+      label: 'Search Query (optional)',
+      required: false,
+      placeholder: 'from:example@gmail.com',
+    },
+  ],
+};
+
+export const googleDocsDocumentCreatedSchema: ActionReactionSchema = {
+  name: 'Google Docs Document Created',
+  description: 'Triggers when a new Google Docs document is created',
+  fields: [
+    {
+      name: 'folderId',
+      type: 'text',
+      label: 'Folder ID (optional, defaults to My Drive)',
+      required: false,
+      placeholder: 'root',
+    },
+  ],
+};
+
+// ==================== REACTIONS (Actions to execute) ====================
+
 export const googleSendEmailSchema: ActionReactionSchema = {
   name: 'Send Email',
   description: 'Sends an email via Gmail',
