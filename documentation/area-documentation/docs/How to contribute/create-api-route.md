@@ -6,6 +6,19 @@ sidebar_position: 4
 
 This guide explains how to create and implement new API routes in the AREA platform backend using Express.js, TypeScript, and Swagger documentation.
 
+:::caution ⚠️ Service Routes vs General API Routes
+
+This guide is for **general API routes** (user management, admin panels, custom features).
+
+**For service-related routes** (OAuth, webhooks, actions, reactions):
+- ❌ **Do NOT manually create routes** for services
+- ✅ Routes are **auto-generated** from service definitions
+- ✅ See [Create a Service](./create-a-service.md) instead
+
+OAuth routes (`/api/auth/{service}/login`, `/api/auth/{service}/callback`) and subscription routes are automatically created by the ServiceRegistry. You only need to define your service in its folder.
+
+:::
+
 ## Overview
 
 API routes in AREA follow RESTful conventions and include comprehensive Swagger documentation, authentication, validation, and error handling. All routes are automatically documented and accessible through the Swagger UI.
@@ -332,7 +345,7 @@ export const validateEntityAccess = (requiredRole: string) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       const user = (req as any).user;
-      
+
       if (!user.roles.includes(requiredRole)) {
         return res.status(403).json({ error: 'Insufficient permissions' });
       }
@@ -379,7 +392,7 @@ describe('Your Feature Routes', () => {
 
   beforeAll(async () => {
     await AppDataSource.initialize();
-    
+
     // Create test user
     const userRepo = AppDataSource.getRepository(User);
     testUser = new User();
@@ -474,11 +487,11 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
 
 export const requireAdmin = (req: Request, res: Response, next: NextFunction) => {
   const user = (req as any).user;
-  
+
   if (!user.is_admin) {
     return res.status(403).json({ error: 'Admin access required' });
   }
-  
+
   next();
 };
 ```
@@ -494,7 +507,7 @@ import { validationResult } from 'express-validator';
 
 export const validateRequest = (req: Request, res: Response, next: NextFunction) => {
   const errors = validationResult(req);
-  
+
   if (!errors.isEmpty()) {
     return res.status(400).json({
       error: 'Validation failed',
@@ -504,7 +517,7 @@ export const validateRequest = (req: Request, res: Response, next: NextFunction)
       })),
     });
   }
-  
+
   next();
 };
 ```
@@ -668,23 +681,23 @@ export const setupSwagger = (app: any) => {
 ```typescript
 router.get('/', authenticateToken, async (req: Request, res: Response) => {
   const { search, category, status, sort = 'created_at', order = 'DESC' } = req.query;
-  
+
   const queryBuilder = repository.createQueryBuilder('entity');
-  
+
   if (search) {
     queryBuilder.andWhere('entity.name ILIKE :search', { search: `%${search}%` });
   }
-  
+
   if (category) {
     queryBuilder.andWhere('entity.category = :category', { category });
   }
-  
+
   if (status) {
     queryBuilder.andWhere('entity.status = :status', { status });
   }
-  
+
   queryBuilder.orderBy(`entity.${sort}`, order as 'ASC' | 'DESC');
-  
+
   const entities = await queryBuilder.getMany();
   res.json({ data: entities });
 });
@@ -695,9 +708,9 @@ router.get('/', authenticateToken, async (req: Request, res: Response) => {
 ```typescript
 router.post('/bulk', authenticateToken, async (req: Request, res: Response) => {
   const { action, ids } = req.body;
-  
+
   const repository = AppDataSource.getRepository(YourEntity);
-  
+
   switch (action) {
     case 'delete':
       await repository.delete({ id: In(ids), user_id: userId });
@@ -711,7 +724,7 @@ router.post('/bulk', authenticateToken, async (req: Request, res: Response) => {
     default:
       return res.status(400).json({ error: 'Invalid action' });
   }
-  
+
   res.json({ message: `Bulk ${action} completed successfully` });
 });
 ```

@@ -58,6 +58,8 @@ export const spotifyAddSongToPlaylistSchema: ActionReactionSchema = {
       label: 'Track URI (optional, uses currently playing track if empty)',
       required: false,
       placeholder: 'spotify:track:4iV5W9uYEdYUVa79Axb7Rh',
+      dynamic: true,
+      dynamicPlaceholder: '{{action.payload.current_track.uri}}',
     },
   ],
 };
@@ -72,6 +74,8 @@ export const spotifyPlaySpecificTrackSchema: ActionReactionSchema = {
       label: 'Spotify URI (track, album, playlist, or artist)',
       required: true,
       placeholder: 'spotify:track:4iV5W9uYEdYUVa79Axb7Rh',
+      dynamic: true,
+      dynamicPlaceholder: '{{action.payload.track.uri}}',
     },
     {
       name: 'device_id',
@@ -79,6 +83,8 @@ export const spotifyPlaySpecificTrackSchema: ActionReactionSchema = {
       label: 'Device ID (optional, uses active device if empty)',
       required: false,
       placeholder: 'device_id_here',
+      dynamic: true,
+      dynamicPlaceholder: '{{action.payload.device.id}}',
     },
   ],
 };

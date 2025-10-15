@@ -37,6 +37,9 @@ const router = express.Router();
  *                         properties:
  *                           name:
  *                             type: string
+ *                           icon:
+ *                             type: string
+ *                             description: SVG icon representation of the service
  *                           actions:
  *                             type: array
  *                             items:
@@ -78,8 +81,11 @@ router.get('/', async (req: Request, res: Response): Promise<void> => {
       const translatedService = translateService(service, i18next.t);
       return {
         name: translatedService.name,
+        icon: translatedService.icon,
+        id: translatedService.id,
         actions: (translatedService.actions as unknown[]).map(
           (action: unknown) => ({
+            id: (action as Record<string, unknown>).id as number,
             name: (action as Record<string, unknown>).name as string,
             description: (action as Record<string, unknown>)
               .description as string,
@@ -87,6 +93,7 @@ router.get('/', async (req: Request, res: Response): Promise<void> => {
         ),
         reactions: (translatedService.reactions as unknown[]).map(
           (reaction: unknown) => ({
+            id: (reaction as Record<string, unknown>).id as number,
             name: (reaction as Record<string, unknown>).name as string,
             description: (reaction as Record<string, unknown>)
               .description as string,

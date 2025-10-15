@@ -2,15 +2,27 @@
 
 This comprehensive guide details how to implement a new service in AREA, including OAuth integration, actions, reactions, webhooks, and unified subscription system integration.
 
+:::tip 🎯 100% Modular Architecture
+
+Since the modularization update, AREA follows a **strict modularity principle**:
+
+**The ONLY place where service-specific code should exist is in the service's own folder.**
+
+✅ **You write code in**: `/backend/src/services/services/your-service/`
+✅ **Everything else is automatic**: Routes, Swagger docs, ServiceRegistry integration
+
+:::
+
 ## Architecture Overview
 
 AREA uses a modular architecture where each service provides **actions** (triggers) and **reactions** (responses). Services are integrated through:
 
-- **OAuth 2.0** for authentication
+- **OAuth 2.0** for authentication (automatic route generation)
 - **Unified subscription routes** (`/auth/{service}/subscribe`)
 - **Actions and reactions** with configuration schemas
 - **Webhooks** for external events (optional)
 - **Centralized management** via ServiceRegistry and ServiceSubscriptionManager
+- **Dynamic routing** - No need to modify central route files
 
 ## Prerequisites
 
@@ -19,19 +31,35 @@ AREA uses a modular architecture where each service provides **actions** (trigge
 - OAuth application configured with the provider
 - Properly configured environment variables
 
-## Step 1: Service Structure
+## Step 1: Create Service Folder
 
-Create the following folder structure:
+:::info ℹ️ No Central File Modifications Required
+
+**You do NOT need to modify any central files** to add a new service!
+
+- ❌ No need to edit `oauth.router.ts` - routes are generated automatically
+- ❌ No need to edit `ServiceRegistry` - services are loaded automatically
+- ❌ No need to edit `swagger.ts` - API docs are generated automatically
+- ❌ No need to add service to type unions - all types are now generic
+
+**Just create your service folder and everything works automatically!**
+
+:::
+
+Create a new folder structure under `/backend/src/services/services/`:
 
 ```
-backend/src/services/services/
+services/
 └── your-service/
-    ├── index.ts           # Main service definition
-    ├── oauth.ts           # OAuth management
-    ├── actions.ts         # Action definitions
-    ├── reactions.ts       # Reaction definitions
-    ├── schemas.ts         # Configuration schemas
-    └── executor.ts        # Reaction execution logic
+    ├── index.ts          # Service definition
+    ├── actions.ts        # Available triggers
+    ├── reactions.ts      # Available responses
+    ├── schemas.ts        # Configuration schemas
+    ├── oauth.ts          # OAuth implementation
+    ├── executor.ts       # Reaction execution logic
+    └── webhooks/         # Optional: webhook handlers
+        ├── index.ts
+        └── handlers.ts
 ```
 
 ## Step 2: OAuth Implementation
@@ -492,6 +520,125 @@ const yourService: Service = {
 export default yourService;
 export { yourServiceExecutor as executor };
 ```
+
+### Complete Service Interface Reference
+
+The `Service` interface supports the following properties:
+
+#### Required Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `id` | `string` | Unique identifier for the service (lowercase, no spaces) |
+| `name` | `string` | Display name shown to users |
+| `description` | `string` | Brief description of the service functionality |
+| `version` | `string` | Semantic version (e.g., "1.0.0") |
+| `actions` | `ActionDefinition[]` | Array of available triggers/events |
+| `reactions` | `ReactionDefinition[]` | Array of available responses/actions |
+
+#### Optional Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `icon` | `string` | SVG string representation of the service icon |
+| `alwaysSubscribed` | `boolean` | If `true`, service is always available without subscription (e.g., Timer service) |
+| `oauth` | `object` | OAuth configuration (see below) |
+| `getCredentials` | `(userId: number) => Promise<Record<string, string>>` | Function to retrieve user credentials/tokens |
+| `deleteWebhook` | `(userId: number, webhookId: number) => Promise<void>` | Function to clean up webhooks when mappings are deleted |
+| `ensureWebhookForMapping` | `(mapping, userId, actionDefinition?) => Promise<void>` | Function to create/verify webhooks for mappings |
+
+#### OAuth Configuration
+
+The `oauth` property is an object with the following structure:
+
+```typescript
+oauth?: {
+  enabled: boolean;                              // Enable OAuth for this service
+  supportsLogin?: boolean;                       // Allow users to login with this service
+  getSubscriptionUrl?: (userId: number) => string; // Custom subscription URL (e.g., GitHub App installation)
+}
+```
+
+**OAuth Properties:**
+
+- **`enabled`** (required if oauth object exists): Set to `true` to enable OAuth authentication
+- **`supportsLogin`** (optional): Set to `true` if users can login to AREA using this service
+- **`getSubscriptionUrl`** (optional): Function returning a custom subscription URL
+  - Use when service requires app installation or special subscription flow
+  - Example: GitHub App installation page
+  - Parameter: `userId` - Current user's ID for tracking
+  - Return: Full URL where user should be redirected
+
+**Example with custom subscription:**
+
+```typescript
+const githubService: Service = {
+  id: 'github',
+  name: 'GitHub',
+  description: 'Version control platform',
+  version: '1.0.0',
+  oauth: {
+    enabled: true,
+    supportsLogin: true,
+    getSubscriptionUrl: (userId: number) => {
+      const appSlug = process.env.GITHUB_APP_SLUG || 'your-app';
+      return `https://github.com/apps/${appSlug}/installations/new?state=${userId}`;
+    },
+  },
+  actions: actions,
+  reactions: reactions,
+};
+```
+
+**Example without custom subscription (standard OAuth):**
+
+```typescript
+const spotifyService: Service = {
+  id: 'spotify',
+  name: 'Spotify',
+  description: 'Music streaming service',
+  version: '1.0.0',
+  oauth: {
+    enabled: true,
+    supportsLogin: false,
+    // No getSubscriptionUrl - uses standard OAuth flow
+  },
+  actions: actions,
+  reactions: reactions,
+};
+```
+
+**Example without OAuth (always available):**
+
+```typescript
+const timerService: Service = {
+  id: 'timer',
+  name: 'Timer',
+  description: 'Schedule-based triggers',
+  version: '1.0.0',
+  alwaysSubscribed: true, // Always available, no OAuth needed
+  actions: actions,
+  reactions: reactions,
+};
+```
+
+#### Advanced Optional Functions
+
+**`getCredentials(userId: number)`**
+- Retrieves user-specific credentials (OAuth tokens, API keys)
+- Used internally by action/reaction executors
+- Should return object with credential keys/values
+
+**`deleteWebhook(userId: number, webhookId: number)`**
+- Called when a mapping using this service's action is deleted
+- Should clean up external webhooks to prevent orphaned subscriptions
+- Example: Unregister webhook from GitHub API
+
+**`ensureWebhookForMapping(mapping, userId, actionDefinition?)`**
+- Called when a new mapping is created
+- Should ensure webhook exists for the action configuration
+- Can create or update webhooks as needed
+- Useful for services that use webhooks for actions
 
 ## Step 8: Unified Subscription Integration
 

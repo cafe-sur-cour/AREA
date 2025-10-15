@@ -8,6 +8,7 @@ import type { Reaction } from '../types/mapping';
 import { serviceRegistry } from './ServiceRegistry';
 import { reactionExecutorRegistry } from './ReactionExecutorRegistry';
 import type { ReactionExecutionContext } from '../types/service';
+import { interpolatePayload } from '../utils/payloadInterpolation';
 
 export class ExecutionService {
   private isRunning = false;
@@ -236,31 +237,53 @@ export class ExecutionService {
 
       let filteredResult = result;
       if (actionDefinition.metadata?.sharedEventFilter) {
-        filteredResult = result.filter(mapping =>
-          actionDefinition.metadata!.sharedEventFilter!(
-            { source: event.source, payload: event.payload },
-            { action: mapping.action || {} }
-          )
-        );
+        if (
+          actionDefinition.metadata.sharedEventFilter.constructor.name ===
+          'AsyncFunction'
+        ) {
+          filteredResult = [];
+          for (const mapping of result) {
+            try {
+              const shouldInclude =
+                await actionDefinition.metadata.sharedEventFilter(
+                  { source: event.source, payload: event.payload },
+                  { action: mapping.action || {} },
+                  mapping.created_by || event.user_id
+                );
+              if (shouldInclude) {
+                filteredResult.push(mapping);
+              }
+            } catch (error) {
+              console.error(
+                `❌ [ExecutionService] Error in async filter for mapping ${mapping.id}:`,
+                error
+              );
+            }
+          }
+        } else {
+          filteredResult = result.filter(mapping => {
+            try {
+              const shouldInclude = actionDefinition.metadata!
+                .sharedEventFilter!(
+                { source: event.source, payload: event.payload },
+                { action: mapping.action || {} },
+                mapping.created_by || event.user_id
+              );
+              return shouldInclude;
+            } catch (error) {
+              console.error(
+                `❌ [ExecutionService] Error in sync filter for mapping ${mapping.id}:`,
+                error
+              );
+              return false;
+            }
+          });
+        }
       }
 
       console.log(
         `📊 [ExecutionService] Found ${filteredResult.length} active mappings for shared action ${actionType} across all users`
       );
-
-      if (filteredResult.length > 0) {
-        console.log(
-          `📋 [ExecutionService] Mappings found:`,
-          filteredResult.map(m => ({
-            id: m.id,
-            name: m.name,
-            user_id: m.created_by,
-            action_type: m.action.type,
-            reactions_count: m.reactions.length,
-            is_active: m.is_active,
-          }))
-        );
-      }
 
       return filteredResult;
     }
@@ -282,33 +305,6 @@ export class ExecutionService {
     console.log(
       `📊 [ExecutionService] Found ${result.length} active mappings for user ${userId}`
     );
-
-    if (result.length > 0) {
-      console.log(
-        `📋 [ExecutionService] Mappings found:`,
-        result.map(m => ({
-          id: m.id,
-          name: m.name,
-          action_type: m.action.type,
-          reactions_count: m.reactions.length,
-          is_active: m.is_active,
-        }))
-      );
-    } else {
-      const allUserMappings = await mappingRepository.find({
-        where: { created_by: userId },
-        select: ['id', 'name', 'action', 'is_active'],
-      });
-      console.log(
-        `🔍 [ExecutionService] All mappings for user ${userId}:`,
-        allUserMappings.map(m => ({
-          id: m.id,
-          name: m.name,
-          action_type: m.action?.type || 'undefined',
-          is_active: m.is_active,
-        }))
-      );
-    }
 
     return result;
   }
@@ -418,8 +414,16 @@ export class ExecutionService {
         `🔑 [ExecutionService] Executing reaction for mapping ${mapping.id} (${mapping.name}) owned by user ${mappingOwnerId}`
       );
 
+      const interpolatedConfig = interpolatePayload(
+        reaction.config,
+        event.payload
+      );
+
       const context: ReactionExecutionContext = {
-        reaction,
+        reaction: {
+          ...reaction,
+          config: interpolatedConfig,
+        },
         event: {
           id: event.id,
           action_type: event.action_type,
@@ -598,9 +602,18 @@ export class ExecutionService {
     }
 
     const serviceId = mapping.action.type.split('.')[0];
-    if (serviceId === 'github') {
-      const { ensureWebhookForMapping } = await import('./services/github');
-      await ensureWebhookForMapping(mapping, userId, actionDefinition);
+    if (!serviceId) {
+      return;
+    }
+
+    const serviceDefinition = serviceRegistry.getService(serviceId);
+
+    if (serviceDefinition?.ensureWebhookForMapping) {
+      await serviceDefinition.ensureWebhookForMapping(
+        mapping,
+        userId,
+        actionDefinition
+      );
     }
   }
 }

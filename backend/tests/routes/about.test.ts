@@ -34,6 +34,7 @@ const createMockAboutRouter = () => {
 
       const services = mockServiceRegistry.getAllServices().map(service => ({
         name: service.name,
+        icon: service.icon,
         actions: service.actions.map(action => ({
           name: action.name,
           description: action.description,
@@ -200,6 +201,7 @@ describe('About Routes Integration Tests', () => {
           services: [
             {
               name: 'Test Service 1',
+              icon: undefined,
               actions: [
                 {
                   name: 'Test Action 1',
@@ -219,6 +221,7 @@ describe('About Routes Integration Tests', () => {
             },
             {
               name: 'Test Service 2',
+              icon: undefined,
               actions: [],
               reactions: [
                 {
@@ -383,6 +386,7 @@ describe('About Routes Integration Tests', () => {
       expect(response.body.server.services).toHaveLength(1);
       expect(response.body.server.services[0]).toEqual({
         name: 'Complex Service',
+        icon: undefined,
         actions: [
           {
             name: 'Complex Action',
@@ -416,6 +420,7 @@ describe('About Routes Integration Tests', () => {
       expect(response.body.server.services).toEqual([
         {
           name: 'Empty Service',
+          icon: undefined,
           actions: [],
           reactions: [],
         },
@@ -475,6 +480,7 @@ describe('About Routes Integration Tests', () => {
       response.body.server.services.forEach((service: any, index: number) => {
         expect(service).toEqual({
           name: `Service ${index + 1}`,
+          icon: undefined,
           actions: [
             {
               name: `Action ${index + 1}`,

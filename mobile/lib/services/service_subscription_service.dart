@@ -12,9 +12,10 @@ class ServiceInfo {
   final bool isSubscribed;
   final bool oauthConnected;
   final bool canCreateWebhooks;
-  final String subscribeEndpoint;
+  final String authEndpoint;
   final String statusEndpoint;
   final String loginStatusEndpoint;
+  final String subscribeEndpoint;
   final String unsubscribeEndpoint;
 
   ServiceInfo({
@@ -26,9 +27,10 @@ class ServiceInfo {
     required this.isSubscribed,
     required this.oauthConnected,
     required this.canCreateWebhooks,
-    required this.subscribeEndpoint,
+    required this.authEndpoint,
     required this.statusEndpoint,
     required this.loginStatusEndpoint,
+    required this.subscribeEndpoint,
     required this.unsubscribeEndpoint,
   });
 
@@ -42,9 +44,10 @@ class ServiceInfo {
       isSubscribed: json['isSubscribed'] ?? false,
       oauthConnected: json['oauthConnected'] ?? false,
       canCreateWebhooks: json['canCreateWebhooks'] ?? false,
-      subscribeEndpoint: json['endpoints']?['subscribe'] ?? '',
+      authEndpoint: json['endpoints']?['auth'] ?? '',
       statusEndpoint: json['endpoints']?['status'] ?? '',
       loginStatusEndpoint: json['endpoints']?['loginStatus'] ?? '',
+      subscribeEndpoint: json['endpoints']?['subscribe'] ?? '',
       unsubscribeEndpoint: json['endpoints']?['unsubscribe'] ?? '',
     );
   }
@@ -79,32 +82,6 @@ class ServiceStatus {
 }
 
 class ServiceSubscriptionService {
-  static Map<String, String> _getServiceRoutes(String serviceId) {
-    if (serviceId.toLowerCase() == 'timer') {
-      return {
-        'subscribe': 'api/auth/timer/subscribe',
-        'status': 'api/services/timer/subscribe/status',
-        'loginStatus': '',
-        'unsubscribe': '',
-        'login': '',
-      };
-    }
-
-    return {
-      'subscribe': 'api/auth/$serviceId/subscribe',
-      'status': 'api/$serviceId/subscribe/status',
-      'loginStatus': 'api/$serviceId/login/status',
-      'unsubscribe': 'api/$serviceId/unsubscribe',
-      'login': 'api/auth/$serviceId/login',
-    };
-  }
-
-  static const Map<String, Map<String, String>> _loginServices = {
-    'github': {'name': 'GitHub', 'login': 'api/auth/github/login'},
-    'google': {'name': 'Google', 'login': 'api/auth/google/login'},
-    'microsoft': {'name': 'Microsoft', 'login': 'api/auth/microsoft/login'},
-  };
-
   static Future<List<ServiceInfo>> getAllServices(String backendAddress) async {
     try {
       final jwt = await getJwt();
@@ -154,19 +131,39 @@ class ServiceSubscriptionService {
     }
   }
 
+  static Future<void> unsubscribeFromService(
+    String backendAddress,
+    ServiceInfo service,
+  ) async {
+    final jwt = await getJwt();
+    if (jwt == null) throw Exception('No JWT token found');
+
+    final endpoint = service.unsubscribeEndpoint;
+    if (endpoint.isEmpty) {
+      throw Exception('No subscribe endpoint available for this service');
+    }
+    final response = await http.post(
+      Uri.parse('${backendAddress}api$endpoint'),
+      headers: {'Authorization': 'Bearer $jwt', 'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to subscribe to service');
+    }
+  }
+
   static Future<ServiceStatus> getServiceStatus(
     String backendAddress,
-    String serviceId,
+    ServiceInfo service,
   ) async {
     try {
       final jwt = await getJwt();
       if (jwt == null) throw Exception('No JWT token found');
 
-      final routes = _getServiceRoutes(serviceId);
-      final statusEndpoint = routes['status']!;
+      final statusEndpoint = service.statusEndpoint;
 
       final response = await http.get(
-        Uri.parse('$backendAddress$statusEndpoint'),
+        Uri.parse('${backendAddress}api$statusEndpoint'),
         headers: {'Authorization': 'Bearer $jwt', 'Content-Type': 'application/json'},
       );
 
@@ -181,20 +178,19 @@ class ServiceSubscriptionService {
     }
   }
 
-  static Future<bool> getOAuthStatus(String backendAddress, String serviceId) async {
+  static Future<bool> getOAuthStatus(String backendAddress, ServiceInfo service) async {
     try {
       final jwt = await getJwt();
       if (jwt == null) throw Exception('No JWT token found');
 
-      final routes = _getServiceRoutes(serviceId);
-      final loginStatusEndpoint = routes['loginStatus']!;
+      final loginStatusEndpoint = service.loginStatusEndpoint;
 
       if (loginStatusEndpoint.isEmpty) {
         return true;
       }
 
       final response = await http.get(
-        Uri.parse('$backendAddress$loginStatusEndpoint'),
+        Uri.parse('${backendAddress}api$loginStatusEndpoint'),
         headers: {'Authorization': 'Bearer $jwt', 'Content-Type': 'application/json'},
       );
 
@@ -209,47 +205,8 @@ class ServiceSubscriptionService {
     }
   }
 
-  static String getSubscriptionUrl(String backendAddress, String serviceId) {
-    final routes = _getServiceRoutes(serviceId);
-    final subscribeEndpoint = routes['subscribe']!;
-    return '$backendAddress$subscribeEndpoint?is_mobile=true';
-  }
-
-  static String getLoginUrl(String backendAddress, String serviceId) {
-    final routes = _getServiceRoutes(serviceId);
-    final loginEndpoint = routes['login']!;
-
-    if (loginEndpoint.isEmpty) {
-      return getSubscriptionUrl(backendAddress, serviceId);
-    }
-
-    return '$backendAddress$loginEndpoint?is_mobile=true';
-  }
-
-  static Map<String, String> getLoginServices() {
-    return _loginServices.map((key, value) => MapEntry(key, value['name']!));
-  }
-
-  static Future<bool> unsubscribeFromService(String backendAddress, String serviceId) async {
-    try {
-      final jwt = await getJwt();
-      if (jwt == null) throw Exception('No JWT token found');
-
-      final routes = _getServiceRoutes(serviceId);
-      final unsubscribeEndpoint = routes['unsubscribe']!;
-
-      if (unsubscribeEndpoint.isEmpty) {
-        throw Exception('Unsubscribe not supported for this service');
-      }
-
-      final response = await http.post(
-        Uri.parse('$backendAddress$unsubscribeEndpoint'),
-        headers: {'Authorization': 'Bearer $jwt', 'Content-Type': 'application/json'},
-      );
-
-      return response.statusCode == 200;
-    } catch (e) {
-      return false;
-    }
+  static String getSubscriptionUrl(String backendAddress, ServiceInfo service) {
+    final subscribeEndpoint = service.subscribeEndpoint;
+    return '${backendAddress}api$subscribeEndpoint?is_mobile=true';
   }
 }

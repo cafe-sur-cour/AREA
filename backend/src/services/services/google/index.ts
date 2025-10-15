@@ -26,7 +26,9 @@ export const executor = googleReactionExecutor;
 
 export async function initialize(): Promise<void> {
   console.log('Initializing Google service...');
-  console.log('Google service initialized with Gmail, Calendar, and Drive');
+  const { initializeGooglePassport } = await import('./passport');
+  initializeGooglePassport();
+  console.log('Google service initialized');
 }
 
 export async function cleanup(): Promise<void> {

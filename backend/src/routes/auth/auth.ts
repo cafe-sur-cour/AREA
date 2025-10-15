@@ -4,11 +4,11 @@ import process from 'process';
 import jwt from 'jsonwebtoken';
 import { JWT_SECRET } from 'index';
 import mail from '../../middleware/mail';
-import passport from 'passport';
 import token from '../../middleware/token';
 import nodemailer from 'nodemailer';
 import { createLog } from '../logs/logs.service';
 import subscriptionRouter from '../services/subscription';
+import { createOAuthRouter } from './oauth.router';
 
 interface TokenPayload extends jwt.JwtPayload {
   email: string;
@@ -39,6 +39,7 @@ const router = express.Router();
  */
 router.get(
   '/login/status',
+  token,
   async (req: Request, res: Response): Promise<Response | void> => {
     try {
       if (req.auth) {
@@ -683,13 +684,6 @@ router.get(
   }
 );
 
-const googleScopes = [
-  'openid',
-  'https://www.googleapis.com/auth/userinfo.email',
-  'https://www.googleapis.com/auth/userinfo.profile',
-  'https://www.googleapis.com/auth/gmail.send',
-];
-
 /**
  * @swagger
  * /api/auth/google/login:
@@ -725,7 +719,7 @@ router.get(
     next();
   },
   passport.authenticate('google-login', {
-    scope: googleScopes,
+    scope: ['openid', 'email', 'profile'],
     session: false,
   })
 );
@@ -1470,6 +1464,17 @@ router.post('/reset-password', mail, async (req: Request, res: Response) => {
     }
   );
 });
+
+let oauthRoutesInitialized = false;
+
+export function initializeOAuthRoutes(): void {
+  if (!oauthRoutesInitialized) {
+    const oauthRouter = createOAuthRouter();
+    router.use('/', oauthRouter);
+    oauthRoutesInitialized = true;
+    console.log('✅ OAuth routes initialized');
+  }
+}
 
 router.use('/', subscriptionRouter);
 

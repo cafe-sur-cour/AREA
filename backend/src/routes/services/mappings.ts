@@ -110,6 +110,67 @@ function validateActionReactionTypes(
   };
 }
 
+async function validateUserServiceTokens(
+  userId: number,
+  action: Action,
+  reactions: Reaction[]
+): Promise<{
+  isValid: boolean;
+  errors: string[];
+}> {
+  const errors: string[] = [];
+  const servicesToCheck = new Set<string>();
+
+  const actionService = action.type.split('.')[0];
+  if (actionService) {
+    servicesToCheck.add(actionService);
+  }
+
+  reactions.forEach(reaction => {
+    const reactionService = reaction.type.split('.')[0];
+    if (reactionService) {
+      servicesToCheck.add(reactionService);
+    }
+  });
+
+  for (const serviceName of servicesToCheck) {
+    try {
+      const serviceDefinition = serviceRegistry.getService(serviceName);
+      const usesOAuth = serviceDefinition?.oauth?.enabled ?? true;
+
+      if (!usesOAuth) {
+        continue;
+      }
+
+      const serviceOAuth = await import(
+        `../../services/services/${serviceName}/oauth`
+      );
+      const oauthInstance = serviceOAuth[`${serviceName}OAuth`];
+      const userToken = await oauthInstance.getUserToken(userId);
+
+      if (!userToken) {
+        errors.push(
+          `No valid token found for service '${serviceName}'. Please connect your ${serviceName} account first.`
+        );
+      } else if (userToken.expires_at && userToken.expires_at < new Date()) {
+        errors.push(
+          `Token for service '${serviceName}' has expired. Please reconnect your ${serviceName} account.`
+        );
+      }
+    } catch (error) {
+      console.error(`Error checking token for service ${serviceName}:`, error);
+      errors.push(
+        `Unable to verify token for service '${serviceName}'. Please try reconnecting your account.`
+      );
+    }
+  }
+
+  return {
+    isValid: errors.length === 0,
+    errors,
+  };
+}
+
 /**
  * @swagger
  * /api/mappings:
@@ -244,6 +305,24 @@ function validateActionReactionTypes(
  *                   items:
  *                     type: string
  *                   description: List of invalid types
+ *       403:
+ *         description: Missing service authentication
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Missing service authentication"
+ *                 message:
+ *                   type: string
+ *                   example: "You must connect your accounts for the following services before creating this mapping:"
+ *                 details:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *                   description: List of services requiring authentication
  *       500:
  *         description: Internal server error
  */
@@ -275,6 +354,20 @@ router.post(
         return res.status(404).json({
           error: 'Invalid action or reaction types',
           details: typeValidation.errors,
+        });
+      }
+
+      const tokenValidation = await validateUserServiceTokens(
+        userId,
+        action,
+        reactions
+      );
+      if (!tokenValidation.isValid) {
+        return res.status(403).json({
+          error: 'Missing service authentication',
+          message:
+            'You must connect your accounts for the following services before creating this mapping:',
+          details: tokenValidation.errors,
         });
       }
 
@@ -656,6 +749,226 @@ router.delete(
       return res
         .status(500)
         .json({ error: 'Internal Server Error in deleting mapping' });
+    }
+  }
+);
+
+/**
+ * @swagger
+ * /api/mappings/{id}/activate:
+ *   put:
+ *     summary: Activate a mapping
+ *     tags:
+ *       - Mappings
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Unique identifier of the mapping to activate
+ *     responses:
+ *       200:
+ *         description: Mapping activated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 mapping:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                       description: Unique identifier for the mapping
+ *                     name:
+ *                       type: string
+ *                       description: Human-readable name for the mapping
+ *                     is_active:
+ *                       type: boolean
+ *                       description: Whether the mapping is currently active
+ *                     updated_at:
+ *                       type: string
+ *                       format: date-time
+ *                       description: Timestamp when the mapping was last updated
+ *       400:
+ *         description: Invalid mapping ID
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Invalid mapping ID"
+ *       404:
+ *         description: Mapping not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Mapping not found"
+ *       500:
+ *         description: Internal server error
+ */
+router.put(
+  '/:id/activate',
+  token,
+  async (req: Request, res: Response): Promise<Response> => {
+    try {
+      const userId = (req.auth as { id: number }).id;
+      const { id } = req.params;
+
+      if (!id) {
+        return res.status(400).json({ error: 'Mapping ID is required' });
+      }
+
+      const mappingId = parseInt(id);
+
+      if (isNaN(mappingId)) {
+        return res.status(400).json({ error: 'Invalid mapping ID' });
+      }
+
+      const updatedMapping = await mappingService.updateMapping(
+        mappingId,
+        userId,
+        { is_active: true }
+      );
+
+      if (!updatedMapping) {
+        return res.status(404).json({
+          error: 'Mapping not found',
+        });
+      }
+
+      return res.status(200).json({
+        mapping: {
+          id: updatedMapping.id,
+          name: updatedMapping.name,
+          is_active: updatedMapping.is_active,
+          updated_at: updatedMapping.updated_at,
+        },
+      });
+    } catch (err) {
+      console.error('Error activating mapping:', err);
+      return res
+        .status(500)
+        .json({ error: 'Internal Server Error in activating mapping' });
+    }
+  }
+);
+
+/**
+ * @swagger
+ * /api/mappings/{id}/deactivate:
+ *   put:
+ *     summary: Deactivate a mapping
+ *     tags:
+ *       - Mappings
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Unique identifier of the mapping to deactivate
+ *     responses:
+ *       200:
+ *         description: Mapping deactivated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 mapping:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                       description: Unique identifier for the mapping
+ *                     name:
+ *                       type: string
+ *                       description: Human-readable name for the mapping
+ *                     is_active:
+ *                       type: boolean
+ *                       description: Whether the mapping is currently active
+ *                     updated_at:
+ *                       type: string
+ *                       format: date-time
+ *                       description: Timestamp when the mapping was last updated
+ *       400:
+ *         description: Invalid mapping ID
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Invalid mapping ID"
+ *       404:
+ *         description: Mapping not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Mapping not found"
+ *       500:
+ *         description: Internal server error
+ */
+router.put(
+  '/:id/deactivate',
+  token,
+  async (req: Request, res: Response): Promise<Response> => {
+    try {
+      const userId = (req.auth as { id: number }).id;
+      const { id } = req.params;
+
+      if (!id) {
+        return res.status(400).json({ error: 'Mapping ID is required' });
+      }
+
+      const mappingId = parseInt(id);
+
+      if (isNaN(mappingId)) {
+        return res.status(400).json({ error: 'Invalid mapping ID' });
+      }
+
+      const updatedMapping = await mappingService.updateMapping(
+        mappingId,
+        userId,
+        { is_active: false }
+      );
+
+      if (!updatedMapping) {
+        return res.status(404).json({
+          error: 'Mapping not found',
+        });
+      }
+
+      return res.status(200).json({
+        mapping: {
+          id: updatedMapping.id,
+          name: updatedMapping.name,
+          is_active: updatedMapping.is_active,
+          updated_at: updatedMapping.updated_at,
+        },
+      });
+    } catch (err) {
+      console.error('Error deactivating mapping:', err);
+      return res
+        .status(500)
+        .json({ error: 'Internal Server Error in deactivating mapping' });
     }
   }
 );

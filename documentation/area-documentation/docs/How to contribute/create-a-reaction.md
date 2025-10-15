@@ -6,6 +6,18 @@ sidebar_position: 6
 
 This guide explains how to create reactions (response actions) for services in the AREA platform. Reactions are executed in response to triggered actions and perform specific operations in external services.
 
+:::tip 🎯 Modular Architecture
+
+Reactions should be defined **inside your service folder**:
+- ✅ Place reactions in: `/backend/src/services/services/your-service/reactions.ts`
+- ✅ Place schemas in: `/backend/src/services/services/your-service/schemas.ts`
+- ✅ Place executor in: `/backend/src/services/services/your-service/executor.ts`
+- ❌ Don't modify central files to register reactions
+
+Reactions are **automatically registered** by the ServiceRegistry. No need to edit central files!
+
+:::
+
 ## Overview
 
 Reactions in AREA represent the response actions that are executed when an automation workflow is triggered. They receive data from actions and perform operations like creating issues, sending messages, updating records, or calling external APIs. Each reaction requires both a definition (schema and metadata) and an executor (implementation logic).
@@ -361,7 +373,7 @@ export class YourServiceReactionExecutor implements ReactionExecutor {
     try {
       // Get user's access token
       const accessToken = await this.getUserAccessToken(serviceConfig.user_id);
-      
+
       if (!accessToken) {
         return {
           success: false,
@@ -374,10 +386,10 @@ export class YourServiceReactionExecutor implements ReactionExecutor {
       switch (reaction.type) {
         case 'yourservice.create_item':
           return await this.createItem(reaction.config, actionData, accessToken);
-        
+
         case 'yourservice.send_notification':
           return await this.sendNotification(reaction.config, actionData, accessToken);
-        
+
         default:
           return {
             success: false,
@@ -403,14 +415,14 @@ export class YourServiceReactionExecutor implements ReactionExecutor {
     try {
       // Process template variables in configuration
       const processedConfig = this.processTemplateVariables(config, actionData);
-      
+
       // Prepare item data
       const itemData = {
         title: processedConfig.title,
         description: processedConfig.description || '',
         category: processedConfig.category,
         priority: processedConfig.priority || 'medium',
-        labels: processedConfig.labels 
+        labels: processedConfig.labels
           ? processedConfig.labels.split(',').map((l: string) => l.trim())
           : [],
         assignees: processedConfig.assignees || [],
@@ -467,14 +479,14 @@ export class YourServiceReactionExecutor implements ReactionExecutor {
   ): Promise<ReactionExecutionResult> {
     try {
       const processedConfig = this.processTemplateVariables(config, actionData);
-      
+
       const notificationData = {
         recipient: processedConfig.recipient,
         message: processedConfig.message,
         type: processedConfig.notification_type || 'info',
         include_attachments: processedConfig.include_attachments || false,
         // Include attachments from action data if requested
-        attachments: processedConfig.include_attachments 
+        attachments: processedConfig.include_attachments
           ? this.extractAttachments(actionData)
           : [],
       };
@@ -518,13 +530,13 @@ export class YourServiceReactionExecutor implements ReactionExecutor {
    */
   private processTemplateVariables(config: Record<string, any>, actionData: any): Record<string, any> {
     const processed = { ...config };
-    
+
     for (const [key, value] of Object.entries(processed)) {
       if (typeof value === 'string') {
         processed[key] = this.interpolateTemplate(value, actionData);
       }
     }
-    
+
     return processed;
   }
 
@@ -546,11 +558,11 @@ export class YourServiceReactionExecutor implements ReactionExecutor {
     if (actionData.attachments && Array.isArray(actionData.attachments)) {
       return actionData.attachments;
     }
-    
+
     if (actionData.message && actionData.message.attachments) {
       return actionData.message.attachments;
     }
-    
+
     return [];
   }
 
@@ -598,15 +610,15 @@ export class YourServiceReactionExecutor implements ReactionExecutor {
     }
 
     const tokenData = await response.json();
-    
+
     // Update token in database
     const tokenRepo = AppDataSource.getRepository(UserToken);
     userToken.access_token = tokenData.access_token;
     userToken.refresh_token = tokenData.refresh_token || userToken.refresh_token;
-    userToken.expires_at = tokenData.expires_in 
+    userToken.expires_at = tokenData.expires_in
       ? new Date(Date.now() + tokenData.expires_in * 1000)
       : null;
-    
+
     await tokenRepo.save(userToken);
   }
 }
@@ -682,10 +694,10 @@ export async function cleanup(): Promise<void> {
   title: "New issue: {{action.issue.title}}",
   description: `
     Issue created by {{action.issue.author.name}}
-    
+
     Original content:
     {{action.issue.body}}
-    
+
     Labels: {{action.issue.labels}}
     Created: {{action.issue.created_at}}
   `,
@@ -702,20 +714,20 @@ export async function cleanup(): Promise<void> {
 async execute(context: ReactionExecutionContext): Promise<ReactionExecutionResult> {
   const maxRetries = 3;
   let attempt = 0;
-  
+
   while (attempt < maxRetries) {
     try {
       return await this.executeWithRetry(context);
     } catch (error) {
       attempt++;
-      
+
       if (this.isRetryableError(error)) {
         if (attempt < maxRetries) {
           await this.delay(Math.pow(2, attempt) * 1000); // Exponential backoff
           continue;
         }
       }
-      
+
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error',
@@ -734,11 +746,11 @@ private isRetryableError(error: any): boolean {
   if (error.code === 'ECONNRESET' || error.code === 'ETIMEDOUT') {
     return true;
   }
-  
+
   if (error.status === 429 || error.status === 502 || error.status === 503) {
     return true;
   }
-  
+
   return false;
 }
 
@@ -753,7 +765,7 @@ private delay(ms: number): Promise<void> {
 private async handleRateLimit(response: any): Promise<void> {
   const retryAfter = response.headers.get('retry-after');
   const resetTime = response.headers.get('x-ratelimit-reset');
-  
+
   if (retryAfter) {
     const delay = parseInt(retryAfter) * 1000;
     await this.delay(delay);
@@ -780,7 +792,7 @@ import { YourServiceReactionExecutor } from '../../../src/services/services/your
 
 describe('YourService Reaction Executor', () => {
   let executor: YourServiceReactionExecutor;
-  
+
   beforeEach(() => {
     executor = new YourServiceReactionExecutor();
   });
@@ -814,11 +826,11 @@ describe('YourService Reaction Executor', () => {
           labels: [],
         }),
       });
-      
+
       global.fetch = mockFetch;
 
       const result = await executor.execute(context);
-      
+
       expect(result.success).toBe(true);
       expect(result.data?.item.id).toBe('123');
     });
@@ -857,10 +869,10 @@ describe('Reaction Integration', () => {
     // Set up test data
     const actionInput = { /* action data */ };
     const reactionConfig = { /* reaction config */ };
-    
+
     // Trigger action
     await executionService.processAction('github.push', actionInput);
-    
+
     // Verify reaction was executed
     // Check external service for created items
   });
@@ -892,18 +904,18 @@ private validateConfig(config: Record<string, any>, schema: ActionReactionSchema
     if (field.required && !config[field.name]) {
       throw new Error(`Required field missing: ${field.name}`);
     }
-    
+
     if (field.validation) {
       if (field.validation.minLength && config[field.name].length < field.validation.minLength) {
         throw new Error(`Field ${field.name} is too short`);
       }
-      
+
       if (field.validation.maxLength && config[field.name].length > field.validation.maxLength) {
         throw new Error(`Field ${field.name} is too long`);
       }
     }
   }
-  
+
   return true;
 }
 ```
@@ -916,10 +928,10 @@ private validateConfig(config: Record<string, any>, schema: ActionReactionSchema
 // Support for batch reactions
 async executeBatch(contexts: ReactionExecutionContext[]): Promise<ReactionExecutionResult[]> {
   const results: ReactionExecutionResult[] = [];
-  
+
   // Group by reaction type for optimization
   const grouped = this.groupByReactionType(contexts);
-  
+
   for (const [reactionType, typeContexts] of grouped) {
     if (this.supportsBatchOperation(reactionType)) {
       const batchResult = await this.executeBatchOperation(reactionType, typeContexts);
@@ -932,7 +944,7 @@ async executeBatch(contexts: ReactionExecutionContext[]): Promise<ReactionExecut
       }
     }
   }
-  
+
   return results;
 }
 ```
@@ -947,7 +959,7 @@ async executeWebhookResponse(
 ): Promise<ReactionExecutionResult> {
   // Process webhook-specific logic
   const processedData = this.processWebhookData(webhookPayload);
-  
+
   // Execute reaction with webhook context
   return await this.execute({
     reaction: { type: 'yourservice.webhook_response', config: responseConfig },

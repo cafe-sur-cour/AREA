@@ -77,9 +77,10 @@ export const githubActions: ActionDefinition[] = [
         const repository = (
           event.payload as { repository?: { full_name?: string } }
         )?.repository?.full_name;
-        return repository
-          ? mapping.action.config?.repository === repository
-          : true;
+        if (!repository) return false;
+
+        const mappingRepository = mapping.action.config?.repository;
+        return mappingRepository === repository;
       },
     },
   },
@@ -174,9 +175,10 @@ export const githubActions: ActionDefinition[] = [
         const repository = (
           event.payload as { repository?: { full_name?: string } }
         )?.repository?.full_name;
-        return repository
-          ? mapping.action.config?.repository === repository
-          : true;
+        if (!repository) return false;
+
+        const mappingRepository = mapping.action.config?.repository;
+        return mappingRepository === repository;
       },
     },
   },
@@ -262,9 +264,10 @@ export const githubActions: ActionDefinition[] = [
         const repository = (
           event.payload as { repository?: { full_name?: string } }
         )?.repository?.full_name;
-        return repository
-          ? mapping.action.config?.repository === repository
-          : true;
+        if (!repository) return false;
+
+        const mappingRepository = mapping.action.config?.repository;
+        return mappingRepository === repository;
       },
     },
   },

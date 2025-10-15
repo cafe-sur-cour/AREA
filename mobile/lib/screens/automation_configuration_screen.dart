@@ -501,7 +501,7 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Failed to create automation: ${e.toString()}',
+              'Failed to create automation: ${e.toString().replaceAll("Exception: ", "")}',
               style: const TextStyle(color: Colors.white, fontSize: 16),
             ),
             backgroundColor: AppColors.error,

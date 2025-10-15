@@ -1,4 +1,5 @@
 export interface Action {
+  serviceId: string;
   id: string;
   name: string;
   description: string;
@@ -27,6 +28,7 @@ export interface Action {
     properties: object;
     required: [string];
   };
+  payloadFields?: PayloadField[];
   metadata: {
     category: string;
     tags: [string];
@@ -35,6 +37,13 @@ export interface Action {
     requiresAuth: true;
     webhookPattern: string;
   };
+}
+
+export interface PayloadField {
+  path: string;
+  type: string;
+  description: string;
+  example?: string;
 }
 
 export interface ServiceAction {
