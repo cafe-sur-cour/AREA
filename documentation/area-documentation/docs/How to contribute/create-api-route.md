@@ -23,7 +23,7 @@ OAuth routes (`/api/auth/{service}/login`, `/api/auth/{service}/callback`) and s
 
 API routes in AREA follow RESTful conventions and include comprehensive Swagger documentation, authentication, validation, and error handling. All routes are automatically documented and accessible through the Swagger UI.
 
-**Swagger Documentation**: [http://localhost:8080/api-docs](http://localhost:8080/api-docs)
+**Swagger Documentation**: [https://backend.nduboi.fr/api-docs](https://backend.nduboi.fr/api-docs)
 
 ## Prerequisites
 
@@ -752,7 +752,7 @@ curl -H "Authorization: Bearer YOUR_JWT_TOKEN" \
 
 ### Using Postman
 
-1. Import the OpenAPI specification from `http://localhost:8080/api-docs.json`
+1. Import the OpenAPI specification from `https://backend.nduboi.fr/api-docs.json`
 2. Set up environment variables for base URL and auth token
 3. Test all endpoints with various scenarios
 
