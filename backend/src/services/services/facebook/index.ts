@@ -9,12 +9,18 @@ const facebookservice: Service = {
   icon: getIconSvg('FaMeta'),
   actions: [],
   reactions: [],
+  oauth: {
+    enabled: true,
+    supportsLogin: true,
+  },
 };
 
 export default facebookservice;
 
 export async function initialize(): Promise<void> {
   console.log('Initializing Meta service...');
+  const { initializeFacebookPassport } = await import('./passport');
+  initializeFacebookPassport();
   console.log('Meta service initialized');
 }
 

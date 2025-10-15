@@ -22,79 +22,82 @@ export interface FacebookUser {
 	email?: string;
 }
 
-passport.use(
-  'facebook-login',
-  new FacebookStrategy(
-    {
-      clientID: process.env.SERVICE_FACEBOOK_CLIENT_ID,
-      clientSecret: process.env.SERVICE_FACEBOOK_CLIENT_SECRET,
-      callbackURL: process.env.SERVICE_FACEBOOK_REDIRECT_URI,
-      profileFields: ['id', 'displayName', 'email', 'picture.type(large)'],
-      passReqToCallback: true
-    },
-    async (
-      req: Request,
-      accessToken: string,
-      refreshToken: string,
-      params: { expires_in?: number; scope?: string },
-      profile: unknown,
-      done: unknown
-    ) => {
-      const doneCallback = done as (
-        error: Error | null,
-        user?: FacebookUser | null
-      ) => void;
-      try {
-        interface FacebookProfileShape {
-          id?: string;
-          displayName?: string;
-          emails?: { value?: string }[];
-          photos?: { value?: string }[];
-        }
-        const fbProfile = profile as FacebookProfileShape;
-
-        const user: FacebookUser = {
-          id: fbProfile.id || '',
-          name: fbProfile.displayName || '',
-          ...(fbProfile.emails?.[0]?.value && { email: fbProfile.emails[0].value }),
-        };
-
-        const token = await oauthLogin(
-          'meta',
-          fbProfile.id || '',
-          user.email || '',
-          fbProfile.displayName || ''
-        );
-
-        if (token instanceof Error) {
-          return doneCallback(token, null);
-        }
-
-        const decoded = jwt.verify(token, JWT_SECRET as string) as {
-          id: number;
-        };
-
-        await facebookOAuth.storeUserToken(
-          decoded.id,
-          {
-            access_token: accessToken,
-            token_type: 'bearer',
-            expires_in: 5184000
+export function initializeFacebookPassport(): void {
+  passport.use(
+    'facebook-login',
+    new FacebookStrategy(
+      {
+        clientID: process.env.SERVICE_FACEBOOK_CLIENT_ID,
+        clientSecret: process.env.SERVICE_FACEBOOK_CLIENT_SECRET,
+        callbackURL: process.env.SERVICE_FACEBOOK_REDIRECT_URI,
+        profileFields: ['id', 'displayName', 'email', 'picture.type(large)'],
+        passReqToCallback: true
+      },
+      async (
+        req: Request,
+        accessToken: string,
+        refreshToken: string,
+        params: { expires_in?: number; scope?: string },
+        profile: unknown,
+        done: unknown
+      ) => {
+        const doneCallback = done as (
+          error: Error | null,
+          user?: FacebookUser | null
+        ) => void;
+        try {
+          interface FacebookProfileShape {
+            id?: string;
+            displayName?: string;
+            emails?: { value?: string }[];
+            photos?: { value?: string }[];
           }
-        );
+          const fbProfile = profile as FacebookProfileShape;
 
-        const userWithToken = {
-          ...user,
-          token
-        };
+          const user: FacebookUser = {
+            id: fbProfile.id || '',
+            name: fbProfile.displayName || '',
+            ...(fbProfile.emails?.[0]?.value && { email: fbProfile.emails[0].value }),
+          };
 
-        return doneCallback(null, userWithToken);
-      } catch (error) {
-        return doneCallback(error as Error, null);
+          const token = await oauthLogin(
+            'meta',
+            fbProfile.id || '',
+            user.email || '',
+            fbProfile.displayName || ''
+          );
+
+          if (token instanceof Error) {
+            return doneCallback(token, null);
+          }
+
+          const decoded = jwt.verify(token, JWT_SECRET as string) as {
+            id: number;
+          };
+
+          await facebookOAuth.storeUserToken(
+            decoded.id,
+            {
+              access_token: accessToken,
+              token_type: 'bearer',
+              expires_in: 5184000
+            }
+          );
+
+          const userWithToken = {
+            ...user,
+            token
+          };
+
+          return doneCallback(null, userWithToken);
+        } catch (error) {
+          return doneCallback(error as Error, null);
+        }
       }
-    }
-  )
-);
+    )
+  );
+}
+
 
 
 
