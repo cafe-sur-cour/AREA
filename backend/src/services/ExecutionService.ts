@@ -144,13 +144,6 @@ export class ExecutionService {
       );
 
       for (const mapping of mappings) {
-        await this.ensureExternalWebhooksForMapping(
-          mapping,
-          mapping.created_by || event.user_id
-        );
-      }
-
-      for (const mapping of mappings) {
         for (const reaction of mapping.reactions) {
           const reactionDefinition = serviceRegistry.getReactionByType(
             reaction.type

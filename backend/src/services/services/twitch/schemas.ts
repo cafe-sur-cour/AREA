@@ -1,5 +1,18 @@
 import type { ActionReactionSchema } from '../../../types/mapping';
 
+export const twitchNewFollowerSchema: ActionReactionSchema = {
+  name: 'Twitch New Follower',
+  description: 'Triggers when someone follows your Twitch channel',
+  fields: [],
+};
+
+export const twitchNewSubscriptionSchema: ActionReactionSchema = {
+  name: 'Twitch New Subscription',
+  description:
+    'Triggers when someone subscribes or renews a subscription to your channel',
+  fields: [],
+};
+
 export const twitchUpdateChannelSchema: ActionReactionSchema = {
   name: 'Update Channel Description',
   description:
