@@ -1,7 +1,7 @@
 'use client';
 import api from '@/lib/api';
 import { Reaction, ServiceReaction } from '@/types/reaction';
-import { PayloadField } from '@/types/action';
+import { Action, PayloadField } from '@/types/action';
 import { DynamicTextareaProps } from '@/types/form';
 import { useState, useRef, useEffect } from 'react';
 import {
@@ -179,7 +179,7 @@ interface ReactionFormProps {
   onReactionsChange: (reactions: Reaction[]) => void;
   onConfigChange: (config: Record<string, unknown>[]) => void;
   defaultReaction: Reaction | null;
-  selectedAction?: { payloadFields?: PayloadField[] };
+  selectedAction?: Action | null;
 }
 
 const getStringValue = (value: unknown): string => {
