@@ -136,7 +136,6 @@ const DynamicTextarea: React.FC<DynamicTextareaProps> = ({
         value={value}
         onChange={handleInputChange}
         onKeyDown={handleKeyDown}
-        autoComplete='on'
         className='mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 text-sm font-mono bg-blue-50'
         rows={rows}
       />
