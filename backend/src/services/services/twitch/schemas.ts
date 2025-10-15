@@ -1,58 +1,67 @@
 import type { ActionReactionSchema } from '../../../types/mapping';
 
-export const twitchNewFollowerSchema: ActionReactionSchema = {
-  name: 'Twitch New Follower',
-  description: 'Triggers when someone follows your Twitch channel',
-  fields: [
-    {
-      name: 'broadcaster_username',
-      type: 'text',
-      label: 'Broadcaster Username',
-      required: true,
-      placeholder: 'shroud',
-    },
-  ],
-};
-
-export const twitchNewSubscriptionSchema: ActionReactionSchema = {
-  name: 'Twitch New Subscription',
+export const twitchUpdateChannelSchema: ActionReactionSchema = {
+  name: 'Update Channel Description',
   description:
-    'Triggers when someone subscribes or renews a subscription to your channel',
+    "Updates the description of the authenticated user's own Twitch channel",
   fields: [
     {
-      name: 'broadcaster_username',
-      type: 'text',
-      label: 'Broadcaster Username',
+      name: 'description',
+      type: 'textarea',
+      label: 'New Channel Description',
       required: true,
-      placeholder: 'shroud',
+      placeholder:
+        'Welcome to my channel! I stream games and have fun with viewers.',
+      dynamic: true,
+      dynamicPlaceholder: 'Now playing: {{action.payload.track.name}}',
     },
   ],
 };
 
-export const twitchStreamOnlineSchema: ActionReactionSchema = {
-  name: 'Twitch Stream Online',
-  description: 'Triggers when your Twitch stream goes online',
+export const twitchBanUserSchema: ActionReactionSchema = {
+  name: 'Ban User',
+  description:
+    "Bans or times out a user from the authenticated user's Twitch channel chat",
   fields: [
     {
-      name: 'broadcaster_username',
+      name: 'username',
       type: 'text',
-      label: 'Broadcaster Username',
+      label: 'Username to Ban/Timeout',
       required: true,
-      placeholder: 'shroud',
+      placeholder: 'twitchuser123',
+      dynamic: true,
+      dynamicPlaceholder: '{{action.payload.user.login}}',
+    },
+    {
+      name: 'duration',
+      type: 'number',
+      label: 'Timeout Duration (seconds, optional for permanent ban)',
+      required: false,
+      placeholder: '300',
+    },
+    {
+      name: 'reason',
+      type: 'text',
+      label: 'Reason (optional)',
+      required: false,
+      placeholder: 'Violation of chat rules',
     },
   ],
 };
 
-export const twitchStreamOfflineSchema: ActionReactionSchema = {
-  name: 'Twitch Stream Offline',
-  description: 'Triggers when your Twitch stream goes offline',
+export const twitchUnbanUserSchema: ActionReactionSchema = {
+  name: 'Unban User',
+  description:
+    "Unbans a user from the authenticated user's Twitch channel chat",
   fields: [
     {
-      name: 'broadcaster_username',
+      name: 'username',
       type: 'text',
-      label: 'Broadcaster Username',
+      label: 'Username to Unban',
       required: true,
-      placeholder: 'shroud',
+      placeholder: 'twitchuser123',
+      dynamic: true,
+      dynamicPlaceholder: '{{action.payload.user.login}}',
     },
   ],
 };
