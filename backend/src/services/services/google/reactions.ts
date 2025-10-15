@@ -78,5 +78,35 @@ export const googleReactions: ReactionDefinition[] = [
       requiresAuth: true,
       estimatedDuration: 3000,
     },
+  },
+  {
+    id: 'google.create_document',
+    name: 'Create Document',
+    description: 'Creates a new document in Google Docs',
+    configSchema: googleCreateDocumentSchema,
+    outputSchema: {
+      type: 'object',
+      properties: {
+        document_id: {
+          type: 'string',
+          description: 'The ID of the created document',
+        },
+        title: {
+          type: 'string',
+          description: 'The title of the document',
+        },
+        success: {
+          type: 'boolean',
+          description: 'Whether the creation operation was successful',
+        },
+      },
+      required: ['document_id', 'title', 'success'],
+    },
+    metadata: {
+      category: 'Docs',
+      tags: ['document', 'create', 'productivity'],
+      requiresAuth: true,
+      estimatedDuration: 2500,
+    },
   }
 ];
