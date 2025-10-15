@@ -239,7 +239,7 @@ export class TwitchEventSubManager {
       webhook.url = subscription.transport.callback;
       webhook.secret = subscription.transport.secret;
       webhook.events = [actionType];
-      webhook.is_active = subscription.status === 'enabled';
+      webhook.is_active = true;
 
       const savedWebhook =
         await AppDataSource.getRepository(ExternalWebhooks).save(webhook);
