@@ -54,14 +54,6 @@ export default function ActionForm({
           return;
         }
         setActions(res.services);
-        if (selectedAction && !isFirstTime) {
-          setIsFirstTime(true);
-          setSelectedServiceAction(selectedAction.serviceId);
-          setListAction(
-            res.services.find(action => action.id === selectedAction.serviceId)
-              ?.actions || []
-          );
-        }
       } finally {
         setIsLoading(false);
       }
@@ -70,7 +62,16 @@ export default function ActionForm({
     fetchAction();
   }, []);
 
-  useEffect(() => {}, [selectedAction]);
+  useEffect(() => {
+    if (selectedAction && !isFirstTime && actions.length > 0) {
+      setIsFirstTime(true);
+      setSelectedServiceAction(selectedAction.serviceId);
+      setListAction(
+        actions.find(action => action.id === selectedAction.serviceId)
+          ?.actions || []
+      );
+    }
+  }, [selectedAction, isFirstTime, actions]);
 
   if (isLoading) return null;
   return (
