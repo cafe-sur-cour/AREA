@@ -20,6 +20,16 @@ export interface GoogleUser {
   token: string;
 }
 
+const googleScopes = [
+  'openid',
+  'https://www.googleapis.com/auth/userinfo.email',
+  'https://www.googleapis.com/auth/userinfo.profile',
+  'https://www.googleapis.com/auth/gmail.send',
+  'https://www.googleapis.com/auth/calendar.events',
+  'https://www.googleapis.com/auth/documents',
+  'https://www.googleapis.com/auth/drive'
+];
+
 export function initializeGooglePassport(): void {
   passport.use(
     'google-login',
@@ -28,7 +38,7 @@ export function initializeGooglePassport(): void {
         clientID: process.env.SERVICE_GOOGLE_CLIENT_ID || '',
         clientSecret: process.env.SERVICE_GOOGLE_CLIENT_SECRET || '',
         callbackURL: process.env.SERVICE_GOOGLE_REDIRECT_URI || '',
-        scope: ['openid', 'email', 'profile'],
+        scope: googleScopes,
         passReqToCallback: true,
       },
       async (
