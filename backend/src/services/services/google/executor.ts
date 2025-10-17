@@ -18,6 +18,34 @@ interface GoogleCalendarEvent {
   attendees?: Array<{ email: string }>;
 }
 
+interface GoogleApiError {
+  error?: {
+    message?: string;
+    code?: number;
+  };
+}
+
+interface GmailSendResponse {
+  id: string;
+  threadId: string;
+}
+
+interface CalendarEventResponse {
+  id: string;
+  htmlLink: string;
+  summary: string;
+  start: { dateTime: string; date?: string };
+  end: { dateTime: string; date?: string };
+}
+
+interface DriveFileResponse {
+  id: string;
+  name: string;
+  mimeType: string;
+  webViewLink?: string;
+  webContentLink?: string;
+}
+
 export class GoogleReactionExecutor implements ReactionExecutor {
   private apiBaseUrl: string;
 
@@ -113,18 +141,20 @@ export class GoogleReactionExecutor implements ReactionExecutor {
       );
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
+        const errorData = (await response
+          .json()
+          .catch(() => ({}))) as GoogleApiError;
         return {
           success: false,
-          error: `Gmail API error: ${response.status} - ${(errorData as any).error?.message || 'Unknown error'}`,
+          error: `Gmail API error: ${response.status} - ${errorData.error?.message || 'Unknown error'}`,
         };
       }
 
-      const result = await response.json();
+      const result = (await response.json()) as GmailSendResponse;
       return {
         success: true,
         output: {
-          message_id: (result as any).id,
+          message_id: result.id,
           to,
           subject,
           success: true,
@@ -178,7 +208,7 @@ export class GoogleReactionExecutor implements ReactionExecutor {
       if (attendees) {
         event.attendees = attendees
           .split(',')
-          .map((email) => ({ email: email.trim() }));
+          .map(email => ({ email: email.trim() }));
       }
 
       const response = await fetch(
@@ -194,14 +224,16 @@ export class GoogleReactionExecutor implements ReactionExecutor {
       );
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
+        const errorData = (await response
+          .json()
+          .catch(() => ({}))) as GoogleApiError;
         return {
           success: false,
-          error: `Calendar API error: ${response.status} - ${(errorData as any).error?.message || 'Unknown error'}`,
+          error: `Calendar API error: ${response.status} - ${errorData.error?.message || 'Unknown error'}`,
         };
       }
 
-      const result = (await response.json()) as any;
+      const result = (await response.json()) as CalendarEventResponse;
       return {
         success: true,
         output: {
@@ -249,14 +281,16 @@ export class GoogleReactionExecutor implements ReactionExecutor {
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
+        const errorData = (await response
+          .json()
+          .catch(() => ({}))) as GoogleApiError;
         return {
           success: false,
-          error: `Drive API error: ${response.status} - ${(errorData as any).error?.message || 'Unknown error'}`,
+          error: `Drive API error: ${response.status} - ${errorData.error?.message || 'Unknown error'}`,
         };
       }
 
-      const result = (await response.json()) as any;
+      const result = (await response.json()) as DriveFileResponse;
       const documentId = result.id;
 
       if (content && content.trim().length > 0) {
@@ -285,11 +319,13 @@ export class GoogleReactionExecutor implements ReactionExecutor {
           );
 
           if (!insertResponse.ok) {
-            const errorData = await insertResponse.json().catch(() => ({}));
+            const errorData = (await insertResponse
+              .json()
+              .catch(() => ({}))) as GoogleApiError;
             console.error('Failed to insert content:', errorData);
             return {
               success: false,
-              error: `Document created but failed to add content: ${(errorData as any).error?.message || 'Unknown error'}`,
+              error: `Document created but failed to add content: ${errorData.error?.message || 'Unknown error'}`,
             };
           }
         } catch (insertError) {
@@ -381,21 +417,25 @@ export class GoogleReactionExecutor implements ReactionExecutor {
       );
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
+        const errorData = (await response
+          .json()
+          .catch(() => ({}))) as GoogleApiError;
         return {
           success: false,
-          error: `Drive API error: ${response.status} - ${(errorData as any).error?.message || 'Unknown error'}`,
+          error: `Drive API error: ${response.status} - ${errorData.error?.message || 'Unknown error'}`,
         };
       }
 
-      const result = (await response.json()) as any;
+      const result = (await response.json()) as DriveFileResponse;
 
       return {
         success: true,
         output: {
           file_id: result.id,
           file_name: result.name,
-          web_view_link: result.webViewLink || `https://drive.google.com/file/d/${result.id}/view`,
+          web_view_link:
+            result.webViewLink ||
+            `https://drive.google.com/file/d/${result.id}/view`,
           web_content_link: result.webContentLink || '',
           success: true,
         },

@@ -2,7 +2,7 @@ import type { ReactionDefinition } from '../../../types/service';
 import {
   googleSendEmailSchema,
   googleCreateCalendarEventSchema,
-  googleCreateDocumentSchema
+  googleCreateDocumentSchema,
 } from './schemas';
 
 export const googleReactions: ReactionDefinition[] = [
@@ -69,7 +69,13 @@ export const googleReactions: ReactionDefinition[] = [
           description: 'Whether the creation operation was successful',
         },
       },
-      required: ['event_id', 'summary', 'start_datetime', 'end_datetime', 'success'],
+      required: [
+        'event_id',
+        'summary',
+        'start_datetime',
+        'end_datetime',
+        'success',
+      ],
     },
     metadata: {
       category: 'Calendar',
@@ -111,5 +117,5 @@ export const googleReactions: ReactionDefinition[] = [
       requiresAuth: true,
       estimatedDuration: 2500,
     },
-  }
+  },
 ];

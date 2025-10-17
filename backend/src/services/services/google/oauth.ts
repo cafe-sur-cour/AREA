@@ -71,7 +71,7 @@ export class GoogleOAuth {
       'https://www.googleapis.com/auth/calendar.events',
       'https://www.googleapis.com/auth/documents',
       'https://www.googleapis.com/auth/drive.file',
-      'https://www.googleapis.com/auth/drive'
+      'https://www.googleapis.com/auth/drive',
     ];
 
     const params = new URLSearchParams({
@@ -120,9 +120,7 @@ export class GoogleOAuth {
     return data;
   }
 
-  async refreshAccessToken(
-    refreshToken: string
-  ): Promise<GoogleTokenResponse> {
+  async refreshAccessToken(refreshToken: string): Promise<GoogleTokenResponse> {
     this.ensureInitialized();
     const response = await fetch(`${this.googleAuthBaseUrl}/o/oauth2/token`, {
       method: 'POST',

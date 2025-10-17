@@ -1,5 +1,6 @@
 import type { Service } from '../../../types/service';
 import { getIconSvg } from '../../../utils/iconMapping';
+import { googleActions } from './actions';
 import { googleReactions } from './reactions';
 import { googleReactionExecutor } from './executor';
 
@@ -10,7 +11,7 @@ const googleService: Service = {
     'Google services integration including Gmail, Calendar, and Drive',
   version: '1.0.0',
   icon: getIconSvg('FaGoogle'),
-  actions: [],
+  actions: googleActions,
   reactions: googleReactions,
   oauth: {
     enabled: true,
