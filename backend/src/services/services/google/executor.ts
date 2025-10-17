@@ -257,41 +257,55 @@ export class GoogleReactionExecutor implements ReactionExecutor {
       }
 
       const result = (await response.json()) as any;
+      const documentId = result.id;
 
-      if (content) {
-        const insertResponse = await fetch(
-          `${this.apiBaseUrl}/docs/v1/documents/${result.id}:batchUpdate`,
-          {
-            method: 'POST',
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              requests: [
-                {
-                  insertText: {
-                    location: {
-                      index: 1,
+      if (content && content.trim().length > 0) {
+        try {
+          const insertResponse = await fetch(
+            `${this.apiBaseUrl}/docs/v1/documents/${documentId}:batchUpdate`,
+            {
+              method: 'POST',
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                requests: [
+                  {
+                    insertText: {
+                      location: {
+                        index: 1,
+                      },
+                      text: content,
                     },
-                    text: content,
                   },
-                },
-              ],
-            }),
-          }
-        );
+                ],
+              }),
+            }
+          );
 
-        if (!insertResponse.ok) {
-          console.error('Failed to insert content, but document was created');
+          if (!insertResponse.ok) {
+            const errorData = await insertResponse.json().catch(() => ({}));
+            console.error('Failed to insert content:', errorData);
+            return {
+              success: false,
+              error: `Document created but failed to add content: ${(errorData as any).error?.message || 'Unknown error'}`,
+            };
+          }
+        } catch (insertError) {
+          console.error('Error inserting content:', insertError);
+          return {
+            success: false,
+            error: `Document created but failed to add content: ${(insertError as Error).message}`,
+          };
         }
       }
 
       return {
         success: true,
         output: {
-          document_id: result.id,
-          document_url: `https://docs.google.com/document/d/${result.id}/edit`,
+          document_id: documentId,
+          document_url: `https://docs.google.com/document/d/${documentId}/edit`,
           title,
           success: true,
         },
@@ -323,13 +337,10 @@ export class GoogleReactionExecutor implements ReactionExecutor {
     }
 
     try {
-      // Detect if content is base64 or plain text
       let contentBuffer: Buffer;
       try {
         contentBuffer = Buffer.from(fileContent, 'base64');
-        // Verify it's valid base64 by checking if decoding and re-encoding gives same result
         if (contentBuffer.toString('base64') !== fileContent) {
-          // Not valid base64, treat as plain text
           contentBuffer = Buffer.from(fileContent, 'utf-8');
         }
       } catch {
