@@ -307,40 +307,47 @@ export class ExecutionService {
     mapping: WebhookConfigs
   ): Promise<void> {
     for (const [index, reaction] of mapping.reactions.entries()) {
-      if (reaction.delay && reaction.delay > 0) {
-        const reactionId = `${event.id}-${mapping.id}-${index}`;
+      try {
+        if (reaction.delay && reaction.delay > 0) {
+          const reactionId = `${event.id}-${mapping.id}-${index}`;
 
-        console.log(
-          `⏰ [ExecutionService] Scheduling reaction ${reaction.type} with ${reaction.delay}s delay (ID: ${reactionId})`
+          console.log(
+            `⏰ [ExecutionService] Scheduling reaction ${reaction.type} with ${reaction.delay}s delay (ID: ${reactionId})`
+          );
+
+          const timeoutId = setTimeout(async () => {
+            try {
+              console.log(
+                `🚀 [ExecutionService] Executing delayed reaction ${reaction.type} after ${reaction.delay}s (ID: ${reactionId})`
+              );
+              await this.executeReaction(event, mapping, reaction);
+
+              this.scheduledReactions.delete(reactionId);
+
+              console.log(
+                `✅ [ExecutionService] Successfully executed delayed reaction ${reaction.type} (ID: ${reactionId})`
+              );
+            } catch (error) {
+              console.error(
+                `❌ [ExecutionService] Failed to execute delayed reaction ${reaction.type} after all retries (ID: ${reactionId}):`,
+                error
+              );
+              this.scheduledReactions.delete(reactionId);
+            }
+          }, reaction.delay * 1000);
+
+          this.scheduledReactions.set(reactionId, timeoutId);
+        } else {
+          console.log(
+            `⚡ [ExecutionService] Executing immediate reaction ${reaction.type}`
+          );
+          await this.executeReaction(event, mapping, reaction);
+        }
+      } catch (error) {
+        console.error(
+          `❌ [ExecutionService] Reaction ${reaction.type} failed after all retries, continuing with other reactions:`,
+          (error as Error).message
         );
-
-        const timeoutId = setTimeout(async () => {
-          try {
-            console.log(
-              `🚀 [ExecutionService] Executing delayed reaction ${reaction.type} after ${reaction.delay}s (ID: ${reactionId})`
-            );
-            await this.executeReaction(event, mapping, reaction);
-
-            this.scheduledReactions.delete(reactionId);
-
-            console.log(
-              `✅ [ExecutionService] Successfully executed delayed reaction ${reaction.type} (ID: ${reactionId})`
-            );
-          } catch (error) {
-            console.error(
-              `❌ [ExecutionService] Failed to execute delayed reaction ${reaction.type} (ID: ${reactionId}):`,
-              error
-            );
-            this.scheduledReactions.delete(reactionId);
-          }
-        }, reaction.delay * 1000);
-
-        this.scheduledReactions.set(reactionId, timeoutId);
-      } else {
-        console.log(
-          `⚡ [ExecutionService] Executing immediate reaction ${reaction.type}`
-        );
-        await this.executeReaction(event, mapping, reaction);
       }
     }
   }
