@@ -182,14 +182,25 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
             border: const OutlineInputBorder(),
             filled: true,
             fillColor: Colors.grey.shade50,
+            helperText: field.validator?.hasConstraints == true
+                ? field.validator!.constraintText
+                : null,
           ),
           validator: (value) {
             if (field.required && (value == null || value.isEmpty)) {
               return '${field.label} is required';
             }
             if (value != null && value.isNotEmpty) {
-              if (num.tryParse(value) == null) {
+              final numValue = num.tryParse(value);
+              if (numValue == null) {
                 return 'Please enter a valid number';
+              }
+              // Validate against min/max constraints
+              if (field.validator != null) {
+                final validationError = field.validator!.validate(numValue, field.label);
+                if (validationError != null) {
+                  return validationError;
+                }
               }
             }
             return null;

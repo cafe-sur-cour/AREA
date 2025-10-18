@@ -1,3 +1,49 @@
+class NumberValidator {
+  final num? min;
+  final num? max;
+
+  NumberValidator({this.min, this.max});
+
+  factory NumberValidator.fromJson(Map<String, dynamic> json) {
+    return NumberValidator(
+      min: json['min'] as num?,
+      max: json['max'] as num?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      if (min != null) 'min': min,
+      if (max != null) 'max': max,
+    };
+  }
+
+  String? validate(num? value, String fieldLabel) {
+    if (value == null) return null;
+
+    if (min != null && value < min!) {
+      return '$fieldLabel must be at least $min';
+    }
+    if (max != null && value > max!) {
+      return '$fieldLabel must be at most $max';
+    }
+    return null;
+  }
+
+  bool get hasConstraints => min != null || max != null;
+
+  String get constraintText {
+    if (min != null && max != null) {
+      return 'min: $min, max: $max';
+    } else if (min != null) {
+      return 'min: $min';
+    } else if (max != null) {
+      return 'max: $max';
+    }
+    return '';
+  }
+}
+
 class ConfigField {
   final String name;
   final String type;
@@ -7,6 +53,7 @@ class ConfigField {
   final List<ConfigOption>? options;
   final dynamic defaultValue;
   final String? description;
+  final NumberValidator? validator;
 
   ConfigField({
     required this.name,
@@ -17,6 +64,7 @@ class ConfigField {
     this.options,
     this.defaultValue,
     this.description,
+    this.validator,
   });
 
   factory ConfigField.fromJson(Map<String, dynamic> json) {
@@ -31,6 +79,9 @@ class ConfigField {
           : null,
       defaultValue: json['default'],
       description: json['description'] as String?,
+      validator: json['validator'] != null
+          ? NumberValidator.fromJson(json['validator'] as Map<String, dynamic>)
+          : null,
     );
   }
 
@@ -44,6 +95,7 @@ class ConfigField {
       'options': options?.map((option) => option.toJson()).toList(),
       'default': defaultValue,
       'description': description,
+      if (validator != null) 'validator': validator!.toJson(),
     };
   }
 
