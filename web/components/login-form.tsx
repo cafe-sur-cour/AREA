@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { useState } from 'react';
 import api from '@/lib/api';
 import Image from 'next/image';
-import { FaGithub, FaGoogle, FaMicrosoft } from 'react-icons/fa';
+import { FaGithub, FaGoogle, FaMicrosoft, FaFacebook } from 'react-icons/fa';
 import { getAPIUrl } from '@/lib/config';
 import InputPassword from './ui/input-password';
 import { toast } from 'sonner';
@@ -59,6 +59,10 @@ export function LoginForm({
     window.location.href = `${await getAPIUrl()}/auth/microsoft/login`;
   };
 
+  const signInWithMeta = async () => {
+    window.location.href = `${await getAPIUrl()}/auth/facebook/login`;
+  };
+
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
       <Card className='overflow-hidden p-0'>
@@ -105,7 +109,7 @@ export function LoginForm({
                   Or continue with
                 </span>
               </div>
-              <div className='grid grid-cols-3 gap-4'>
+              <div className='grid grid-cols-2 gap-4 sm:grid-cols-4'>
                 <ButtonWithLoading
                   onClick={async () => await signInWithGithub()}
                   className='w-full cursor-pointer'
@@ -126,6 +130,13 @@ export function LoginForm({
                 >
                   <FaMicrosoft />
                   <span className='sr-only'>Login with Microsoft 365</span>
+                </ButtonWithLoading>
+                <ButtonWithLoading
+                  onClick={async () => await signInWithMeta()}
+                  className='w-full cursor-pointer'
+                >
+                  <FaFacebook />
+                  <span className='sr-only'>Login with Meta</span>
                 </ButtonWithLoading>
               </div>
               <div className='text-center text-sm'>
