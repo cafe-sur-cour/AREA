@@ -8,10 +8,10 @@ ARG MOBILE_CALLBACK_URL
 
 RUN if [ -z "$FRONTEND_URL" ]; \
         then echo "FRONTEND_URL is required" && exit 1; \
-    fi \
+    fi && \
     if [ -z "$BACKEND_URL" ]; \
         then echo "BACKEND_URL is required" && exit 1; \
-    fi \
+    fi && \
     if [ -z "$MOBILE_CALLBACK_URL" ]; \
         then echo "MOBILE_CALLBACK_URL is required" && exit 1; \
     fi
