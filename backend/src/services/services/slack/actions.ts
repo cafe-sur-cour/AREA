@@ -91,14 +91,13 @@ export const slackActions: ActionDefinition[] = [
       webhookPattern: 'message.channels',
       sharedEvents: true,
       sharedEventFilter: async (event, mapping, userId) => {
-        const slackEvent = (
-          event.payload as {
-            event?: { channel?: string; channel_type?: string };
-          }
-        )?.event;
         const eventData = {
-          channel: slackEvent?.channel,
-          channel_type: slackEvent?.channel_type,
+          channel: (
+            event.payload as { channel?: string; channel_type?: string }
+          ).channel,
+          channel_type: (
+            event.payload as { channel?: string; channel_type?: string }
+          ).channel_type,
         };
 
         if (!eventData.channel) return false;
@@ -175,11 +174,9 @@ export const slackActions: ActionDefinition[] = [
       webhookPattern: 'channel_created',
       sharedEvents: true,
       sharedEventFilter: (event, mapping) => {
-        const slackEvent = (
-          event.payload as { event?: { channel?: { creator?: string } } }
-        )?.event;
         const eventData = {
-          channel: slackEvent?.channel,
+          channel: (event.payload as { channel?: { creator?: string } })
+            .channel,
         };
 
         const mappingCreator = mapping.action.config?.channel as string;
@@ -221,14 +218,13 @@ export const slackActions: ActionDefinition[] = [
       webhookPattern: 'reaction_added',
       sharedEvents: true,
       sharedEventFilter: async (event, mapping, userId) => {
-        const slackEvent = (
-          event.payload as {
-            event?: { item?: { channel?: string }; reaction?: string };
-          }
-        )?.event;
         const eventData = {
-          item: slackEvent?.item,
-          reaction: slackEvent?.reaction,
+          item: (
+            event.payload as { item?: { channel?: string }; reaction?: string }
+          ).item,
+          reaction: (
+            event.payload as { item?: { channel?: string }; reaction?: string }
+          ).reaction,
         };
 
         const mappingChannel = mapping.action.config?.channel as string;

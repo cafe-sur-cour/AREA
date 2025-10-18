@@ -79,6 +79,7 @@ export default function ActionForm({
             actions.find(action => action.id === value)?.actions || []
           );
           onActionChange(null);
+          onConfigChange({});
         }}
       >
         <SelectTrigger className='w-[180px]'>
@@ -100,9 +101,10 @@ export default function ActionForm({
           <Select
             value={selectedAction?.id || ''}
             onValueChange={value => {
-              onActionChange(
-                listAction.find(action => action.id === value) || null
-              );
+              const newAction =
+                listAction.find(action => action.id === value) || null;
+              onActionChange(newAction);
+              onConfigChange({});
             }}
           >
             <SelectTrigger className='w-[180px]'>
