@@ -295,6 +295,10 @@ export class GoogleReactionExecutor implements ReactionExecutor {
 
       if (content && content.trim().length > 0) {
         try {
+          console.log(
+            `📝 [Google Docs] Inserting content into document ${documentId}`
+          );
+
           const insertResponse = await fetch(
             `${this.apiBaseUrl}/docs/v1/documents/${documentId}:batchUpdate`,
             {
@@ -319,17 +323,42 @@ export class GoogleReactionExecutor implements ReactionExecutor {
           );
 
           if (!insertResponse.ok) {
-            const errorData = (await insertResponse
-              .json()
-              .catch(() => ({}))) as GoogleApiError;
-            console.error('Failed to insert content:', errorData);
+            const errorText = await insertResponse.text();
+            console.error('❌ [Google Docs] Failed to insert content:', {
+              status: insertResponse.status,
+              statusText: insertResponse.statusText,
+              responseBody: errorText,
+              documentId,
+            });
+
+            let errorMessage = 'Unknown error';
+            try {
+              const errorData = JSON.parse(errorText) as GoogleApiError;
+              errorMessage = errorData.error?.message || errorText;
+            } catch {
+              errorMessage = errorText || insertResponse.statusText;
+            }
+
+            if (insertResponse.status === 403) {
+              return {
+                success: false,
+                error: `Document created but insufficient permissions to edit it. Please ensure your Google account has the 'https://www.googleapis.com/auth/documents' scope. Error: ${errorMessage}`,
+              };
+            }
+
             return {
               success: false,
-              error: `Document created but failed to add content: ${errorData.error?.message || 'Unknown error'}`,
+              error: `Document created but failed to add content: ${errorMessage}`,
             };
           }
+
+          console.log('✅ [Google Docs] Content inserted successfully');
         } catch (insertError) {
-          console.error('Error inserting content:', insertError);
+          console.error('❌ [Google Docs] Error inserting content:', {
+            error: insertError,
+            message: (insertError as Error).message,
+            stack: (insertError as Error).stack,
+          });
           return {
             success: false,
             error: `Document created but failed to add content: ${(insertError as Error).message}`,
