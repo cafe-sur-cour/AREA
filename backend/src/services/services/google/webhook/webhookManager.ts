@@ -23,7 +23,7 @@ export class GoogleWebhookManager {
     userId: number,
     webhookUrl: string,
     calendarId: string = 'primary'
-  ): Promise<GoogleWatchResponse | null> {
+  ): Promise<GoogleWatchResponse & { calendarId: string } | null> {
     try {
       const userToken = await googleOAuth.getUserToken(userId);
       if (!userToken) {
@@ -64,7 +64,7 @@ export class GoogleWebhookManager {
         `✅ [Google Calendar] Watch created: ${watchResponse.id} (expires: ${watchResponse.expiration})`
       );
 
-      return watchResponse;
+      return { ...watchResponse, calendarId };
     } catch (error) {
       console.error('Error creating Calendar watch:', error);
       return null;
@@ -76,7 +76,7 @@ export class GoogleWebhookManager {
     userId: number,
     webhookUrl: string,
     fileId: string = 'root'
-  ): Promise<GoogleWatchResponse | null> {
+  ): Promise<GoogleWatchResponse & { fileId: string } | null> {
     try {
       const userToken = await googleOAuth.getUserToken(userId);
       if (!userToken) {
@@ -118,7 +118,7 @@ export class GoogleWebhookManager {
         `✅ [Google Drive] Watch created: ${watchResponse.id} (expires: ${watchResponse.expiration})`
       );
 
-      return watchResponse;
+      return { ...watchResponse, fileId };
     } catch (error) {
       console.error('Error creating Drive watch:', error);
       return null;
@@ -168,7 +168,7 @@ export class GoogleWebhookManager {
 
   async updateWebhookWithWatchInfo(
     webhookId: number,
-    watchResponse: GoogleWatchResponse
+    watchResponse: GoogleWatchResponse & { calendarId?: string; fileId?: string }
   ): Promise<void> {
     const webhook = await AppDataSource.getRepository(ExternalWebhooks).findOne(
       {
@@ -182,11 +182,20 @@ export class GoogleWebhookManager {
     }
 
     webhook.external_id = watchResponse.resourceId;
-    webhook.secret = JSON.stringify({
+    const secretData: Record<string, string> = {
       channelId: watchResponse.id,
       resourceId: watchResponse.resourceId,
       expiration: watchResponse.expiration,
-    });
+    };
+
+    if ('calendarId' in watchResponse && watchResponse.calendarId) {
+      secretData.calendarId = watchResponse.calendarId;
+    }
+    if ('fileId' in watchResponse && watchResponse.fileId) {
+      secretData.fileId = watchResponse.fileId;
+    }
+
+    webhook.secret = JSON.stringify(secretData);
 
     await AppDataSource.getRepository(ExternalWebhooks).save(webhook);
     console.log(`✅ [Google] Webhook ${webhookId} updated with watch info`);

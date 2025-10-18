@@ -152,6 +152,20 @@ class GoogleWebhookHandler implements WebhookHandler {
         resourceId
       );
 
+      if (actionType === 'google.email_received' && webhookData) {
+        console.log(
+          `📧 Email from ${webhookData.from}: ${webhookData.subject}`
+        );
+      } else if (actionType === 'google.calendar_event_invite' && webhookData) {
+        console.log(
+          `📅 Calendar event: ${webhookData.summary} (${webhookData.start_datetime})`
+        );
+      } else if (actionType === 'google.drive_file_added' && webhookData) {
+        console.log(
+          `📂 Drive file added: ${webhookData.name} (${webhookData.mime_type})`
+        );
+      }
+
       const webhookEvent = new WebhookEvents();
       webhookEvent.action_type = actionType;
       webhookEvent.user_id = externalWebhook.user_id;
@@ -188,20 +202,29 @@ class GoogleWebhookHandler implements WebhookHandler {
     webhook: ExternalWebhooks,
     resourceState: string
   ): string | null {
-    if (resourceState === 'exists' || resourceState === 'update') {
-      const repository = webhook.repository;
-      if (repository && repository.includes(':')) {
-        return repository.split(':')[1] || null;
-      }
-      if (webhook.url.includes('/gmail')) {
-        return 'google.email_received';
-      } else if (webhook.url.includes('/calendar')) {
-        return 'google.calendar_event_invite';
-      } else if (webhook.url.includes('/drive')) {
-        return 'google.drive_file_added';
-      }
+    if (resourceState !== 'exists' && resourceState !== 'update') {
+      return null;
     }
 
+    const repository = webhook.repository;
+    if (repository && repository.includes(':')) {
+      const actionType = repository.split(':')[1];
+      console.log(`🔍 [Google Webhook] Extracted action type from repository: ${actionType}`);
+      return actionType || null;
+    }
+
+    if (webhook.url.includes('/gmail')) {
+      console.log('🔍 [Google Webhook] Detected Gmail webhook from URL');
+      return 'google.email_received';
+    } else if (webhook.url.includes('/calendar')) {
+      console.log('🔍 [Google Webhook] Detected Calendar webhook from URL');
+      return 'google.calendar_event_invite';
+    } else if (webhook.url.includes('/drive')) {
+      console.log('🔍 [Google Webhook] Detected Drive webhook from URL');
+      return 'google.drive_file_added';
+    }
+
+    console.warn(`⚠️  [Google Webhook] Unable to determine action type from repository: ${repository}`);
     return null;
   }
 
@@ -225,12 +248,23 @@ class GoogleWebhookHandler implements WebhookHandler {
       switch (actionType) {
         case 'google.email_received':
           return await this.fetchEmailData(accessToken, resourceId, apiBaseUrl);
-        case 'google.calendar_event_invite':
+        case 'google.calendar_event_invite': {
+          let calendarId = 'primary';
+          try {
+            if (webhook.secret) {
+              const secretData = JSON.parse(webhook.secret);
+              calendarId = secretData.calendarId || 'primary';
+            }
+          } catch (e) {
+            console.warn('⚠️  [Google Webhook] Failed to parse webhook secret, using primary calendar');
+          }
           return await this.fetchCalendarEventData(
             accessToken,
             resourceId,
-            apiBaseUrl
+            apiBaseUrl,
+            calendarId
           );
+        }
         case 'google.drive_file_added':
           return await this.fetchDriveFileData(
             accessToken,
@@ -296,11 +330,12 @@ class GoogleWebhookHandler implements WebhookHandler {
   private async fetchCalendarEventData(
     accessToken: string,
     eventId: string,
-    apiBaseUrl: string
+    apiBaseUrl: string,
+    calendarId: string = 'primary'
   ): Promise<Record<string, unknown> | null> {
     try {
       const response = await fetch(
-        `${apiBaseUrl}/calendar/v3/calendars/primary/events/${eventId}`,
+        `${apiBaseUrl}/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events/${eventId}`,
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -317,6 +352,7 @@ class GoogleWebhookHandler implements WebhookHandler {
 
       return {
         event_id: event.id,
+        calendar_id: calendarId,
         summary: event.summary,
         description: event.description,
         start_datetime: event.start?.dateTime || event.start?.date,

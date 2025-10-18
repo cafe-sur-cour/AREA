@@ -62,6 +62,7 @@ export const googleActions: ActionDefinition[] = [
       tags: ['email', 'gmail', 'inbox'],
       requiresAuth: true,
       webhookPattern: 'gmail_message',
+      sharedEvents: false,
     },
   },
   {
@@ -144,6 +145,12 @@ export const googleActions: ActionDefinition[] = [
       tags: ['calendar', 'event', 'invite'],
       requiresAuth: true,
       webhookPattern: 'calendar_event',
+      sharedEvents: true,
+      sharedEventFilter: (event, mapping) => {
+        const calendarId = mapping.action.config?.calendar_id || 'primary';
+        const eventCalendarId = (event.payload as { calendar_id?: string })?.calendar_id || 'primary';
+        return calendarId === eventCalendarId;
+      },
     },
   },
   {
@@ -216,6 +223,13 @@ export const googleActions: ActionDefinition[] = [
       tags: ['drive', 'file', 'storage'],
       requiresAuth: true,
       webhookPattern: 'drive_file',
+      sharedEvents: true,
+      sharedEventFilter: (event, mapping) => {
+        const folderId = (mapping.action.config?.folder_id as string) || 'root';
+        const parents = (event.payload as { parents?: string[] })?.parents || [];
+        if (folderId === 'root') return true;
+        return parents.includes(folderId);
+      },
     },
   },
 ];
