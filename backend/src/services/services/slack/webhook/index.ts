@@ -135,7 +135,13 @@ class SlackWebhookHandler implements WebhookHandler {
         webhookEvent.user_id = userId;
         webhookEvent.source = 'slack';
         webhookEvent.external_id = req.body.event_id || `slack_${Date.now()}`;
-        webhookEvent.payload = req.body;
+        webhookEvent.payload = {
+          ...event,
+          _slack_team_id: req.body.team_id,
+          _slack_api_app_id: req.body.api_app_id,
+          _slack_event_id: req.body.event_id,
+          _slack_event_time: req.body.event_time,
+        };
         webhookEvent.status = 'received';
         webhookEvent.user_agent = req.get('User-Agent') || null;
         webhookEvent.signature_verified =
