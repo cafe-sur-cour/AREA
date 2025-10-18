@@ -14,6 +14,7 @@ const microsoftService: Service = {
     enabled: true,
     supportsLogin: true,
   },
+  authOnly: true,
 };
 
 export default microsoftService;
