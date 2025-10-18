@@ -7,13 +7,14 @@ import { Badge } from '@/components/ui/badge';
 import { About, AboutAREA } from '@/types/about';
 import { useEffect, useState } from 'react';
 import { getBackendUrl } from '@/lib/config';
-import { Filter, ListFilter } from 'lucide-react';
+import { ListFilter } from 'lucide-react';
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 export default function CataloguePage() {
   const [about, setAbout] = useState<About | null>(null);
@@ -38,7 +39,7 @@ export default function CataloguePage() {
     }
   };
 
-  const filterItems = (data : 'all' | 'actions' | 'reactions') => {
+  const filterItems = (data: 'all' | 'actions' | 'reactions') => {
     if (data === 'actions') {
       setIsActionSelected(true);
       setIsReactionSelected(false);
@@ -52,7 +53,7 @@ export default function CataloguePage() {
       setIsActionSelected(false);
       setIsReactionSelected(false);
     }
-  }
+  };
 
   return (
     <div className='min-h-screen bg-app-background'>
@@ -60,34 +61,38 @@ export default function CataloguePage() {
 
       <main className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
         {/* Services Grid */}
-          <h1 className='font-heading text-3xl font-bold text-app-text-primary mb-6'>
-            Catalogue of Actions and Reactions
-          </h1>
-          <div className="flex flex-col gap-4 mb-8">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-app-text-primary flex items-center gap-2">
-                <ListFilter className="w-5 h-5" />
-                Filter
-              </h2>
-            </div>
-              <Select onValueChange={(value) => {
-                filterItems(value as 'all' | 'actions' | 'reactions')
-              }} defaultValue="all">
-                <SelectTrigger className=" md:w-48 bg-app-surface border-app-border-light">
-                  <SelectValue placeholder="Filter by type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All</SelectItem>
-                  <SelectItem value="actions">Actions Only</SelectItem>
-                  <SelectItem value="reactions">Reactions Only</SelectItem>
-                </SelectContent>
-              </Select>
+        <h1 className='font-heading text-3xl font-bold text-app-text-primary mb-6'>
+          Catalogue of Actions and Reactions
+        </h1>
+        <div className='flex flex-col gap-4 mb-8'>
+          <div className='flex items-center justify-between'>
+            <h2 className='text-lg font-semibold text-app-text-primary flex items-center gap-2'>
+              <ListFilter className='w-5 h-5' />
+              Filter
+            </h2>
           </div>
-          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-            {about &&
-              about.server.services.map((service: AboutAREA, index: number) => (
+          <Select
+            onValueChange={value => {
+              filterItems(value as 'all' | 'actions' | 'reactions');
+            }}
+            defaultValue='all'
+          >
+            <SelectTrigger className=' md:w-48 bg-app-surface border-app-border-light'>
+              <SelectValue placeholder='Filter by type' />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value='all'>All</SelectItem>
+              <SelectItem value='actions'>Actions Only</SelectItem>
+              <SelectItem value='reactions'>Reactions Only</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+          {about &&
+            about.server.services.map((service: AboutAREA, index: number) => (
               <>
-                {service.actions.length > 0 && isActionSelected &&
+                {service.actions.length > 0 &&
+                  isActionSelected &&
                   service.actions.map(action => (
                     <>
                       <Card
@@ -129,7 +134,8 @@ export default function CataloguePage() {
                       </Card>
                     </>
                   ))}
-                {service.reactions.length > 0 && isReactionSelected &&
+                {service.reactions.length > 0 &&
+                  isReactionSelected &&
                   service.reactions.map(reaction => (
                     <>
                       <Card
