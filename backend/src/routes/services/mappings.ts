@@ -4,6 +4,7 @@ import { serviceRegistry } from '../../services/ServiceRegistry';
 import { mappingService } from './mappings.service';
 import { executionService } from '../../services/ExecutionService';
 import type { Action, Reaction } from '../../types/mapping';
+import { validateConfig } from '../../utils/fieldValidation';
 
 const router = express.Router();
 
@@ -101,6 +102,51 @@ function validateActionReactionTypes(
       errors.push(
         `Reaction ${index + 1} type '${reaction.type}' not found in any registered service`
       );
+    }
+  });
+
+  return {
+    isValid: errors.length === 0,
+    errors,
+  };
+}
+
+function validateActionReactionConfigs(
+  action: Action,
+  reactions: Reaction[]
+): {
+  isValid: boolean;
+  errors: string[];
+} {
+  const errors: string[] = [];
+
+  const actionDefinition = serviceRegistry.getActionByType(action.type);
+  if (actionDefinition && actionDefinition.configSchema) {
+    const actionValidation = validateConfig(
+      actionDefinition.configSchema.fields,
+      action.config
+    );
+    if (!actionValidation.valid) {
+      errors.push(
+        `Action '${action.type}' configuration errors:`,
+        ...actionValidation.errors
+      );
+    }
+  }
+
+  reactions.forEach((reaction, index) => {
+    const reactionDefinition = serviceRegistry.getReactionByType(reaction.type);
+    if (reactionDefinition && reactionDefinition.configSchema) {
+      const reactionValidation = validateConfig(
+        reactionDefinition.configSchema.fields,
+        reaction.config
+      );
+      if (!reactionValidation.valid) {
+        errors.push(
+          `Reaction ${index + 1} '${reaction.type}' configuration errors:`,
+          ...reactionValidation.errors
+        );
+      }
     }
   });
 
@@ -354,6 +400,14 @@ router.post(
         return res.status(404).json({
           error: 'Invalid action or reaction types',
           details: typeValidation.errors,
+        });
+      }
+
+      const configValidation = validateActionReactionConfigs(action, reactions);
+      if (!configValidation.isValid) {
+        return res.status(400).json({
+          error: 'Invalid action or reaction configuration',
+          details: configValidation.errors,
         });
       }
 

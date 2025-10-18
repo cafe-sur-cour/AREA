@@ -78,6 +78,11 @@ export interface SelectOption {
   label: string;
 }
 
+export interface NumberValidator {
+  min?: number;
+  max?: number;
+}
+
 export interface ConfigField {
   name: string;
   type: FieldType;
@@ -88,6 +93,7 @@ export interface ConfigField {
   default?: string | number | boolean;
   dynamic?: boolean;
   dynamicPlaceholder?: string;
+  validator?: NumberValidator;
 }
 
 export interface ActionReactionSchema {
