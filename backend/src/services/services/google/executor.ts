@@ -299,8 +299,9 @@ export class GoogleReactionExecutor implements ReactionExecutor {
             `📝 [Google Docs] Inserting content into document ${documentId}`
           );
 
+          const docsApiUrl = 'https://docs.googleapis.com';
           const insertResponse = await fetch(
-            `${this.apiBaseUrl}/docs/v1/documents/${documentId}:batchUpdate`,
+            `${docsApiUrl}/v1/documents/${documentId}:batchUpdate`,
             {
               method: 'POST',
               headers: {
