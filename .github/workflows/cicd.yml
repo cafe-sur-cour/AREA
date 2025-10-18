@@ -227,6 +227,8 @@ jobs:
           NODE_PORT: ${{ secrets.NODE_PORT }}
           NEXT_PORT: ${{ secrets.NEXT_PORT }}
           FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
+          BACKEND_URL: ${{ secrets.BACKEND_URL }}
+          MOBILE_CALLBACK_URL: ${{ secrets.MOBILE_CALLBACK_URL }}
           SERVICE_GITHUB_CLIENT_ID: ${{ secrets.SERVICE_GITHUB_CLIENT_ID }}
           SERVICE_GITHUB_CLIENT_SECRET: ${{ secrets.SERVICE_GITHUB_CLIENT_SECRET }}
           SERVICE_GITHUB_REDIRECT_URI: ${{ secrets.SERVICE_GITHUB_REDIRECT_URI }}
@@ -238,6 +240,8 @@ jobs:
           echo "NODE_PORT=$NODE_PORT" >> ./deployment/.env
           echo "NEXT_PORT=$NEXT_PORT" >> ./deployment/.env
           echo "FRONTEND_URL=$FRONTEND_URL" >> ./deployment/.env
+          echo "BACKEND_URL=$BACKEND_URL" >> ./deployment/.env
+          echo "MOBILE_CALLBACK_URL=$MOBILE_CALLBACK_URL" >> ./deployment/.env
           echo "SERVICE_GITHUB_CLIENT_ID=$SERVICE_GITHUB_CLIENT_ID" >> ./deployment/.env
           echo "SERVICE_GITHUB_CLIENT_SECRET=$SERVICE_GITHUB_CLIENT_SECRET" >> ./deployment/.env
           echo "SERVICE_GITHUB_REDIRECT_URI=$SERVICE_GITHUB_REDIRECT_URI" >> ./deployment/.env

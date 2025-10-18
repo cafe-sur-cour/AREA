@@ -129,7 +129,9 @@ void main() {
       await tester.pumpAndSettle();
 
       await tester.tap(find.byIcon(Icons.apps));
-      await tester.pumpAndSettle();
+      await tester.pump();
+
+      await tester.pump(const Duration(milliseconds: 100));
 
       final bottomNavBar = find.byType(BottomNavigationBar);
       final BottomNavigationBar navBar = tester.widget(bottomNavBar);
@@ -265,7 +267,9 @@ void main() {
       expect(navBar.currentIndex, 0);
 
       await tester.tap(find.byIcon(Icons.apps));
-      await tester.pumpAndSettle();
+      await tester.pump();
+
+      await tester.pump(const Duration(milliseconds: 100));
 
       navBar = tester.widget(bottomNavBar);
       expect(navBar.currentIndex, 1);

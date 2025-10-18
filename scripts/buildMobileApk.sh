@@ -25,7 +25,7 @@ echo -e "\n${YELLOW}Cleaning flutter project...${NC}"
 flutter clean
 
 echo -e "\n${YELLOW}Building APK...${NC}"
-flutter build apk --release --dart-define=FRONTEND_URL="$FRONTEND_URL"
+flutter build apk --release --dart-define=FRONTEND_URL="$FRONTEND_URL" --dart-define=BACKEND_URL="$BACKEND_URL" --dart-define=MOBILE_CALLBACK_URL="$MOBILE_CALLBACK_URL"
 if [ $? -ne 0 ]; then
     echo -e "\n${RED}Flutter build failed${NC}"
     exit 1
