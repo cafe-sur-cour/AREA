@@ -1,3 +1,24 @@
+export interface NumberValidator {
+  min?: number;
+  max?: number;
+}
+
+export interface ConfigField {
+  name: string;
+  type: string;
+  label: string;
+  required: boolean;
+  placeholder?: string;
+  options?: Array<{
+    value: string;
+    label: string;
+  }>;
+  default?: string | number | boolean;
+  dynamic?: boolean;
+  dynamicPlaceholder?: string;
+  validator?: NumberValidator;
+}
+
 export interface Reaction {
   serviceId: string;
   id: string;
@@ -6,24 +27,7 @@ export interface Reaction {
   configSchema: {
     name: string;
     description: string;
-    fields: [
-      {
-        name: string;
-        type: string;
-        label: string;
-        required: true;
-        placeholder: string;
-        options: [
-          {
-            value: string;
-            label: string;
-          },
-        ];
-        default: string;
-        dynamic?: boolean;
-        dynamicPlaceholder?: string;
-      },
-    ];
+    fields: ConfigField[];
   };
   outputSchema: {
     type: object;

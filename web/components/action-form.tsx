@@ -214,23 +214,62 @@ export default function ActionForm({
                       rows={3}
                     />
                   ) : (
-                    <Input
-                      type={field.type === 'number' ? 'number' : field.type}
-                      name={field.name}
-                      placeholder={field.placeholder}
-                      required={field.required}
-                      value={String(fieldValue || '')}
-                      onChange={e => {
-                        const value =
-                          field.type === 'number'
-                            ? e.target.value
-                              ? Number(e.target.value)
-                              : ''
-                            : e.target.value;
-                        handleValueChange(value);
-                      }}
-                      className='mt-1'
-                    />
+                    (() => {
+                      const inputProps: Record<string, unknown> = {
+                        type: field.type === 'number' ? 'number' : field.type,
+                        name: field.name,
+                        placeholder: field.placeholder,
+                        required: field.required,
+                        value: String(fieldValue || ''),
+                        className: 'mt-1',
+                      };
+
+                      if (field.type === 'number' && field.validator) {
+                        if (field.validator.min !== undefined) {
+                          inputProps.min = field.validator.min;
+                        }
+                        if (field.validator.max !== undefined) {
+                          inputProps.max = field.validator.max;
+                        }
+                      }
+
+                      const hasValidator =
+                        field.type === 'number' && field.validator;
+                      const minMax = hasValidator
+                        ? (() => {
+                            const parts: string[] = [];
+                            if (field.validator?.min !== undefined) {
+                              parts.push(`min: ${field.validator.min}`);
+                            }
+                            if (field.validator?.max !== undefined) {
+                              parts.push(`max: ${field.validator.max}`);
+                            }
+                            return parts.join(', ');
+                          })()
+                        : null;
+
+                      return (
+                        <div>
+                          <Input
+                            {...inputProps}
+                            onChange={e => {
+                              const value =
+                                field.type === 'number'
+                                  ? e.target.value
+                                    ? Number(e.target.value)
+                                    : ''
+                                  : e.target.value;
+                              handleValueChange(value);
+                            }}
+                          />
+                          {minMax && (
+                            <p className='text-xs text-gray-500 mt-1'>
+                              {minMax}
+                            </p>
+                          )}
+                        </div>
+                      );
+                    })()
                   )}
                 </div>
               );
