@@ -542,6 +542,7 @@ The `Service` interface supports the following properties:
 |----------|------|-------------|
 | `icon` | `string` | SVG string representation of the service icon |
 | `alwaysSubscribed` | `boolean` | If `true`, service is always available without subscription (e.g., Timer service) |
+| `authOnly` | `boolean` | If `true`, service is used only for authentication/login and won't appear in the services list |
 | `oauth` | `object` | OAuth configuration (see below) |
 | `getCredentials` | `(userId: number) => Promise<Record<string, string>>` | Function to retrieve user credentials/tokens |
 | `deleteWebhook` | `(userId: number, webhookId: number) => Promise<void>` | Function to clean up webhooks when mappings are deleted |
@@ -619,6 +620,24 @@ const timerService: Service = {
   alwaysSubscribed: true, // Always available, no OAuth needed
   actions: actions,
   reactions: reactions,
+};
+```
+
+**Example for auth-only service (login only):**
+
+```typescript
+const microsoftService: Service = {
+  id: 'microsoft',
+  name: 'Microsoft 365',
+  description: 'Microsoft 365 OAuth service for authentication',
+  version: '1.0.0',
+  oauth: {
+    enabled: true,
+    supportsLogin: true,
+  },
+  authOnly: true, // Used only for login, won't appear in services list
+  actions: [], // No actions for auth-only services
+  reactions: [], // No reactions for auth-only services
 };
 ```
 

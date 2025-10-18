@@ -15,6 +15,7 @@ export interface Service {
     getSubscriptionUrl?: (userId: number) => string;
   };
   alwaysSubscribed?: boolean;
+  authOnly?: boolean;
   deleteWebhook?: (userId: number, webhookId: number) => Promise<void>;
   ensureWebhookForMapping?: (
     mapping: { action: { type: string; config: Record<string, unknown> } },

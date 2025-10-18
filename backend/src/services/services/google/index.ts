@@ -22,6 +22,7 @@ const googleService: Service = {
     const userToken = await googleOAuth.getUserToken(userId);
     return userToken ? { access_token: userToken.token_value } : {};
   },
+  authOnly: false,
 };
 
 export default googleService;

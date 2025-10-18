@@ -97,7 +97,9 @@ router.get(
       const auth = req.auth as { id: number; email: string };
       const userId = auth.id;
 
-      const allServices = serviceRegistry.getAllServices();
+      const allServices = serviceRegistry
+        .getAllServices()
+        .filter(service => !service.authOnly);
 
       const servicesWithSubscriptionStatus = await Promise.all(
         allServices.map(async service => {
@@ -356,7 +358,9 @@ router.get(
   token,
   async (req: Request, res: Response): Promise<Response> => {
     try {
-      const allServices = serviceRegistry.getAllServices();
+      const allServices = serviceRegistry
+        .getAllServices()
+        .filter(service => !service.authOnly);
       const servicesWithActions = allServices.filter(
         service => service.actions && service.actions.length > 0
       );
@@ -532,7 +536,9 @@ router.get(
   token,
   async (req: Request, res: Response): Promise<Response> => {
     try {
-      const allServices = serviceRegistry.getAllServices();
+      const allServices = serviceRegistry
+        .getAllServices()
+        .filter(service => !service.authOnly);
       const servicesWithReactions = allServices.filter(
         service => service.reactions && service.reactions.length > 0
       );
