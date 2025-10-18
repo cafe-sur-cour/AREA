@@ -13,7 +13,7 @@ const googleService: Service = {
     enabled: true,
     supportsLogin: true,
   },
-  authOnly: true,
+  authOnly: false,
 };
 
 export default googleService;
