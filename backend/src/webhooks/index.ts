@@ -57,4 +57,30 @@ router.post(
   }
 );
 
+router.post(
+  '/:service/*',
+  async (req: express.Request, res: express.Response) => {
+    const { service } = req.params;
+    if (!service) {
+      return res.status(400).json({ error: 'Service parameter is required' });
+    }
+    const handler = webhookLoader.getHandler(service);
+
+    if (!handler) {
+      return res
+        .status(404)
+        .json({ error: `Webhook handler for service '${service}' not found` });
+    }
+
+    try {
+      await handler.handle(req, res);
+    } catch (error) {
+      console.error(`Error handling webhook for service '${service}':`, error);
+      return res
+        .status(500)
+        .json({ error: 'Internal server error in updates service webhook' });
+    }
+  }
+);
+
 export default router;
