@@ -99,6 +99,10 @@ export const spotifySetVolumeSchema: ActionReactionSchema = {
       label: 'Volume Level (0-100)',
       required: true,
       placeholder: '50',
+      validator: {
+        min: 0,
+        max: 100,
+      },
     },
     {
       name: 'device_id',

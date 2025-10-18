@@ -117,6 +117,9 @@ export const githubAddCommentSchema: ActionReactionSchema = {
       placeholder: '123',
       dynamic: true,
       dynamicPlaceholder: '{{action.payload.pull_request.number}}',
+      validator: {
+        min: 1,
+      },
     },
     {
       name: 'body',

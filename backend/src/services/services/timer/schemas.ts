@@ -11,6 +11,10 @@ export const everyDayAtXHourSchema: ActionReactionSchema = {
       required: true,
       placeholder: '14',
       default: 14,
+      validator: {
+        min: 0,
+        max: 23,
+      },
     },
     {
       name: 'days',
