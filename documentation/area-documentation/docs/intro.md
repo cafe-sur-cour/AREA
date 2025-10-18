@@ -254,7 +254,7 @@ Our design system follows a modern, clean aesthetic with consistent branding acr
 
 The backend provides a comprehensive REST API documented with Swagger. Once the backend is running, you can access the interactive API documentation at:
 
-**http://localhost:3001/api-docs**
+**https://backend.nduboi.fr/api-docs**
 
 ### Key API Endpoints
 - `POST /auth/register` - User registration

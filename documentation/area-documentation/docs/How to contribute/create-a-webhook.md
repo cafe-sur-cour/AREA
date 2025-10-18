@@ -27,6 +27,59 @@ Webhooks in AREA allow external services to notify the platform about events in 
 - Familiarity with the service you're integrating
 - Basic understanding of AREA's service architecture
 
+## Webhook URL Configuration
+
+### URL Format
+
+When configuring webhooks on external services, you need to provide the webhook URL that the external service will call. AREA uses a standardized URL format for all webhook endpoints:
+
+**Production URL Format:**
+```
+https://your-domain.com/api/webhooks/{service-name}
+```
+
+### Environment Configuration
+
+Set the `WEBHOOK_BASE_URL` environment variable to match your production deployment:
+
+```env
+# Production
+WEBHOOK_BASE_URL=https://your-domain.com
+```
+
+:::warning ⚠️ HTTPS Required
+
+External services require HTTPS URLs for webhook endpoints. Ensure your production domain uses HTTPS.
+
+:::
+
+### Service-Specific URL Examples
+
+For any service, use this pattern:
+```
+https://your-domain.com/api/webhooks/your-service-name
+```
+
+Replace `your-service-name` with your actual service identifier (lowercase, no spaces).
+
+### URL Construction in Code
+
+The webhook URL is automatically constructed in your webhook handler:
+
+```typescript
+getWebhookConfig(): WebhookConfig {
+  return {
+    url: `${process.env.WEBHOOK_BASE_URL}/api/webhooks/${this.id}`,
+    secret: process.env.YOURSERVICE_WEBHOOK_SECRET || '',
+    events: ['push', 'issue.opened'],
+    headers: {
+      'Content-Type': 'application/json',
+      'User-Agent': 'AREA-Platform/1.0'
+    }
+  };
+}
+```
+
 ## Webhook Implementation Structure
 
 ### 1. Webhook Handler Class

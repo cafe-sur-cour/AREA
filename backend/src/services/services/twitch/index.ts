@@ -1,10 +1,22 @@
 import type { Service } from '../../../types/service';
 import { getIconSvg } from '../../../utils/iconMapping';
+import { twitchActions } from './actions';
 import {
   twitchUpdateChannelSchema,
   twitchBanUserSchema,
   twitchUnbanUserSchema,
 } from './schemas';
+
+function getSubscriptionTypeFromAction(actionType: string): string | null {
+  switch (actionType) {
+    case 'twitch.new_follower':
+      return 'channel.follow';
+    case 'twitch.new_subscription':
+      return 'channel.subscribe';
+    default:
+      return null;
+  }
+}
 
 const twitchService: Service = {
   id: 'twitch',
@@ -12,7 +24,7 @@ const twitchService: Service = {
   description: 'Twitch service for live streaming integration',
   version: '1.0.0',
   icon: getIconSvg('FaTwitch'),
-  actions: [],
+  actions: twitchActions,
   reactions: [
     {
       id: 'twitch.update_channel',
@@ -127,19 +139,89 @@ const twitchService: Service = {
     const userToken = await twitchOAuth.getUserToken(userId);
     return userToken ? { access_token: userToken.token_value } : {};
   },
+  ensureWebhookForMapping: async (mapping, userId, actionDefinition) => {
+    const { twitchEventSubManager } = await import('./eventSubManager');
+    const { twitchOAuth } = await import('./oauth');
+
+    if (!actionDefinition?.metadata?.webhookPattern) {
+      return;
+    }
+
+    const userToken = await twitchOAuth.getUserToken(userId);
+    if (!userToken) {
+      console.warn('Cannot create webhook: no Twitch token found for user');
+      return;
+    }
+
+    const userInfo = await twitchOAuth.getUserInfo(userToken.token_value);
+    if (!userInfo) {
+      console.warn('Cannot create webhook: failed to get user info');
+      return;
+    }
+
+    let broadcasterId: string;
+    let moderatorId: string;
+
+    if (
+      actionDefinition.id === 'twitch.new_follower' ||
+      actionDefinition.id === 'twitch.new_subscription'
+    ) {
+      broadcasterId = userInfo.id;
+      moderatorId = userInfo.id;
+    } else {
+      const broadcasterUsername = mapping.action.config
+        ?.broadcaster_username as string;
+      if (!broadcasterUsername) {
+        console.warn(
+          `Cannot create webhook for mapping: missing broadcaster_username in config`
+        );
+        return;
+      }
+
+      const foundBroadcasterId =
+        await twitchEventSubManager.getUserId(broadcasterUsername);
+      if (!foundBroadcasterId) {
+        console.warn(
+          `Cannot create webhook: could not find Twitch user ${broadcasterUsername}`
+        );
+        return;
+      }
+      broadcasterId = foundBroadcasterId;
+      moderatorId = userInfo.id;
+    }
+
+    try {
+      const subscriptionType = getSubscriptionTypeFromAction(
+        actionDefinition.id
+      );
+      if (!subscriptionType) {
+        console.error(`❌ Unsupported action type: ${actionDefinition.id}`);
+        return;
+      }
+
+      console.log(
+        `🔧 Creating webhook for ${actionDefinition.id} -> ${subscriptionType}`
+      );
+
+      await twitchEventSubManager.createWebhook(
+        userId,
+        actionDefinition.id,
+        broadcasterId,
+        moderatorId
+      );
+    } catch (error) {
+      console.error(`❌ Failed to create webhook for mapping:`, error);
+    }
+  },
 };
 
 export default twitchService;
 
 export async function initialize(): Promise<void> {
-  console.log('Initializing Twitch service...');
   const { initializeTwitchPassport } = await import('./passport');
   initializeTwitchPassport();
-  console.log('✅ Twitch service initialized');
 }
 
-export async function cleanup(): Promise<void> {
-  console.log('🔄 Twitch service cleanup complete');
-}
+export async function cleanup(): Promise<void> {}
 
 export { twitchReactionExecutor as executor } from './executor';
