@@ -103,6 +103,8 @@ export class ExecutionService {
         `🔄 [ExecutionService] Processing event ${event.id} - Action: ${event.action_type}, mapping_id: ${event.mapping_id}`
       );
 
+      await this.markEventAsProcessing(event);
+
       const actionDefinition = serviceRegistry.getActionByType(
         event.action_type
       );
@@ -531,6 +533,17 @@ export class ExecutionService {
     });
 
     await failureRepository.save(failure);
+  }
+
+  private async markEventAsProcessing(event: WebhookEvents): Promise<void> {
+    const eventRepository = AppDataSource.getRepository(WebhookEvents);
+
+    event.status = 'processing';
+    await eventRepository.save(event);
+
+    console.log(
+      `🔄 [ExecutionService] Event ${event.id} marked as processing to prevent duplicate execution`
+    );
   }
 
   private async markEventProcessed(
