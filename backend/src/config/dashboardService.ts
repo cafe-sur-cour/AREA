@@ -226,6 +226,7 @@ export class DashboardService {
                 }))
               : serviceRegistry
                   .getAllServices()
+                  .filter(service => !service.authOnly)
                   .map(service => ({ service: service.name, count: 0 })),
         },
         webhooks: {
