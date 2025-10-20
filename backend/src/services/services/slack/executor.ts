@@ -83,8 +83,8 @@ export class SlackReactionExecutor implements ReactionExecutor {
   async execute(
     context: ReactionExecutionContext
   ): Promise<ReactionExecutionResult> {
-    const { reaction, event } = context;
-    const userId = event.user_id;
+    const { reaction, mapping } = context;
+    const userId = mapping.created_by;
 
     try {
       let userToken = await slackOAuth.getUserAccessToken(userId);
