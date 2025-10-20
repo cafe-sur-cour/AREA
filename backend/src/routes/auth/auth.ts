@@ -604,8 +604,8 @@ router.post('/forgot-password', async (req: Request, res: Response) => {
 
     transporter
       .verify()
-      .then(() => console.log('SMTP prêt !'))
-      .catch(err => console.error('Erreur SMTP :', err));
+      .then(() => console.log('🚀 SMTP is ready'))
+      .catch(err => console.error('💥 SMTP error:', err));
 
     const mailOptions = {
       from: '"AREA dev Team" <no-reply@yourapp.com>',
