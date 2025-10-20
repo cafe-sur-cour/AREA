@@ -139,6 +139,14 @@ export async function initialize(): Promise<void> {
   console.log('Initializing Google service...');
   const { initializeGooglePassport } = await import('./passport');
   initializeGooglePassport();
+
+  const { googleWebhookManager } = await import('./webhook/webhookManager');
+  await googleWebhookManager.cleanupExpiredWatches();
+
+  setInterval(async () => {
+    await googleWebhookManager.cleanupExpiredWatches();
+  }, 6 * 60 * 60 * 1000);
+
   console.log('Google service initialized');
 }
 

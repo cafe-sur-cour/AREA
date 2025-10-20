@@ -73,10 +73,24 @@ class GoogleWebhookHandler implements WebhookHandler {
         `\n🎣 [GOOGLE WEBHOOK] Notification received from ${req.headers['x-goog-resource-state']}`
       );
 
+      // Log détaillé des headers reçus
+      console.log(`🔍 [GOOGLE WEBHOOK] All received headers:`, JSON.stringify(req.headers, null, 2));
+      console.log(`🔍 [GOOGLE WEBHOOK] Request body:`, JSON.stringify(req.body, null, 2));
+
       const resourceState = req.headers['x-goog-resource-state'] as string;
       const resourceId = req.headers['x-goog-resource-id'] as string;
       const channelId = req.headers['x-goog-channel-id'] as string;
       const messageNumber = req.headers['x-goog-message-number'] as string;
+
+      console.log(`📊 [GOOGLE WEBHOOK] Parsed headers:`, {
+        resourceState,
+        resourceId,
+        channelId,
+        messageNumber,
+        resourceUri: req.headers['x-goog-resource-uri'],
+        channelToken: req.headers['x-goog-channel-token'],
+        channelExpiration: req.headers['x-goog-channel-expiration'],
+      });
 
       if (resourceState === 'sync') {
         console.log('✅ [GOOGLE WEBHOOK] Sync confirmation received');
@@ -110,6 +124,13 @@ class GoogleWebhookHandler implements WebhookHandler {
       console.log(
         `✅ [GOOGLE WEBHOOK] Found webhook for channel ${channelId} (user: ${externalWebhook.user_id})`
       );
+
+      // Vérifier et renouveler le watch si nécessaire
+      const { googleWebhookManager } = await import('./webhookManager');
+      const watchRenewed = await googleWebhookManager.renewWatchIfNeeded(externalWebhook);
+      if (!watchRenewed) {
+        console.warn(`⚠️  [Google Webhook] Failed to renew watch for webhook ${externalWebhook.id}, proceeding anyway`);
+      }
 
       const { serviceSubscriptionManager } = await import(
         '../../../ServiceSubscriptionManager'
@@ -255,8 +276,8 @@ class GoogleWebhookHandler implements WebhookHandler {
               const secretData = JSON.parse(webhook.secret);
               calendarId = secretData.calendarId || 'primary';
             }
-          } catch (e) {
-            console.warn('⚠️  [Google Webhook] Failed to parse webhook secret, using primary calendar');
+          } catch (error) {
+            console.warn('⚠️  [Google Webhook] Failed to parse webhook secret, using primary calendar', error);
           }
           return await this.fetchCalendarEventData(
             accessToken,
@@ -289,6 +310,8 @@ class GoogleWebhookHandler implements WebhookHandler {
     apiBaseUrl: string
   ): Promise<Record<string, unknown> | null> {
     try {
+      console.log(`📧 [Google Gmail] Fetching email data for message: ${messageId}`);
+
       const response = await fetch(
         `${apiBaseUrl}/gmail/v1/users/me/messages/${messageId}?format=metadata&metadataHeaders=From&metadataHeaders=To&metadataHeaders=Subject&metadataHeaders=Date`,
         {
@@ -298,12 +321,24 @@ class GoogleWebhookHandler implements WebhookHandler {
         }
       );
 
+      console.log(`📧 [Google Gmail] API Response Status: ${response.status}`);
+      console.log(`📧 [Google Gmail] API Response Headers:`, response.headers);
+
       if (!response.ok) {
-        console.error(`Failed to fetch email: ${response.status}`);
+        const errorText = await response.text();
+        console.error(`❌ [Google Gmail] API Error Response:`, errorText);
+        console.error(`❌ [Google Gmail] Request details:`, {
+          url: `${apiBaseUrl}/gmail/v1/users/me/messages/${messageId}?format=metadata&metadataHeaders=From&metadataHeaders=To&metadataHeaders=Subject&metadataHeaders=Date`,
+          method: 'GET',
+          headers: {
+            Authorization: accessToken ? '[REDACTED]' : 'MISSING',
+          },
+        });
         return null;
       }
 
       const message = (await response.json()) as GmailMessageResponse;
+      console.log(`✅ [Google Gmail] Full API Response:`, JSON.stringify(message, null, 2));
       const headers = message.payload?.headers || [];
       const getHeader = (name: string) =>
         headers.find(h => h.name.toLowerCase() === name.toLowerCase())?.value ||
@@ -334,6 +369,8 @@ class GoogleWebhookHandler implements WebhookHandler {
     calendarId: string = 'primary'
   ): Promise<Record<string, unknown> | null> {
     try {
+      console.log(`📅 [Google Calendar] Fetching event data for event: ${eventId}, calendar: ${calendarId}`);
+
       const response = await fetch(
         `${apiBaseUrl}/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events/${eventId}`,
         {
@@ -343,12 +380,24 @@ class GoogleWebhookHandler implements WebhookHandler {
         }
       );
 
+      console.log(`📅 [Google Calendar] API Response Status: ${response.status}`);
+      console.log(`📅 [Google Calendar] API Response Headers:`, response.headers);
+
       if (!response.ok) {
-        console.error(`Failed to fetch calendar event: ${response.status}`);
+        const errorText = await response.text();
+        console.error(`❌ [Google Calendar] API Error Response:`, errorText);
+        console.error(`❌ [Google Calendar] Request details:`, {
+          url: `${apiBaseUrl}/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events/${eventId}`,
+          method: 'GET',
+          headers: {
+            Authorization: accessToken ? '[REDACTED]' : 'MISSING',
+          },
+        });
         return null;
       }
 
       const event = (await response.json()) as CalendarEventResponse;
+      console.log(`✅ [Google Calendar] Full API Response:`, JSON.stringify(event, null, 2));
 
       return {
         event_id: event.id,
@@ -382,6 +431,8 @@ class GoogleWebhookHandler implements WebhookHandler {
     apiBaseUrl: string
   ): Promise<Record<string, unknown> | null> {
     try {
+      console.log(`📂 [Google Drive] Fetching file data for file: ${fileId}`);
+
       const response = await fetch(
         `${apiBaseUrl}/drive/v3/files/${fileId}?fields=id,name,mimeType,size,createdTime,modifiedTime,webViewLink,webContentLink,owners,parents`,
         {
@@ -391,12 +442,24 @@ class GoogleWebhookHandler implements WebhookHandler {
         }
       );
 
+      console.log(`📂 [Google Drive] API Response Status: ${response.status}`);
+      console.log(`📂 [Google Drive] API Response Headers:`, response.headers);
+
       if (!response.ok) {
-        console.error(`Failed to fetch drive file: ${response.status}`);
+        const errorText = await response.text();
+        console.error(`❌ [Google Drive] API Error Response:`, errorText);
+        console.error(`❌ [Google Drive] Request details:`, {
+          url: `${apiBaseUrl}/drive/v3/files/${fileId}?fields=id,name,mimeType,size,createdTime,modifiedTime,webViewLink,webContentLink,owners,parents`,
+          method: 'GET',
+          headers: {
+            Authorization: accessToken ? '[REDACTED]' : 'MISSING',
+          },
+        });
         return null;
       }
 
       const file = (await response.json()) as DriveFileResponse;
+      console.log(`✅ [Google Drive] Full API Response:`, JSON.stringify(file, null, 2));
 
       return {
         file_id: file.id,

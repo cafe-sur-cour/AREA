@@ -19,6 +19,100 @@ export class GoogleWebhookManager {
       process.env.SERVICE_GOOGLE_API_BASE_URL || 'https://www.googleapis.com';
   }
 
+  private isWatchExpired(expirationTimestamp: string): boolean {
+    const expirationDate = new Date(parseInt(expirationTimestamp));
+    const now = new Date();
+    const hoursRemaining = (expirationDate.getTime() - now.getTime()) / (1000 * 60 * 60);
+    return hoursRemaining < 24;
+  }
+
+  async renewWatchIfNeeded(webhook: ExternalWebhooks): Promise<boolean> {
+    if (!webhook.secret) {
+      console.warn(`⚠️  [Google] No secret data found for webhook ${webhook.id}`);
+      return false;
+    }
+
+    try {
+      const secretData = JSON.parse(webhook.secret);
+      const { channelId, resourceId, expiration } = secretData;
+
+      if (!expiration || !this.isWatchExpired(expiration)) {
+        console.log(`✅ [Google] Watch ${channelId} is still valid`);
+        return true;
+      }
+
+      console.log(`🔄 [Google] Watch ${channelId} expired, renewing...`);
+
+      // Arrêter l'ancien watch
+      await this.stopWatch(webhook.user_id, channelId, resourceId);
+
+      // Déterminer le type de watch
+      const actionType = webhook.repository?.split(':')[1];
+
+      if (actionType === 'google.calendar_event_invite') {
+        const calendarId = secretData.calendarId || 'primary';
+        const newWatch = await this.setupCalendarWatch(
+          webhook.user_id,
+          webhook.url,
+          calendarId
+        );
+        if (newWatch) {
+          await this.updateWebhookWithWatchInfo(webhook.id, newWatch);
+          return true;
+        }
+      } else if (actionType === 'google.drive_file_added') {
+        const fileId = secretData.fileId || 'root';
+        const newWatch = await this.setupDriveWatch(
+          webhook.user_id,
+          webhook.url,
+          fileId
+        );
+        if (newWatch) {
+          await this.updateWebhookWithWatchInfo(webhook.id, newWatch);
+          return true;
+        }
+      }
+
+      console.error(`❌ [Google] Failed to renew watch for action type: ${actionType}`);
+      return false;
+    } catch (error) {
+      console.error('Error renewing Google watch:', error);
+      return false;
+    }
+  }
+
+  async cleanupExpiredWatches(): Promise<void> {
+    try {
+      console.log('🧹 [Google] Starting cleanup of expired watches...');
+
+      const webhooks = await AppDataSource.getRepository(ExternalWebhooks).find({
+        where: {
+          service: 'google',
+          is_active: true,
+        },
+      });
+
+      let renewedCount = 0;
+      let failedCount = 0;
+
+      for (const webhook of webhooks) {
+        try {
+          const renewed = await this.renewWatchIfNeeded(webhook);
+          if (renewed) {
+            renewedCount++;
+          }
+        } catch (error) {
+          console.error(`❌ [Google] Failed to renew watch for webhook ${webhook.id}:`, error);
+          failedCount++;
+        }
+      }
+
+      console.log(`✅ [Google] Watch cleanup completed: ${renewedCount} renewed, ${failedCount} failed`);
+    } catch (error) {
+      console.error('Error during watch cleanup:', error);
+    }
+  }
+
   async setupCalendarWatch(
     userId: number,
     webhookUrl: string,
@@ -51,18 +145,31 @@ export class GoogleWebhookManager {
         }
       );
 
+      console.log(`📅 [Google Calendar] API Response Status: ${response.status}`);
+      console.log(`📅 [Google Calendar] API Response Headers:`, response.headers);
+
       if (!response.ok) {
         const errorText = await response.text();
-        console.error(
-          `❌ [Google Calendar] Failed to create watch: ${response.status} ${errorText}`
-        );
+        console.error(`❌ [Google Calendar] API Error Response:`, errorText);
+        console.error(`❌ [Google Calendar] Request details:`, {
+          url: `${this.apiBaseUrl}/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events/watch`,
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${userToken.token_value ? '[REDACTED]' : 'MISSING'}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            id: channelId,
+            type: 'web_hook',
+            address: webhookUrl,
+          }),
+        });
         return null;
       }
 
       const watchResponse = (await response.json()) as GoogleWatchResponse;
-      console.log(
-        `✅ [Google Calendar] Watch created: ${watchResponse.id} (expires: ${watchResponse.expiration})`
-      );
+      console.log(`✅ [Google Calendar] Full API Response:`, JSON.stringify(watchResponse, null, 2));
+      console.log(`✅ [Google Calendar] Watch created: ${watchResponse.id} (expires: ${new Date(parseInt(watchResponse.expiration)).toISOString()})`);
 
       return { ...watchResponse, calendarId };
     } catch (error) {
@@ -105,18 +212,31 @@ export class GoogleWebhookManager {
         }
       );
 
+      console.log(`📂 [Google Drive] API Response Status: ${response.status}`);
+      console.log(`📂 [Google Drive] API Response Headers:`, response.headers);
+
       if (!response.ok) {
         const errorText = await response.text();
-        console.error(
-          `❌ [Google Drive] Failed to create watch: ${response.status} ${errorText}`
-        );
+        console.error(`❌ [Google Drive] API Error Response:`, errorText);
+        console.error(`❌ [Google Drive] Request details:`, {
+          url: `${this.apiBaseUrl}/drive/v3/files/${fileId}/watch`,
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${userToken.token_value ? '[REDACTED]' : 'MISSING'}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            id: channelId,
+            type: 'web_hook',
+            address: webhookUrl,
+          }),
+        });
         return null;
       }
 
       const watchResponse = (await response.json()) as GoogleWatchResponse;
-      console.log(
-        `✅ [Google Drive] Watch created: ${watchResponse.id} (expires: ${watchResponse.expiration})`
-      );
+      console.log(`✅ [Google Drive] Full API Response:`, JSON.stringify(watchResponse, null, 2));
+      console.log(`✅ [Google Drive] Watch created: ${watchResponse.id} (expires: ${new Date(parseInt(watchResponse.expiration)).toISOString()})`);
 
       return { ...watchResponse, fileId };
     } catch (error) {
@@ -151,12 +271,29 @@ export class GoogleWebhookManager {
         }
       );
 
+      console.log(`🛑 [Google] Stop Watch API Response Status: ${response.status}`);
+      console.log(`🛑 [Google] Stop Watch API Response Headers:`, response.headers);
+
       if (!response.ok) {
-        console.warn(
-          `⚠️  [Google] Failed to stop watch: ${response.status} ${await response.text()}`
-        );
+        const errorText = await response.text();
+        console.warn(`⚠️  [Google] Stop Watch API Error Response:`, errorText);
+        console.warn(`⚠️  [Google] Stop Watch Request details:`, {
+          url: `${this.apiBaseUrl}/calendar/v3/channels/stop`,
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${userToken.token_value ? '[REDACTED]' : 'MISSING'}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            id: channelId,
+            resourceId: resourceId,
+          }),
+        });
         return false;
       }
+
+      const responseText = await response.text();
+      console.log(`✅ [Google] Stop Watch API Response:`, responseText || 'No content');
 
       console.log(`✅ [Google] Watch stopped: ${channelId}`);
       return true;
