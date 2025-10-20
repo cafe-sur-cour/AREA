@@ -280,6 +280,7 @@ export default function MyAreasPage() {
                     onReactionsChange={setSelectedReactions}
                     onConfigChange={setReactionsConfig}
                     defaultReaction={selectedReactions[0]}
+                    selectedAction={selectedAction}
                   />
                 </div>
 
