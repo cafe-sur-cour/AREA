@@ -9,6 +9,7 @@ import 'package:area/services/secure_storage.dart';
 import 'package:area/services/api_service.dart';
 import 'package:area/models/service_models.dart';
 import 'package:area/models/reaction_with_delay_model.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'dart:convert';
 
 class CatalogueItem {
@@ -17,6 +18,7 @@ class CatalogueItem {
   final String description;
   final String serviceName;
   final String serviceId;
+  final String serviceIconSVG;
   final bool isAction;
 
   CatalogueItem({
@@ -25,6 +27,7 @@ class CatalogueItem {
     required this.description,
     required this.serviceName,
     required this.serviceId,
+    required this.serviceIconSVG,
     required this.isAction,
   });
 }
@@ -90,6 +93,7 @@ class CatalogueScreenState extends State<CatalogueScreen> {
         for (var service in services) {
           final serviceName = service['name'] as String;
           final serviceId = service['id'] as String;
+          final serviceIconSVG = service['icon'] as String? ?? '';
 
           if (service['actions'] != null) {
             final actions = service['actions'] as List;
@@ -101,6 +105,7 @@ class CatalogueScreenState extends State<CatalogueScreen> {
                   description: action['description'] as String? ?? '',
                   serviceName: serviceName,
                   serviceId: serviceId,
+                  serviceIconSVG: serviceIconSVG,
                   isAction: true,
                 ),
               );
@@ -117,6 +122,7 @@ class CatalogueScreenState extends State<CatalogueScreen> {
                   description: reaction['description'] as String? ?? '',
                   serviceName: serviceName,
                   serviceId: serviceId,
+                  serviceIconSVG: serviceIconSVG,
                   isAction: false,
                 ),
               );
@@ -176,20 +182,26 @@ class CatalogueScreenState extends State<CatalogueScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppColors.areaBlue3.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Text(
-                  item.serviceName,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.areaBlue3,
+              Row(
+                children: [
+                  _buildServiceIcon(item.serviceIconSVG),
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: AppColors.areaBlue3.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      item.serviceName,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.areaBlue3,
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
 
               const SizedBox(height: 12),
@@ -445,6 +457,21 @@ class CatalogueScreenState extends State<CatalogueScreen> {
     );
   }
 
+  Widget _buildServiceIcon(String svgIcon) {
+    if (svgIcon.isNotEmpty && svgIcon.contains('<svg')) {
+      try {
+        return SizedBox(
+          width: 24,
+          height: 24,
+          child: SvgPicture.string(svgIcon, width: 24, height: 24, fit: BoxFit.contain),
+        );
+      } catch (e) {
+        // Fallback to default icon
+      }
+    }
+    return const Icon(Icons.api, size: 24, color: Colors.grey);
+  }
+
   Widget _buildCatalogueCard(CatalogueItem item) {
     return Card(
       elevation: 2,
@@ -471,10 +498,12 @@ class CatalogueScreenState extends State<CatalogueScreen> {
             children: [
               Row(
                 children: [
+                  _buildServiceIcon(item.serviceIconSVG),
+                  const SizedBox(width: 8),
                   Icon(
                     item.isAction ? Icons.play_arrow : Icons.bolt,
                     color: item.isAction ? AppColors.areaBlue3 : AppColors.areaBlue1,
-                    size: 20,
+                    size: 16,
                   ),
                   const SizedBox(width: 4),
                   Expanded(
