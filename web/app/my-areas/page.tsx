@@ -155,7 +155,7 @@ export default function MyAreasPage() {
       fetchData();
     } catch (error) {
       console.error('Error creating mapping:', error);
-      toast.error('Failed to create mapping. Please check your input.');
+      toast.error('Failed to create mapping. Please check if you\'re subscribed to the necessary services and you\'ve filled all required fields.');
     }
   };
 
