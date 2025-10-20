@@ -74,8 +74,14 @@ class GoogleWebhookHandler implements WebhookHandler {
       );
 
       // Log détaillé des headers reçus
-      console.log(`🔍 [GOOGLE WEBHOOK] All received headers:`, JSON.stringify(req.headers, null, 2));
-      console.log(`🔍 [GOOGLE WEBHOOK] Request body:`, JSON.stringify(req.body, null, 2));
+      console.log(
+        `🔍 [GOOGLE WEBHOOK] All received headers:`,
+        JSON.stringify(req.headers, null, 2)
+      );
+      console.log(
+        `🔍 [GOOGLE WEBHOOK] Request body:`,
+        JSON.stringify(req.body, null, 2)
+      );
 
       const resourceState = req.headers['x-goog-resource-state'] as string;
       const resourceId = req.headers['x-goog-resource-id'] as string;
@@ -127,9 +133,12 @@ class GoogleWebhookHandler implements WebhookHandler {
 
       // Vérifier et renouveler le watch si nécessaire
       const { googleWebhookManager } = await import('./webhookManager');
-      const watchRenewed = await googleWebhookManager.renewWatchIfNeeded(externalWebhook);
+      const watchRenewed =
+        await googleWebhookManager.renewWatchIfNeeded(externalWebhook);
       if (!watchRenewed) {
-        console.warn(`⚠️  [Google Webhook] Failed to renew watch for webhook ${externalWebhook.id}, proceeding anyway`);
+        console.warn(
+          `⚠️  [Google Webhook] Failed to renew watch for webhook ${externalWebhook.id}, proceeding anyway`
+        );
       }
 
       const { serviceSubscriptionManager } = await import(
@@ -230,22 +239,15 @@ class GoogleWebhookHandler implements WebhookHandler {
     const repository = webhook.repository;
     if (repository && repository.includes(':')) {
       const actionType = repository.split(':')[1];
-      console.log(`🔍 [Google Webhook] Extracted action type from repository: ${actionType}`);
+      console.log(
+        `🔍 [Google Webhook] Extracted action type from repository: ${actionType}`
+      );
       return actionType || null;
     }
 
-    if (webhook.url.includes('/gmail')) {
-      console.log('🔍 [Google Webhook] Detected Gmail webhook from URL');
-      return 'google.email_received';
-    } else if (webhook.url.includes('/calendar')) {
-      console.log('🔍 [Google Webhook] Detected Calendar webhook from URL');
-      return 'google.calendar_event_invite';
-    } else if (webhook.url.includes('/drive')) {
-      console.log('🔍 [Google Webhook] Detected Drive webhook from URL');
-      return 'google.drive_file_added';
-    }
-
-    console.warn(`⚠️  [Google Webhook] Unable to determine action type from repository: ${repository}`);
+    console.warn(
+      `⚠️  [Google Webhook] Unable to determine action type from repository: ${repository}`
+    );
     return null;
   }
 
@@ -277,7 +279,10 @@ class GoogleWebhookHandler implements WebhookHandler {
               calendarId = secretData.calendarId || 'primary';
             }
           } catch (error) {
-            console.warn('⚠️  [Google Webhook] Failed to parse webhook secret, using primary calendar', error);
+            console.warn(
+              '⚠️  [Google Webhook] Failed to parse webhook secret, using primary calendar',
+              error
+            );
           }
           return await this.fetchCalendarEventData(
             accessToken,
@@ -310,7 +315,9 @@ class GoogleWebhookHandler implements WebhookHandler {
     apiBaseUrl: string
   ): Promise<Record<string, unknown> | null> {
     try {
-      console.log(`📧 [Google Gmail] Fetching email data for message: ${messageId}`);
+      console.log(
+        `📧 [Google Gmail] Fetching email data for message: ${messageId}`
+      );
 
       const response = await fetch(
         `${apiBaseUrl}/gmail/v1/users/me/messages/${messageId}?format=metadata&metadataHeaders=From&metadataHeaders=To&metadataHeaders=Subject&metadataHeaders=Date`,
@@ -338,7 +345,10 @@ class GoogleWebhookHandler implements WebhookHandler {
       }
 
       const message = (await response.json()) as GmailMessageResponse;
-      console.log(`✅ [Google Gmail] Full API Response:`, JSON.stringify(message, null, 2));
+      console.log(
+        `✅ [Google Gmail] Full API Response:`,
+        JSON.stringify(message, null, 2)
+      );
       const headers = message.payload?.headers || [];
       const getHeader = (name: string) =>
         headers.find(h => h.name.toLowerCase() === name.toLowerCase())?.value ||
@@ -369,7 +379,9 @@ class GoogleWebhookHandler implements WebhookHandler {
     calendarId: string = 'primary'
   ): Promise<Record<string, unknown> | null> {
     try {
-      console.log(`📅 [Google Calendar] Fetching event data for event: ${eventId}, calendar: ${calendarId}`);
+      console.log(
+        `📅 [Google Calendar] Fetching event data for event: ${eventId}, calendar: ${calendarId}`
+      );
 
       const response = await fetch(
         `${apiBaseUrl}/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events/${eventId}`,
@@ -380,8 +392,13 @@ class GoogleWebhookHandler implements WebhookHandler {
         }
       );
 
-      console.log(`📅 [Google Calendar] API Response Status: ${response.status}`);
-      console.log(`📅 [Google Calendar] API Response Headers:`, response.headers);
+      console.log(
+        `📅 [Google Calendar] API Response Status: ${response.status}`
+      );
+      console.log(
+        `📅 [Google Calendar] API Response Headers:`,
+        response.headers
+      );
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -397,7 +414,10 @@ class GoogleWebhookHandler implements WebhookHandler {
       }
 
       const event = (await response.json()) as CalendarEventResponse;
-      console.log(`✅ [Google Calendar] Full API Response:`, JSON.stringify(event, null, 2));
+      console.log(
+        `✅ [Google Calendar] Full API Response:`,
+        JSON.stringify(event, null, 2)
+      );
 
       return {
         event_id: event.id,
@@ -459,7 +479,10 @@ class GoogleWebhookHandler implements WebhookHandler {
       }
 
       const file = (await response.json()) as DriveFileResponse;
-      console.log(`✅ [Google Drive] Full API Response:`, JSON.stringify(file, null, 2));
+      console.log(
+        `✅ [Google Drive] Full API Response:`,
+        JSON.stringify(file, null, 2)
+      );
 
       return {
         file_id: file.id,

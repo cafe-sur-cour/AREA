@@ -40,13 +40,6 @@ const googleService: Service = {
       const { googleWebhookManager } = await import('./webhook/webhookManager');
 
       let webhookPath = '/api/webhooks/google';
-      if (actionType === 'google.email_received') {
-        webhookPath += '/gmail';
-      } else if (actionType === 'google.calendar_event_invite') {
-        webhookPath += '/calendar';
-      } else if (actionType === 'google.drive_file_added') {
-        webhookPath += '/drive';
-      }
 
       const webhookUrl = `${process.env.WEBHOOK_BASE_URL || ''}${webhookPath}`;
 
@@ -143,9 +136,12 @@ export async function initialize(): Promise<void> {
   const { googleWebhookManager } = await import('./webhook/webhookManager');
   await googleWebhookManager.cleanupExpiredWatches();
 
-  setInterval(async () => {
-    await googleWebhookManager.cleanupExpiredWatches();
-  }, 6 * 60 * 60 * 1000);
+  setInterval(
+    async () => {
+      await googleWebhookManager.cleanupExpiredWatches();
+    },
+    6 * 60 * 60 * 1000
+  );
 
   console.log('Google service initialized');
 }

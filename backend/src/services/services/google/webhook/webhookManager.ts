@@ -22,13 +22,16 @@ export class GoogleWebhookManager {
   private isWatchExpired(expirationTimestamp: string): boolean {
     const expirationDate = new Date(parseInt(expirationTimestamp));
     const now = new Date();
-    const hoursRemaining = (expirationDate.getTime() - now.getTime()) / (1000 * 60 * 60);
+    const hoursRemaining =
+      (expirationDate.getTime() - now.getTime()) / (1000 * 60 * 60);
     return hoursRemaining < 24;
   }
 
   async renewWatchIfNeeded(webhook: ExternalWebhooks): Promise<boolean> {
     if (!webhook.secret) {
-      console.warn(`⚠️  [Google] No secret data found for webhook ${webhook.id}`);
+      console.warn(
+        `⚠️  [Google] No secret data found for webhook ${webhook.id}`
+      );
       return false;
     }
 
@@ -73,7 +76,9 @@ export class GoogleWebhookManager {
         }
       }
 
-      console.error(`❌ [Google] Failed to renew watch for action type: ${actionType}`);
+      console.error(
+        `❌ [Google] Failed to renew watch for action type: ${actionType}`
+      );
       return false;
     } catch (error) {
       console.error('Error renewing Google watch:', error);
@@ -85,12 +90,14 @@ export class GoogleWebhookManager {
     try {
       console.log('🧹 [Google] Starting cleanup of expired watches...');
 
-      const webhooks = await AppDataSource.getRepository(ExternalWebhooks).find({
-        where: {
-          service: 'google',
-          is_active: true,
-        },
-      });
+      const webhooks = await AppDataSource.getRepository(ExternalWebhooks).find(
+        {
+          where: {
+            service: 'google',
+            is_active: true,
+          },
+        }
+      );
 
       let renewedCount = 0;
       let failedCount = 0;
@@ -102,12 +109,17 @@ export class GoogleWebhookManager {
             renewedCount++;
           }
         } catch (error) {
-          console.error(`❌ [Google] Failed to renew watch for webhook ${webhook.id}:`, error);
+          console.error(
+            `❌ [Google] Failed to renew watch for webhook ${webhook.id}:`,
+            error
+          );
           failedCount++;
         }
       }
 
-      console.log(`✅ [Google] Watch cleanup completed: ${renewedCount} renewed, ${failedCount} failed`);
+      console.log(
+        `✅ [Google] Watch cleanup completed: ${renewedCount} renewed, ${failedCount} failed`
+      );
     } catch (error) {
       console.error('Error during watch cleanup:', error);
     }
@@ -117,7 +129,7 @@ export class GoogleWebhookManager {
     userId: number,
     webhookUrl: string,
     calendarId: string = 'primary'
-  ): Promise<GoogleWatchResponse & { calendarId: string } | null> {
+  ): Promise<(GoogleWatchResponse & { calendarId: string }) | null> {
     try {
       const userToken = await googleOAuth.getUserToken(userId);
       if (!userToken) {
@@ -145,8 +157,13 @@ export class GoogleWebhookManager {
         }
       );
 
-      console.log(`📅 [Google Calendar] API Response Status: ${response.status}`);
-      console.log(`📅 [Google Calendar] API Response Headers:`, response.headers);
+      console.log(
+        `📅 [Google Calendar] API Response Status: ${response.status}`
+      );
+      console.log(
+        `📅 [Google Calendar] API Response Headers:`,
+        response.headers
+      );
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -168,8 +185,13 @@ export class GoogleWebhookManager {
       }
 
       const watchResponse = (await response.json()) as GoogleWatchResponse;
-      console.log(`✅ [Google Calendar] Full API Response:`, JSON.stringify(watchResponse, null, 2));
-      console.log(`✅ [Google Calendar] Watch created: ${watchResponse.id} (expires: ${new Date(parseInt(watchResponse.expiration)).toISOString()})`);
+      console.log(
+        `✅ [Google Calendar] Full API Response:`,
+        JSON.stringify(watchResponse, null, 2)
+      );
+      console.log(
+        `✅ [Google Calendar] Watch created: ${watchResponse.id} (expires: ${new Date(parseInt(watchResponse.expiration)).toISOString()})`
+      );
 
       return { ...watchResponse, calendarId };
     } catch (error) {
@@ -178,12 +200,11 @@ export class GoogleWebhookManager {
     }
   }
 
-
   async setupDriveWatch(
     userId: number,
     webhookUrl: string,
     fileId: string = 'root'
-  ): Promise<GoogleWatchResponse & { fileId: string } | null> {
+  ): Promise<(GoogleWatchResponse & { fileId: string }) | null> {
     try {
       const userToken = await googleOAuth.getUserToken(userId);
       if (!userToken) {
@@ -235,8 +256,13 @@ export class GoogleWebhookManager {
       }
 
       const watchResponse = (await response.json()) as GoogleWatchResponse;
-      console.log(`✅ [Google Drive] Full API Response:`, JSON.stringify(watchResponse, null, 2));
-      console.log(`✅ [Google Drive] Watch created: ${watchResponse.id} (expires: ${new Date(parseInt(watchResponse.expiration)).toISOString()})`);
+      console.log(
+        `✅ [Google Drive] Full API Response:`,
+        JSON.stringify(watchResponse, null, 2)
+      );
+      console.log(
+        `✅ [Google Drive] Watch created: ${watchResponse.id} (expires: ${new Date(parseInt(watchResponse.expiration)).toISOString()})`
+      );
 
       return { ...watchResponse, fileId };
     } catch (error) {
@@ -271,8 +297,13 @@ export class GoogleWebhookManager {
         }
       );
 
-      console.log(`🛑 [Google] Stop Watch API Response Status: ${response.status}`);
-      console.log(`🛑 [Google] Stop Watch API Response Headers:`, response.headers);
+      console.log(
+        `🛑 [Google] Stop Watch API Response Status: ${response.status}`
+      );
+      console.log(
+        `🛑 [Google] Stop Watch API Response Headers:`,
+        response.headers
+      );
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -293,7 +324,10 @@ export class GoogleWebhookManager {
       }
 
       const responseText = await response.text();
-      console.log(`✅ [Google] Stop Watch API Response:`, responseText || 'No content');
+      console.log(
+        `✅ [Google] Stop Watch API Response:`,
+        responseText || 'No content'
+      );
 
       console.log(`✅ [Google] Watch stopped: ${channelId}`);
       return true;
@@ -305,7 +339,10 @@ export class GoogleWebhookManager {
 
   async updateWebhookWithWatchInfo(
     webhookId: number,
-    watchResponse: GoogleWatchResponse & { calendarId?: string; fileId?: string }
+    watchResponse: GoogleWatchResponse & {
+      calendarId?: string;
+      fileId?: string;
+    }
   ): Promise<void> {
     const webhook = await AppDataSource.getRepository(ExternalWebhooks).findOne(
       {

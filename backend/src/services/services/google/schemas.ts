@@ -104,7 +104,8 @@ export const googleCreateDocumentSchema: ActionReactionSchema = {
       required: false,
       placeholder: 'Document content...',
       dynamic: true,
-      dynamicPlaceholder: '{{action.payload.description}}\n\nCreated from: {{action.payload.name}}',
+      dynamicPlaceholder:
+        '{{action.payload.description}}\n\nCreated from: {{action.payload.name}}',
     },
   ],
 };
