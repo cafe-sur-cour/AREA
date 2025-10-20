@@ -350,6 +350,26 @@ router.get(
  *                                 webhookPattern:
  *                                   type: string
  *                                   description: Webhook pattern for triggering this action
+ *                             payloadFields:
+ *                               type: array
+ *                               description: List of available payload fields that can be used from this action
+ *                               items:
+ *                                 type: object
+ *                                 properties:
+ *                                   path:
+ *                                     type: string
+ *                                     description: The path to access this field in the payload
+ *                                     example: "user.email"
+ *                                   type:
+ *                                     type: string
+ *                                     description: The data type of this field
+ *                                     example: "string"
+ *                                   description:
+ *                                     type: string
+ *                                     description: Description of what this field contains
+ *                                   example:
+ *                                     type: string
+ *                                     description: Example value for this field
  *       500:
  *         description: Internal server error
  */
@@ -619,6 +639,26 @@ router.get(
  *                             metadata:
  *                               type: object
  *                               description: Additional metadata for the action
+ *                             payloadFields:
+ *                               type: array
+ *                               description: List of available payload fields that can be used from this action
+ *                               items:
+ *                                 type: object
+ *                                 properties:
+ *                                   path:
+ *                                     type: string
+ *                                     description: The path to access this field in the payload
+ *                                     example: "user.email"
+ *                                   type:
+ *                                     type: string
+ *                                     description: The data type of this field
+ *                                     example: "string"
+ *                                   description:
+ *                                     type: string
+ *                                     description: Description of what this field contains
+ *                                   example:
+ *                                     type: string
+ *                                     description: Example value for this field
  *       500:
  *         description: Internal server error
  */
@@ -660,11 +700,9 @@ router.get(
       });
     } catch (err) {
       console.error('Error fetching subscribed services with actions:', err);
-      return res
-        .status(500)
-        .json({
-          error: 'Internal Server Error in get subscribed services actions',
-        });
+      return res.status(500).json({
+        error: 'Internal Server Error in get subscribed services actions',
+      });
     }
   }
 );
@@ -765,107 +803,8 @@ router.get(
       });
     } catch (err) {
       console.error('Error fetching subscribed services with reactions:', err);
-      return res
-        .status(500)
-        .json({
-          error: 'Internal Server Error in get subscribed services reactions',
-        });
-    }
-  }
-);
-
-/**
- * @swagger
- * /api/services/actions/{actionId}/events:
- *   get:
- *     summary: Get recent events for a specific action
- *     tags:
- *       - Services
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: actionId
- *         required: true
- *         schema:
- *           type: string
- *         description: Action ID (format: service.action)
- *       - in: query
- *         name: limit
- *         schema:
- *           type: integer
- *           default: 5
- *         description: Number of recent events to return
- *     responses:
- *       200:
- *         description: Recent events with payloads for the action
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 action:
- *                   type: string
- *                   description: Action type
- *                 events:
- *                   type: array
- *                   items:
- *                     type: object
- *                     properties:
- *                       id:
- *                         type: number
- *                       payload:
- *                         type: object
- *                         description: The payload produced by the action
- *                       created_at:
- *                         type: string
- *                         format: date-time
- *       404:
- *         description: Action not found
- *       500:
- *         description: Internal server error
- */
-router.get(
-  '/actions/:actionId/events',
-  token,
-  async (req: Request, res: Response): Promise<Response> => {
-    try {
-      const auth = req.auth as { id: number; email: string };
-      const userId = auth.id;
-      const { actionId } = req.params;
-      const limit = parseInt(req.query.limit as string) || 5;
-
-      // Vérifier que l'action existe
-      const actionDefinition = serviceRegistry.getActionByType(actionId);
-      if (!actionDefinition) {
-        return res.status(404).json({ error: 'Action not found' });
-      }
-
-      // Récupérer les derniers événements de cette action pour cet utilisateur
-      const eventRepository = AppDataSource.getRepository(WebhookEvents);
-      const events = await eventRepository.find({
-        where: {
-          action_type: actionId,
-          user_id: userId,
-          status: 'completed'
-        },
-        order: { created_at: 'DESC' },
-        take: limit,
-        select: ['id', 'payload', 'created_at']
-      });
-
-      return res.status(200).json({
-        action: actionId,
-        events: events.map(event => ({
-          id: event.id,
-          payload: event.payload,
-          created_at: event.created_at
-        }))
-      });
-    } catch (err) {
-      console.error('Error fetching action events:', err);
-      return res.status(500).json({ 
-        error: 'Internal Server Error in get action events' 
+      return res.status(500).json({
+        error: 'Internal Server Error in get subscribed services reactions',
       });
     }
   }
@@ -1009,6 +948,26 @@ router.get(
  *                           webhookPattern:
  *                             type: string
  *                             description: Webhook pattern for triggering this action
+ *                       payloadFields:
+ *                         type: array
+ *                         description: List of available payload fields that can be used from this action
+ *                         items:
+ *                           type: object
+ *                           properties:
+ *                             path:
+ *                               type: string
+ *                               description: The path to access this field in the payload
+ *                               example: "user.email"
+ *                             type:
+ *                               type: string
+ *                               description: The data type of this field
+ *                               example: "string"
+ *                             description:
+ *                               type: string
+ *                               description: Description of what this field contains
+ *                             example:
+ *                               type: string
+ *                               description: Example value for this field
  *       400:
  *         description: Bad request - missing service ID
  *         content:
@@ -1210,6 +1169,26 @@ router.get(
  *                           webhookPattern:
  *                             type: string
  *                             description: Webhook pattern for triggering this action
+ *                       payloadFields:
+ *                         type: array
+ *                         description: List of available payload fields that can be used from this action
+ *                         items:
+ *                           type: object
+ *                           properties:
+ *                             path:
+ *                               type: string
+ *                               description: The path to access this field in the payload
+ *                               example: "user.email"
+ *                             type:
+ *                               type: string
+ *                               description: The data type of this field
+ *                               example: "string"
+ *                             description:
+ *                               type: string
+ *                               description: Description of what this field contains
+ *                             example:
+ *                               type: string
+ *                               description: Example value for this field
  *       400:
  *         description: Bad request - missing service ID or action id
  *         content:
@@ -1258,9 +1237,12 @@ router.get(
         });
       }
 
+      const action = service.actions.find(element => element.id === id);
+
       return res.status(200).json({
         serviceId: service.id,
-        ...service.actions.find(element => element.id === id),
+        ...action,
+        payloadFields: extractPayloadFields(action!),
       });
     } catch (err) {
       console.error('Error fetching service actions:', err);
