@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import api from '@/lib/api';
 import { User } from '@/types/user';
 import { getToken } from '@/lib/manageToken';
+import { redirect } from 'next/navigation';
 
 interface AuthContextType {
   user: User | null;
@@ -87,6 +88,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.error('Logout request failed:', err);
     });
     setUser(null);
+    redirect('/');
   };
 
   const refreshUserInfo = async (): Promise<User | null> => {

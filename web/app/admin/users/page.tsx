@@ -94,7 +94,6 @@ export default function UsersManagement() {
       try {
         await api.delete(`/user/${id}`);
 
-        // Update local state
         setUsers(users.filter(u => u.id !== id));
       } catch (err) {
         console.error('Failed to delete user:', err);
@@ -115,7 +114,6 @@ export default function UsersManagement() {
 
         const response = await api.post<User>('/users', createPayload);
 
-        // Add to local state
         if (response.data) {
           setUsers([...users, response.data]);
         }
