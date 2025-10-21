@@ -4,6 +4,7 @@ import 'package:area/core/constants/app_colors.dart';
 import 'package:area/core/constants/app_constants.dart';
 import 'package:area/core/notifiers/backend_address_notifier.dart';
 import 'package:area/core/notifiers/automation_builder_notifier.dart';
+import 'package:area/l10n/app_localizations.dart';
 import 'package:area/services/secure_http_client.dart';
 import 'package:area/services/secure_storage.dart';
 import 'package:area/services/api_service.dart';
@@ -207,7 +208,9 @@ class CatalogueScreenState extends State<CatalogueScreen> {
               const SizedBox(height: 12),
 
               Text(
-                item.description.isNotEmpty ? item.description : 'No description available',
+                item.description.isNotEmpty
+                    ? item.description
+                    : AppLocalizations.of(dialogContext)!.no_description_available,
                 style: const TextStyle(fontSize: 14),
               ),
             ],
@@ -216,7 +219,7 @@ class CatalogueScreenState extends State<CatalogueScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('Cancel'),
+            child: Text(AppLocalizations.of(dialogContext)!.cancel),
           ),
           ElevatedButton(
             onPressed: () {
@@ -230,7 +233,11 @@ class CatalogueScreenState extends State<CatalogueScreen> {
                 borderRadius: BorderRadius.circular(AppDimensions.borderRadiusSM),
               ),
             ),
-            child: Text(item.isAction ? 'Use as Action' : 'Use as Reaction'),
+            child: Text(
+              item.isAction
+                  ? AppLocalizations.of(dialogContext)!.use_as_action
+                  : AppLocalizations.of(dialogContext)!.use_as_reaction,
+            ),
           ),
         ],
       ),
@@ -244,8 +251,8 @@ class CatalogueScreenState extends State<CatalogueScreen> {
     if (backendAddressNotifier.backendAddress == null) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Backend server address is not configured'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.backend_not_configured),
             backgroundColor: Colors.red,
             duration: Duration(seconds: 3),
           ),
@@ -310,7 +317,12 @@ class CatalogueScreenState extends State<CatalogueScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Failed to load ${item.isAction ? 'action' : 'reaction'}: ${e.toString().replaceAll('Exception: ', '')}',
+              AppLocalizations.of(context)!.failed_load_item(
+                item.isAction
+                    ? AppLocalizations.of(context)!.action_lower
+                    : AppLocalizations.of(context)!.reaction_lower,
+                e.toString().replaceAll('Exception: ', ''),
+              ),
             ),
             backgroundColor: Colors.red,
             duration: const Duration(seconds: 3),
@@ -339,7 +351,7 @@ class CatalogueScreenState extends State<CatalogueScreen> {
       child: Row(
         children: [
           FilterChip(
-            label: const Text('All'),
+            label: Text(AppLocalizations.of(context)!.all),
             selected: _filter == 'all',
             onSelected: (selected) {
               if (selected) setState(() => _filter = 'all');
@@ -348,7 +360,7 @@ class CatalogueScreenState extends State<CatalogueScreen> {
           ),
           const SizedBox(width: 8),
           FilterChip(
-            label: const Text('Actions'),
+            label: Text(AppLocalizations.of(context)!.actions),
             selected: _filter == 'actions',
             onSelected: (selected) {
               if (selected) setState(() => _filter = 'actions');
@@ -357,7 +369,7 @@ class CatalogueScreenState extends State<CatalogueScreen> {
           ),
           const SizedBox(width: 8),
           FilterChip(
-            label: const Text('Reactions'),
+            label: Text(AppLocalizations.of(context)!.reactions_filter),
             selected: _filter == 'reactions',
             onSelected: (selected) {
               if (selected) setState(() => _filter = 'reactions');
@@ -386,7 +398,7 @@ class CatalogueScreenState extends State<CatalogueScreen> {
             const Icon(Icons.error_outline, size: 64, color: Colors.red),
             const SizedBox(height: 16),
             Text(
-              'Error loading catalogue',
+              AppLocalizations.of(context)!.error_loading_catalogue,
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
@@ -402,7 +414,7 @@ class CatalogueScreenState extends State<CatalogueScreen> {
             ElevatedButton.icon(
               onPressed: _fetchCatalogue,
               icon: const Icon(Icons.refresh),
-              label: const Text('Retry'),
+              label: Text(AppLocalizations.of(context)!.retry),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.areaBlue3,
                 foregroundColor: Colors.white,
@@ -429,7 +441,9 @@ class CatalogueScreenState extends State<CatalogueScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              _filter == 'all' ? 'No items available' : 'No $_filter available',
+              _filter == 'all'
+                  ? AppLocalizations.of(context)!.no_items_available
+                  : AppLocalizations.of(context)!.no_filter_available(_filter),
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
