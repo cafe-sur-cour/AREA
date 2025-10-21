@@ -150,7 +150,15 @@ export class SpotifyReactionExecutor implements ReactionExecutor {
         };
       }
 
-      const playbackState: SpotifyPlaybackState = await stateResponse.json();
+      let playbackState: SpotifyPlaybackState;
+      try {
+        playbackState = await stateResponse.json();
+      } catch {
+        return {
+          success: false,
+          error: `Failed to parse playback state response: Invalid JSON response from Spotify API`,
+        };
+      }
       const isPlaying = playbackState.is_playing;
 
       // Toggle playback
@@ -234,7 +242,16 @@ export class SpotifyReactionExecutor implements ReactionExecutor {
           };
         }
 
-        const playbackState: SpotifyPlaybackState = await stateResponse.json();
+        let playbackState: SpotifyPlaybackState;
+        try {
+          playbackState = await stateResponse.json();
+        } catch {
+          return {
+            success: false,
+            error:
+              'Failed to parse playback state response: Invalid JSON response from Spotify API',
+          };
+        }
         if (!playbackState.item?.uri) {
           return {
             success: false,
