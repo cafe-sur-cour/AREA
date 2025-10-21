@@ -2,6 +2,7 @@ import type { Service } from '../../../types/service';
 import { redditActions } from './actions';
 import { redditReactions } from './reactions';
 import { redditReactionExecutor } from './executor';
+import { redditScheduler } from './RedditScheduler';
 import { getIconSvg } from '../../../utils/iconMapping';
 
 const redditService: Service = {
@@ -44,10 +45,12 @@ export async function initialize(): Promise<void> {
   console.log('Initializing Reddit service...');
   const { initializeRedditPassport } = await import('./passport');
   initializeRedditPassport();
+  await redditScheduler.start();
   console.log('Reddit service initialized');
 }
 
 export async function cleanup(): Promise<void> {
   console.log('Cleaning up Reddit service...');
+  await redditScheduler.stop();
   console.log('Reddit service cleaned up');
 }
