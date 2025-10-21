@@ -75,10 +75,6 @@ export class TimerScheduler {
       ];
       const currentDay = dayNames.indexOf(dayName);
 
-      console.log(
-        `⏰ [TimerScheduler] Checking timers at ${now.toISOString()} (Paris time: ${currentHour}:${currentMinute.toString().padStart(2, '0')} ${dayName})`
-      );
-
       await this.checkEveryHourAtIntervalsTimers(currentMinute);
       await this.checkEveryDayAtXHourTimers(
         currentHour,
@@ -137,10 +133,6 @@ export class TimerScheduler {
       },
     });
 
-    console.log(
-      `📅 [TimerScheduler] Found ${mappings.length} every_day_at_x_hour mappings`
-    );
-
     const dayNames = [
       'sunday',
       'monday',
@@ -158,10 +150,6 @@ export class TimerScheduler {
           minute?: number;
           days: string[];
         };
-
-        console.log(
-          `🔍 [TimerScheduler] Checking mapping ${mapping.id}: hour=${config.hour}, minute=${config.minute ?? 0}, days=${config.days?.join(',')}, current=${currentHour}:${currentMinute} (${dayNames[currentDay]})`
-        );
 
         if (
           config.hour === currentHour &&
