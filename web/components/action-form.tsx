@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
+import Link from 'next/link';
 
 interface ActionFormProps {
   selectedAction: Action | null;
@@ -41,7 +42,7 @@ export default function ActionForm({
         setIsLoading(true);
         const res = (
           await api.get<{ services: ServiceAction[] }>({
-            endpoint: '/services/actions',
+            endpoint: '/services/subscribed/actions',
           })
         ).data;
         if (!res?.services || res.services.length === 0) {
@@ -71,7 +72,16 @@ export default function ActionForm({
   if (isLoading) return null;
   return (
     <>
-      <Select
+      {actions.length === 0 ? (
+        <div className='text-sm text-gray-500'>
+          No subscribed services with actions found. <p></p>
+          <Link href="/services" className='text-blue-500 hover:underline'>
+            Click here to subscribe to services.
+          </Link>
+        </div>
+      ) : (
+        <>
+          <Select
         value={selectedServiceAction || ''}
         onValueChange={value => {
           setSelectedServiceAction(value);
@@ -235,6 +245,8 @@ export default function ActionForm({
                 </div>
               );
             })}
+            </>
+          )}
         </>
       )}
     </>
