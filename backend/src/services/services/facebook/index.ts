@@ -14,7 +14,7 @@ const facebookservice: Service = {
     enabled: true,
     supportsLogin: true,
   },
-  authOnly: false,
+  authOnly: true,
 };
 
 export default facebookservice;
