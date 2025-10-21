@@ -39,7 +39,7 @@ class ServicesScreenState extends State<ServicesScreen> {
 
       if (backendAddressNotifier.backendAddress == null) {
         setState(() {
-          _error = 'Backend server address not configured';
+          _error = AppLocalizations.of(context)!.backend_server_not_configured;
           _isLoading = false;
         });
         return;
@@ -55,7 +55,7 @@ class ServicesScreenState extends State<ServicesScreen> {
       });
     } catch (e) {
       setState(() {
-        _error = 'Failed to load services: $e';
+        _error = AppLocalizations.of(context)!.failed_load_services(e.toString());
         _isLoading = false;
       });
     }
@@ -109,7 +109,7 @@ class ServicesScreenState extends State<ServicesScreen> {
     final backendAddressNotifier = Provider.of<BackendAddressNotifier>(context, listen: false);
 
     if (backendAddressNotifier.backendAddress == null) {
-      _showError('Backend server address not configured');
+      _showError(AppLocalizations.of(context)!.backend_server_not_configured);
       return;
     }
 
@@ -120,13 +120,15 @@ class ServicesScreenState extends State<ServicesScreen> {
         await _handleSubscribe(service, backendAddressNotifier.backendAddress!);
       }
     } catch (e) {
-      _showError('Action failed: $e');
+      if (mounted) {
+        _showError(AppLocalizations.of(context)!.action_failed(e.toString()));
+      }
     }
   }
 
   Future<void> _handleSubscribe(ServiceInfo service, String backendAddress) async {
     try {
-      _showLoading('Connecting to ${service.name}...');
+      _showLoading(AppLocalizations.of(context)!.connecting_to_service(service.name));
 
       final success = await MobileOAuthService.handleServiceSubscription(
         context: context,
@@ -142,41 +144,45 @@ class ServicesScreenState extends State<ServicesScreen> {
         Navigator.of(context).pop();
       }
 
-      if (success) {
-        _showSuccess('Successfully connected to ${service.name}');
+      if (success && mounted) {
+        _showSuccess(AppLocalizations.of(context)!.successfully_connected_to(service.name));
         await _refreshServiceStatus(service);
       }
     } catch (e) {
       if (mounted) {
         Navigator.of(context).pop();
+        _showError(
+          AppLocalizations.of(context)!.failed_connect_service(service.name, e.toString()),
+        );
       }
-      _showError('Failed to connect to ${service.name}: $e');
     }
   }
 
   Future<void> _handleUnsubscribe(ServiceInfo service, String backendAddress) async {
     final confirmed = await _showConfirmDialog(
-      'Unsubscribe from ${service.name}',
-      'Are you sure you want to unsubscribe from ${service.name}? This will stop all automations using this service.',
+      AppLocalizations.of(context)!.unsubscribe_from(service.name),
+      AppLocalizations.of(context)!.unsubscribe_confirm(service.name),
     );
 
     if (!confirmed) return;
 
     try {
-      _showLoading('Unsubscribing from ${service.name}...');
+      if (mounted) {
+        _showLoading(AppLocalizations.of(context)!.unsubscribing_from_service(service.name));
+      }
 
       await ServiceSubscriptionService.unsubscribeFromService(backendAddress, service);
 
       if (mounted) {
         Navigator.of(context).pop();
+        _showSuccess(AppLocalizations.of(context)!.unsubscribed_from(service.name));
+        await _refreshServiceStatus(service);
       }
-      _showSuccess('Unsubscribed from ${service.name}');
-      await _refreshServiceStatus(service);
     } catch (e) {
       if (mounted) {
         Navigator.of(context).pop();
+        _showError(AppLocalizations.of(context)!.unsubscribe_failed(e.toString()));
       }
-      _showError('Unsubscribe failed: $e');
     }
   }
 
@@ -205,11 +211,11 @@ class ServicesScreenState extends State<ServicesScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+            child: Text(AppLocalizations.of(this.context)!.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Confirm'),
+            child: Text(AppLocalizations.of(this.context)!.confirm),
           ),
         ],
       ),
@@ -268,7 +274,7 @@ class ServicesScreenState extends State<ServicesScreen> {
             Icon(Icons.check_circle, size: 16, color: AppColors.success),
             const SizedBox(width: 4),
             Text(
-              'Connected',
+              AppLocalizations.of(context)!.connected,
               style: TextStyle(
                 color: AppColors.success,
                 fontSize: 12,
@@ -286,13 +292,13 @@ class ServicesScreenState extends State<ServicesScreen> {
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: Colors.orange),
         ),
-        child: const Row(
+        child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(Icons.link, size: 16, color: Colors.orange),
             SizedBox(width: 4),
             Text(
-              'Not Subscribed',
+              AppLocalizations.of(context)!.not_subscribed,
               style: TextStyle(
                 color: Colors.orange,
                 fontSize: 12,
@@ -310,13 +316,13 @@ class ServicesScreenState extends State<ServicesScreen> {
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: Colors.grey),
         ),
-        child: const Row(
+        child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(Icons.link_off, size: 16, color: Colors.grey),
             SizedBox(width: 4),
             Text(
-              'Not Connected',
+              AppLocalizations.of(context)!.not_connected,
               style: TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.w600),
             ),
           ],
@@ -368,10 +374,10 @@ class ServicesScreenState extends State<ServicesScreen> {
                 ),
                 child: Text(
                   service.isSubscribed
-                      ? 'Unsubscribe'
+                      ? AppLocalizations.of(context)!.unsubscribe
                       : service.oauthConnected
-                      ? 'Subscribe'
-                      : 'Connect & Subscribe',
+                      ? AppLocalizations.of(context)!.subscribe
+                      : AppLocalizations.of(context)!.connect_and_subscribe,
                   style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 ),
               ),
@@ -392,13 +398,13 @@ class ServicesScreenState extends State<ServicesScreen> {
 
   Widget _buildBody() {
     if (_isLoading) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircularProgressIndicator(),
-            SizedBox(height: 16),
-            Text('Loading services...'),
+            const CircularProgressIndicator(),
+            const SizedBox(height: 16),
+            Text(AppLocalizations.of(context)!.loading_services),
           ],
         ),
       );
@@ -412,7 +418,7 @@ class ServicesScreenState extends State<ServicesScreen> {
             const Icon(Icons.error_outline, size: 64, color: Colors.red),
             const SizedBox(height: 16),
             Text(
-              'Error',
+              AppLocalizations.of(context)!.error,
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red),
             ),
             const SizedBox(height: 8),
@@ -425,28 +431,31 @@ class ServicesScreenState extends State<ServicesScreen> {
               ),
             ),
             const SizedBox(height: 24),
-            ElevatedButton(onPressed: _loadServices, child: const Text('Retry')),
+            ElevatedButton(
+              onPressed: _loadServices,
+              child: Text(AppLocalizations.of(context)!.retry),
+            ),
           ],
         ),
       );
     }
 
     if (_services.isEmpty) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.api, size: 64, color: Colors.grey),
-            SizedBox(height: 16),
+            const Icon(Icons.api, size: 64, color: Colors.grey),
+            const SizedBox(height: 16),
             Text(
-              'No Services Available',
+              AppLocalizations.of(context)!.no_services_available_title,
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.grey),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
-              'No services found. Please check your connection.',
+              AppLocalizations.of(context)!.no_services_found,
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 16, color: Colors.grey),
+              style: const TextStyle(fontSize: 16, color: Colors.grey),
             ),
           ],
         ),
