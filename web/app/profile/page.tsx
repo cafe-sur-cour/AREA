@@ -290,6 +290,22 @@ export default function ProfilePage() {
                     </div>
                   </CardContent>
                 </Card>
+
+                {/* Email Card */}
+                <Card>
+                  <CardContent className='p-6'>
+                    <div className='flex items-center gap-3'>
+                      <div className='p-3 bg-app-blue-light rounded-lg'>
+                        <Mail className='h-6 w-6 text-app-blue-primary' />
+                      </div>
+                      <div className='flex-1'>
+                        <p className='text-sm font-medium text-app-text-secondary'>
+                          Email
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
             </div>
           </div>
