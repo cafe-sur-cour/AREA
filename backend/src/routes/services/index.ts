@@ -791,7 +791,6 @@ router.get(
         .filter(subscription => subscription.subscribed)
         .map(subscription => subscription.service);
 
-      // Include services that are always subscribed
       const alwaysSubscribedServiceIds = serviceRegistry
         .getAllServices()
         .filter(service => service.alwaysSubscribed)
