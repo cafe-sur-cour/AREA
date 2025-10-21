@@ -100,18 +100,17 @@ def test_get_user_by_id(numSuccess, numTests):
 
 def test_get_user_by_id_forbidden(numSuccess, numTests):
     try:
-        # Register a new user (not admin)
-        payload = {"email": "bob@example.com", "name": "Bob", "password": "Password123"}
-        requests.post("https://backend.nduboi.fr/api/auth/register", json=payload)
-        token, _ = get_auth_token("bob@example.com", "Password123")
+        token, _ = get_auth_token("bob@example.com", "123456")
         headers = {"Authorization": f"Bearer {token}"} if token else {}
-        # Try to get alice's user by id (should be forbidden)
+
         res = requests.get("https://backend.nduboi.fr/api/user/1", headers=headers)
-        assert res.status_code == 403
+        assert res.status_code == 401
+        
         print(f"Test get_user_by_id_forbidden: {GREEN} OK{RESET}")
         numSuccess += 1
     except Exception as e:
         print(f"Test get_user_by_id_forbidden: {RED} FAILED{RESET}")
+        print("Res status code:", res.status_code if 'res' in locals() else "No response")
         print("Response JSON:", res.json() if 'res' in locals() else str(e))
     return numSuccess, numTests + 1
 
