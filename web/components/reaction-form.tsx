@@ -17,6 +17,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Plus, Trash2 } from 'lucide-react';
+import Link from 'next/link';
 
 const DynamicTextarea: React.FC<DynamicTextareaProps> = ({
   name,
@@ -218,7 +219,7 @@ export default function ReactionForm({
         setIsLoading(true);
         const res = (
           await api.get<{ services: ServiceReaction[] }>({
-            endpoint: '/services/reactions',
+            endpoint: '/services/subscribed/reactions',
           })
         ).data;
         if (!res?.services || res.services.length === 0) {
@@ -298,7 +299,16 @@ export default function ReactionForm({
 
   return (
     <div className='space-y-4'>
-      {reactionInstances.map((instance, index) => (
+      {ServiceReactions.length === 0 ? (
+        <div className='text-sm text-gray-500'>
+          No subscribed services with reactions found. <p></p>
+          <Link href="/services" className='text-blue-500 hover:underline'>
+            Click here to subscribe to services.
+          </Link>
+        </div>
+      ):
+        <>
+          {reactionInstances.map((instance, index) => (
         <Card key={instance.id} className='relative'>
           <CardHeader className='pb-3'>
             <div className='flex items-center justify-between'>
@@ -592,17 +602,18 @@ export default function ReactionForm({
             </div>
           </CardContent>
         </Card>
-      ))}
-
-      {/* Add Reaction Button */}
-      <Button
-        variant='outline'
-        onClick={addReaction}
-        className='w-full border-dashed cursor-pointer'
-      >
-        <Plus className='w-4 h-4 mr-2' />
-        Add Another Reaction
-      </Button>
+        ))}
+          {/* Add Reaction Button */}
+          <Button
+            variant='outline'
+            onClick={addReaction}
+            className='w-full border-dashed cursor-pointer'
+          >
+            <Plus className='w-4 h-4 mr-2' />
+            Add Another Reaction
+          </Button>
+        </>
+      }
     </div>
   );
 }
