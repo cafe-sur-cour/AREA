@@ -396,5 +396,21 @@
   "parameters": "Paramètres",
   "required_lowercase": "requis",
   "choose_this_action": "Choisir cette action",
-  "choose_this_reaction": "Choisir cette réaction"
+  "choose_this_reaction": "Choisir cette réaction",
+  "service_subscription_failed": "Échec d'abonnement au service : {error}",
+  "@service_subscription_failed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "complete_service_setup": "Terminez la configuration de {serviceName} dans votre navigateur, puis revenez à l'application.",
+  "@complete_service_setup": {
+    "placeholders": {
+      "serviceName": {
+        "type": "String"
+      }
+    }
+  }
 }

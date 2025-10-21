@@ -396,5 +396,21 @@
   "parameters": "Parameters",
   "required_lowercase": "required",
   "choose_this_action": "Choose this Action",
-  "choose_this_reaction": "Choose this Reaction"
+  "choose_this_reaction": "Choose this Reaction",
+  "service_subscription_failed": "Service subscription failed: {error}",
+  "@service_subscription_failed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "complete_service_setup": "Complete {serviceName} setup in your browser, then return to the app.",
+  "@complete_service_setup": {
+    "placeholders": {
+      "serviceName": {
+        "type": "String"
+      }
+    }
+  }
 }

@@ -553,4 +553,14 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get choose_this_reaction => 'Choisir cette réaction';
+
+  @override
+  String service_subscription_failed(String error) {
+    return 'Échec d\'abonnement au service : $error';
+  }
+
+  @override
+  String complete_service_setup(String serviceName) {
+    return 'Terminez la configuration de $serviceName dans votre navigateur, puis revenez à l\'application.';
+  }
 }

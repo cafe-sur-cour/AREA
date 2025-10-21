@@ -1041,6 +1041,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Choose this Reaction'**
   String get choose_this_reaction;
+
+  /// No description provided for @service_subscription_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Service subscription failed: {error}'**
+  String service_subscription_failed(String error);
+
+  /// No description provided for @complete_service_setup.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete {serviceName} setup in your browser, then return to the app.'**
+  String complete_service_setup(String serviceName);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

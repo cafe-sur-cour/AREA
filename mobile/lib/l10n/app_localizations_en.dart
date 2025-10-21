@@ -550,4 +550,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get choose_this_reaction => 'Choose this Reaction';
+
+  @override
+  String service_subscription_failed(String error) {
+    return 'Service subscription failed: $error';
+  }
+
+  @override
+  String complete_service_setup(String serviceName) {
+    return 'Complete $serviceName setup in your browser, then return to the app.';
+  }
 }
