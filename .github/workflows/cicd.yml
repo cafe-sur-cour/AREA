@@ -232,8 +232,7 @@ jobs:
           SERVICE_GITHUB_CLIENT_ID: ${{ secrets.SERVICE_GITHUB_CLIENT_ID }}
           SERVICE_GITHUB_CLIENT_SECRET: ${{ secrets.SERVICE_GITHUB_CLIENT_SECRET }}
           SERVICE_GITHUB_REDIRECT_URI: ${{ secrets.SERVICE_GITHUB_REDIRECT_URI }}
-          BACKEND_URL: ${{ secrets.BACKEND_URL }}
-          MOBILE_CALLBACK_URL: ${{ secrets.MOBILE_CALLBACK_URL }}
+
         run: |
           echo "DB_USER=$DB_USER" > ./deployment/.env
           echo "DB_PASSWORD=$DB_PASSWORD" >> ./deployment/.env
@@ -247,8 +246,6 @@ jobs:
           echo "SERVICE_GITHUB_CLIENT_ID=$SERVICE_GITHUB_CLIENT_ID" >> ./deployment/.env
           echo "SERVICE_GITHUB_CLIENT_SECRET=$SERVICE_GITHUB_CLIENT_SECRET" >> ./deployment/.env
           echo "SERVICE_GITHUB_REDIRECT_URI=$SERVICE_GITHUB_REDIRECT_URI" >> ./deployment/.env
-          echo "BACKEND_URL=$BACKEND_URL" >> ./deployment/.env
-          echo "MOBILE_CALLBACK_URL=$MOBILE_CALLBACK_URL" >> ./deployment/.env
 
 
       - name: Clean all containers
