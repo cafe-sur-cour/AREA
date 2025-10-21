@@ -50,6 +50,10 @@ export class TimerScheduler {
       const currentHour = now.getHours();
       const currentDay = now.getDay();
 
+      console.log(
+        `⏰ [TimerScheduler] Checking timers at ${now.toISOString()} (Hour: ${currentHour}, Minute: ${currentMinute}, Day: ${currentDay})`
+      );
+
       await this.checkEveryHourAtIntervalsTimers(currentMinute);
       await this.checkEveryDayAtXHourTimers(
         currentHour,
@@ -108,6 +112,10 @@ export class TimerScheduler {
       },
     });
 
+    console.log(
+      `📅 [TimerScheduler] Found ${mappings.length} every_day_at_x_hour mappings`
+    );
+
     const dayNames = [
       'sunday',
       'monday',
@@ -122,18 +130,27 @@ export class TimerScheduler {
       try {
         const config = mapping.action.config as {
           hour: number;
+          minute?: number;
           days: string[];
         };
 
+        console.log(
+          `🔍 [TimerScheduler] Checking mapping ${mapping.id}: hour=${config.hour}, minute=${config.minute ?? 0}, days=${config.days?.join(',')}, current=${currentHour}:${currentMinute} (${dayNames[currentDay]})`
+        );
+
         if (
           config.hour === currentHour &&
-          currentMinute === 0 &&
+          (config.minute ?? 0) === currentMinute &&
           config.days &&
           config.days.includes(dayNames[currentDay]!)
         ) {
+          console.log(
+            `✅ [TimerScheduler] Triggering timer for mapping ${mapping.id}`
+          );
           await this.triggerTimerEvent(mapping, {
             timestamp: new Date().toISOString(),
             hour: config.hour,
+            minute: config.minute ?? 0,
             day: dayNames[currentDay]!,
           });
         }

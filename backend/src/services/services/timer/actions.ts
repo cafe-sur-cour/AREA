@@ -18,6 +18,10 @@ export const timerActions: ActionDefinition[] = [
           type: 'number',
           description: 'The hour that triggered',
         },
+        minute: {
+          type: 'number',
+          description: 'The minute that triggered',
+        },
         day: {
           type: 'string',
           description: 'The day of the week',
