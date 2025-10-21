@@ -151,6 +151,11 @@ export default function MyAreasPage() {
         is_active: true,
       });
       setIsDrawerOpen(false);
+      console.log('close');
+      setSelectedAction(null);
+      setSelectedReactions([]);
+      setActionConfig({});
+      setReactionsConfig([]);
       router.replace('/my-areas');
       fetchData();
     } catch (error) {
@@ -223,7 +228,15 @@ export default function MyAreasPage() {
             direction='right'
           >
             <DrawerTrigger asChild>
-              <Button className='gap-2 cursor-pointer'>
+              <Button
+                className='gap-2 cursor-pointer'
+                onClick={() => {
+                  setSelectedAction(null);
+                  setSelectedReactions([]);
+                  setActionConfig({});
+                  setReactionsConfig([]);
+                }}
+              >
                 <Plus className='w-4 h-4' />
                 New Area
               </Button>
@@ -307,7 +320,9 @@ export default function MyAreasPage() {
                   <Button
                     className=' cursor-pointer'
                     variant='outline'
-                    onClick={() => router.replace('/my-areas')}
+                    onClick={() => {
+                      router.replace('/my-areas');
+                    }}
                   >
                     Cancel
                   </Button>
