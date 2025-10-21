@@ -233,6 +233,7 @@ jobs:
           SERVICE_GITHUB_CLIENT_SECRET: ${{ secrets.SERVICE_GITHUB_CLIENT_SECRET }}
           SERVICE_GITHUB_REDIRECT_URI: ${{ secrets.SERVICE_GITHUB_REDIRECT_URI }}
 
+
         run: |
           echo "DB_USER=$DB_USER" > ./deployment/.env
           echo "DB_PASSWORD=$DB_PASSWORD" >> ./deployment/.env
