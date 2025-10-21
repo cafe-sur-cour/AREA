@@ -238,9 +238,9 @@ router.put(
   token,
   async (req: Request, res: Response): Promise<Response | void> => {
     try {
-      const { name, bio, picture } = req.body;
+      const { name, bio, picture, email } = req.body;
 
-      if (!name && !bio && !picture) {
+      if (!name && !bio && !picture && !email) {
         await createLog(
           400,
           'user',
@@ -248,10 +248,11 @@ router.put(
         );
         return res.status(400).json({
           error: 'Bad Request',
-          message: 'At least one field is required: name, bio, or picture',
+          message: 'At least one field is required: name, bio, picture, or email',
         });
       }
 
+      const { encryption } = await import('../../../index');
       const auth = req.auth as { id: number; email: string; is_admin: boolean };
       const userId = Number(auth.id);
       if (isNaN(userId)) {
@@ -262,11 +263,14 @@ router.put(
         });
       }
 
-      const updatedUser = await updateUser(userId, {
-        name,
-        bio,
-        picture,
-      });
+      // Encrypt fields if present
+      const updateData: any = {};
+      if (name) updateData.name = encryption.encryptToString(name);
+      if (bio) updateData.bio = bio;
+      if (picture) updateData.picture = picture;
+      if (email) updateData.email = encryption.encryptToString(email);
+
+      const updatedUser = await updateUser(userId, updateData);
 
       if (!updatedUser) {
         console.log('updateUser returned null');
@@ -281,12 +285,20 @@ router.put(
         });
       }
 
+      // Decrypt name and email before returning
+      let decryptedUser = { ...updatedUser };
+      try {
+        if (decryptedUser.name) decryptedUser.name = encryption.decryptFromString(decryptedUser.name);
+        if (decryptedUser.email) decryptedUser.email = encryption.decryptFromString(decryptedUser.email);
+      } catch (e) {
+        // If decryption fails, just return as is
+      }
       await createLog(
         200,
         'user',
-        `User updated successfully: ${updatedUser.email}`
+        `User updated successfully: ${decryptedUser.email}`
       );
-      return res.status(200).json(updatedUser);
+      return res.status(200).json(decryptedUser);
     } catch (err: unknown) {
       console.error(err);
       await createLog(500, 'user', `Internal Server Error: ${err}`);
