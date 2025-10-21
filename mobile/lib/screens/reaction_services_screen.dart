@@ -75,8 +75,8 @@ class ReactionServicesScreenState extends State<ReactionServicesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          "Reaction Services",
+        title: Text(
+          AppLocalizations.of(context)!.reaction_services,
           style: TextStyle(fontFamily: 'Montserrat', fontWeight: FontWeight.bold),
         ),
         backgroundColor: AppColors.areaBlue3,
@@ -104,8 +104,8 @@ class ReactionServicesScreenState extends State<ReactionServicesScreen> {
 
             const SizedBox(height: 16),
 
-            const Text(
-              'Error loading services',
+            Text(
+              AppLocalizations.of(context)!.error_loading_services,
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -132,7 +132,7 @@ class ReactionServicesScreenState extends State<ReactionServicesScreen> {
                 backgroundColor: AppColors.areaBlue3,
                 foregroundColor: AppColors.areaLightGray,
               ),
-              child: const Text('Retry'),
+              child: Text(AppLocalizations.of(context)!.retry),
             ),
           ],
         ),
@@ -140,16 +140,16 @@ class ReactionServicesScreenState extends State<ReactionServicesScreen> {
     }
 
     if (_services.isEmpty) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.cloud_off, size: 64, color: AppColors.areaDarkGray),
+            const Icon(Icons.cloud_off, size: 64, color: AppColors.areaDarkGray),
 
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
 
             Text(
-              'No services available',
+              AppLocalizations.of(context)!.no_services_available,
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -157,12 +157,12 @@ class ReactionServicesScreenState extends State<ReactionServicesScreen> {
               ),
             ),
 
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
 
             Text(
-              'There are no services with reactions available at the moment.',
+              AppLocalizations.of(context)!.no_services_with_reactions,
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 14, color: AppColors.areaDarkGray),
+              style: const TextStyle(fontSize: 14, color: AppColors.areaDarkGray),
             ),
           ],
         ),
