@@ -3,12 +3,12 @@ import type { ActionReactionSchema } from '../../../types/mapping';
 export const everyDayAtXHourSchema: ActionReactionSchema = {
   name: 'Every Day at X Hour',
   description:
-    'Triggers once a day at a specific hour and minute on selected days',
+    'Triggers once a day at a specific hour and minute on selected days (Paris timezone)',
   fields: [
     {
       name: 'hour',
       type: 'number',
-      label: 'Hour (0-23)',
+      label: 'Hour (0-23, Paris timezone)',
       required: true,
       placeholder: '14',
       default: 14,

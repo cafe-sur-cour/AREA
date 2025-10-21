@@ -46,12 +46,37 @@ export class TimerScheduler {
   private async checkAndTriggerTimers(): Promise<void> {
     try {
       const now = new Date();
-      const currentMinute = now.getMinutes();
-      const currentHour = now.getHours();
-      const currentDay = now.getDay();
+      const parisFormatter = new Intl.DateTimeFormat('en-GB', {
+        timeZone: 'Europe/Paris',
+        hour: 'numeric',
+        minute: 'numeric',
+        weekday: 'long',
+      });
+
+      const parisTime = parisFormatter.formatToParts(now);
+      const currentHour = parseInt(
+        parisTime.find(p => p.type === 'hour')!.value
+      );
+      const currentMinute = parseInt(
+        parisTime.find(p => p.type === 'minute')!.value
+      );
+      const dayName = parisTime
+        .find(p => p.type === 'weekday')!
+        .value.toLowerCase();
+
+      const dayNames = [
+        'sunday',
+        'monday',
+        'tuesday',
+        'wednesday',
+        'thursday',
+        'friday',
+        'saturday',
+      ];
+      const currentDay = dayNames.indexOf(dayName);
 
       console.log(
-        `⏰ [TimerScheduler] Checking timers at ${now.toISOString()} (Hour: ${currentHour}, Minute: ${currentMinute}, Day: ${currentDay})`
+        `⏰ [TimerScheduler] Checking timers at ${now.toISOString()} (Paris time: ${currentHour}:${currentMinute.toString().padStart(2, '0')} ${dayName})`
       );
 
       await this.checkEveryHourAtIntervalsTimers(currentMinute);
