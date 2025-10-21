@@ -4,6 +4,7 @@ import { serviceRegistry } from '../../services/ServiceRegistry';
 import { extractPayloadFields } from '../../utils/payloadFields';
 import { serviceSubscriptionManager } from '../../services/ServiceSubscriptionManager';
 import subscriptionRoutes from './subscription';
+import { createLog } from '../logs/logs.service';
 
 function generateServiceEndpoints(serviceId: string): {
   auth?: string;
@@ -123,11 +124,13 @@ router.get(
         })
       );
 
+      await createLog(200, 'service', `User ID: ${userId} fetch all services`);
       return res.status(200).json({
         services: servicesWithSubscriptionStatus,
       });
     } catch (err) {
       console.error('Error fetching all services:', err);
+      await createLog(500, 'service', `Failed to fetch all services`);
       return res
         .status(500)
         .json({ error: 'Internal Server Error in get all services' });
@@ -196,11 +199,17 @@ router.get(
           };
         });
 
+      await createLog(
+        200,
+        'service',
+        `User ID: ${userId} fetch subscribed services`
+      );
       return res.status(200).json({
         services: subscribedServices,
       });
     } catch (err) {
       console.error('Error fetching subscribed services:', err);
+      await createLog(500, 'service', `Failed to fetch subscribed services`);
       return res
         .status(500)
         .json({ error: 'Internal Server Error in get subscribed services' });
@@ -385,6 +394,11 @@ router.get(
         service => service.actions && service.actions.length > 0
       );
 
+      await createLog(
+        200,
+        'service',
+        `User ID: ${(req.auth as { id: number }).id} fetch all services actions`
+      );
       return res.status(200).json({
         services: servicesWithActions.map(service => ({
           id: service.id,
@@ -399,6 +413,7 @@ router.get(
       });
     } catch (err) {
       console.error('Error fetching services with actions:', err);
+      await createLog(500, 'service', `Failed to fetch services actions`);
       return res
         .status(500)
         .json({ error: 'Internal Server Error in get services actions' });
@@ -563,6 +578,11 @@ router.get(
         service => service.reactions && service.reactions.length > 0
       );
 
+      await createLog(
+        200,
+        'service',
+        `User ID: ${(req.auth as { id: number }).id} fetch all services reactions`
+      );
       return res.status(200).json({
         services: servicesWithReactions.map(service => ({
           id: service.id,
@@ -574,6 +594,7 @@ router.get(
       });
     } catch (err) {
       console.error('Error fetching services with reactions:', err);
+      await createLog(500, 'service', `Failed to fetch services reactions`);
       return res
         .status(500)
         .json({ error: 'Internal Server Error in get services reactions' });
@@ -676,16 +697,30 @@ router.get(
         .filter(subscription => subscription.subscribed)
         .map(subscription => subscription.service);
 
+      const alwaysSubscribedServiceIds = serviceRegistry
+        .getAllServices()
+        .filter(service => service.alwaysSubscribed)
+        .map(service => service.id);
+
+      const allSubscribedServiceIds = [
+        ...new Set([...subscribedServiceIds, ...alwaysSubscribedServiceIds]),
+      ];
+
       const allServices = serviceRegistry
         .getAllServices()
         .filter(
           service =>
-            !service.authOnly && subscribedServiceIds.includes(service.id)
+            !service.authOnly && allSubscribedServiceIds.includes(service.id)
         );
       const servicesWithActions = allServices.filter(
         service => service.actions && service.actions.length > 0
       );
 
+      await createLog(
+        200,
+        'service',
+        `User ID: ${userId} fetch subscribed services actions`
+      );
       return res.status(200).json({
         services: servicesWithActions.map(service => ({
           id: service.id,
@@ -699,6 +734,11 @@ router.get(
         })),
       });
     } catch (err) {
+      await createLog(
+        500,
+        'service',
+        `Failed to fetch subscribed services actions`
+      );
       console.error('Error fetching subscribed services with actions:', err);
       return res.status(500).json({
         error: 'Internal Server Error in get subscribed services actions',
@@ -782,16 +822,30 @@ router.get(
         .filter(subscription => subscription.subscribed)
         .map(subscription => subscription.service);
 
+      const alwaysSubscribedServiceIds = serviceRegistry
+        .getAllServices()
+        .filter(service => service.alwaysSubscribed)
+        .map(service => service.id);
+
+      const allSubscribedServiceIds = [
+        ...new Set([...subscribedServiceIds, ...alwaysSubscribedServiceIds]),
+      ];
+
       const allServices = serviceRegistry
         .getAllServices()
         .filter(
           service =>
-            !service.authOnly && subscribedServiceIds.includes(service.id)
+            !service.authOnly && allSubscribedServiceIds.includes(service.id)
         );
       const servicesWithReactions = allServices.filter(
         service => service.reactions && service.reactions.length > 0
       );
 
+      await createLog(
+        200,
+        'service',
+        `User ID: ${userId} fetch subscribed services reactions`
+      );
       return res.status(200).json({
         services: servicesWithReactions.map(service => ({
           id: service.id,
@@ -803,6 +857,11 @@ router.get(
       });
     } catch (err) {
       console.error('Error fetching subscribed services with reactions:', err);
+      await createLog(
+        500,
+        'service',
+        `Failed to fetch subscribed services reactions`
+      );
       return res.status(500).json({
         error: 'Internal Server Error in get subscribed services reactions',
       });
@@ -1002,18 +1061,33 @@ router.get(
       const { id } = req.params;
 
       if (!id) {
+        await createLog(
+          400,
+          'service',
+          `User ID: ${(req.auth as { id: number }).id} fetch actions without ID`
+        );
         return res.status(400).json({ error: 'Service ID is required' });
       }
 
       const service = serviceRegistry.getService(id);
 
       if (!service) {
+        await createLog(
+          404,
+          'service',
+          `User ID: ${(req.auth as { id: number }).id} fetch actions for non-existing service`
+        );
         return res.status(404).json({
           error: 'Service not found',
           service_id: id,
         });
       }
 
+      await createLog(
+        200,
+        'service',
+        `User ID: ${(req.auth as { id: number }).id} fetch actions for service ID: ${id}`
+      );
       return res.status(200).json({
         service_id: service.id,
         service_name: service.name,
@@ -1024,6 +1098,11 @@ router.get(
       });
     } catch (err) {
       console.error('Error fetching service actions:', err);
+      await createLog(
+        500,
+        'service',
+        `Failed to fetch service actions for service ID: ${req.params.id}`
+      );
       return res
         .status(500)
         .json({ error: 'Internal Server Error in get id actions' });
@@ -1224,12 +1303,22 @@ router.get(
       const { serviceName, id } = req.params;
 
       if (!serviceName || !id) {
+        await createLog(
+          400,
+          'service',
+          `User ID: ${(req.auth as { id: number }).id} fetch actions without ID`
+        );
         return res.status(400).json({ error: 'Service ID is required' });
       }
 
       const service = serviceRegistry.getService(serviceName);
 
       if (!service || !service.actions.find(element => element.id === id)) {
+        await createLog(
+          404,
+          'service',
+          `User ID: ${(req.auth as { id: number }).id} fetch non-existing action ${id} for service ${serviceName}`
+        );
         return res.status(404).json({
           error: 'Service name or id not found',
           service_id: serviceName,
@@ -1239,6 +1328,11 @@ router.get(
 
       const action = service.actions.find(element => element.id === id);
 
+      await createLog(
+        200,
+        'service',
+        `User ID: ${(req.auth as { id: number }).id} fetch action ${id} for service ${serviceName}`
+      );
       return res.status(200).json({
         serviceId: service.id,
         ...action,
@@ -1246,6 +1340,11 @@ router.get(
       });
     } catch (err) {
       console.error('Error fetching service actions:', err);
+      await createLog(
+        500,
+        'service',
+        `Failed to fetch service actions for service ID: ${req.params.serviceName} and action ID: ${req.params.id}`
+      );
       return res
         .status(500)
         .json({ error: 'Internal Server Error in get id actions' });
@@ -1425,18 +1524,33 @@ router.get(
       const { id } = req.params;
 
       if (!id) {
+        await createLog(
+          400,
+          'service',
+          `User ID: ${(req.auth as { id: number }).id} fetch reactions without ID`
+        );
         return res.status(400).json({ error: 'Service ID is required' });
       }
 
       const service = serviceRegistry.getService(id);
 
       if (!service) {
+        await createLog(
+          404,
+          'service',
+          `User ID: ${(req.auth as { id: number }).id} fetch reactions for non-existing service`
+        );
         return res.status(404).json({
           error: 'Service not found',
           service_id: id,
         });
       }
 
+      await createLog(
+        200,
+        'service',
+        `User ID: ${(req.auth as { id: number }).id} fetch reactions for service ID: ${id}`
+      );
       return res.status(200).json({
         service_id: service.id,
         service_name: service.name,
@@ -1444,6 +1558,11 @@ router.get(
       });
     } catch (err) {
       console.error('Error fetching service reactions:', err);
+      await createLog(
+        500,
+        'service',
+        `Failed to fetch service reactions for service ID: ${req.params.id}`
+      );
       return res
         .status(500)
         .json({ error: 'Internal Server Error in get id reactions' });
@@ -1630,6 +1749,11 @@ router.get(
       const { serviceName, id } = req.params;
 
       if (!id || !serviceName) {
+        await createLog(
+          400,
+          'service',
+          `User ID: ${(req.auth as { id: number }).id} fetch reactions without ID`
+        );
         return res
           .status(400)
           .json({ error: 'Service ID and Reaction ID is required' });
@@ -1638,6 +1762,11 @@ router.get(
       const service = serviceRegistry.getService(serviceName);
 
       if (!service || !service.reactions.find(element => element.id === id)) {
+        await createLog(
+          404,
+          'service',
+          `User ID: ${(req.auth as { id: number }).id} fetch non-existing reaction ${id} for service ${serviceName}`
+        );
         return res.status(404).json({
           error: 'Service or reaction not found',
           service_id: serviceName,
@@ -1645,12 +1774,22 @@ router.get(
         });
       }
 
+      await createLog(
+        200,
+        'service',
+        `User ID: ${(req.auth as { id: number }).id} fetch reaction ${id} for service ${serviceName}`
+      );
       return res.status(200).json({
         serviceId: service.id,
         ...service.reactions.find(element => element.id === id),
       });
     } catch (err) {
       console.error('Error fetching service reactions:', err);
+      await createLog(
+        500,
+        'service',
+        `Failed to fetch service reactions for service ID: ${req.params.serviceName} and reaction ID: ${req.params.id}`
+      );
       return res
         .status(500)
         .json({ error: 'Internal Server Error in get id reactions' });

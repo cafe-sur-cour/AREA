@@ -17,6 +17,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Plus, Trash2 } from 'lucide-react';
+import Link from 'next/link';
 
 const DynamicTextarea: React.FC<DynamicTextareaProps> = ({
   name,
@@ -218,7 +219,7 @@ export default function ReactionForm({
         setIsLoading(true);
         const res = (
           await api.get<{ services: ServiceReaction[] }>({
-            endpoint: '/services/reactions',
+            endpoint: '/services/subscribed/reactions',
           })
         ).data;
         if (!res?.services || res.services.length === 0) {
@@ -298,311 +299,334 @@ export default function ReactionForm({
 
   return (
     <div className='space-y-4'>
-      {reactionInstances.map((instance, index) => (
-        <Card key={instance.id} className='relative'>
-          <CardHeader className='pb-3'>
-            <div className='flex items-center justify-between'>
-              <CardTitle className='text-sm'>Reaction {index + 1}</CardTitle>
-              {reactionInstances.length > 1 && (
-                <Button
-                  variant='ghost'
-                  size='sm'
-                  onClick={() => removeReaction(instance.id)}
-                  className='text-red-500 hover:text-red-600 cursor-pointer'
-                >
-                  <Trash2 className='w-4 h-4' />
-                </Button>
-              )}
-            </div>
-          </CardHeader>
-          <CardContent className='space-y-3'>
-            {/* Service Selection */}
-            <div>
-              <label className='text-sm font-medium text-gray-700 mb-1 block'>
-                Service
-              </label>
-              <Select
-                value={instance.selectedService || ''}
-                onValueChange={value => {
-                  updateReactionInstance(instance.id, {
-                    selectedService: value,
-                    reaction: null,
-                    config: {},
-                  });
-                }}
-              >
-                <SelectTrigger className='w-full'>
-                  <SelectValue placeholder='Select a service' />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectLabel>Services</SelectLabel>
-                    {ServiceReactions.map(service => (
-                      <SelectItem key={service.id} value={service.id}>
-                        {service.name}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Reaction Selection */}
-            {instance.selectedService && (
-              <div>
-                <label className='text-sm font-medium text-gray-700 mb-1 block'>
-                  Reaction
-                </label>
-                <Select
-                  value={instance.reaction?.id || ''}
-                  onValueChange={value => {
-                    const selectedReaction =
-                      getAvailableReactions(instance.selectedService!).find(
-                        reaction => reaction.id === value
-                      ) || null;
-
-                    updateReactionInstance(instance.id, {
-                      reaction: selectedReaction,
-                      config: {},
-                    });
-                  }}
-                >
-                  <SelectTrigger className='w-full'>
-                    <SelectValue placeholder='Select a reaction' />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectLabel>Reactions</SelectLabel>
-                      {getAvailableReactions(instance.selectedService).map(
-                        reaction => (
-                          <SelectItem key={reaction.id} value={reaction.id}>
-                            {reaction.name}
+      {ServiceReactions.length === 0 ? (
+        <div className='text-sm text-gray-500'>
+          No subscribed services with reactions found. <p></p>
+          <Link href='/services' className='text-blue-500 hover:underline'>
+            Click here to subscribe to services.
+          </Link>
+        </div>
+      ) : (
+        <>
+          {reactionInstances.map((instance, index) => (
+            <Card key={instance.id} className='relative'>
+              <CardHeader className='pb-3'>
+                <div className='flex items-center justify-between'>
+                  <CardTitle className='text-sm'>
+                    Reaction {index + 1}
+                  </CardTitle>
+                  {reactionInstances.length > 1 && (
+                    <Button
+                      variant='ghost'
+                      size='sm'
+                      onClick={() => removeReaction(instance.id)}
+                      className='text-red-500 hover:text-red-600 cursor-pointer'
+                    >
+                      <Trash2 className='w-4 h-4' />
+                    </Button>
+                  )}
+                </div>
+              </CardHeader>
+              <CardContent className='space-y-3'>
+                {/* Service Selection */}
+                <div>
+                  <label className='text-sm font-medium text-gray-700 mb-1 block'>
+                    Service
+                  </label>
+                  <Select
+                    value={instance.selectedService || ''}
+                    onValueChange={value => {
+                      updateReactionInstance(instance.id, {
+                        selectedService: value,
+                        reaction: null,
+                        config: {},
+                      });
+                    }}
+                  >
+                    <SelectTrigger className='w-full'>
+                      <SelectValue placeholder='Select a service' />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectLabel>Services</SelectLabel>
+                        {ServiceReactions.map(service => (
+                          <SelectItem key={service.id} value={service.id}>
+                            {service.name}
                           </SelectItem>
-                        )
-                      )}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                </div>
 
-            {/* Configuration Fields */}
-            {instance.reaction && instance.reaction.configSchema && (
-              <div className='space-y-3 pt-2 border-t'>
-                <h4 className='text-sm font-medium text-gray-700'>
-                  Configuration
-                </h4>
-                {instance.reaction.configSchema.fields.map(field => {
-                  const isDynamic = field.dynamic;
+                {/* Reaction Selection */}
+                {instance.selectedService && (
+                  <div>
+                    <label className='text-sm font-medium text-gray-700 mb-1 block'>
+                      Reaction
+                    </label>
+                    <Select
+                      value={instance.reaction?.id || ''}
+                      onValueChange={value => {
+                        const selectedReaction =
+                          getAvailableReactions(instance.selectedService!).find(
+                            reaction => reaction.id === value
+                          ) || null;
 
-                  return (
-                    <div key={field.name} className='space-y-2'>
-                      <label className='block text-sm font-medium text-gray-700'>
-                        {field.label}
-                      </label>
+                        updateReactionInstance(instance.id, {
+                          reaction: selectedReaction,
+                          config: {},
+                        });
+                      }}
+                    >
+                      <SelectTrigger className='w-full'>
+                        <SelectValue placeholder='Select a reaction' />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectLabel>Reactions</SelectLabel>
+                          {getAvailableReactions(instance.selectedService).map(
+                            reaction => (
+                              <SelectItem key={reaction.id} value={reaction.id}>
+                                {reaction.name}
+                              </SelectItem>
+                            )
+                          )}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
 
-                      {isDynamic ? (
-                        <div className='space-y-2'>
-                          <div className='bg-blue-50 border border-blue-200 rounded-md p-2'>
-                            <div className='flex items-center'>
-                              <div className='text-xs text-blue-700'>
-                                Type{' '}
-                                <span className='font-mono bg-blue-100 px-1 rounded'>
-                                  {'{'}
-                                </span>{' '}
-                                to see action data suggestions
+                {/* Configuration Fields */}
+                {instance.reaction && instance.reaction.configSchema && (
+                  <div className='space-y-3 pt-2 border-t'>
+                    <h4 className='text-sm font-medium text-gray-700'>
+                      Configuration
+                    </h4>
+                    {instance.reaction.configSchema.fields.map(field => {
+                      const isDynamic = field.dynamic;
+
+                      return (
+                        <div key={field.name} className='space-y-2'>
+                          <label className='block text-sm font-medium text-gray-700'>
+                            {field.label}
+                          </label>
+
+                          {isDynamic ? (
+                            <div className='space-y-2'>
+                              <div className='bg-blue-50 border border-blue-200 rounded-md p-2'>
+                                <div className='flex items-center'>
+                                  <div className='text-xs text-blue-700'>
+                                    Type{' '}
+                                    <span className='font-mono bg-blue-100 px-1 rounded'>
+                                      {'{'}
+                                    </span>{' '}
+                                    to see action data suggestions
+                                  </div>
+                                </div>
                               </div>
-                            </div>
-                          </div>
-                          <DynamicTextarea
-                            name={field.name}
-                            placeholder={field.placeholder}
-                            required={field.required}
-                            value={
-                              getStringValue(instance.config[field.name]) ||
-                              getStringValue(field.default) ||
-                              ''
-                            }
-                            onChange={value => {
-                              updateReactionInstance(instance.id, {
-                                config: {
-                                  ...instance.config,
-                                  [field.name]: value,
-                                },
-                              });
-                            }}
-                            payloadFields={selectedAction?.payloadFields || []}
-                            rows={field.type === 'textarea' ? 3 : 1}
-                          />
-                        </div>
-                      ) : (
-                        (() => {
-                          const currentValue = instance.config[field.name];
-                          const defaultValue = field.default;
-
-                          const getFieldValue = () => {
-                            if (currentValue !== undefined) return currentValue;
-                            if (defaultValue !== undefined) return defaultValue;
-                            return field.type === 'checkbox' ? [] : '';
-                          };
-
-                          const fieldValue = getFieldValue();
-
-                          const handleValueChange = (value: unknown) => {
-                            updateReactionInstance(instance.id, {
-                              config: {
-                                ...instance.config,
-                                [field.name]: value,
-                              },
-                            });
-                          };
-
-                          if (field.type === 'select' && field.options) {
-                            return (
-                              <Select
-                                value={String(fieldValue || '')}
-                                onValueChange={value =>
-                                  handleValueChange(value)
-                                }
-                              >
-                                <SelectTrigger className='w-full mt-1'>
-                                  <SelectValue
-                                    placeholder={
-                                      field.placeholder || 'Select an option'
-                                    }
-                                  />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectGroup>
-                                    {field.options.map(option => (
-                                      <SelectItem
-                                        key={option.value}
-                                        value={option.value}
-                                      >
-                                        {option.label}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectGroup>
-                                </SelectContent>
-                              </Select>
-                            );
-                          } else if (
-                            field.type === 'checkbox' &&
-                            field.options
-                          ) {
-                            return (
-                              <div className='mt-1 space-y-2'>
-                                {field.options.map(option => {
-                                  const isChecked = Array.isArray(fieldValue)
-                                    ? fieldValue.includes(option.value)
-                                    : false;
-                                  return (
-                                    <label
-                                      key={option.value}
-                                      className='flex items-center space-x-2'
-                                    >
-                                      <input
-                                        type='checkbox'
-                                        checked={isChecked}
-                                        onChange={e => {
-                                          const currentArray = Array.isArray(
-                                            fieldValue
-                                          )
-                                            ? fieldValue
-                                            : [];
-                                          const newArray = e.target.checked
-                                            ? [...currentArray, option.value]
-                                            : currentArray.filter(
-                                                v => v !== option.value
-                                              );
-                                          handleValueChange(newArray);
-                                        }}
-                                        className='rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer'
-                                      />
-                                      <span className='text-sm text-gray-700'>
-                                        {option.label}
-                                      </span>
-                                    </label>
-                                  );
-                                })}
-                              </div>
-                            );
-                          } else if (field.type === 'textarea') {
-                            return (
-                              <textarea
+                              <DynamicTextarea
                                 name={field.name}
                                 placeholder={field.placeholder}
                                 required={field.required}
-                                value={String(fieldValue || '')}
-                                onChange={e =>
-                                  handleValueChange(e.target.value)
+                                value={
+                                  getStringValue(instance.config[field.name]) ||
+                                  getStringValue(field.default) ||
+                                  ''
                                 }
-                                className='mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 text-sm'
-                                rows={3}
-                              />
-                            );
-                          } else {
-                            return (
-                              <Input
-                                type={
-                                  field.type === 'number' ? 'number' : 'text'
-                                }
-                                name={field.name}
-                                placeholder={field.placeholder}
-                                required={field.required}
-                                value={String(fieldValue || '')}
-                                onChange={e => {
-                                  const value =
-                                    field.type === 'number'
-                                      ? e.target.value
-                                        ? Number(e.target.value)
-                                        : ''
-                                      : e.target.value;
-                                  handleValueChange(value);
+                                onChange={value => {
+                                  updateReactionInstance(instance.id, {
+                                    config: {
+                                      ...instance.config,
+                                      [field.name]: value,
+                                    },
+                                  });
                                 }}
-                                className='mt-1'
+                                payloadFields={
+                                  selectedAction?.payloadFields || []
+                                }
+                                rows={field.type === 'textarea' ? 3 : 1}
                               />
-                            );
-                          }
-                        })()
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-            <div>
-              <label className='block text-sm font-medium text-gray-700 mb-1'>
-                Delay in seconds
-              </label>
-              <input
-                type='number'
-                name='delay'
-                placeholder='Delay (in sec)'
-                value={
-                  instance.delay !== null ? instance.delay.toString() : '0'
-                }
-                onChange={e => {
-                  updateReactionInstance(instance.id, {
-                    delay: Number(e.target.value),
-                  });
-                }}
-                className='mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 text-sm'
-              />
-            </div>
-          </CardContent>
-        </Card>
-      ))}
+                            </div>
+                          ) : (
+                            (() => {
+                              const currentValue = instance.config[field.name];
+                              const defaultValue = field.default;
 
-      {/* Add Reaction Button */}
-      <Button
-        variant='outline'
-        onClick={addReaction}
-        className='w-full border-dashed cursor-pointer'
-      >
-        <Plus className='w-4 h-4 mr-2' />
-        Add Another Reaction
-      </Button>
+                              const getFieldValue = () => {
+                                if (currentValue !== undefined)
+                                  return currentValue;
+                                if (defaultValue !== undefined)
+                                  return defaultValue;
+                                return field.type === 'checkbox' ? [] : '';
+                              };
+
+                              const fieldValue = getFieldValue();
+
+                              const handleValueChange = (value: unknown) => {
+                                updateReactionInstance(instance.id, {
+                                  config: {
+                                    ...instance.config,
+                                    [field.name]: value,
+                                  },
+                                });
+                              };
+
+                              if (field.type === 'select' && field.options) {
+                                return (
+                                  <Select
+                                    value={String(fieldValue || '')}
+                                    onValueChange={value =>
+                                      handleValueChange(value)
+                                    }
+                                  >
+                                    <SelectTrigger className='w-full mt-1'>
+                                      <SelectValue
+                                        placeholder={
+                                          field.placeholder ||
+                                          'Select an option'
+                                        }
+                                      />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectGroup>
+                                        {field.options.map(option => (
+                                          <SelectItem
+                                            key={option.value}
+                                            value={option.value}
+                                          >
+                                            {option.label}
+                                          </SelectItem>
+                                        ))}
+                                      </SelectGroup>
+                                    </SelectContent>
+                                  </Select>
+                                );
+                              } else if (
+                                field.type === 'checkbox' &&
+                                field.options
+                              ) {
+                                return (
+                                  <div className='mt-1 space-y-2'>
+                                    {field.options.map(option => {
+                                      const isChecked = Array.isArray(
+                                        fieldValue
+                                      )
+                                        ? fieldValue.includes(option.value)
+                                        : false;
+                                      return (
+                                        <label
+                                          key={option.value}
+                                          className='flex items-center space-x-2'
+                                        >
+                                          <input
+                                            type='checkbox'
+                                            checked={isChecked}
+                                            onChange={e => {
+                                              const currentArray =
+                                                Array.isArray(fieldValue)
+                                                  ? fieldValue
+                                                  : [];
+                                              const newArray = e.target.checked
+                                                ? [
+                                                    ...currentArray,
+                                                    option.value,
+                                                  ]
+                                                : currentArray.filter(
+                                                    v => v !== option.value
+                                                  );
+                                              handleValueChange(newArray);
+                                            }}
+                                            className='rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer'
+                                          />
+                                          <span className='text-sm text-gray-700'>
+                                            {option.label}
+                                          </span>
+                                        </label>
+                                      );
+                                    })}
+                                  </div>
+                                );
+                              } else if (field.type === 'textarea') {
+                                return (
+                                  <textarea
+                                    name={field.name}
+                                    placeholder={field.placeholder}
+                                    required={field.required}
+                                    value={String(fieldValue || '')}
+                                    onChange={e =>
+                                      handleValueChange(e.target.value)
+                                    }
+                                    className='mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 text-sm'
+                                    rows={3}
+                                  />
+                                );
+                              } else {
+                                return (
+                                  <Input
+                                    type={
+                                      field.type === 'number'
+                                        ? 'number'
+                                        : 'text'
+                                    }
+                                    name={field.name}
+                                    placeholder={field.placeholder}
+                                    required={field.required}
+                                    value={String(fieldValue || '')}
+                                    onChange={e => {
+                                      const value =
+                                        field.type === 'number'
+                                          ? e.target.value
+                                            ? Number(e.target.value)
+                                            : ''
+                                          : e.target.value;
+                                      handleValueChange(value);
+                                    }}
+                                    className='mt-1'
+                                  />
+                                );
+                              }
+                            })()
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+                <div>
+                  <label className='block text-sm font-medium text-gray-700 mb-1'>
+                    Delay in seconds
+                  </label>
+                  <input
+                    type='number'
+                    name='delay'
+                    placeholder='Delay (in sec)'
+                    value={
+                      instance.delay !== null ? instance.delay.toString() : '0'
+                    }
+                    onChange={e => {
+                      updateReactionInstance(instance.id, {
+                        delay: Number(e.target.value),
+                      });
+                    }}
+                    className='mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 text-sm'
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+          {/* Add Reaction Button */}
+          <Button
+            variant='outline'
+            onClick={addReaction}
+            className='w-full border-dashed cursor-pointer'
+          >
+            <Plus className='w-4 h-4 mr-2' />
+            Add Another Reaction
+          </Button>
+        </>
+      )}
     </div>
   );
 }

@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
+import Link from 'next/link';
 
 interface ActionFormProps {
   selectedAction: Action | null;
@@ -41,7 +42,7 @@ export default function ActionForm({
         setIsLoading(true);
         const res = (
           await api.get<{ services: ServiceAction[] }>({
-            endpoint: '/services/actions',
+            endpoint: '/services/subscribed/actions',
           })
         ).data;
         if (!res?.services || res.services.length === 0) {
@@ -71,49 +72,33 @@ export default function ActionForm({
   if (isLoading) return null;
   return (
     <>
-      <Select
-        value={selectedServiceAction || ''}
-        onValueChange={value => {
-          setSelectedServiceAction(value);
-          setListAction(
-            actions.find(action => action.id === value)?.actions || []
-          );
-          onActionChange(null);
-          onConfigChange({});
-        }}
-      >
-        <SelectTrigger className='w-[180px]'>
-          <SelectValue placeholder='Select a service' />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectGroup>
-            <SelectLabel>Services</SelectLabel>
-            {actions.map(action => (
-              <SelectItem key={action.id} value={action.id}>
-                {action.name}
-              </SelectItem>
-            ))}
-          </SelectGroup>
-        </SelectContent>
-      </Select>
-      {selectedServiceAction && (
+      {actions.length === 0 ? (
+        <div className='text-sm text-gray-500'>
+          No subscribed services with actions found. <p></p>
+          <Link href='/services' className='text-blue-500 hover:underline'>
+            Click here to subscribe to services.
+          </Link>
+        </div>
+      ) : (
         <>
           <Select
-            value={selectedAction?.id || ''}
+            value={selectedServiceAction || ''}
             onValueChange={value => {
-              const newAction =
-                listAction.find(action => action.id === value) || null;
-              onActionChange(newAction);
+              setSelectedServiceAction(value);
+              setListAction(
+                actions.find(action => action.id === value)?.actions || []
+              );
+              onActionChange(null);
               onConfigChange({});
             }}
           >
             <SelectTrigger className='w-[180px]'>
-              <SelectValue placeholder='Select an action' />
+              <SelectValue placeholder='Select a service' />
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
                 <SelectLabel>Services</SelectLabel>
-                {listAction.map(action => (
+                {actions.map(action => (
                   <SelectItem key={action.id} value={action.id}>
                     {action.name}
                   </SelectItem>
@@ -121,120 +106,154 @@ export default function ActionForm({
               </SelectGroup>
             </SelectContent>
           </Select>
+          {selectedServiceAction && (
+            <>
+              <Select
+                value={selectedAction?.id || ''}
+                onValueChange={value => {
+                  const newAction =
+                    listAction.find(action => action.id === value) || null;
+                  onActionChange(newAction);
+                  onConfigChange({});
+                }}
+              >
+                <SelectTrigger className='w-[180px]'>
+                  <SelectValue placeholder='Select an action' />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Services</SelectLabel>
+                    {listAction.map(action => (
+                      <SelectItem key={action.id} value={action.id}>
+                        {action.name}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
 
-          {selectedAction &&
-            selectedAction.configSchema &&
-            selectedAction.configSchema.fields.map(field => {
-              const currentValue = actionConfig[field.name];
-              const defaultValue = field.default;
+              {selectedAction &&
+                selectedAction.configSchema &&
+                selectedAction.configSchema.fields.map(field => {
+                  const currentValue = actionConfig[field.name];
+                  const defaultValue = field.default;
 
-              const getFieldValue = () => {
-                if (currentValue !== undefined) return currentValue;
-                if (defaultValue !== undefined) return defaultValue;
-                return field.type === 'checkbox' ? [] : '';
-              };
+                  const getFieldValue = () => {
+                    if (currentValue !== undefined) return currentValue;
+                    if (defaultValue !== undefined) return defaultValue;
+                    return field.type === 'checkbox' ? [] : '';
+                  };
 
-              const fieldValue = getFieldValue();
+                  const fieldValue = getFieldValue();
 
-              const handleValueChange = (value: unknown) => {
-                onConfigChange({
-                  ...actionConfig,
-                  [field.name]: value,
-                });
-              };
+                  const handleValueChange = (value: unknown) => {
+                    onConfigChange({
+                      ...actionConfig,
+                      [field.name]: value,
+                    });
+                  };
 
-              return (
-                <div key={field.name} className='mt-2'>
-                  <label className='block text-sm font-medium text-gray-700'>
-                    {field.label}
-                  </label>
+                  return (
+                    <div key={field.name} className='mt-2'>
+                      <label className='block text-sm font-medium text-gray-700'>
+                        {field.label}
+                      </label>
 
-                  {field.type === 'select' && field.options ? (
-                    <Select
-                      value={String(fieldValue || '')}
-                      onValueChange={value => handleValueChange(value)}
-                    >
-                      <SelectTrigger className='w-full mt-1'>
-                        <SelectValue
-                          placeholder={field.placeholder || 'Select an option'}
-                        />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          {field.options.map(option => (
-                            <SelectItem key={option.value} value={option.value}>
-                              {option.label}
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                  ) : field.type === 'checkbox' && field.options ? (
-                    <div className='mt-1 space-y-2'>
-                      {field.options.map(option => {
-                        const isChecked = Array.isArray(fieldValue)
-                          ? fieldValue.includes(option.value)
-                          : false;
-                        return (
-                          <label
-                            key={option.value}
-                            className='flex items-center space-x-2'
-                          >
-                            <input
-                              type='checkbox'
-                              checked={isChecked}
-                              onChange={e => {
-                                const currentArray = Array.isArray(fieldValue)
-                                  ? fieldValue
-                                  : [];
-                                const newArray = e.target.checked
-                                  ? [...currentArray, option.value]
-                                  : currentArray.filter(
-                                      v => v !== option.value
-                                    );
-                                handleValueChange(newArray);
-                              }}
-                              className='rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer'
+                      {field.type === 'select' && field.options ? (
+                        <Select
+                          value={String(fieldValue || '')}
+                          onValueChange={value => handleValueChange(value)}
+                        >
+                          <SelectTrigger className='w-full mt-1'>
+                            <SelectValue
+                              placeholder={
+                                field.placeholder || 'Select an option'
+                              }
                             />
-                            <span className='text-sm text-gray-700'>
-                              {option.label}
-                            </span>
-                          </label>
-                        );
-                      })}
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectGroup>
+                              {field.options.map(option => (
+                                <SelectItem
+                                  key={option.value}
+                                  value={option.value}
+                                >
+                                  {option.label}
+                                </SelectItem>
+                              ))}
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                      ) : field.type === 'checkbox' && field.options ? (
+                        <div className='mt-1 space-y-2'>
+                          {field.options.map(option => {
+                            const isChecked = Array.isArray(fieldValue)
+                              ? fieldValue.includes(option.value)
+                              : false;
+                            return (
+                              <label
+                                key={option.value}
+                                className='flex items-center space-x-2'
+                              >
+                                <input
+                                  type='checkbox'
+                                  checked={isChecked}
+                                  onChange={e => {
+                                    const currentArray = Array.isArray(
+                                      fieldValue
+                                    )
+                                      ? fieldValue
+                                      : [];
+                                    const newArray = e.target.checked
+                                      ? [...currentArray, option.value]
+                                      : currentArray.filter(
+                                          v => v !== option.value
+                                        );
+                                    handleValueChange(newArray);
+                                  }}
+                                  className='rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer'
+                                />
+                                <span className='text-sm text-gray-700'>
+                                  {option.label}
+                                </span>
+                              </label>
+                            );
+                          })}
+                        </div>
+                      ) : field.type === 'textarea' ? (
+                        <textarea
+                          name={field.name}
+                          placeholder={field.placeholder}
+                          required={field.required}
+                          value={String(fieldValue || '')}
+                          onChange={e => handleValueChange(e.target.value)}
+                          className='mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2'
+                          rows={3}
+                        />
+                      ) : (
+                        <Input
+                          type={field.type === 'number' ? 'number' : field.type}
+                          name={field.name}
+                          placeholder={field.placeholder}
+                          required={field.required}
+                          value={String(fieldValue || '')}
+                          onChange={e => {
+                            const value =
+                              field.type === 'number'
+                                ? e.target.value
+                                  ? Number(e.target.value)
+                                  : ''
+                                : e.target.value;
+                            handleValueChange(value);
+                          }}
+                          className='mt-1'
+                        />
+                      )}
                     </div>
-                  ) : field.type === 'textarea' ? (
-                    <textarea
-                      name={field.name}
-                      placeholder={field.placeholder}
-                      required={field.required}
-                      value={String(fieldValue || '')}
-                      onChange={e => handleValueChange(e.target.value)}
-                      className='mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2'
-                      rows={3}
-                    />
-                  ) : (
-                    <Input
-                      type={field.type === 'number' ? 'number' : field.type}
-                      name={field.name}
-                      placeholder={field.placeholder}
-                      required={field.required}
-                      value={String(fieldValue || '')}
-                      onChange={e => {
-                        const value =
-                          field.type === 'number'
-                            ? e.target.value
-                              ? Number(e.target.value)
-                              : ''
-                            : e.target.value;
-                        handleValueChange(value);
-                      }}
-                      className='mt-1'
-                    />
-                  )}
-                </div>
-              );
-            })}
+                  );
+                })}
+            </>
+          )}
         </>
       )}
     </>

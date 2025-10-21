@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
 import { serviceRegistry } from '../../services/ServiceRegistry';
 import { translateService } from '../../utils/translation';
+import { createLog } from '../logs/logs.service';
 import i18next from 'i18next';
 
 const router = express.Router();
@@ -190,9 +191,15 @@ router.get('/', async (req: Request, res: Response): Promise<void> => {
       },
     };
 
+    await createLog(200, 'about', response.client.host);
     res.status(200).json(response);
   } catch (err) {
     console.error(err);
+    await createLog(
+      500,
+      'about',
+      err instanceof Error ? err.message : 'Unknown error'
+    );
     res.status(500).json({ error: 'Internal Server Error in about route' });
   }
 });

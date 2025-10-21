@@ -43,7 +43,7 @@ async function handleServiceSubscription(
     console.log(
       `✅ [SUBSCRIBE] ${service} subscription successful for user ${userId}`
     );
-    await createLog(200, 'other', `User ${userId} subscribed to ${service}`);
+    await createLog(200, 'service', `User ${userId} subscribed to ${service}`);
 
     redirectAfterSubscription(req, res, service);
     return null;
@@ -60,7 +60,11 @@ async function handleServiceSubscription(
       console.log(
         `✅ [SUBSCRIBE] ${service} subscription successful for user ${userId}`
       );
-      await createLog(200, 'other', `User ${userId} subscribed to ${service}`);
+      await createLog(
+        200,
+        'service',
+        `User ${userId} subscribed to ${service}`
+      );
 
       redirectAfterSubscription(req, res, service);
       return null;
@@ -68,7 +72,7 @@ async function handleServiceSubscription(
 
     await createLog(
       302,
-      'other',
+      'service',
       `Starting OAuth flow for user ${userId} to subscribe to ${service}`
     );
 
@@ -88,7 +92,7 @@ async function handleServiceSubscription(
     console.error(`Error loading OAuth for service ${service}:`, error);
     await createLog(
       404,
-      'other',
+      'service',
       `Service ${service} not found or not supported`
     );
     return {
@@ -167,7 +171,7 @@ router.get(
   async (req, res, next) => {
     const service = req.params.service?.toLowerCase();
     if (!service) {
-      await createLog(400, 'other', 'Service parameter is required');
+      await createLog(400, 'service', 'Service parameter is required');
       return res.status(400).json({ error: 'Service parameter is required' });
     }
 
@@ -183,7 +187,7 @@ router.get(
       if (existingSubscription?.subscribed) {
         await createLog(
           200,
-          'other',
+          'service',
           `User ${userId} already subscribed to ${service}`
         );
         redirectAfterSubscription(req, res, service);
@@ -208,7 +212,7 @@ router.get(
       console.error(`Error in ${service} subscribe route:`, error);
       await createLog(
         500,
-        'other',
+        'service',
         `Error in ${service} subscribe route: ${error instanceof Error ? error.message : String(error)}`
       );
       return res
@@ -275,7 +279,7 @@ router.post(
   async (req: Request, res: Response): Promise<Response> => {
     const service = req.params.service?.toLowerCase();
     if (!service) {
-      await createLog(400, 'other', 'Service parameter is required');
+      await createLog(400, 'service', 'Service parameter is required');
       return res.status(400).json({ error: 'Service parameter is required' });
     }
 
@@ -294,7 +298,7 @@ router.post(
       if (!subscription) {
         await createLog(
           404,
-          'other',
+          'service',
           `No active subscription found for user ${userId} on ${service}`
         );
         return res.status(404).json({
@@ -307,7 +311,7 @@ router.post(
       );
       await createLog(
         200,
-        'other',
+        'service',
         `User ${userId} unsubscribed from ${service}`
       );
 
@@ -323,7 +327,7 @@ router.post(
       console.error(`Error in ${service} unsubscribe route:`, error);
       await createLog(
         500,
-        'other',
+        'service',
         `Error in ${service} unsubscribe route: ${error instanceof Error ? error.message : String(error)}`
       );
       return res.status(500).json({
@@ -408,7 +412,7 @@ router.get(
   async (req: Request, res: Response): Promise<Response> => {
     const service = req.params.service?.toLowerCase();
     if (!service) {
-      await createLog(400, 'other', 'Service parameter is required');
+      await createLog(400, 'service', 'Service parameter is required');
       return res.status(400).json({ error: 'Service parameter is required' });
     }
 
@@ -477,7 +481,7 @@ router.get(
       );
       await createLog(
         500,
-        'other',
+        'service',
         `Error in ${service} subscribe status: ${error instanceof Error ? error.message : String(error)}`
       );
       return res.status(500).json({
