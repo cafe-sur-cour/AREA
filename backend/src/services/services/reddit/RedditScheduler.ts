@@ -208,12 +208,13 @@ export class RedditScheduler {
     subreddit: string
   ): Promise<void> {
     try {
+      // Support both r/subreddit and subreddit formats
       let apiPath: string;
-      if (subreddit.startsWith('u/') || subreddit.startsWith('user/')) {
-        apiPath = `/${subreddit}/submitted`;
-      } else if (subreddit.startsWith('r/')) {
+      if (subreddit.startsWith('r/')) {
+        // Subreddit with r/ prefix
         apiPath = `/${subreddit}/new`;
       } else {
+        // Subreddit without prefix (add r/)
         apiPath = `/r/${subreddit}/new`;
       }
 
@@ -265,10 +266,9 @@ export class RedditScheduler {
         if (newPostIds.length > 0) {
           const newPosts = posts.filter(post => newPostIds.includes(post.name));
 
-          const location =
-            subreddit.startsWith('u/') || subreddit.startsWith('user/')
-              ? subreddit
-              : `r/${subreddit}`;
+          const location = subreddit.startsWith('r/')
+            ? subreddit
+            : `r/${subreddit}`;
 
           console.log(
             `🆕 [Reddit Scheduler] Found ${newPosts.length} new post(s) in ${location} for user ${userId}`
@@ -279,10 +279,9 @@ export class RedditScheduler {
           }
         }
       } else {
-        const location =
-          subreddit.startsWith('u/') || subreddit.startsWith('user/')
-            ? subreddit
-            : `r/${subreddit}`;
+        const location = subreddit.startsWith('r/')
+          ? subreddit
+          : `r/${subreddit}`;
         console.log(
           `📌 [Reddit Scheduler] Initializing ${location} state for user ${userId}`
         );
@@ -329,8 +328,23 @@ export class RedditScheduler {
         },
       });
 
+      console.log(
+        `📡 [Reddit Scheduler] Response status: ${response.status} ${response.statusText}`
+      );
+
       if (response.status === 401) {
         console.warn(`⚠️ [Reddit Scheduler] Token expired for user ${userId}`);
+        return null;
+      }
+
+      if (response.status === 403) {
+        const errorBody = await response.text();
+        console.error(`🚫 [Reddit Scheduler] 403 Forbidden for user ${userId}`);
+        console.error(`🚫 URL: ${url}`);
+        console.error(`🚫 Response body: ${errorBody}`);
+        console.error(
+          `🚫 Token scopes: ${userToken.scopes?.join(', ') || 'none'}`
+        );
         return null;
       }
 
@@ -347,9 +361,11 @@ export class RedditScheduler {
       }
 
       if (!response.ok) {
+        const errorBody = await response.text();
         console.error(
           `❌ [Reddit Scheduler] API error for user ${userId}: ${response.status} ${response.statusText}`
         );
+        console.error(`❌ Response body: ${errorBody}`);
         return null;
       }
 
@@ -387,10 +403,7 @@ export class RedditScheduler {
       timestamp: new Date().toISOString(),
     });
 
-    const location =
-      subreddit.startsWith('u/') || subreddit.startsWith('user/')
-        ? subreddit
-        : `r/${subreddit}`;
+    const location = subreddit.startsWith('r/') ? subreddit : `r/${subreddit}`;
 
     console.log(
       `✅ [Reddit Scheduler] Triggered event for new post "${post.title}" in ${location}`

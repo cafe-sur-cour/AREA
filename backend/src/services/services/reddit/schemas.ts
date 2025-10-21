@@ -2,15 +2,14 @@ import type { ActionReactionSchema } from '../../../types/mapping';
 
 export const newPostInSubredditSchema: ActionReactionSchema = {
   name: 'New Post in Subreddit',
-  description:
-    'Triggered when a new post is made in a specified subreddit or user profile',
+  description: 'Triggered when a new post is made in a specified subreddit',
   fields: [
     {
       name: 'subreddit',
       type: 'text',
-      label: 'Subreddit or User Profile',
+      label: 'Subreddit',
       required: true,
-      placeholder: 'r/AskReddit or u/username',
+      placeholder: 'r/programming',
     },
   ],
 };

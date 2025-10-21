@@ -5,8 +5,7 @@ export const redditActions: ActionDefinition[] = [
   {
     id: 'reddit.new_post_in_subreddit',
     name: 'New Post in Subreddit',
-    description:
-      'Triggered when a new post is made in a specified subreddit or user profile',
+    description: 'Triggered when a new post is made in a specified subreddit',
     configSchema: newPostInSubredditSchema,
     inputSchema: {
       type: 'object',
