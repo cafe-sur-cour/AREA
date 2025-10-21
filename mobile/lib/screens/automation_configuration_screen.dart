@@ -6,6 +6,7 @@ import 'package:area/core/notifiers/backend_address_notifier.dart';
 import 'package:area/services/api_mapping_action_reaction.dart';
 import 'package:area/models/action_models.dart';
 import 'package:area/l10n/app_localizations.dart';
+import 'package:area/widgets/dynamic_text_field.dart';
 
 class AutomationConfigurationScreen extends StatefulWidget {
   const AutomationConfigurationScreen({super.key});
@@ -58,7 +59,18 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
     dynamic currentValue,
     Function(dynamic) onChanged, {
     String? contextPrefix,
+    List<PayloadField>? payloadFields,
   }) {
+    if (field.isDynamic && (field.type == 'text' || field.type == 'textarea')) {
+      return _buildDynamicTextField(
+        field,
+        currentValue,
+        onChanged,
+        contextPrefix: contextPrefix,
+        payloadFields: payloadFields ?? [],
+      );
+    }
+
     switch (field.type) {
       case 'text':
       case 'email':
@@ -79,6 +91,39 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
       default:
         return _buildTextField(field, currentValue, onChanged, contextPrefix: contextPrefix);
     }
+  }
+
+  Widget _buildDynamicTextField(
+    ConfigField field,
+    dynamic currentValue,
+    Function(dynamic) onChanged, {
+    String? contextPrefix,
+    required List<PayloadField> payloadFields,
+  }) {
+    final fieldKey = '${contextPrefix ?? 'dynamic'}_${field.name}';
+    final controller = _getOrCreateController(fieldKey, currentValue?.toString());
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        DynamicTextField(
+          label: field.label,
+          placeholder: field.placeholder,
+          required: field.required,
+          controller: controller,
+          onChanged: onChanged,
+          payloadFields: payloadFields,
+          maxLines: field.type == 'textarea' ? 3 : 1,
+          validator: (value) {
+            if (field.required && (value == null || value.isEmpty)) {
+              return '${field.label} is required';
+            }
+            return null;
+          },
+        ),
+        if (field.description != null) _buildFieldDescription(field.description!),
+      ],
+    );
   }
 
   Widget _buildTextField(
@@ -368,6 +413,7 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
   ) {
     final reactionWithDelay = automationBuilder.selectedReactionsWithDelay[reactionIndex];
     final reaction = reactionWithDelay.reaction;
+    final action = automationBuilder.selectedAction;
 
     if (!reaction.hasConfigFields) {
       return Card(
@@ -417,6 +463,7 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
                     value,
                   ),
                   contextPrefix: 'reaction_${reactionIndex}_${field.type}',
+                  payloadFields: action?.payloadFields,
                 ),
               );
             }),

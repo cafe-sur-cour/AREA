@@ -350,6 +350,26 @@ router.get(
  *                                 webhookPattern:
  *                                   type: string
  *                                   description: Webhook pattern for triggering this action
+ *                             payloadFields:
+ *                               type: array
+ *                               description: List of available payload fields that can be used from this action
+ *                               items:
+ *                                 type: object
+ *                                 properties:
+ *                                   path:
+ *                                     type: string
+ *                                     description: The path to access this field in the payload
+ *                                     example: "user.email"
+ *                                   type:
+ *                                     type: string
+ *                                     description: The data type of this field
+ *                                     example: "string"
+ *                                   description:
+ *                                     type: string
+ *                                     description: Description of what this field contains
+ *                                   example:
+ *                                     type: string
+ *                                     description: Example value for this field
  *       500:
  *         description: Internal server error
  */
@@ -563,6 +583,235 @@ router.get(
 
 /**
  * @swagger
+ * /api/services/subscribed/actions:
+ *   get:
+ *     summary: Get all services with actions that the user is subscribed to
+ *     tags:
+ *       - Services
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of subscribed services with actions
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 services:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                         description: Unique identifier for the service
+ *                       name:
+ *                         type: string
+ *                         description: Human-readable name of the service
+ *                       description:
+ *                         type: string
+ *                         description: Description of the service
+ *                       version:
+ *                         type: string
+ *                         description: Version of the service
+ *                       actions:
+ *                         type: array
+ *                         description: List of actions provided by this service
+ *                         items:
+ *                           type: object
+ *                           properties:
+ *                             id:
+ *                               type: string
+ *                               description: "Unique identifier for the action (format: service.action)"
+ *                             name:
+ *                               type: string
+ *                               description: Human-readable name of the action
+ *                             description:
+ *                               type: string
+ *                               description: Description of what the action does
+ *                             configSchema:
+ *                               type: object
+ *                               description: Schema defining the configuration fields required for this action
+ *                             inputSchema:
+ *                               type: object
+ *                               description: Schema defining the input data structure for action execution
+ *                             metadata:
+ *                               type: object
+ *                               description: Additional metadata for the action
+ *                             payloadFields:
+ *                               type: array
+ *                               description: List of available payload fields that can be used from this action
+ *                               items:
+ *                                 type: object
+ *                                 properties:
+ *                                   path:
+ *                                     type: string
+ *                                     description: The path to access this field in the payload
+ *                                     example: "user.email"
+ *                                   type:
+ *                                     type: string
+ *                                     description: The data type of this field
+ *                                     example: "string"
+ *                                   description:
+ *                                     type: string
+ *                                     description: Description of what this field contains
+ *                                   example:
+ *                                     type: string
+ *                                     description: Example value for this field
+ *       500:
+ *         description: Internal server error
+ */
+router.get(
+  '/subscribed/actions',
+  token,
+  async (req: Request, res: Response): Promise<Response> => {
+    try {
+      const auth = req.auth as { id: number; email: string };
+      const userId = auth.id;
+
+      const userSubscriptions =
+        await serviceSubscriptionManager.getUserSubscriptions(userId);
+      const subscribedServiceIds = userSubscriptions
+        .filter(subscription => subscription.subscribed)
+        .map(subscription => subscription.service);
+
+      const allServices = serviceRegistry
+        .getAllServices()
+        .filter(
+          service =>
+            !service.authOnly && subscribedServiceIds.includes(service.id)
+        );
+      const servicesWithActions = allServices.filter(
+        service => service.actions && service.actions.length > 0
+      );
+
+      return res.status(200).json({
+        services: servicesWithActions.map(service => ({
+          id: service.id,
+          name: service.name,
+          description: service.description,
+          version: service.version,
+          actions: service.actions.map(action => ({
+            ...action,
+            payloadFields: extractPayloadFields(action),
+          })),
+        })),
+      });
+    } catch (err) {
+      console.error('Error fetching subscribed services with actions:', err);
+      return res.status(500).json({
+        error: 'Internal Server Error in get subscribed services actions',
+      });
+    }
+  }
+);
+
+/**
+ * @swagger
+ * /api/services/subscribed/reactions:
+ *   get:
+ *     summary: Get all services with reactions that the user is subscribed to
+ *     tags:
+ *       - Services
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of subscribed services with reactions
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 services:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                         description: Unique identifier for the service
+ *                       name:
+ *                         type: string
+ *                         description: Human-readable name of the service
+ *                       description:
+ *                         type: string
+ *                         description: Description of the service
+ *                       version:
+ *                         type: string
+ *                         description: Version of the service
+ *                       reactions:
+ *                         type: array
+ *                         description: List of reactions provided by this service
+ *                         items:
+ *                           type: object
+ *                           properties:
+ *                             id:
+ *                               type: string
+ *                               description: "Unique identifier for the reaction (format: service.reaction)"
+ *                             name:
+ *                               type: string
+ *                               description: Human-readable name of the reaction
+ *                             description:
+ *                               type: string
+ *                               description: Description of what the reaction does
+ *                             configSchema:
+ *                               type: object
+ *                               description: Schema defining the configuration fields required for this reaction
+ *                             outputSchema:
+ *                               type: object
+ *                               description: Schema defining the output data structure for reaction execution
+ *                             metadata:
+ *                               type: object
+ *                               description: Additional metadata for the reaction
+ *       500:
+ *         description: Internal server error
+ */
+router.get(
+  '/subscribed/reactions',
+  token,
+  async (req: Request, res: Response): Promise<Response> => {
+    try {
+      const auth = req.auth as { id: number; email: string };
+      const userId = auth.id;
+
+      const userSubscriptions =
+        await serviceSubscriptionManager.getUserSubscriptions(userId);
+      const subscribedServiceIds = userSubscriptions
+        .filter(subscription => subscription.subscribed)
+        .map(subscription => subscription.service);
+
+      const allServices = serviceRegistry
+        .getAllServices()
+        .filter(
+          service =>
+            !service.authOnly && subscribedServiceIds.includes(service.id)
+        );
+      const servicesWithReactions = allServices.filter(
+        service => service.reactions && service.reactions.length > 0
+      );
+
+      return res.status(200).json({
+        services: servicesWithReactions.map(service => ({
+          id: service.id,
+          name: service.name,
+          description: service.description,
+          version: service.version,
+          reactions: service.reactions,
+        })),
+      });
+    } catch (err) {
+      console.error('Error fetching subscribed services with reactions:', err);
+      return res.status(500).json({
+        error: 'Internal Server Error in get subscribed services reactions',
+      });
+    }
+  }
+);
+
+/**
+ * @swagger
  * /api/services/{id}/actions:
  *   get:
  *     summary: Get all actions of a specific service
@@ -699,6 +948,26 @@ router.get(
  *                           webhookPattern:
  *                             type: string
  *                             description: Webhook pattern for triggering this action
+ *                       payloadFields:
+ *                         type: array
+ *                         description: List of available payload fields that can be used from this action
+ *                         items:
+ *                           type: object
+ *                           properties:
+ *                             path:
+ *                               type: string
+ *                               description: The path to access this field in the payload
+ *                               example: "user.email"
+ *                             type:
+ *                               type: string
+ *                               description: The data type of this field
+ *                               example: "string"
+ *                             description:
+ *                               type: string
+ *                               description: Description of what this field contains
+ *                             example:
+ *                               type: string
+ *                               description: Example value for this field
  *       400:
  *         description: Bad request - missing service ID
  *         content:
@@ -900,6 +1169,26 @@ router.get(
  *                           webhookPattern:
  *                             type: string
  *                             description: Webhook pattern for triggering this action
+ *                       payloadFields:
+ *                         type: array
+ *                         description: List of available payload fields that can be used from this action
+ *                         items:
+ *                           type: object
+ *                           properties:
+ *                             path:
+ *                               type: string
+ *                               description: The path to access this field in the payload
+ *                               example: "user.email"
+ *                             type:
+ *                               type: string
+ *                               description: The data type of this field
+ *                               example: "string"
+ *                             description:
+ *                               type: string
+ *                               description: Description of what this field contains
+ *                             example:
+ *                               type: string
+ *                               description: Example value for this field
  *       400:
  *         description: Bad request - missing service ID or action id
  *         content:
@@ -948,9 +1237,12 @@ router.get(
         });
       }
 
+      const action = service.actions.find(element => element.id === id);
+
       return res.status(200).json({
         serviceId: service.id,
-        ...service.actions.find(element => element.id === id),
+        ...action,
+        payloadFields: extractPayloadFields(action!),
       });
     } catch (err) {
       console.error('Error fetching service actions:', err);

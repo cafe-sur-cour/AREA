@@ -26,6 +26,10 @@ class AppRoutes {
   // Service-specific routes
   static String actionsFromService(String serviceId) => "api/services/$serviceId/actions";
   static String reactionsFromService(String serviceId) => "api/services/$serviceId/reactions";
+  static String actionById(String serviceId, String actionId) =>
+      "api/services/$serviceId/actions/$actionId";
+  static String reactionById(String serviceId, String reactionId) =>
+      "api/services/$serviceId/reactions/$reactionId";
 
   // Action Reaction mapping
   static const String createAutomation = "api/mappings";
@@ -33,6 +37,9 @@ class AppRoutes {
   static String deleteAutomation(String id) => "api/mappings/$id";
   static String activateAutomation(String id) => "api/mappings/$id/activate";
   static String deactivateAutomation(String id) => "api/mappings/$id/deactivate";
+
+  // About
+  static const String about = "about.json";
 }
 
 class AppDimensions {
