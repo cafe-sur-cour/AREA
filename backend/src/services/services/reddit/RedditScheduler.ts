@@ -180,9 +180,11 @@ export class RedditScheduler {
           type: string;
           config?: { subreddit?: string };
         };
-        const subreddit = config.config?.subreddit;
+        let subreddit = config.config?.subreddit;
         if (subreddit) {
-          subreddits.add(subreddit.toLowerCase());
+          // Normalize: trim and lowercase, keep r/ or u/ prefix
+          subreddit = subreddit.trim().toLowerCase();
+          subreddits.add(subreddit);
         }
       }
 
@@ -209,6 +211,8 @@ export class RedditScheduler {
       let apiPath: string;
       if (subreddit.startsWith('u/') || subreddit.startsWith('user/')) {
         apiPath = `/${subreddit}/submitted`;
+      } else if (subreddit.startsWith('r/')) {
+        apiPath = `/${subreddit}/new`;
       } else {
         apiPath = `/r/${subreddit}/new`;
       }

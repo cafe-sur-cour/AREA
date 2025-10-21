@@ -8,9 +8,9 @@ export const newPostInSubredditSchema: ActionReactionSchema = {
     {
       name: 'subreddit',
       type: 'text',
-      label: 'Subreddit or User (e.g., "AskReddit" or "u/username")',
+      label: 'Subreddit or User Profile',
       required: true,
-      placeholder: 'AskReddit',
+      placeholder: 'r/AskReddit or u/username',
     },
   ],
 };
