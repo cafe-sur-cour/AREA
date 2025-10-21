@@ -83,6 +83,7 @@ class RedditReactionExecutor implements ReactionExecutor {
         body: new URLSearchParams({
           id: post_id,
           dir: '1', // 1 = upvote, 0 = remove vote, -1 = downvote
+          api_type: 'json',
         }),
       });
 
@@ -142,6 +143,12 @@ class RedditReactionExecutor implements ReactionExecutor {
         process.env.SERVICE_REDDIT_AUTH_API_BASE_URL ||
         'https://oauth.reddit.com';
 
+      console.log('[Reddit] Posting comment:', {
+        post_id,
+        text_length: processedText.length,
+        url: `${oauthBaseUrl}/api/comment`,
+      });
+
       const response = await fetch(`${oauthBaseUrl}/api/comment`, {
         method: 'POST',
         headers: {
@@ -150,6 +157,7 @@ class RedditReactionExecutor implements ReactionExecutor {
           'User-Agent': 'AREA-App/1.0',
         },
         body: new URLSearchParams({
+          api_type: 'json',
           thing_id: post_id,
           text: processedText,
         }),
@@ -157,6 +165,11 @@ class RedditReactionExecutor implements ReactionExecutor {
 
       if (!response.ok) {
         const errorText = await response.text();
+        console.error('[Reddit] API Error Response:', {
+          status: response.status,
+          statusText: response.statusText,
+          body: errorText,
+        });
         throw new Error(`Reddit API error: ${response.status} - ${errorText}`);
       }
 
