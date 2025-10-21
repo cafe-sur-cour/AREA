@@ -126,10 +126,6 @@ export class RedditScheduler {
         return;
       }
 
-      console.log(
-        `🔍 [Reddit Scheduler] Polling ${userIds.length} active user(s)`
-      );
-
       const chunks = this.chunkArray(userIds, this.MAX_CONCURRENT_USERS);
       for (const chunk of chunks) {
         const promises = chunk.map((userId: number) =>
@@ -151,7 +147,6 @@ export class RedditScheduler {
     try {
       const userToken = await redditOAuth.getUserToken(userId);
       if (!userToken) {
-        console.log(`⚠️ [Reddit Scheduler] No token found for user ${userId}`);
         return;
       }
 
@@ -166,10 +161,6 @@ export class RedditScheduler {
         },
       });
 
-      console.log(
-        `📋 [Reddit Scheduler] User ${userId} has ${userMappings.length} active mapping(s)`
-      );
-
       if (userMappings.length === 0) {
         return;
       }
@@ -182,15 +173,11 @@ export class RedditScheduler {
         };
         let subreddit = config.config?.subreddit;
         if (subreddit) {
-          // Normalize: trim and lowercase, keep r/ or u/ prefix
+          // Normalize: trim and lowercase, keep r/ prefix
           subreddit = subreddit.trim().toLowerCase();
           subreddits.add(subreddit);
         }
       }
-
-      console.log(
-        `🎯 [Reddit Scheduler] Monitoring subreddits for user ${userId}: ${Array.from(subreddits).join(', ')}`
-      );
 
       for (const subreddit of subreddits) {
         await this.checkSubredditForNewPosts(userId, subreddit);
@@ -219,23 +206,15 @@ export class RedditScheduler {
       }
 
       const url = `${this.REDDIT_API_BASE_URL}${apiPath}.json?limit=10`;
-      console.log(`🔗 [Reddit Scheduler] Fetching: ${url}`);
 
       const response = await this.makeRedditRequest(userId, url);
 
       if (!response) {
-        console.log(
-          `⚠️ [Reddit Scheduler] No response from Reddit API for ${subreddit}`
-        );
         return;
       }
 
       const data: RedditListingResponse = await response.json();
       const posts = data.data.children.map(child => child.data);
-
-      console.log(
-        `📊 [Reddit Scheduler] Found ${posts.length} posts in ${subreddit}`
-      );
 
       if (posts.length === 0) {
         return;
@@ -244,34 +223,16 @@ export class RedditScheduler {
       const currentPostIds = posts.map(post => post.name);
       const userState = this.getUserSubredditState(userId, subreddit);
 
-      console.log(
-        `🗂️ [Reddit Scheduler] Current posts: ${currentPostIds.join(', ')}`
-      );
-      console.log(
-        `🗂️ [Reddit Scheduler] Previous posts: ${userState.lastPostIds.join(', ')}`
-      );
-      console.log(
-        `🔄 [Reddit Scheduler] Is initialized: ${userState.isInitialized}`
-      );
-
       if (userState.isInitialized && userState.lastPostIds.length > 0) {
         const newPostIds = currentPostIds.filter(
           id => !userState.lastPostIds.includes(id)
         );
 
-        console.log(
-          `🆕 [Reddit Scheduler] New post IDs: ${newPostIds.join(', ') || 'none'}`
-        );
-
         if (newPostIds.length > 0) {
           const newPosts = posts.filter(post => newPostIds.includes(post.name));
 
-          const location = subreddit.startsWith('r/')
-            ? subreddit
-            : `r/${subreddit}`;
-
           console.log(
-            `🆕 [Reddit Scheduler] Found ${newPosts.length} new post(s) in ${location} for user ${userId}`
+            `🆕 [Reddit Scheduler] Found ${newPosts.length} new post(s) in ${subreddit.startsWith('r/') ? subreddit : `r/${subreddit}`}`
           );
 
           for (const post of newPosts.reverse()) {
@@ -279,11 +240,8 @@ export class RedditScheduler {
           }
         }
       } else {
-        const location = subreddit.startsWith('r/')
-          ? subreddit
-          : `r/${subreddit}`;
         console.log(
-          `📌 [Reddit Scheduler] Initializing ${location} state for user ${userId}`
+          `📌 [Reddit Scheduler] Initializing ${subreddit.startsWith('r/') ? subreddit : `r/${subreddit}`} monitoring`
         );
       }
 
@@ -328,23 +286,13 @@ export class RedditScheduler {
         },
       });
 
-      console.log(
-        `📡 [Reddit Scheduler] Response status: ${response.status} ${response.statusText}`
-      );
-
       if (response.status === 401) {
         console.warn(`⚠️ [Reddit Scheduler] Token expired for user ${userId}`);
         return null;
       }
 
       if (response.status === 403) {
-        const errorBody = await response.text();
-        console.error(`🚫 [Reddit Scheduler] 403 Forbidden for user ${userId}`);
-        console.error(`🚫 URL: ${url}`);
-        console.error(`🚫 Response body: ${errorBody}`);
-        console.error(
-          `🚫 Token scopes: ${userToken.scopes?.join(', ') || 'none'}`
-        );
+        console.error(`🚫 [Reddit Scheduler] 403 Forbidden - ${url}`);
         return null;
       }
 
@@ -361,11 +309,9 @@ export class RedditScheduler {
       }
 
       if (!response.ok) {
-        const errorBody = await response.text();
         console.error(
-          `❌ [Reddit Scheduler] API error for user ${userId}: ${response.status} ${response.statusText}`
+          `❌ [Reddit Scheduler] API error: ${response.status} ${response.statusText} - ${url}`
         );
-        console.error(`❌ Response body: ${errorBody}`);
         return null;
       }
 
@@ -387,7 +333,7 @@ export class RedditScheduler {
     await this.createEvent(userId, 'reddit.new_post_in_subreddit', {
       post: {
         id: post.id,
-        name: post.name, // Full ID (t3_xxxxx)
+        name: post.name,
         title: post.title,
         author: post.author,
         subreddit: post.subreddit,
