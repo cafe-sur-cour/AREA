@@ -20,6 +20,11 @@ class RedditReactionExecutor implements ReactionExecutor {
         };
       }
 
+      console.log(
+        `[Reddit] User ${event.user_id} token scopes:`,
+        userToken.scopes
+      );
+
       switch (reaction.type) {
         case 'reddit.upvote_post':
           return await this.upvotePost(
