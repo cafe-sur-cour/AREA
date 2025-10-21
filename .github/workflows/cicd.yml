@@ -232,8 +232,7 @@ jobs:
           SERVICE_GITHUB_CLIENT_ID: ${{ secrets.SERVICE_GITHUB_CLIENT_ID }}
           SERVICE_GITHUB_CLIENT_SECRET: ${{ secrets.SERVICE_GITHUB_CLIENT_SECRET }}
           SERVICE_GITHUB_REDIRECT_URI: ${{ secrets.SERVICE_GITHUB_REDIRECT_URI }}
-          BACKEND_URL: ${{ secrets.BACKEND_URL }}
-          MOBILE_CALLBACK_URL: ${{ secrets.MOBILE_CALLBACK_URL }}
+
         run: |
           echo "DB_USER=$DB_USER" > ./deployment/.env
           echo "DB_PASSWORD=$DB_PASSWORD" >> ./deployment/.env
@@ -247,9 +246,6 @@ jobs:
           echo "SERVICE_GITHUB_CLIENT_ID=$SERVICE_GITHUB_CLIENT_ID" >> ./deployment/.env
           echo "SERVICE_GITHUB_CLIENT_SECRET=$SERVICE_GITHUB_CLIENT_SECRET" >> ./deployment/.env
           echo "SERVICE_GITHUB_REDIRECT_URI=$SERVICE_GITHUB_REDIRECT_URI" >> ./deployment/.env
-          echo "BACKEND_URL=$BACKEND_URL" >> ./deployment/.env
-          echo "MOBILE_CALLBACK_URL=$MOBILE_CALLBACK_URL" >> ./deployment/.env
-
 
       - name: Clean all containers
         run: docker compose -f ./deployment/docker-compose.yml down -v
@@ -316,12 +312,16 @@ jobs:
 
       - name: Build and push Docker image
         env:
-          FRONTEND_URL: "http://localhost:8081"
+          FRONTEND_URL: "https://frontend.nduboi.fr"
+          BACKEND_URL: "https://backend.nduboi.fr"
+          MOBILE_CALLBACK_URL: "mobileapp://callback"
         if: steps.check_dockerfile.outputs.dockerfile_exists == 'true'
         uses: docker/build-push-action@v5
         with:
           build-args: |
             FRONTEND_URL=${FRONTEND_URL}
+            BACKEND_URL=${BACKEND_URL}
+            MOBILE_CALLBACK_URL=${MOBILE_CALLBACK_URL}
           file: ./deployment/Dockerfile.${{ matrix.component }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
