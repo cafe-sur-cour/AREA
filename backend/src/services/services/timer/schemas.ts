@@ -2,15 +2,24 @@ import type { ActionReactionSchema } from '../../../types/mapping';
 
 export const everyDayAtXHourSchema: ActionReactionSchema = {
   name: 'Every Day at X Hour',
-  description: 'Triggers once a day at a specific hour on selected days',
+  description:
+    'Triggers once a day at a specific hour and minute on selected days (Paris timezone)',
   fields: [
     {
       name: 'hour',
       type: 'number',
-      label: 'Hour (0-23)',
+      label: 'Hour (0-23, Paris timezone)',
       required: true,
       placeholder: '14',
       default: 14,
+    },
+    {
+      name: 'minute',
+      type: 'number',
+      label: 'Minute (0-59)',
+      required: true,
+      placeholder: '30',
+      default: 0,
     },
     {
       name: 'days',
@@ -32,19 +41,15 @@ export const everyDayAtXHourSchema: ActionReactionSchema = {
 
 export const everyHourAtIntervalsSchema: ActionReactionSchema = {
   name: 'Every Hour at X Minute',
-  description: 'Triggers every hour at a specific minute (00, 15, 30, or 45)',
+  description: 'Triggers every hour at a specific minute',
   fields: [
     {
       name: 'minute',
-      type: 'select',
-      label: 'Minute',
+      type: 'number',
+      label: 'Minute (0-59)',
       required: true,
-      options: [
-        { value: '0', label: ':00' },
-        { value: '15', label: ':15' },
-        { value: '30', label: ':30' },
-        { value: '45', label: ':45' },
-      ],
+      placeholder: '30',
+      default: 0,
     },
   ],
 };

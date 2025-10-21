@@ -46,9 +46,34 @@ export class TimerScheduler {
   private async checkAndTriggerTimers(): Promise<void> {
     try {
       const now = new Date();
-      const currentMinute = now.getMinutes();
-      const currentHour = now.getHours();
-      const currentDay = now.getDay();
+      const parisFormatter = new Intl.DateTimeFormat('en-GB', {
+        timeZone: 'Europe/Paris',
+        hour: 'numeric',
+        minute: 'numeric',
+        weekday: 'long',
+      });
+
+      const parisTime = parisFormatter.formatToParts(now);
+      const currentHour = parseInt(
+        parisTime.find(p => p.type === 'hour')!.value
+      );
+      const currentMinute = parseInt(
+        parisTime.find(p => p.type === 'minute')!.value
+      );
+      const dayName = parisTime
+        .find(p => p.type === 'weekday')!
+        .value.toLowerCase();
+
+      const dayNames = [
+        'sunday',
+        'monday',
+        'tuesday',
+        'wednesday',
+        'thursday',
+        'friday',
+        'saturday',
+      ];
+      const currentDay = dayNames.indexOf(dayName);
 
       await this.checkEveryHourAtIntervalsTimers(currentMinute);
       await this.checkEveryDayAtXHourTimers(
@@ -122,18 +147,23 @@ export class TimerScheduler {
       try {
         const config = mapping.action.config as {
           hour: number;
+          minute?: number;
           days: string[];
         };
 
         if (
           config.hour === currentHour &&
-          currentMinute === 0 &&
+          (config.minute ?? 0) === currentMinute &&
           config.days &&
           config.days.includes(dayNames[currentDay]!)
         ) {
+          console.log(
+            `✅ [TimerScheduler] Triggering timer for mapping ${mapping.id}`
+          );
           await this.triggerTimerEvent(mapping, {
             timestamp: new Date().toISOString(),
             hour: config.hour,
+            minute: config.minute ?? 0,
             day: dayNames[currentDay]!,
           });
         }

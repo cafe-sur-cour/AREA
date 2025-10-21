@@ -119,11 +119,35 @@ const getClientIP = (req: Request): string => {
   return ip;
 };
 
+const getParisTimestamp = (): number => {
+  const now = new Date();
+  const parisFormatter = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Europe/Paris',
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    second: 'numeric',
+  });
+
+  const parisParts = parisFormatter.formatToParts(now);
+  const year = parseInt(parisParts.find(p => p.type === 'year')!.value);
+  const month = parseInt(parisParts.find(p => p.type === 'month')!.value) - 1;
+  const day = parseInt(parisParts.find(p => p.type === 'day')!.value);
+  const hour = parseInt(parisParts.find(p => p.type === 'hour')!.value);
+  const minute = parseInt(parisParts.find(p => p.type === 'minute')!.value);
+  const second = parseInt(parisParts.find(p => p.type === 'second')!.value);
+
+  const parisDate = new Date(year, month, day, hour, minute, second);
+  return Math.floor(parisDate.getTime() / 1000);
+};
+
 router.get('/', async (req: Request, res: Response): Promise<void> => {
   try {
     const clientHost = getClientIP(req);
 
-    const currentTime = Math.floor(Date.now() / 1000);
+    const currentTime = getParisTimestamp();
 
     const lang = (req.query.lang as string) || 'en';
     await i18next.changeLanguage(lang);

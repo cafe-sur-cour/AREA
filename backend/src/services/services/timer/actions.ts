@@ -5,7 +5,8 @@ export const timerActions: ActionDefinition[] = [
   {
     id: 'timer.every_day_at_x_hour',
     name: 'Every Day at X Hour',
-    description: 'Triggers once a day at a specific hour on selected days',
+    description:
+      'Triggers once a day at a specific hour and minute on selected days (Paris timezone)',
     configSchema: everyDayAtXHourSchema,
     inputSchema: {
       type: 'object',
@@ -17,6 +18,10 @@ export const timerActions: ActionDefinition[] = [
         hour: {
           type: 'number',
           description: 'The hour that triggered',
+        },
+        minute: {
+          type: 'number',
+          description: 'The minute that triggered',
         },
         day: {
           type: 'string',
