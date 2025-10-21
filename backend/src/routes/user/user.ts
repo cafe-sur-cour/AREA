@@ -10,6 +10,7 @@ import admin from '../../middleware/admin';
 import { AppDataSource } from '../../config/db';
 import { User } from '../../config/entity/User';
 import { createLog } from '../logs/logs.service';
+import bcrypt from 'bcryptjs';
 
 const router = express.Router();
 
@@ -214,7 +215,9 @@ router.get(
  *             properties:
  *               name:
  *                 type: string
- *               bio:
+ *               email:
+ *                 type: string
+ *               password:
  *                 type: string
  *               picture:
  *                 type: string
@@ -238,9 +241,10 @@ router.put(
   token,
   async (req: Request, res: Response): Promise<Response | void> => {
     try {
-      const { name, bio, picture, email } = req.body;
+      console.log('Update user request body:', req.body);
+      const { name, email, password, picture } = req.body;
 
-      if (!name && !bio && !picture && !email) {
+      if (!name && !email && !password && !picture) {
         await createLog(
           400,
           'user',
@@ -248,7 +252,7 @@ router.put(
         );
         return res.status(400).json({
           error: 'Bad Request',
-          message: 'At least one field is required: name, bio, picture, or email',
+          message: 'At least one field is required: name, email, password, or picture',
         });
       }
 
@@ -266,9 +270,13 @@ router.put(
       // Encrypt fields if present
       const updateData: any = {};
       if (name) updateData.name = encryption.encryptToString(name);
-      if (bio) updateData.bio = bio;
-      if (picture) updateData.picture = picture;
       if (email) updateData.email = encryption.encryptToString(email);
+      if (password) {
+        // Hash the password before saving
+        const hashedPassword = await bcrypt.hash(password, 10);
+        updateData.password_hash = hashedPassword;
+      }
+      if (picture) updateData.picture = picture;
 
       const updatedUser = await updateUser(userId, updateData);
 
