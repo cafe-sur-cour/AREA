@@ -20,6 +20,21 @@ export interface GoogleUser {
   token: string;
 }
 
+const googleAuthScopeBase = 'https://www.googleapis.com/auth';
+
+const googleScopes = [
+  'openid',
+  `${googleAuthScopeBase}/userinfo.email`,
+  `${googleAuthScopeBase}/userinfo.profile`,
+  `${googleAuthScopeBase}/gmail.send`,
+  `${googleAuthScopeBase}/gmail.modify`,
+  `${googleAuthScopeBase}/calendar`,
+  `${googleAuthScopeBase}/calendar.events`,
+  `${googleAuthScopeBase}/documents`,
+  `${googleAuthScopeBase}/drive.file`,
+  `${googleAuthScopeBase}/drive`,
+];
+
 export function initializeGooglePassport(): void {
   passport.use(
     'google-login',
@@ -28,7 +43,7 @@ export function initializeGooglePassport(): void {
         clientID: process.env.SERVICE_GOOGLE_CLIENT_ID || '',
         clientSecret: process.env.SERVICE_GOOGLE_CLIENT_SECRET || '',
         callbackURL: process.env.SERVICE_GOOGLE_REDIRECT_URI || '',
-        scope: ['openid', 'email', 'profile'],
+        scope: googleScopes,
         passReqToCallback: true,
       },
       async (
@@ -62,7 +77,7 @@ export function initializeGooglePassport(): void {
             token_type: 'bearer',
             expires_in: params.expires_in || 3600,
             refresh_token: refreshToken,
-            scope: 'openid email profile',
+            scope: googleScopes.join(' '),
           };
 
           const decoded = jwt.verify(userToken, JWT_SECRET as string) as {
@@ -93,7 +108,7 @@ export function initializeGooglePassport(): void {
         clientID: process.env.SERVICE_GOOGLE_CLIENT_ID || '',
         clientSecret: process.env.SERVICE_GOOGLE_CLIENT_SECRET || '',
         callbackURL: process.env.SERVICE_GOOGLE_REDIRECT_URI || '',
-        scope: ['openid', 'email', 'profile'],
+        scope: googleScopes,
         passReqToCallback: true,
       },
       async (
@@ -133,7 +148,7 @@ export function initializeGooglePassport(): void {
             token_type: 'bearer',
             expires_in: params.expires_in || 3600,
             refresh_token: refreshToken,
-            scope: 'openid email profile',
+            scope: googleScopes.join(' '),
           };
 
           const decoded = jwt.verify(userToken, JWT_SECRET as string) as {

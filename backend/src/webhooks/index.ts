@@ -52,7 +52,7 @@ router.post(
       console.error(`Error handling webhook for service '${service}':`, error);
       return res
         .status(500)
-        .json({ error: 'Internal server error in updates service webhook' });
+        .json({ error: 'Internal server error in webhook service' });
     }
   }
 );
