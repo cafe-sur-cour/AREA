@@ -1,4 +1,5 @@
 import 'package:area/core/constants/app_colors.dart';
+import 'package:area/l10n/app_localizations.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
@@ -213,7 +214,7 @@ class OAuthWebViewState extends State<OAuthWebView> {
       }
     } catch (e) {
       if (mounted) {
-        _showError('Retry failed. Please try again.');
+        _showError(AppLocalizations.of(context)!.retry_failed);
       }
     }
   }
@@ -224,9 +225,7 @@ class OAuthWebViewState extends State<OAuthWebView> {
     if (_retryCount < _maxRetries) {
       _reinitializeWebView();
     } else {
-      _showError(
-        'Authentication session crashed multiple times. Please restart the app and try again.',
-      );
+      _showError(AppLocalizations.of(context)!.authentication_error);
     }
   }
 
@@ -257,7 +256,7 @@ class OAuthWebViewState extends State<OAuthWebView> {
       }
     } catch (e) {
       if (mounted) {
-        _showError('Failed to recover from crash. Please try again.');
+        _showError(AppLocalizations.of(context)!.retry_failed);
       }
     }
   }
@@ -317,7 +316,7 @@ class OAuthWebViewState extends State<OAuthWebView> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text('${widget.providerName} Login'),
+          title: Text(AppLocalizations.of(context)!.service_login(widget.providerName)),
           leading: IconButton(
             icon: const Icon(Icons.close),
             onPressed: () {
@@ -331,15 +330,18 @@ class OAuthWebViewState extends State<OAuthWebView> {
             if (!_hasError && webViewController != null)
               WebViewWidget(controller: webViewController!),
             if (isLoading || webViewController == null)
-              const Center(
+              Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    CircularProgressIndicator(),
+                    const CircularProgressIndicator(),
 
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
 
-                    Text('Loading authentication...', style: TextStyle(fontSize: 16)),
+                    Text(
+                      AppLocalizations.of(context)!.loading_authentication,
+                      style: TextStyle(fontSize: 16),
+                    ),
                   ],
                 ),
               ),
@@ -352,8 +354,8 @@ class OAuthWebViewState extends State<OAuthWebView> {
 
                     const SizedBox(height: 16),
 
-                    const Text(
-                      'Authentication Error',
+                    Text(
+                      AppLocalizations.of(context)!.authentication_error,
                       style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
 
@@ -361,8 +363,10 @@ class OAuthWebViewState extends State<OAuthWebView> {
 
                     Text(
                       _retryCount > 0
-                          ? 'Retrying... ($_retryCount/$_maxRetries)'
-                          : 'Failed to load authentication',
+                          ? AppLocalizations.of(
+                              context,
+                            )!.retrying_count(_retryCount, _maxRetries)
+                          : AppLocalizations.of(context)!.failed_to_load_authentication,
                       style: const TextStyle(fontSize: 16),
                     ),
 
@@ -370,7 +374,11 @@ class OAuthWebViewState extends State<OAuthWebView> {
 
                     ElevatedButton(
                       onPressed: _retryCount < _maxRetries ? _retryLoad : null,
-                      child: Text(_retryCount < _maxRetries ? 'Retry' : 'Max retries reached'),
+                      child: Text(
+                        _retryCount < _maxRetries
+                            ? AppLocalizations.of(context)!.retry
+                            : AppLocalizations.of(context)!.max_retries_reached,
+                      ),
                     ),
                   ],
                 ),
