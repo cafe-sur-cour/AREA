@@ -54,7 +54,7 @@ class GoogleWebhookHandler implements WebhookHandler {
 
   async handle(req: Request, res: Response): Promise<Response> {
     try {
-      if (req.body.message && req.body.message.data) {
+      if (req.body && req.body.message && req.body.message.data) {
         return res
           .status(200)
           .json({ message: 'Pub/Sub message acknowledged' });
@@ -64,7 +64,6 @@ class GoogleWebhookHandler implements WebhookHandler {
         `\n🎣 [GOOGLE WEBHOOK] Notification received from ${req.headers['x-goog-resource-state']}`
       );
 
-      // Log détaillé des headers reçus
       console.log(
         `🔍 [GOOGLE WEBHOOK] All received headers:`,
         JSON.stringify(req.headers, null, 2)
