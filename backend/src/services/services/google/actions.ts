@@ -1,70 +1,10 @@
 import type { ActionDefinition } from '../../../types/service';
 import {
-  googleEmailReceivedSchema,
   googleCalendarEventInviteSchema,
   googleDriveFileAddedSchema,
 } from './schemas';
 
 export const googleActions: ActionDefinition[] = [
-  {
-    id: 'google.email_received',
-    name: 'Email Received',
-    description: 'Triggers when a new email is received in Gmail',
-    configSchema: googleEmailReceivedSchema,
-    inputSchema: {
-      type: 'object',
-      properties: {
-        message_id: {
-          type: 'string',
-          description: 'The ID of the received email message',
-        },
-        thread_id: {
-          type: 'string',
-          description: 'The thread ID of the email',
-        },
-        from: {
-          type: 'string',
-          description: 'Sender email address',
-        },
-        to: {
-          type: 'array',
-          items: {
-            type: 'string',
-            description: 'Email address',
-          },
-          description: 'Recipient email addresses',
-        },
-        subject: {
-          type: 'string',
-          description: 'Email subject',
-        },
-        snippet: {
-          type: 'string',
-          description: 'Short snippet of the email body',
-        },
-        date: {
-          type: 'string',
-          description: 'Date the email was received',
-        },
-        labels: {
-          type: 'array',
-          items: {
-            type: 'string',
-            description: 'Label name',
-          },
-          description: 'Gmail labels applied to the email',
-        },
-      },
-      required: ['message_id', 'from', 'subject', 'date'],
-    },
-    metadata: {
-      category: 'Gmail',
-      tags: ['email', 'gmail', 'inbox'],
-      requiresAuth: true,
-      webhookPattern: 'gmail_message',
-      sharedEvents: false,
-    },
-  },
   {
     id: 'google.calendar_event_invite',
     name: 'Calendar Event Invite',

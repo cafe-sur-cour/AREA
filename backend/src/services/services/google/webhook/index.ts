@@ -4,21 +4,6 @@ import { WebhookEvents } from '../../../../config/entity/WebhookEvents';
 import { ExternalWebhooks } from '../../../../config/entity/ExternalWebhooks';
 import type { WebhookHandler } from '../../../../types/webhook';
 
-interface GmailMessageHeader {
-  name: string;
-  value: string;
-}
-
-interface GmailMessageResponse {
-  id: string;
-  threadId: string;
-  snippet: string;
-  labelIds?: string[];
-  payload?: {
-    headers?: GmailMessageHeader[];
-  };
-}
-
 interface CalendarEventAttendee {
   email: string;
   responseStatus: string;
@@ -182,11 +167,7 @@ class GoogleWebhookHandler implements WebhookHandler {
         resourceId
       );
 
-      if (actionType === 'google.email_received' && webhookData) {
-        console.log(
-          `📧 Email from ${webhookData.from}: ${webhookData.subject}`
-        );
-      } else if (actionType === 'google.calendar_event_invite' && webhookData) {
+      if (actionType === 'google.calendar_event_invite' && webhookData) {
         console.log(
           `📅 Calendar event: ${webhookData.summary} (${webhookData.start_datetime})`
         );
@@ -269,8 +250,6 @@ class GoogleWebhookHandler implements WebhookHandler {
         process.env.SERVICE_GOOGLE_API_BASE_URL || 'https://www.googleapis.com';
 
       switch (actionType) {
-        case 'google.email_received':
-          return await this.fetchEmailData(accessToken, resourceId, apiBaseUrl);
         case 'google.calendar_event_invite': {
           let calendarId = 'primary';
           try {
@@ -305,69 +284,6 @@ class GoogleWebhookHandler implements WebhookHandler {
       }
     } catch (error) {
       console.error('Error fetching resource data:', error);
-      return null;
-    }
-  }
-
-  private async fetchEmailData(
-    accessToken: string,
-    messageId: string,
-    apiBaseUrl: string
-  ): Promise<Record<string, unknown> | null> {
-    try {
-      console.log(
-        `📧 [Google Gmail] Fetching email data for message: ${messageId}`
-      );
-
-      const response = await fetch(
-        `${apiBaseUrl}/gmail/v1/users/me/messages/${messageId}?format=metadata&metadataHeaders=From&metadataHeaders=To&metadataHeaders=Subject&metadataHeaders=Date`,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
-
-      console.log(`📧 [Google Gmail] API Response Status: ${response.status}`);
-      console.log(`📧 [Google Gmail] API Response Headers:`, response.headers);
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error(`❌ [Google Gmail] API Error Response:`, errorText);
-        console.error(`❌ [Google Gmail] Request details:`, {
-          url: `${apiBaseUrl}/gmail/v1/users/me/messages/${messageId}?format=metadata&metadataHeaders=From&metadataHeaders=To&metadataHeaders=Subject&metadataHeaders=Date`,
-          method: 'GET',
-          headers: {
-            Authorization: accessToken ? '[REDACTED]' : 'MISSING',
-          },
-        });
-        return null;
-      }
-
-      const message = (await response.json()) as GmailMessageResponse;
-      console.log(
-        `✅ [Google Gmail] Full API Response:`,
-        JSON.stringify(message, null, 2)
-      );
-      const headers = message.payload?.headers || [];
-      const getHeader = (name: string) =>
-        headers.find(h => h.name.toLowerCase() === name.toLowerCase())?.value ||
-        '';
-
-      return {
-        message_id: message.id,
-        thread_id: message.threadId,
-        from: getHeader('from'),
-        to: getHeader('to')
-          .split(',')
-          .map((e: string) => e.trim()),
-        subject: getHeader('subject'),
-        snippet: message.snippet,
-        date: getHeader('date'),
-        labels: message.labelIds || [],
-      };
-    } catch (error) {
-      console.error('Error fetching email data:', error);
       return null;
     }
   }

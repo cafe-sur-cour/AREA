@@ -112,10 +112,6 @@ const googleService: Service = {
             `⚠️  [Google Service] Drive watch setup failed, but webhook is ready to receive notifications if configured manually`
           );
         }
-      } else if (actionType === 'google.email_received') {
-        console.log(
-          `ℹ️  [Google Service] Gmail requires Google Cloud Pub/Sub configuration. See GOOGLE_WEBHOOKS_SETUP.md for details.`
-        );
       }
     } catch (error) {
       console.error(`❌ [Google Service] Failed to create webhook:`, error);

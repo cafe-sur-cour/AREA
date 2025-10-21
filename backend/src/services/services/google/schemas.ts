@@ -110,20 +110,6 @@ export const googleCreateDocumentSchema: ActionReactionSchema = {
   ],
 };
 
-export const googleEmailReceivedSchema: ActionReactionSchema = {
-  name: 'Email Received',
-  description: 'Triggers when a new email is received in Gmail',
-  fields: [
-    {
-      name: 'label',
-      type: 'text',
-      label: 'Label Filter (optional)',
-      required: false,
-      placeholder: 'INBOX, IMPORTANT, STARRED',
-    },
-  ],
-};
-
 export const googleCalendarEventInviteSchema: ActionReactionSchema = {
   name: 'Calendar Event Invite',
   description: 'Triggers when you are invited to a new calendar event',
