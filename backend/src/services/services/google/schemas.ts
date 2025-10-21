@@ -95,7 +95,7 @@ export const googleCreateDocumentSchema: ActionReactionSchema = {
       required: true,
       placeholder: 'My Document',
       dynamic: true,
-      dynamicPlaceholder: 'Notes - {{action.payload.summary}}',
+      dynamicPlaceholder: 'Notes - {{action.payload.file_name}}',
     },
     {
       name: 'content',
@@ -105,7 +105,7 @@ export const googleCreateDocumentSchema: ActionReactionSchema = {
       placeholder: 'Document content...',
       dynamic: true,
       dynamicPlaceholder:
-        '{{action.payload.description}}\n\nCreated from: {{action.payload.name}}',
+        '{{action.payload.description}}\n\nCreated from: {{action.payload.file_name}}',
     },
   ],
 };

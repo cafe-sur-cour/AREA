@@ -54,6 +54,12 @@ class GoogleWebhookHandler implements WebhookHandler {
 
   async handle(req: Request, res: Response): Promise<Response> {
     try {
+      if (req.body.message && req.body.message.data) {
+        return res
+          .status(200)
+          .json({ message: 'Pub/Sub message acknowledged' });
+      }
+
       console.log(
         `\n🎣 [GOOGLE WEBHOOK] Notification received from ${req.headers['x-goog-resource-state']}`
       );
@@ -173,7 +179,7 @@ class GoogleWebhookHandler implements WebhookHandler {
         );
       } else if (actionType === 'google.drive_file_added' && webhookData) {
         console.log(
-          `📂 Drive file added: ${webhookData.name} (${webhookData.mime_type})`
+          `📂 Drive file added: ${webhookData.file_name} (${webhookData.mime_type})`
         );
       }
 
@@ -402,7 +408,7 @@ class GoogleWebhookHandler implements WebhookHandler {
 
       return {
         file_id: file.id,
-        name: file.name,
+        file_name: file.name,
         mime_type: file.mimeType,
         size: file.size ? parseInt(file.size) : 0,
         created_time: file.createdTime,

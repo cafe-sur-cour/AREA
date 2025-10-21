@@ -106,7 +106,7 @@ export const googleActions: ActionDefinition[] = [
           type: 'string',
           description: 'The ID of the file',
         },
-        name: {
+        file_name: {
           type: 'string',
           description: 'File name',
         },
@@ -157,7 +157,7 @@ export const googleActions: ActionDefinition[] = [
           description: 'Parent folder IDs',
         },
       },
-      required: ['file_id', 'name', 'mime_type', 'created_time'],
+      required: ['file_id', 'file_name', 'mime_type', 'created_time'],
     },
     metadata: {
       category: 'Drive',
