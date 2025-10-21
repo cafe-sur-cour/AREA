@@ -33,5 +33,368 @@
   "user_registered": "Utilisateur créé",
   "logged_in": "Connexion réussie",
   "logged_out": "Déconnexion réussie",
-  "services": "Services"
+  "services": "Services",
+  "cancel": "Annuler",
+  "confirm": "Confirmer",
+  "delete": "Supprimer",
+  "retry": "Réessayer",
+  "loading": "Chargement",
+  "error": "Erreur",
+  "welcome_home": "Bienvenue sur la page d'accueil",
+  "github": "GitHub",
+  "google": "Google",
+  "microsoft": "Microsoft",
+  "github_login_failed": "Échec de la connexion GitHub : {error}",
+  "@github_login_failed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "google_login_failed": "Échec de la connexion Google : {error}",
+  "@google_login_failed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "failed_open_browser": "Impossible d'ouvrir le navigateur : {error}",
+  "@failed_open_browser": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "connect_service": "Connecter {serviceName}",
+  "@connect_service": {
+    "placeholders": {
+      "serviceName": {
+        "type": "String"
+      }
+    }
+  },
+  "service_login": "Connexion {providerName}",
+  "@service_login": {
+    "placeholders": {
+      "providerName": {
+        "type": "String"
+      }
+    }
+  },
+  "loading_authentication": "Chargement de l'authentification...",
+  "authentication_error": "Erreur d'authentification",
+  "set_delay": "Définir le délai",
+  "set_delay_for": "Définir le délai pour\n{reactionName}",
+  "@set_delay_for": {
+    "placeholders": {
+      "reactionName": {
+        "type": "String"
+      }
+    }
+  },
+  "days": "Jours",
+  "hours": "Heures",
+  "minutes": "Minutes",
+  "seconds": "Secondes",
+  "total_delay": "Délai total : {delay}",
+  "@total_delay": {
+    "placeholders": {
+      "delay": {
+        "type": "String"
+      }
+    }
+  },
+  "no_delay": "Aucun délai",
+  "automation_name": "Nom",
+  "automation_description": "Description",
+  "name_required": "Le nom est requis",
+  "failed_create_automation": "Échec de création de l'automatisation : {error}",
+  "@failed_create_automation": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "delete_automation": "Supprimer l'automatisation",
+  "delete_automation_confirm": "Êtes-vous sûr de vouloir supprimer \"{automationName}\" ?",
+  "@delete_automation_confirm": {
+    "placeholders": {
+      "automationName": {
+        "type": "String"
+      }
+    }
+  },
+  "error_deleting_automation": "Erreur lors de la suppression de l'automatisation : {error}",
+  "@error_deleting_automation": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "active": "Actif",
+  "inactive": "Inactif",
+  "deactivate_automation": "Désactiver l'automatisation",
+  "activate_automation": "Activer l'automatisation",
+  "delete_automation_tooltip": "Supprimer l'automatisation",
+  "action": "Action :",
+  "reaction": "Réaction :",
+  "reactions": "Réactions :",
+  "error_loading_automations": "Erreur de chargement",
+  "no_automations_yet": "Aucune automatisation",
+  "connect_to_create": "Connectez-vous pour créer la première",
+  "create_first_automation": "Créez votre première automatisation",
+  "my_areas": "Mes AREAs",
+  "all": "Tout",
+  "actions": "Actions",
+  "reactions_filter": "Réactions",
+  "error_loading_catalogue": "Erreur lors du chargement du catalogue",
+  "no_items_available": "Aucun élément disponible",
+  "no_filter_available": "Aucun {filter} disponible",
+  "@no_filter_available": {
+    "placeholders": {
+      "filter": {
+        "type": "String"
+      }
+    }
+  },
+  "no_description_available": "Aucune description disponible",
+  "use_as_action": "Utiliser comme action",
+  "use_as_reaction": "Utiliser comme réaction",
+  "backend_not_configured": "L'adresse du serveur backend n'est pas configurée",
+  "failed_load_item": "Échec du chargement de {itemType} : {error}",
+  "@failed_load_item": {
+    "placeholders": {
+      "itemType": {
+        "type": "String"
+      },
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "action_lower": "l'action",
+  "reaction_lower": "la réaction",
+  "loading_services": "Chargement des services...",
+  "failed_load_services": "Échec du chargement des services : {error}",
+  "@failed_load_services": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "connecting_to_service": "Connexion à {serviceName}...",
+  "@connecting_to_service": {
+    "placeholders": {
+      "serviceName": {
+        "type": "String"
+      }
+    }
+  },
+  "failed_connect_service": "Échec de connexion à {serviceName} : {error}",
+  "@failed_connect_service": {
+    "placeholders": {
+      "serviceName": {
+        "type": "String"
+      },
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "unsubscribe_confirm": "Êtes-vous sûr de vouloir vous désabonner de {serviceName} ? Cela arrêtera toutes les automatisations utilisant ce service.",
+  "@unsubscribe_confirm": {
+    "placeholders": {
+      "serviceName": {
+        "type": "String"
+      }
+    }
+  },
+  "unsubscribing_from_service": "Désabonnement de {serviceName}...",
+  "@unsubscribing_from_service": {
+    "placeholders": {
+      "serviceName": {
+        "type": "String"
+      }
+    }
+  },
+  "error_loading_services": "Erreur lors du chargement des services",
+  "loading_reactions": "Chargement des réactions...",
+  "error_loading_reactions": "Erreur lors du chargement des réactions",
+  "loading_actions": "Chargement des actions...",
+  "error_loading_actions": "Erreur lors du chargement des actions",
+  "action_services": "Services d'actions",
+  "reaction_services": "Services de réactions",
+  "no_services_available": "Aucun service disponible",
+  "no_services_with_actions": "Il n'y a aucun service avec des actions disponibles pour le moment.",
+  "no_services_with_reactions": "Il n'y a aucun service avec des réactions disponibles pour le moment.",
+  "no_services_available_title": "Aucun service disponible",
+  "no_services_found": "Aucun service trouvé. Veuillez vérifier votre connexion.",
+  "and": "ET",
+  "then": "PUIS",
+  "action_label": "Action",
+  "reaction_label": "RÉAction",
+  "clear_all_reactions": "Effacer toutes les réactions ({count})",
+  "@clear_all_reactions": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "create_automation": "Créer l'automatisation",
+  "please_add_action_and_reaction": "Veuillez ajouter une action et au moins une réaction",
+  "configure_automation": "Configurer l'automatisation",
+  "invalid_automation_state": "État d'automatisation invalide",
+  "go_back_select_action_reaction": "Veuillez revenir en arrière et sélectionner une action et au moins une réaction.",
+  "automation_details": "Détails de l'automatisation",
+  "action_colon": "Action : {actionName}",
+  "@action_colon": {
+    "placeholders": {
+      "actionName": {
+        "type": "String"
+      }
+    }
+  },
+  "reaction_number": "Réaction {number} : {reactionName}",
+  "@reaction_number": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      },
+      "reactionName": {
+        "type": "String"
+      }
+    }
+  },
+  "no_additional_config": "Cette action ne nécessite aucune configuration supplémentaire.",
+  "no_additional_config_reaction": "Cette réaction ne nécessite aucune configuration supplémentaire.",
+  "creating_automation": "Création de l'automatisation...",
+  "automation_created_success": "Automatisation créée avec succès !",
+  "field_required": "{fieldName} est requis",
+  "@field_required": {
+    "placeholders": {
+      "fieldName": {
+        "type": "String"
+      }
+    }
+  },
+  "valid_email_required": "Veuillez entrer une adresse email valide",
+  "valid_number_required": "Veuillez entrer un nombre valide",
+  "invalid_select_field": "Champ de sélection invalide : {fieldName} n'a pas d'options",
+  "@invalid_select_field": {
+    "placeholders": {
+      "fieldName": {
+        "type": "String"
+      }
+    }
+  },
+  "type_brace_for_suggestions": "Tapez {character} pour voir les suggestions de données d'action",
+  "@type_brace_for_suggestions": {
+    "placeholders": {
+      "character": {
+        "type": "String"
+      }
+    }
+  },
+  "example": "Exemple : {example}",
+  "@example": {
+    "placeholders": {
+      "example": {
+        "type": "String"
+      }
+    }
+  },
+  "edit": "Modifier",
+  "set": "Définir",
+  "default_automation_name": "Mon automatisation {timestamp}",
+  "@default_automation_name": {
+    "placeholders": {
+      "timestamp": {
+        "type": "String"
+      }
+    }
+  },
+    "default_automation_description": "Créée depuis l'application mobile",
+  "backend_server_not_configured": "L'adresse du serveur backend n'est pas configurée",
+  "action_failed": "Action échouée : {error}",
+  "@action_failed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "successfully_connected_to": "Connecté avec succès à {serviceName}",
+  "@successfully_connected_to": {
+    "placeholders": {
+      "serviceName": {
+        "type": "String"
+      }
+    }
+  },
+  "unsubscribe_from": "Se désabonner de {serviceName}",
+  "@unsubscribe_from": {
+    "placeholders": {
+      "serviceName": {
+        "type": "String"
+      }
+    }
+  },
+  "unsubscribed_from": "Désabonné de {serviceName}",
+  "@unsubscribed_from": {
+    "placeholders": {
+      "serviceName": {
+        "type": "String"
+      }
+    }
+  },
+  "unsubscribe_failed": "Échec du désabonnement : {error}",
+  "@unsubscribe_failed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "connected": "Connecté",
+  "not_subscribed": "Non abonné",
+  "unsubscribe": "Se désabonner",
+  "subscribe": "S'abonner",
+  "connect_and_subscribe": "Connecter et s'abonner",
+  "retry_failed": "Nouvelle tentative échouée. Veuillez réessayer.",
+  "retrying": "Nouvelle tentative... ({count}/{max})",
+  "@retrying": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "max_retries_reached": "Nombre maximum de tentatives atteint",
+  "failed_to_load_authentication": "Échec du chargement de la page d'authentification",
+  "retrying_count": "Nouvelle tentative... ({count}/{max})",
+  "@retrying_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "description": "Description",
+  "parameters": "Paramètres",
+  "required_lowercase": "requis",
+  "choose_this_action": "Choisir cette action",
+  "choose_this_reaction": "Choisir cette réaction"
 }
