@@ -195,7 +195,14 @@ export class RedditScheduler {
     subreddit: string
   ): Promise<void> {
     try {
-      const url = `${this.REDDIT_API_BASE_URL}/r/${subreddit}/new.json?limit=10`;
+      let apiPath: string;
+      if (subreddit.startsWith('u/') || subreddit.startsWith('user/')) {
+        apiPath = `/${subreddit}/submitted`;
+      } else {
+        apiPath = `/r/${subreddit}/new`;
+      }
+
+      const url = `${this.REDDIT_API_BASE_URL}${apiPath}.json?limit=10`;
       const response = await this.makeRedditRequest(userId, url);
 
       if (!response) {
@@ -220,22 +227,29 @@ export class RedditScheduler {
         if (newPostIds.length > 0) {
           const newPosts = posts.filter(post => newPostIds.includes(post.name));
 
+          const location =
+            subreddit.startsWith('u/') || subreddit.startsWith('user/')
+              ? subreddit
+              : `r/${subreddit}`;
+
           console.log(
-            `🆕 [Reddit Scheduler] Found ${newPosts.length} new post(s) in r/${subreddit} for user ${userId}`
+            `🆕 [Reddit Scheduler] Found ${newPosts.length} new post(s) in ${location} for user ${userId}`
           );
 
-          // Trigger events for each new post (most recent first)
           for (const post of newPosts.reverse()) {
             await this.triggerNewPostEvent(userId, subreddit, post);
           }
         }
       } else {
+        const location =
+          subreddit.startsWith('u/') || subreddit.startsWith('user/')
+            ? subreddit
+            : `r/${subreddit}`;
         console.log(
-          `📌 [Reddit Scheduler] Initializing r/${subreddit} state for user ${userId}`
+          `📌 [Reddit Scheduler] Initializing ${location} state for user ${userId}`
         );
       }
 
-      // Update state
       this.updateUserSubredditState(userId, subreddit, {
         lastPostIds: currentPostIds,
         isInitialized: true,
@@ -335,8 +349,13 @@ export class RedditScheduler {
       timestamp: new Date().toISOString(),
     });
 
+    const location =
+      subreddit.startsWith('u/') || subreddit.startsWith('user/')
+        ? subreddit
+        : `r/${subreddit}`;
+
     console.log(
-      `✅ [Reddit Scheduler] Triggered event for new post "${post.title}" in r/${subreddit}`
+      `✅ [Reddit Scheduler] Triggered event for new post "${post.title}" in ${location}`
     );
   }
 
