@@ -1,6 +1,7 @@
 import 'package:area/core/constants/app_colors.dart';
 import 'package:area/models/reaction_with_delay_model.dart';
 import 'package:area/widgets/automation/automation_reaction_card.dart';
+import 'package:area/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 class ReactionsSection extends StatelessWidget {
@@ -53,8 +54,8 @@ class ReactionsSection extends StatelessWidget {
                         width: 1,
                       ),
                     ),
-                    child: const Text(
-                      'AND',
+                    child: Text(
+                      AppLocalizations.of(context)!.and,
                       style: TextStyle(
                         fontFamily: 'Montserrat',
                         fontSize: 10,
