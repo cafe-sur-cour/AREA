@@ -128,7 +128,9 @@ class FacebookWebhookHandler implements WebhookHandler {
     // Check if a token and mode were sent
     if (mode && token) {
       // Verify the mode and token
-      if (mode === 'subscribe' && token === process.env.FACEBOOK_VERIFY_TOKEN) {
+      console.log("Mode : ", mode);
+      console.log("token : ", token , " vs ", process.env.WEBHOOK_SECRET);
+      if (mode === 'subscribe' && token === process.env.WEBHOOK_SECRET) {
         console.log('✅ [FACEBOOK WEBHOOK] Webhook verified');
         return res.status(200).send(challenge);
       } else {
