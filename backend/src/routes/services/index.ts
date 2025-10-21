@@ -676,11 +676,20 @@ router.get(
         .filter(subscription => subscription.subscribed)
         .map(subscription => subscription.service);
 
+      const alwaysSubscribedServiceIds = serviceRegistry
+        .getAllServices()
+        .filter(service => service.alwaysSubscribed)
+        .map(service => service.id);
+
+      const allSubscribedServiceIds = [
+        ...new Set([...subscribedServiceIds, ...alwaysSubscribedServiceIds]),
+      ];
+
       const allServices = serviceRegistry
         .getAllServices()
         .filter(
           service =>
-            !service.authOnly && subscribedServiceIds.includes(service.id)
+            !service.authOnly && allSubscribedServiceIds.includes(service.id)
         );
       const servicesWithActions = allServices.filter(
         service => service.actions && service.actions.length > 0
@@ -782,11 +791,20 @@ router.get(
         .filter(subscription => subscription.subscribed)
         .map(subscription => subscription.service);
 
+      const alwaysSubscribedServiceIds = serviceRegistry
+        .getAllServices()
+        .filter(service => service.alwaysSubscribed)
+        .map(service => service.id);
+
+      const allSubscribedServiceIds = [
+        ...new Set([...subscribedServiceIds, ...alwaysSubscribedServiceIds]),
+      ];
+
       const allServices = serviceRegistry
         .getAllServices()
         .filter(
           service =>
-            !service.authOnly && subscribedServiceIds.includes(service.id)
+            !service.authOnly && allSubscribedServiceIds.includes(service.id)
         );
       const servicesWithReactions = allServices.filter(
         service => service.reactions && service.reactions.length > 0
