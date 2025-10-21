@@ -209,7 +209,7 @@ class ServiceActionsScreenState extends State<ServiceActionsScreen> {
             const SizedBox(height: 16),
 
             Text(
-              'Loading actions...',
+              AppLocalizations.of(context)!.loading_actions,
               style: TextStyle(
                 fontFamily: 'Montserrat',
                 fontSize: 16,
@@ -232,8 +232,8 @@ class ServiceActionsScreenState extends State<ServiceActionsScreen> {
 
               const SizedBox(height: 16),
 
-              const Text(
-                'Error loading actions',
+              Text(
+                AppLocalizations.of(context)!.error_loading_actions,
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -257,7 +257,7 @@ class ServiceActionsScreenState extends State<ServiceActionsScreen> {
                   backgroundColor: _getServiceColor(),
                   foregroundColor: AppColors.areaLightGray,
                 ),
-                child: const Text('Retry'),
+                child: Text(AppLocalizations.of(context)!.retry),
               ),
             ],
           ),
