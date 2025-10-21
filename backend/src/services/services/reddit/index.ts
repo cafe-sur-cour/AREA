@@ -1,6 +1,7 @@
 import type { Service } from '../../../types/service';
 import { redditActions } from './actions';
 import { redditReactions } from './reactions';
+import { redditReactionExecutor } from './executor';
 import { getIconSvg } from '../../../utils/iconMapping';
 
 const redditService: Service = {
@@ -36,6 +37,8 @@ const redditService: Service = {
 };
 
 export default redditService;
+
+export { redditReactionExecutor as executor };
 
 export async function initialize(): Promise<void> {
   console.log('Initializing Reddit service...');
