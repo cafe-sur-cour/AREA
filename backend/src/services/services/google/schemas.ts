@@ -109,38 +109,3 @@ export const googleCreateDocumentSchema: ActionReactionSchema = {
     },
   ],
 };
-
-export const googleCalendarEventInviteSchema: ActionReactionSchema = {
-  name: 'Calendar Event Invite',
-  description: 'Triggers when you are invited to a new calendar event',
-  fields: [
-    {
-      name: 'calendar_id',
-      type: 'text',
-      label: 'Calendar ID (optional, defaults to primary)',
-      required: false,
-      placeholder: 'primary',
-    },
-  ],
-};
-
-export const googleDriveFileAddedSchema: ActionReactionSchema = {
-  name: 'Drive File Added',
-  description: 'Triggers when a new file is added to Google Drive',
-  fields: [
-    {
-      name: 'folder_id',
-      type: 'text',
-      label: 'Folder ID (optional, defaults to root)',
-      required: false,
-      placeholder: 'root or specific folder ID',
-    },
-    {
-      name: 'file_type',
-      type: 'text',
-      label: 'File Type Filter (optional)',
-      required: false,
-      placeholder: 'application/vnd.google-apps.document',
-    },
-  ],
-};

@@ -22,101 +22,6 @@ const googleService: Service = {
     const userToken = await googleOAuth.getUserToken(userId);
     return userToken ? { access_token: userToken.token_value } : {};
   },
-  ensureWebhookForMapping: async (mapping, userId, actionDefinition) => {
-    if (!actionDefinition?.metadata?.webhookPattern) {
-      return;
-    }
-
-    const actionType = mapping.action.type;
-    console.log(
-      `🔔 [Google Service] Ensuring webhook exists for action: ${actionType}`
-    );
-
-    try {
-      const { AppDataSource } = await import('../../../config/db');
-      const { ExternalWebhooks } = await import(
-        '../../../config/entity/ExternalWebhooks'
-      );
-      const { googleWebhookManager } = await import('./webhook/webhookManager');
-
-      let webhookPath = '/api/webhooks/google';
-
-      const webhookUrl = `${process.env.WEBHOOK_BASE_URL || ''}${webhookPath}`;
-
-      const existingWebhook = await AppDataSource.getRepository(
-        ExternalWebhooks
-      ).findOne({
-        where: {
-          user_id: userId,
-          service: 'google',
-          url: webhookUrl,
-          is_active: true,
-        },
-      });
-
-      if (existingWebhook) {
-        console.log(
-          `✅ [Google Service] Webhook already exists for ${actionType}`
-        );
-        return;
-      }
-
-      const webhook = new ExternalWebhooks();
-      webhook.user_id = userId;
-      webhook.service = 'google';
-      webhook.url = webhookUrl;
-      webhook.repository = `google:${actionType}`;
-      webhook.events = [actionType];
-      webhook.is_active = true;
-
-      const savedWebhook =
-        await AppDataSource.getRepository(ExternalWebhooks).save(webhook);
-      console.log(
-        `✅ [Google Service] Webhook created for ${actionType} (URL: ${webhookUrl})`
-      );
-
-      if (actionType === 'google.calendar_event_invite') {
-        const calendarId =
-          (mapping.action.config?.calendar_id as string) || 'primary';
-        const watchResponse = await googleWebhookManager.setupCalendarWatch(
-          userId,
-          webhookUrl,
-          calendarId
-        );
-
-        if (watchResponse) {
-          await googleWebhookManager.updateWebhookWithWatchInfo(
-            savedWebhook.id,
-            watchResponse
-          );
-        } else {
-          console.warn(
-            `⚠️  [Google Service] Calendar watch setup failed, but webhook is ready to receive notifications if configured manually`
-          );
-        }
-      } else if (actionType === 'google.drive_file_added') {
-        const fileId = (mapping.action.config?.folder_id as string) || 'root';
-        const watchResponse = await googleWebhookManager.setupDriveWatch(
-          userId,
-          webhookUrl,
-          fileId
-        );
-
-        if (watchResponse) {
-          await googleWebhookManager.updateWebhookWithWatchInfo(
-            savedWebhook.id,
-            watchResponse
-          );
-        } else {
-          console.warn(
-            `⚠️  [Google Service] Drive watch setup failed, but webhook is ready to receive notifications if configured manually`
-          );
-        }
-      }
-    } catch (error) {
-      console.error(`❌ [Google Service] Failed to create webhook:`, error);
-    }
-  },
   authOnly: false,
 };
 
@@ -128,16 +33,6 @@ export async function initialize(): Promise<void> {
   console.log('Initializing Google service...');
   const { initializeGooglePassport } = await import('./passport');
   initializeGooglePassport();
-
-  const { googleWebhookManager } = await import('./webhook/webhookManager');
-  await googleWebhookManager.cleanupExpiredWatches();
-
-  setInterval(
-    async () => {
-      await googleWebhookManager.cleanupExpiredWatches();
-    },
-    6 * 60 * 60 * 1000
-  );
 
   console.log('Google service initialized');
 }
