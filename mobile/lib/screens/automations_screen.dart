@@ -47,6 +47,7 @@ class AutomationsScreenState extends State<AutomationsScreen> {
       }
 
       final automations = await ApiMappingActionReaction.getAutomations(
+        context,
         backendAddressNotifier.backendAddress!,
       );
 

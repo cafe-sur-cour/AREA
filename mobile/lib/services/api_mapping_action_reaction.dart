@@ -6,6 +6,7 @@ import 'package:area/models/automation_models.dart';
 import 'package:area/models/reaction_with_delay_model.dart';
 import 'package:area/services/secure_http_client.dart';
 import 'package:area/services/secure_storage.dart';
+import 'package:flutter/material.dart';
 
 class ApiMappingActionReaction {
   static Future<void> createAutomation(
@@ -55,34 +56,34 @@ class ApiMappingActionReaction {
 
     if (response.statusCode != 200 && response.statusCode != 201) {
       final errorData = jsonDecode(response.body);
-      throw Exception(errorData['error'] ?? 'Failed to create automation');
+      throw Exception(errorData['error']);
     }
   }
 
-  static Future<List<AutomationModel>> getAutomations(String backendAddress) async {
+  static Future<List<AutomationModel>> getAutomations(
+    BuildContext context,
+    String backendAddress,
+  ) async {
     final jwt = await getJwt();
     final url = Uri.parse("$backendAddress${AppRoutes.getAutomations}");
 
     final headers = <String, String>{'Content-Type': 'application/json'};
 
-    if (jwt == null) {
-      throw Exception('JWT token is missing');
+    if (jwt != null) {
+      headers['Authorization'] = 'Bearer $jwt';
     }
-
-    headers['Authorization'] = 'Bearer $jwt';
 
     final client = SecureHttpClient.getClient();
     final response = await client.get(url, headers: headers);
 
-    if (response.statusCode == 200) {
-      final data = await jsonDecode(response.body);
-      return (data['mappings'] as List<dynamic>)
-          .map((automation) => AutomationModel.fromJson(automation as Map<String, dynamic>))
-          .toList();
-    } else {
+    if (response.statusCode != 200) {
       final errorData = jsonDecode(response.body);
-      throw Exception(errorData['error'] ?? 'Failed to fetch automations');
+      throw Exception(errorData['error']);
     }
+    final data = await jsonDecode(response.body);
+    return (data['mappings'] as List<dynamic>)
+        .map((automation) => AutomationModel.fromJson(automation as Map<String, dynamic>))
+        .toList();
   }
 
   static Future<void> deleteAutomation(String backendAddress, int automationId) async {
@@ -102,7 +103,7 @@ class ApiMappingActionReaction {
 
     if (response.statusCode != 200 && response.statusCode != 204) {
       final errorData = jsonDecode(response.body);
-      throw Exception(errorData['error'] ?? 'Failed to delete automation');
+      throw Exception(errorData['error']);
     }
   }
 
@@ -123,7 +124,7 @@ class ApiMappingActionReaction {
 
     if (response.statusCode != 200) {
       final errorData = jsonDecode(response.body);
-      throw Exception(errorData['error'] ?? 'Failed to activate automation');
+      throw Exception(errorData['error']);
     }
     final data = jsonDecode(response.body);
     return data['mapping']['updated_at'];
@@ -146,7 +147,7 @@ class ApiMappingActionReaction {
 
     if (response.statusCode != 200) {
       final errorData = jsonDecode(response.body);
-      throw Exception(errorData['error'] ?? 'Failed to deactivate automation');
+      throw Exception(errorData['error']);
     }
     final data = jsonDecode(response.body);
     return data['mapping']['updated_at'];

@@ -26,7 +26,10 @@ class MobileOAuthService {
       return result ?? false;
     } catch (e) {
       if (context.mounted) {
-        _showError(context, 'Service subscription failed: $e');
+        _showError(
+          context,
+          AppLocalizations.of(context)!.service_subscription_failed(e.toString()),
+        );
       }
       return false;
     }
@@ -147,7 +150,7 @@ class _ServiceSubscriptionWebViewState extends State<ServiceSubscriptionWebView>
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                'Complete ${widget.serviceName} setup in your browser, then return to the app.',
+                AppLocalizations.of(context)!.complete_service_setup(widget.serviceName),
               ),
               duration: const Duration(seconds: 5),
             ),

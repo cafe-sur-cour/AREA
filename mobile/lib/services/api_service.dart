@@ -1,10 +1,10 @@
 import 'dart:convert';
-import 'package:area/models/service_models.dart';
+import 'package:area/core/constants/app_constants.dart';
 import 'package:area/models/action_models.dart';
 import 'package:area/models/reaction_models.dart';
-import 'package:area/core/constants/app_constants.dart';
-import 'package:area/services/secure_storage.dart';
+import 'package:area/models/service_models.dart';
 import 'package:area/services/secure_http_client.dart';
+import 'package:area/services/secure_storage.dart';
 
 class ApiService {
   static Future<List<ServiceModel>> fetchServicesWithActions(String backendAddress) async {
@@ -22,7 +22,7 @@ class ApiService {
 
     if (response.statusCode != 200) {
       final errorData = jsonDecode(response.body);
-      throw Exception(errorData['error'] ?? 'Failed to fetch services');
+      throw Exception(errorData['error']);
     }
 
     final data = jsonDecode(response.body);
@@ -48,7 +48,7 @@ class ApiService {
 
     if (response.statusCode != 200) {
       final errorData = jsonDecode(response.body);
-      throw Exception(errorData['error'] ?? 'Failed to fetch actions');
+      throw Exception(errorData['error']);
     }
 
     final data = jsonDecode(response.body);
@@ -72,7 +72,7 @@ class ApiService {
 
     if (response.statusCode != 200) {
       final errorData = jsonDecode(response.body);
-      throw Exception(errorData['error'] ?? 'Failed to fetch services');
+      throw Exception(errorData['error']);
     }
 
     final data = jsonDecode(response.body);
@@ -99,7 +99,7 @@ class ApiService {
 
     if (response.statusCode != 200) {
       final errorData = jsonDecode(response.body);
-      throw Exception(errorData['error'] ?? 'Failed to fetch reactions');
+      throw Exception(errorData['error']);
     }
 
     final data = jsonDecode(response.body);
@@ -126,7 +126,7 @@ class ApiService {
 
     if (response.statusCode != 200) {
       final errorData = jsonDecode(response.body);
-      throw Exception(errorData['error'] ?? 'Failed to fetch action');
+      throw Exception(errorData['error']);
     }
 
     final data = jsonDecode(response.body);
@@ -151,7 +151,7 @@ class ApiService {
 
     if (response.statusCode != 200) {
       final errorData = jsonDecode(response.body);
-      throw Exception(errorData['error'] ?? 'Failed to fetch reaction');
+      throw Exception(errorData['error']);
     }
 
     final data = jsonDecode(response.body);

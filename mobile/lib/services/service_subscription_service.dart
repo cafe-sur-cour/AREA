@@ -83,52 +83,56 @@ class ServiceStatus {
 
 class ServiceSubscriptionService {
   static Future<List<ServiceInfo>> getAllServices(String backendAddress) async {
-    try {
-      final jwt = await getJwt();
-      if (jwt == null) throw Exception('No JWT token found');
+    final jwt = await getJwt();
 
-      final response = await http.get(
-        Uri.parse('$backendAddress${AppRoutes.services}'),
-        headers: {'Authorization': 'Bearer $jwt', 'Content-Type': 'application/json'},
-      );
+    final headers = <String, String>{'Content-Type': 'application/json'};
 
-      if (response.statusCode != 200) {
-        throw Exception('Failed to fetch services from backend: ${response.statusCode}');
-      }
-
-      final data = json.decode(response.body);
-      final List<dynamic> services = data['services'] ?? [];
-
-      List<ServiceInfo> serviceInfoList = [];
-      for (var service in services) {
-        serviceInfoList.add(ServiceInfo.fromJson(service));
-      }
-      return serviceInfoList;
-    } catch (e) {
-      throw Exception('Error fetching services: $e');
+    if (jwt != null) {
+      headers['Authorization'] = 'Bearer $jwt';
     }
+
+    final response = await http.get(
+      Uri.parse('$backendAddress${AppRoutes.services}'),
+      headers: headers,
+    );
+
+    if (response.statusCode != 200) {
+      final errorData = jsonDecode(response.body);
+      throw Exception(errorData['error']);
+    }
+
+    final data = json.decode(response.body);
+    final List<dynamic> services = data['services'] ?? [];
+
+    List<ServiceInfo> serviceInfoList = [];
+    for (var service in services) {
+      serviceInfoList.add(ServiceInfo.fromJson(service));
+    }
+    return serviceInfoList;
   }
 
   static Future<List<ServiceInfo>> getSubscribedServices(String backendAddress) async {
-    try {
-      final jwt = await getJwt();
-      if (jwt == null) throw Exception('No JWT token found');
+    final jwt = await getJwt();
 
-      final response = await http.get(
-        Uri.parse('$backendAddress${AppRoutes.servicesSubscribed}'),
-        headers: {'Authorization': 'Bearer $jwt', 'Content-Type': 'application/json'},
-      );
+    final headers = <String, String>{'Content-Type': 'application/json'};
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        final List<dynamic> services = data['services'] ?? [];
-        return services.map((service) => ServiceInfo.fromJson(service)).toList();
-      } else {
-        throw Exception('Failed to load subscribed services');
-      }
-    } catch (e) {
-      throw Exception('Error loading subscribed services: $e');
+    if (jwt != null) {
+      headers['Authorization'] = 'Bearer $jwt';
     }
+
+    final response = await http.get(
+      Uri.parse('$backendAddress${AppRoutes.servicesSubscribed}'),
+      headers: headers,
+    );
+
+    if (response.statusCode != 200) {
+      final errorData = jsonDecode(response.body);
+      throw Exception(errorData['error']);
+    }
+
+    final data = json.decode(response.body);
+    final List<dynamic> services = data['services'] ?? [];
+    return services.map((service) => ServiceInfo.fromJson(service)).toList();
   }
 
   static Future<void> unsubscribeFromService(
@@ -136,19 +140,23 @@ class ServiceSubscriptionService {
     ServiceInfo service,
   ) async {
     final jwt = await getJwt();
-    if (jwt == null) throw Exception('No JWT token found');
+
+    final headers = <String, String>{'Content-Type': 'application/json'};
+
+    if (jwt != null) {
+      headers['Authorization'] = 'Bearer $jwt';
+    }
 
     final endpoint = service.unsubscribeEndpoint;
-    if (endpoint.isEmpty) {
-      throw Exception('No subscribe endpoint available for this service');
-    }
+
     final response = await http.post(
       Uri.parse('${backendAddress}api$endpoint'),
-      headers: {'Authorization': 'Bearer $jwt', 'Content-Type': 'application/json'},
+      headers: headers,
     );
 
     if (response.statusCode != 200) {
-      throw Exception('Failed to subscribe to service');
+      final errorData = json.decode(response.body);
+      throw Exception(errorData['error'].toString());
     }
   }
 
@@ -156,53 +164,56 @@ class ServiceSubscriptionService {
     String backendAddress,
     ServiceInfo service,
   ) async {
-    try {
-      final jwt = await getJwt();
-      if (jwt == null) throw Exception('No JWT token found');
+    final jwt = await getJwt();
 
-      final statusEndpoint = service.statusEndpoint;
+    final headers = <String, String>{'Content-Type': 'application/json'};
 
-      final response = await http.get(
-        Uri.parse('${backendAddress}api$statusEndpoint'),
-        headers: {'Authorization': 'Bearer $jwt', 'Content-Type': 'application/json'},
-      );
+    if (jwt != null) {
+      headers['Authorization'] = 'Bearer $jwt';
+    }
 
-      if (response.statusCode == 200 || response.statusCode == 404) {
-        final data = json.decode(response.body);
-        return ServiceStatus.fromJson(data);
-      } else {
-        throw Exception('Failed to check service status');
-      }
-    } catch (e) {
-      throw Exception('Error checking service status: $e');
+    final statusEndpoint = service.statusEndpoint;
+
+    final response = await http.get(
+      Uri.parse('${backendAddress}api$statusEndpoint'),
+      headers: headers,
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 404) {
+      final data = json.decode(response.body);
+      return ServiceStatus.fromJson(data);
+    } else {
+      final errorData = json.decode(response.body);
+      throw Exception(errorData['error'].toString());
     }
   }
 
   static Future<bool> getOAuthStatus(String backendAddress, ServiceInfo service) async {
-    try {
-      final jwt = await getJwt();
-      if (jwt == null) throw Exception('No JWT token found');
+    final jwt = await getJwt();
 
-      final loginStatusEndpoint = service.loginStatusEndpoint;
+    final loginStatusEndpoint = service.loginStatusEndpoint;
 
-      if (loginStatusEndpoint.isEmpty) {
-        return true;
-      }
+    if (loginStatusEndpoint.isEmpty) {
+      return true;
+    }
 
-      final response = await http.get(
-        Uri.parse('${backendAddress}api$loginStatusEndpoint'),
-        headers: {'Authorization': 'Bearer $jwt', 'Content-Type': 'application/json'},
-      );
+    final headers = <String, String>{'Content-Type': 'application/json'};
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        return data['connected'] ?? false;
-      } else {
-        return false;
-      }
-    } catch (e) {
+    if (jwt != null) {
+      headers['Authorization'] = 'Bearer $jwt';
+    }
+
+    final response = await http.get(
+      Uri.parse('${backendAddress}api$loginStatusEndpoint'),
+      headers: headers,
+    );
+
+    if (response.statusCode != 200) {
       return false;
     }
+
+    final data = json.decode(response.body);
+    return data['connected'] ?? false;
   }
 
   static String getSubscriptionUrl(String backendAddress, ServiceInfo service) {
