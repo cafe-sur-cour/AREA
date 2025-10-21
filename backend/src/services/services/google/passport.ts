@@ -20,17 +20,19 @@ export interface GoogleUser {
   token: string;
 }
 
+const googleAuthScopeBase = 'https://www.googleapis.com/auth';
+
 const googleScopes = [
   'openid',
-  'https://www.googleapis.com/auth/userinfo.email',
-  'https://www.googleapis.com/auth/userinfo.profile',
-  'https://www.googleapis.com/auth/gmail.send',
-  'https://www.googleapis.com/auth/gmail.modify',
-  'https://www.googleapis.com/auth/calendar',
-  'https://www.googleapis.com/auth/calendar.events',
-  'https://www.googleapis.com/auth/documents',
-  'https://www.googleapis.com/auth/drive.file',
-  'https://www.googleapis.com/auth/drive',
+  `${googleAuthScopeBase}/userinfo.email`,
+  `${googleAuthScopeBase}/userinfo.profile`,
+  `${googleAuthScopeBase}/gmail.send`,
+  `${googleAuthScopeBase}/gmail.modify`,
+  `${googleAuthScopeBase}/calendar`,
+  `${googleAuthScopeBase}/calendar.events`,
+  `${googleAuthScopeBase}/documents`,
+  `${googleAuthScopeBase}/drive.file`,
+  `${googleAuthScopeBase}/drive`,
 ];
 
 export function initializeGooglePassport(): void {

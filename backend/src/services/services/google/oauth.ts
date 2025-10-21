@@ -33,6 +33,7 @@ export class GoogleOAuth {
   private googleApiBaseUrl: string;
   private googleAuthBaseUrl: string;
   private initialized: boolean = false;
+  private readonly googleAuthScopeBase = 'https://www.googleapis.com/auth';
 
   constructor() {
     this.clientId = '';
@@ -64,15 +65,15 @@ export class GoogleOAuth {
     this.ensureInitialized();
     const scopes = [
       'openid',
-      'https://www.googleapis.com/auth/userinfo.email',
-      'https://www.googleapis.com/auth/userinfo.profile',
-      'https://www.googleapis.com/auth/gmail.send',
-      'https://www.googleapis.com/auth/gmail.modify',
-      'https://www.googleapis.com/auth/calendar',
-      'https://www.googleapis.com/auth/calendar.events',
-      'https://www.googleapis.com/auth/documents',
-      'https://www.googleapis.com/auth/drive.file',
-      'https://www.googleapis.com/auth/drive',
+      `${this.googleAuthScopeBase}/userinfo.email`,
+      `${this.googleAuthScopeBase}/userinfo.profile`,
+      `${this.googleAuthScopeBase}/gmail.send`,
+      `${this.googleAuthScopeBase}/gmail.modify`,
+      `${this.googleAuthScopeBase}/calendar`,
+      `${this.googleAuthScopeBase}/calendar.events`,
+      `${this.googleAuthScopeBase}/documents`,
+      `${this.googleAuthScopeBase}/drive.file`,
+      `${this.googleAuthScopeBase}/drive`,
     ];
 
     const params = new URLSearchParams({
