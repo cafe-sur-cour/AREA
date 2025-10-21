@@ -110,7 +110,7 @@ class _AddAutomationScreenState extends State<AddAutomationScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Please add both an action and at least one reaction',
+            AppLocalizations.of(context)!.please_add_action_and_reaction,
             style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
           ),
           backgroundColor: AppColors.error,
