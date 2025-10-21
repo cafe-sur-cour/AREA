@@ -21,7 +21,6 @@ export default function ProfilePage() {
   const [editingName, setEditingName] = useState(false);
   const [editingEmail, setEditingEmail] = useState(false);
   const [editedName, setEditedName] = useState('');
-  const [editedEmail, setEditedEmail] = useState('');
   const [editingPassword, setEditingPassword] = useState(false);
   const [editedPassword, setEditedPassword] = useState('');
   const [isLoadingData, setIsLoading] = useState<boolean>(false);
@@ -86,13 +85,6 @@ export default function ProfilePage() {
     }
   };
 
-  const startEditingEmail = () => {
-    if (userData) {
-      setEditedEmail(userData.email);
-      setEditingEmail(true);
-    }
-  };
-
   const startEditingPassword = () => {
     setEditingPassword(true);
     setEditedPassword('');
@@ -117,27 +109,6 @@ export default function ProfilePage() {
     setEditingName(false);
   };
 
-  const saveEmail = () => {
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(editedEmail)) {
-      toast.error('Invalid email address');
-      return;
-    }
-    if (userData) {
-      if (userData.email === editedEmail) {
-        setEditingEmail(false);
-        return;
-      }
-      const updatedData = { ...userData, email: editedEmail };
-      setUserData(updatedData);
-      editAndFetchMe(updatedData);
-      fetchMe();
-      toast.success(
-        'Please verify your new email address. A verification link has been sent to ' +
-          editedEmail
-      );
-    }
-    setEditingEmail(false);
-  };
 
   const savePassword = () => {
     console.log('Saving password:', editedPassword);
@@ -168,10 +139,6 @@ export default function ProfilePage() {
     setEditedPassword('');
   };
 
-  const cancelEmailEdit = () => {
-    setEditingEmail(false);
-    setEditedEmail('');
-  };
 
   if (isLoadingData || !userData)
     return (
@@ -312,63 +279,6 @@ export default function ProfilePage() {
                             <Button
                               size='sm'
                               onClick={startEditingPassword}
-                              className='p-2 h-8 w-8 cursor-pointer'
-                              variant='ghost'
-                            >
-                              <Pencil className='h-4 w-4 text-app-text-secondary' />
-                            </Button>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Email Card */}
-                <Card>
-                  <CardContent className='p-6'>
-                    <div className='flex items-center gap-3'>
-                      <div className='p-3 bg-app-blue-light rounded-lg'>
-                        <Mail className='h-6 w-6 text-app-blue-primary' />
-                      </div>
-                      <div className='flex-1'>
-                        <p className='text-sm font-medium text-app-text-secondary'>
-                          Email
-                        </p>
-                        {editingEmail ? (
-                          <div className='flex items-center gap-2 mt-1'>
-                            <Input
-                              value={editedEmail}
-                              onChange={e => setEditedEmail(e.target.value)}
-                              className='flex-1'
-                              placeholder='Enter your email'
-                              type='email'
-                            />
-                            <Button
-                              size='sm'
-                              onClick={saveEmail}
-                              className='p-2 h-8 w-8 cursor-pointer'
-                              variant='ghost'
-                            >
-                              <Check className='h-4 w-4 text-green-600' />
-                            </Button>
-                            <Button
-                              size='sm'
-                              onClick={cancelEmailEdit}
-                              className='p-2 h-8 w-8 cursor-pointer'
-                              variant='ghost'
-                            >
-                              <X className='h-4 w-4 text-red-600' />
-                            </Button>
-                          </div>
-                        ) : (
-                          <div className='flex items-center justify-between'>
-                            <p className='text-lg font-bold text-app-text-primary'>
-                              {userData?.email ?? 'NONE'}
-                            </p>
-                            <Button
-                              size='sm'
-                              onClick={startEditingEmail}
                               className='p-2 h-8 w-8 cursor-pointer'
                               variant='ghost'
                             >
