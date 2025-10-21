@@ -7,6 +7,7 @@ class ConfigField {
   final List<ConfigOption>? options;
   final dynamic defaultValue;
   final String? description;
+  final bool isDynamic;
 
   ConfigField({
     required this.name,
@@ -17,6 +18,7 @@ class ConfigField {
     this.options,
     this.defaultValue,
     this.description,
+    this.isDynamic = false,
   });
 
   factory ConfigField.fromJson(Map<String, dynamic> json) {
@@ -31,6 +33,7 @@ class ConfigField {
           : null,
       defaultValue: json['default'],
       description: json['description'] as String?,
+      isDynamic: json['dynamic'] as bool? ?? false,
     );
   }
 
@@ -44,6 +47,7 @@ class ConfigField {
       'options': options?.map((option) => option.toJson()).toList(),
       'default': defaultValue,
       'description': description,
+      'dynamic': isDynamic,
     };
   }
 
@@ -194,12 +198,40 @@ class ActionMetadata {
   }
 }
 
+class PayloadField {
+  final String path;
+  final String type;
+  final String description;
+  final String? example;
+
+  PayloadField({
+    required this.path,
+    required this.type,
+    required this.description,
+    this.example,
+  });
+
+  factory PayloadField.fromJson(Map<String, dynamic> json) {
+    return PayloadField(
+      path: json['path'] as String,
+      type: json['type'] as String,
+      description: json['description'] as String,
+      example: json['example'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {'path': path, 'type': type, 'description': description, 'example': example};
+  }
+}
+
 class ActionModel {
   final String id;
   final String name;
   final String description;
   final ConfigSchema? configSchema;
   final Map<String, dynamic>? inputSchema;
+  final List<PayloadField>? payloadFields;
   final ActionMetadata? metadata;
 
   ActionModel({
@@ -208,6 +240,7 @@ class ActionModel {
     required this.description,
     this.configSchema,
     this.inputSchema,
+    this.payloadFields,
     this.metadata,
   });
 
@@ -220,6 +253,11 @@ class ActionModel {
           ? ConfigSchema.fromJson(json['configSchema'])
           : null,
       inputSchema: json['inputSchema'] as Map<String, dynamic>?,
+      payloadFields: json['payloadFields'] != null
+          ? (json['payloadFields'] as List)
+                .map((field) => PayloadField.fromJson(field))
+                .toList()
+          : null,
       metadata: json['metadata'] != null ? ActionMetadata.fromJson(json['metadata']) : null,
     );
   }
@@ -231,6 +269,7 @@ class ActionModel {
       'description': description,
       'configSchema': configSchema?.toJson(),
       'inputSchema': inputSchema,
+      'payloadFields': payloadFields?.map((field) => field.toJson()).toList(),
       'metadata': metadata?.toJson(),
     };
   }
