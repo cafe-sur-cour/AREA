@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { Toaster } from '@/components/ui/sonner';
 import { Montserrat, Open_Sans } from 'next/font/google';
+import DownloadAPPButton from '@/components/download-app-button';
 import './globals.css';
 
 const montserrat = Montserrat({
@@ -33,6 +34,7 @@ export default function RootLayout({
       >
         <AuthProvider>{children}</AuthProvider>
         <Toaster />
+        <DownloadAPPButton />
       </body>
     </html>
   );
