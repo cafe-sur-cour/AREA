@@ -1,7 +1,12 @@
-import 'package:area/core/constants/app_colors.dart';
 import 'package:area/core/constants/app_text_styles.dart';
 import 'package:area/core/notifiers/backend_address_notifier.dart';
 import 'package:area/l10n/app_localizations.dart';
+import 'package:area/widgets/common/dialogs/confirm_dialog.dart';
+import 'package:area/widgets/common/snackbars/app_snackbar.dart';
+import 'package:area/widgets/common/state/empty_state.dart';
+import 'package:area/widgets/common/state/error_state.dart';
+import 'package:area/widgets/common/state/loading_state.dart';
+import 'package:area/widgets/common/cards/status_badge.dart';
 import 'package:flutter/material.dart';
 import 'package:area/core/constants/app_constants.dart';
 import 'package:area/models/automation_models.dart';
@@ -79,15 +84,7 @@ class AutomationsScreenState extends State<AutomationsScreen> {
       );
 
       if (backendAddressNotifier.backendAddress == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              AppLocalizations.of(context)!.empty_backend_server_address,
-              style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
-            ),
-            backgroundColor: AppColors.error,
-          ),
-        );
+        showErrorSnackbar(context, AppLocalizations.of(context)!.empty_backend_server_address);
         return;
       }
 
@@ -101,14 +98,9 @@ class AutomationsScreenState extends State<AutomationsScreen> {
       });
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              AppLocalizations.of(context)!.error_deleting_automation(e.toString()),
-              style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
-            ),
-            backgroundColor: AppColors.error,
-          ),
+        showErrorSnackbar(
+          context,
+          AppLocalizations.of(context)!.error_deleting_automation(e.toString()),
         );
       }
     }
@@ -118,15 +110,7 @@ class AutomationsScreenState extends State<AutomationsScreen> {
     final backendAddressNotifier = Provider.of<BackendAddressNotifier>(context, listen: false);
 
     if (backendAddressNotifier.backendAddress == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            AppLocalizations.of(context)!.empty_backend_server_address,
-            style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
-          ),
-          backgroundColor: AppColors.error,
-        ),
-      );
+      showErrorSnackbar(context, AppLocalizations.of(context)!.empty_backend_server_address);
       return;
     }
 
@@ -146,15 +130,7 @@ class AutomationsScreenState extends State<AutomationsScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              e.toString(),
-              style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
-            ),
-            backgroundColor: AppColors.error,
-          ),
-        );
+        showErrorSnackbar(context, e.toString());
       }
       return;
     }
@@ -170,37 +146,18 @@ class AutomationsScreenState extends State<AutomationsScreen> {
     });
   }
 
-  void _showDeleteConfirmation(AutomationModel automation) {
-    showDialog(
+  void _showDeleteConfirmation(AutomationModel automation) async {
+    final confirmed = await showConfirmDialog(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(AppLocalizations.of(this.context)!.delete_automation),
-          content: Text(
-            AppLocalizations.of(this.context)!.delete_automation_confirm(automation.name),
-          ),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text(AppLocalizations.of(this.context)!.cancel),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                _deleteAutomation(automation.id);
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-              ),
-              child: Text(AppLocalizations.of(this.context)!.delete),
-            ),
-          ],
-        );
-      },
+      title: AppLocalizations.of(context)!.delete_automation,
+      message: AppLocalizations.of(context)!.delete_automation_confirm(automation.name),
+      confirmText: AppLocalizations.of(context)!.delete,
+      cancelText: AppLocalizations.of(context)!.cancel,
     );
+
+    if (confirmed) {
+      _deleteAutomation(automation.id);
+    }
   }
 
   Widget _buildAutomationCard(AutomationModel automation) {
@@ -214,23 +171,12 @@ class AutomationsScreenState extends State<AutomationsScreen> {
           children: [
             Row(
               children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppDimensions.paddingSM,
-                    vertical: AppDimensions.paddingXS,
-                  ),
-                  decoration: BoxDecoration(
-                    color: automation.isActive ? Colors.green : Colors.red,
-                    borderRadius: BorderRadius.circular(AppDimensions.borderRadiusSM),
-                  ),
-                  child: Text(
-                    automation.isActive
-                        ? AppLocalizations.of(context)!.active
-                        : AppLocalizations.of(context)!.inactive,
-                    style: const TextStyle(color: Colors.white, fontSize: 12),
-                  ),
+                StatusBadge(
+                  text: automation.isActive
+                      ? AppLocalizations.of(context)!.active
+                      : AppLocalizations.of(context)!.inactive,
+                  color: automation.isActive ? Colors.green : Colors.red,
                 ),
-
                 const Spacer(),
 
                 IconButton(
@@ -324,84 +270,36 @@ class AutomationsScreenState extends State<AutomationsScreen> {
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: _isLoading
-            ? const Center(child: CircularProgressIndicator())
+            ? const LoadingState()
             : _errorMessage != null
-            ? Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.error_outline, size: AppDimensions.iconSizeXL, color: Colors.red),
-                  const SizedBox(height: AppDimensions.paddingMD),
-                  Text(
-                    AppLocalizations.of(context)!.error_loading_automations,
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-
-                  const SizedBox(height: AppDimensions.paddingSM),
-
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: AppDimensions.paddingMD),
-                    child: Text(
-                      _errorMessage!,
-                      textAlign: TextAlign.center,
-                      style: Theme.of(
-                        context,
-                      ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
-                    ),
-                  ),
-
-                  const SizedBox(height: AppDimensions.paddingLG),
-
-                  ElevatedButton(
-                    onPressed: _loadAutomations,
-                    child: Text(AppLocalizations.of(context)!.retry),
-                  ),
-                ],
+            ? ErrorState(
+                title: AppLocalizations.of(context)!.error_loading_automations,
+                message: _errorMessage!,
+                onRetry: _loadAutomations,
+                retryButtonText: AppLocalizations.of(context)!.retry,
               )
             : _automations.isEmpty
-            ? Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.auto_awesome_outlined,
-                    size: AppDimensions.iconSizeXL,
-                    color: Colors.grey[400],
-                  ),
-
-                  const SizedBox(height: AppDimensions.paddingMD),
-
-                  Text(
-                    AppLocalizations.of(context)!.no_automations_yet,
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-
-                  const SizedBox(height: AppDimensions.paddingSM),
-
-                  Text(
-                    _notConnected
-                        ? AppLocalizations.of(context)!.connect_to_create
-                        : AppLocalizations.of(context)!.create_first_automation,
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
-                  ),
-                ],
+            ? EmptyState(
+                title: AppLocalizations.of(context)!.no_automations_yet,
+                message: _notConnected
+                    ? AppLocalizations.of(context)!.connect_to_create
+                    : AppLocalizations.of(context)!.create_first_automation,
+                icon: Icons.auto_awesome_outlined,
               )
             : RefreshIndicator(
                 onRefresh: _loadAutomations,
                 child: Column(
                   children: [
                     const SizedBox(height: 50),
-
                     Text(
                       AppLocalizations.of(context)!.my_areas,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontFamily: 'Montserrat',
                         fontWeight: FontWeight.w700,
                         fontSize: 50,
                       ),
                     ),
                     const SizedBox(height: 50),
-
                     for (int index = 0; index < _automations.length; index++) ...[
                       _buildAutomationCard(_automations[index]),
                     ],
