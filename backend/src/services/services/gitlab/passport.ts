@@ -29,6 +29,7 @@ export function initializeGitLabPassport(): void {
         clientSecret: process.env.SERVICE_GITLAB_CLIENT_SECRET || '',
         callbackURL: process.env.SERVICE_GITLAB_REDIRECT_URI || '',
         baseURL: 'https://gitlab.com',
+        scope: ['read_user', 'api', 'write_repository'],
         passReqToCallback: true,
       },
       async (
@@ -59,7 +60,7 @@ export function initializeGitLabPassport(): void {
           const tokenData = {
             access_token: accessToken,
             token_type: 'bearer',
-            scope: 'read_user read_api',
+            scope: 'read_user api write_repository',
           };
           const decoded = jwt.verify(userToken, JWT_SECRET as string) as {
             id: number;
@@ -86,6 +87,7 @@ export function initializeGitLabPassport(): void {
         clientSecret: process.env.SERVICE_GITLAB_CLIENT_SECRET || '',
         callbackURL: process.env.SERVICE_GITLAB_REDIRECT_URI || '',
         baseURL: 'https://gitlab.com',
+        scope: ['read_user', 'api', 'write_repository'],
         passReqToCallback: true,
       },
       async (
@@ -123,7 +125,7 @@ export function initializeGitLabPassport(): void {
           const tokenData = {
             access_token: accessToken,
             token_type: 'bearer',
-            scope: 'read_user read_api',
+            scope: 'read_user api write_repository',
           };
 
           const decoded = jwt.verify(userToken, JWT_SECRET as string) as {
