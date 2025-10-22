@@ -1,3 +1,4 @@
+import 'package:area/widgets/common/app_bar/custom_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:area/l10n/app_localizations.dart';
 
@@ -12,7 +13,7 @@ class HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(AppLocalizations.of(context)!.label_home)),
+      appBar: CustomAppBar(title: AppLocalizations.of(context)!.label_home),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
