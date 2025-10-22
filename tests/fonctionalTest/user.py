@@ -104,8 +104,8 @@ def test_get_user_by_id_forbidden(numSuccess, numTests):
         headers = {"Authorization": f"Bearer {token}"} if token else {}
 
         res = requests.get("https://backend.nduboi.fr/api/user/1", headers=headers)
-        assert res.status_code == 401
-        
+        assert res.status_code == 403
+
         print(f"Test get_user_by_id_forbidden: {GREEN} OK{RESET}")
         numSuccess += 1
     except Exception as e:

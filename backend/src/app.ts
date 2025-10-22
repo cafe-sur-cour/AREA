@@ -23,7 +23,6 @@ export const saveData = async () => {
   newUSer.email = encryption.encryptToString('bob@example.com');
   newUSer.password_hash =
     '$2b$10$07icanS1KkeTriOqW1w1A.P3FE04VWfHiFj7JYRHcFALBViNJ3B/q';
-  newUSer.is_admin = true;
   newUSer.email_verified = true;
 
   await AppDataSource.manager.save(newUSer);
