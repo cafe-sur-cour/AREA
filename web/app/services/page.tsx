@@ -152,13 +152,15 @@ export default function ServicesPage() {
           {services?.map(service => (
             <Card
               key={service.id}
-              className='bg-app-surface border-app-border-light hover:border-area-primary transition-all duration-300 hover:shadow-lg'
+              className='bg-app-surface border-app-border-light hover:border-area-primary transition-all duration-300 hover:shadow-lg py-0'
             >
               <CardContent className='p-6 flex flex-col h-full'>
                 <div className='flex items-start justify-between mb-4'>
                   <div
                     className='p-3 bg-app-background rounded-lg'
-                    dangerouslySetInnerHTML={{ __html:  service.icon.replaceAll('1em', '1.8em') }}
+                    dangerouslySetInnerHTML={{
+                      __html: service.icon.replaceAll('1em', '1.8em'),
+                    }}
                   ></div>
                   {service.isSubscribed ? (
                     <Badge className='bg-app-green-light text-app-green-primary border-app-green-primary'>
