@@ -97,6 +97,7 @@ export function initializeGitLabPassport(): void {
           error: Error | null,
           user?: GitLabUser | null
         ) => void;
+        console.log('in gitlab subscribe strategy');
         try {
           const currentUser = await getCurrentUser(req);
           if (!currentUser) {
