@@ -1,6 +1,6 @@
 import passport from 'passport';
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const GitLabStrategy = require('passport-gitlab2').Strategy;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+import GitLabStrategyModule from 'passport-gitlab2';
 import { Request } from 'express';
 import jwt from 'jsonwebtoken';
 import {
@@ -10,6 +10,8 @@ import {
 import { gitlabOAuth } from './oauth';
 import { JWT_SECRET } from '../../../../index';
 import { getCurrentUser } from '../../../utils/auth';
+
+const GitLabStrategy = GitLabStrategyModule.Strategy;
 
 export interface GitLabUser {
   id: string;
