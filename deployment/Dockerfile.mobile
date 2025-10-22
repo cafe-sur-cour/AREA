@@ -1,5 +1,5 @@
 # Flutter Mobile Build Dockerfile
-FROM ghcr.io/cirruslabs/flutter:3.35.4 AS builder
+FROM ghcr.io/cirruslabs/flutter:3.35.6 AS builder
 
 ARG SKIP_APK_BUILD=false
 ARG FRONTEND_URL
@@ -19,6 +19,8 @@ RUN if [ -z "$FRONTEND_URL" ]; \
 WORKDIR /app
 
 COPY mobile/ ./
+
+RUN flutter precache --android
 
 RUN flutter clean
 
