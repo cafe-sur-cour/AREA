@@ -311,6 +311,9 @@ class CatalogueScreenState extends State<CatalogueScreen> {
           ReactionWithDelayModel(reaction: reaction, delayInSeconds: 0, service: service),
         );
       }
+      if (mounted) {
+        Navigator.of(context).pushNamed('/');
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
