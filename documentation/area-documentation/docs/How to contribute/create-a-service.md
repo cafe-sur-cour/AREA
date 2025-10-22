@@ -512,7 +512,7 @@ const yourService: Service = {
   name: 'Your Service',
   description: 'Complete integration with YourService for automation',
   version: '1.0.0',
-  icon: '<add your SVG icon here>',
+  icon: `<svg stroke="currentColor" fill="#FF6B35" stroke-width="0" viewBox="0 0 496 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="..."></path></svg>`,
   actions: actions,
   reactions: reactions,
 };
@@ -520,6 +520,21 @@ const yourService: Service = {
 export default yourService;
 export { yourServiceExecutor as executor };
 ```
+
+:::tip Icon SVG with Brand Colors
+The icon should be a complete SVG string (inline) with your service's brand color. You can get SVG icons from libraries like [React Icons](https://react-icons.github.io/react-icons/) or [Font Awesome](https://fontawesome.com/). 
+
+**Important:** Replace `fill="currentColor"` with your service's brand color (e.g., `fill="#FF6B35"`). This ensures the icon is immediately recognizable with the correct branding.
+
+Examples of brand colors used in AREA:
+- GitHub: `#181717` (dark gray/black)
+- Google: `#4285F4` (blue)
+- Spotify: `#1DB954` (green)
+- Facebook: `#1877F2` (blue)
+- Twitch: `#9146FF` (purple)
+- Reddit: `#FF4500` (orange-red)
+- Slack: `#4A154B` (aubergine)
+:::
 
 ### Complete Service Interface Reference
 
