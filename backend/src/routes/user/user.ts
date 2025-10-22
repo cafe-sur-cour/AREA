@@ -252,7 +252,8 @@ router.put(
         );
         return res.status(400).json({
           error: 'Bad Request',
-          message: 'At least one field is required: name, email, password, or picture',
+          message:
+            'At least one field is required: name, email, password, or picture',
         });
       }
 
@@ -268,7 +269,7 @@ router.put(
       }
 
       // Encrypt fields if present
-      const updateData: any = {};
+      const updateData: Partial<User> = {};
       if (name) updateData.name = encryption.encryptToString(name);
       if (email) updateData.email = encryption.encryptToString(email);
       if (password) {
@@ -296,9 +297,15 @@ router.put(
       // Decrypt name and email before returning
       let decryptedUser = { ...updatedUser };
       try {
-        if (decryptedUser.name) decryptedUser.name = encryption.decryptFromString(decryptedUser.name);
-        if (decryptedUser.email) decryptedUser.email = encryption.decryptFromString(decryptedUser.email);
+        if (decryptedUser.name)
+          decryptedUser.name = encryption.decryptFromString(decryptedUser.name);
+        if (decryptedUser.email)
+          decryptedUser.email = encryption.decryptFromString(
+            decryptedUser.email
+          );
       } catch (e) {
+        console.error('Decryption error:', e);
+        createLog(500, 'user', `Decryption error: ${e}`);
         // If decryption fails, just return as is
       }
       await createLog(

@@ -109,7 +109,6 @@ export default function ProfilePage() {
     setEditingName(false);
   };
 
-
   const savePassword = () => {
     console.log('Saving password:', editedPassword);
     if (editedPassword.trim() === '') {
@@ -138,7 +137,6 @@ export default function ProfilePage() {
     setEditingPassword(false);
     setEditedPassword('');
   };
-
 
   if (isLoadingData || !userData)
     return (
