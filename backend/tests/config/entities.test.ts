@@ -16,9 +16,21 @@ import { Logger } from '../../src/config/entity/Logger';
 describe('Entity Metadata Coverage', () => {
   beforeAll(() => {
     // Ensure all entities are loaded
-    [User, UserOAuthProvider, UserToken, UserActivityLogs, UserServiceSubscriptions,
-     ExternalWebhooks, WebhookConfigs, WebhookEvents, WebhookFailures, WebhookReactions,
-     WebhookStats, Session, Logger].forEach(entity => {
+    [
+      User,
+      UserOAuthProvider,
+      UserToken,
+      UserActivityLogs,
+      UserServiceSubscriptions,
+      ExternalWebhooks,
+      WebhookConfigs,
+      WebhookEvents,
+      WebhookFailures,
+      WebhookReactions,
+      WebhookStats,
+      Session,
+      Logger,
+    ].forEach(entity => {
       // Force entity registration by accessing metadata
       getMetadataArgsStorage().tables.find(table => table.target === entity);
     });
@@ -40,10 +52,14 @@ describe('Entity Metadata Coverage', () => {
       const isAdminColumn = columns.find(c => c.propertyName === 'is_admin');
       expect(isAdminColumn?.options.default).toBe(false);
 
-      const emailVerifiedColumn = columns.find(c => c.propertyName === 'email_verified');
+      const emailVerifiedColumn = columns.find(
+        c => c.propertyName === 'email_verified'
+      );
       expect(emailVerifiedColumn?.options.default).toBe(false);
 
-      const failedLoginAttemptsColumn = columns.find(c => c.propertyName === 'failed_login_attempts');
+      const failedLoginAttemptsColumn = columns.find(
+        c => c.propertyName === 'failed_login_attempts'
+      );
       expect(failedLoginAttemptsColumn?.options.default).toBe(0);
 
       const timezoneColumn = columns.find(c => c.propertyName === 'timezone');
@@ -63,15 +79,21 @@ describe('Entity Metadata Coverage', () => {
   describe('UserOAuthProvider Entity', () => {
     it('should have correct column metadata', () => {
       const metadata = getMetadataArgsStorage();
-      const columns = metadata.columns.filter(c => c.target === UserOAuthProvider);
+      const columns = metadata.columns.filter(
+        c => c.target === UserOAuthProvider
+      );
 
-      const connectionTypeColumn = columns.find(c => c.propertyName === 'connection_type');
+      const connectionTypeColumn = columns.find(
+        c => c.propertyName === 'connection_type'
+      );
       expect(connectionTypeColumn?.options.length).toBe(50);
 
       const providerColumn = columns.find(c => c.propertyName === 'provider');
       expect(providerColumn?.options.length).toBe(255);
 
-      const providerIdColumn = columns.find(c => c.propertyName === 'provider_id');
+      const providerIdColumn = columns.find(
+        c => c.propertyName === 'provider_id'
+      );
       expect(providerIdColumn?.options.length).toBe(255);
     });
   });
@@ -81,13 +103,19 @@ describe('Entity Metadata Coverage', () => {
       const metadata = getMetadataArgsStorage();
       const columns = metadata.columns.filter(c => c.target === UserToken);
 
-      const tokenTypeColumn = columns.find(c => c.propertyName === 'token_type');
+      const tokenTypeColumn = columns.find(
+        c => c.propertyName === 'token_type'
+      );
       expect(tokenTypeColumn?.options.length).toBe(50);
 
-      const tokenValueColumn = columns.find(c => c.propertyName === 'token_value');
+      const tokenValueColumn = columns.find(
+        c => c.propertyName === 'token_value'
+      );
       expect(tokenValueColumn?.options.unique).toBe(true);
 
-      const isRevokedColumn = columns.find(c => c.propertyName === 'is_revoked');
+      const isRevokedColumn = columns.find(
+        c => c.propertyName === 'is_revoked'
+      );
       expect(isRevokedColumn?.options.default).toBe(false);
     });
   });
@@ -95,7 +123,9 @@ describe('Entity Metadata Coverage', () => {
   describe('UserActivityLogs Entity', () => {
     it('should have correct column metadata', () => {
       const metadata = getMetadataArgsStorage();
-      const columns = metadata.columns.filter(c => c.target === UserActivityLogs);
+      const columns = metadata.columns.filter(
+        c => c.target === UserActivityLogs
+      );
 
       const actionColumn = columns.find(c => c.propertyName === 'action');
       expect(actionColumn?.options.length).toBe(100);
@@ -105,22 +135,32 @@ describe('Entity Metadata Coverage', () => {
   describe('UserServiceSubscriptions Entity', () => {
     it('should have correct table and column metadata', () => {
       const metadata = getMetadataArgsStorage();
-      const table = metadata.tables.find(t => t.target === UserServiceSubscriptions);
+      const table = metadata.tables.find(
+        t => t.target === UserServiceSubscriptions
+      );
       expect(table?.name).toBe('user_service_subscriptions');
 
-      const uniques = metadata.uniques.filter(u => u.target === UserServiceSubscriptions);
+      const uniques = metadata.uniques.filter(
+        u => u.target === UserServiceSubscriptions
+      );
       expect(uniques.length).toBeGreaterThan(0);
       expect(uniques[0].columns).toEqual(['user_id', 'service']);
 
-      const columns = metadata.columns.filter(c => c.target === UserServiceSubscriptions);
+      const columns = metadata.columns.filter(
+        c => c.target === UserServiceSubscriptions
+      );
 
       const serviceColumn = columns.find(c => c.propertyName === 'service');
       expect(serviceColumn?.options.length).toBe(50);
 
-      const subscribedColumn = columns.find(c => c.propertyName === 'subscribed');
+      const subscribedColumn = columns.find(
+        c => c.propertyName === 'subscribed'
+      );
       expect(subscribedColumn?.options.default).toBe(false);
 
-      const stateDataColumn = columns.find(c => c.propertyName === 'state_data');
+      const stateDataColumn = columns.find(
+        c => c.propertyName === 'state_data'
+      );
       expect(stateDataColumn?.options.default).toEqual({});
     });
   });
@@ -128,7 +168,9 @@ describe('Entity Metadata Coverage', () => {
   describe('ExternalWebhooks Entity', () => {
     it('should have correct column metadata', () => {
       const metadata = getMetadataArgsStorage();
-      const columns = metadata.columns.filter(c => c.target === ExternalWebhooks);
+      const columns = metadata.columns.filter(
+        c => c.target === ExternalWebhooks
+      );
 
       const serviceColumn = columns.find(c => c.propertyName === 'service');
       expect(serviceColumn?.options.length).toBe(100);
@@ -159,19 +201,25 @@ describe('Entity Metadata Coverage', () => {
       const metadata = getMetadataArgsStorage();
       const columns = metadata.columns.filter(c => c.target === WebhookEvents);
 
-      const actionTypeColumn = columns.find(c => c.propertyName === 'action_type');
+      const actionTypeColumn = columns.find(
+        c => c.propertyName === 'action_type'
+      );
       expect(actionTypeColumn?.options.length).toBe(100);
 
       const payloadColumn = columns.find(c => c.propertyName === 'payload');
       expect(payloadColumn?.options.type).toBe('jsonb');
 
-      const processedPayloadColumn = columns.find(c => c.propertyName === 'processed_payload');
+      const processedPayloadColumn = columns.find(
+        c => c.propertyName === 'processed_payload'
+      );
       expect(processedPayloadColumn?.options.nullable).toBe(true);
 
       const statusColumn = columns.find(c => c.propertyName === 'status');
       expect(statusColumn?.options.default).toBe('received');
 
-      const signatureVerifiedColumn = columns.find(c => c.propertyName === 'signature_verified');
+      const signatureVerifiedColumn = columns.find(
+        c => c.propertyName === 'signature_verified'
+      );
       expect(signatureVerifiedColumn?.options.default).toBe(false);
     });
   });
@@ -179,9 +227,13 @@ describe('Entity Metadata Coverage', () => {
   describe('WebhookFailures Entity', () => {
     it('should have correct column metadata', () => {
       const metadata = getMetadataArgsStorage();
-      const columns = metadata.columns.filter(c => c.target === WebhookFailures);
+      const columns = metadata.columns.filter(
+        c => c.target === WebhookFailures
+      );
 
-      const errorMessageColumn = columns.find(c => c.propertyName === 'error_message');
+      const errorMessageColumn = columns.find(
+        c => c.propertyName === 'error_message'
+      );
       expect(errorMessageColumn?.options.type).toBe('text');
     });
   });
@@ -189,9 +241,13 @@ describe('Entity Metadata Coverage', () => {
   describe('WebhookReactions Entity', () => {
     it('should have correct column metadata', () => {
       const metadata = getMetadataArgsStorage();
-      const columns = metadata.columns.filter(c => c.target === WebhookReactions);
+      const columns = metadata.columns.filter(
+        c => c.target === WebhookReactions
+      );
 
-      const reactionNameColumn = columns.find(c => c.propertyName === 'reaction_name');
+      const reactionNameColumn = columns.find(
+        c => c.propertyName === 'reaction_name'
+      );
       expect(reactionNameColumn?.options.length).toBe(100);
 
       const statusColumn = columns.find(c => c.propertyName === 'status');
@@ -204,22 +260,32 @@ describe('Entity Metadata Coverage', () => {
       const metadata = getMetadataArgsStorage();
       const columns = metadata.columns.filter(c => c.target === WebhookStats);
 
-      const actionTypeColumn = columns.find(c => c.propertyName === 'action_type');
+      const actionTypeColumn = columns.find(
+        c => c.propertyName === 'action_type'
+      );
       expect(actionTypeColumn?.options.length).toBe(100);
 
-      const reactionNameColumn = columns.find(c => c.propertyName === 'reaction_name');
+      const reactionNameColumn = columns.find(
+        c => c.propertyName === 'reaction_name'
+      );
       expect(reactionNameColumn?.options.length).toBe(100);
 
       const countColumn = columns.find(c => c.propertyName === 'count');
       expect(countColumn?.options.default).toBe(0);
 
-      const totalProcessingTimeMsColumn = columns.find(c => c.propertyName === 'total_processing_time_ms');
+      const totalProcessingTimeMsColumn = columns.find(
+        c => c.propertyName === 'total_processing_time_ms'
+      );
       expect(totalProcessingTimeMsColumn?.options.default).toBe(0);
 
-      const successCountColumn = columns.find(c => c.propertyName === 'success_count');
+      const successCountColumn = columns.find(
+        c => c.propertyName === 'success_count'
+      );
       expect(successCountColumn?.options.default).toBe(0);
 
-      const errorCountColumn = columns.find(c => c.propertyName === 'error_count');
+      const errorCountColumn = columns.find(
+        c => c.propertyName === 'error_count'
+      );
       expect(errorCountColumn?.options.default).toBe(0);
     });
   });
@@ -235,7 +301,9 @@ describe('Entity Metadata Coverage', () => {
       const jsonColumn = columns.find(c => c.propertyName === 'json');
       expect(jsonColumn?.options.type).toBe('text');
 
-      const destroyedAtColumn = columns.find(c => c.propertyName === 'destroyedAt');
+      const destroyedAtColumn = columns.find(
+        c => c.propertyName === 'destroyedAt'
+      );
       expect(destroyedAtColumn?.options.nullable).toBe(true);
     });
   });
