@@ -152,7 +152,7 @@ def test_logout_unauthenticated(numSuccess, numTests):
 
 def test_forgot_password_valid(numSuccess, numTests):
     try:
-        payload = {"email": "alice@example.com"}
+        payload = {"email": "eyJlbmNyeXB0ZWQiOiI5ODI4MDkwODYzYWQxODJjYTAyNTg3MDQ0MTVlZDFmNjMxYzVmNjE2MTg5MzIyZDIiLCJpdiI6IjQxODQyYWM0YTM1OGY3MjYyMzIyNjNlZTQ3ZTJjMjliIiwidGFnIjoiNTE4NDlhMGNiY2RlNDJmMzFjMjY1M2I1NWUyZGUwNWEifQ=="}
         res = requests.post("https://backend.nduboi.fr/api/auth/forgot-password", json=payload)
         assert res.status_code in [200, 201, 500]
         resp = res.json()

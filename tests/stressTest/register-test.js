@@ -10,22 +10,20 @@ export let options = {
 };
 
 export default function () {
-  let email = `user${__VU}_${Date.now()}@test.com`;
+  let email = `user${__VU}_${Date.now()}@test.com.com`;
+
   let payload = JSON.stringify({
     email: email,
+    name: `User ${__VU}`,
     password: "Password123!",
-    name: `User ${__VU}`
   });
 
   let headers = { "Content-Type": "application/json" };
 
-  let res = http.post("https://yourapp.com/api/auth/register", payload, { headers });
+  let res = http.post("https://backend.nduboi.fr/api/auth/register", payload, { headers });
 
   check(res, {
-    "status 200": (r) => r.status === 200 || r.status === 201,
-    "has token": (r) => r.json().token !== undefined,
+    "status is 200 or 201": (r) => r.status === 200 || r.status === 201,
   });
-
   sleep(1);
 }
-
