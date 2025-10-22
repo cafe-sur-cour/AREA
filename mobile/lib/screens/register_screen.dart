@@ -1,10 +1,15 @@
 import 'dart:convert';
 
-import 'package:area/core/constants/app_colors.dart';
 import 'package:area/core/constants/app_constants.dart';
 import 'package:area/core/notifiers/backend_address_notifier.dart';
 import 'package:area/l10n/app_localizations.dart';
 import 'package:area/services/secure_http_client.dart';
+import 'package:area/widgets/common/app_bar/custom_app_bar.dart';
+import 'package:area/widgets/common/buttons/primary_button.dart';
+import 'package:area/widgets/common/snackbars/app_snackbar.dart';
+import 'package:area/widgets/common/text_fields/app_text_field.dart';
+import 'package:area/widgets/common/text_fields/email_text_field.dart';
+import 'package:area/widgets/common/text_fields/password_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -48,15 +53,7 @@ class RegisterScreenState extends State<RegisterScreen> {
       );
 
       if (backendAddressNotifier.backendAddress == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              AppLocalizations.of(context)!.empty_backend_server_address,
-              style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
-            ),
-            backgroundColor: AppColors.error,
-          ),
-        );
+        showErrorSnackbar(context, AppLocalizations.of(context)!.empty_backend_server_address);
         setState(() {
           loading = false;
         });
@@ -80,29 +77,12 @@ class RegisterScreenState extends State<RegisterScreen> {
         }
 
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                AppLocalizations.of(context)!.user_registered,
-                style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
-              ),
-              backgroundColor: AppColors.success,
-            ),
-          );
-
+          showSuccessSnackbar(context, AppLocalizations.of(context)!.user_registered);
           Navigator.pop(context);
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                e.toString(),
-                style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
-              ),
-              backgroundColor: AppColors.error,
-            ),
-          );
+          showErrorSnackbar(context, e.toString());
         }
       }
     }
@@ -114,14 +94,7 @@ class RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          AppLocalizations.of(context)!.register,
-          style: TextStyle(fontFamily: 'Montserrat', fontWeight: FontWeight.bold),
-        ),
-        backgroundColor: AppColors.areaBlue3,
-        foregroundColor: AppColors.areaLightGray,
-      ),
+      appBar: CustomAppBar(title: AppLocalizations.of(context)!.register),
       body: Padding(
         padding: const EdgeInsets.all(32.0),
         child: Form(
@@ -129,12 +102,9 @@ class RegisterScreenState extends State<RegisterScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              TextFormField(
+              AppTextField(
                 controller: _nameController,
-                decoration: InputDecoration(
-                  labelText: AppLocalizations.of(context)!.name,
-                  border: OutlineInputBorder(),
-                ),
+                labelText: AppLocalizations.of(context)!.name,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return AppLocalizations.of(context)!.empty_name;
@@ -144,67 +114,16 @@ class RegisterScreenState extends State<RegisterScreen> {
                   }
                   return null;
                 },
-                onTapOutside: (event) {
-                  FocusScope.of(context).unfocus();
-                },
               ),
-
               const SizedBox(height: 16),
-
-              TextFormField(
-                controller: _emailController,
-                decoration: InputDecoration(
-                  labelText: AppLocalizations.of(context)!.email,
-                  border: OutlineInputBorder(),
-                ),
-                keyboardType: TextInputType.emailAddress,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return AppLocalizations.of(context)!.empty_email;
-                  }
-                  if (!value.contains('@')) {
-                    return AppLocalizations.of(context)!.invalid_email;
-                  }
-                  return null;
-                },
-                onTapOutside: (event) {
-                  FocusScope.of(context).unfocus();
-                },
-              ),
-
+              EmailTextField(controller: _emailController),
               const SizedBox(height: 16),
-
-              TextFormField(
-                controller: _passwordController,
-                decoration: InputDecoration(
-                  labelText: AppLocalizations.of(context)!.password,
-                  border: OutlineInputBorder(),
-                ),
-                obscureText: true,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return AppLocalizations.of(context)!.empty_password;
-                  }
-                  if (value.length < 6) {
-                    return AppLocalizations.of(context)!.invalid_password;
-                  }
-                  return null;
-                },
-                onTapOutside: (event) {
-                  FocusScope.of(context).unfocus();
-                },
-              ),
-
+              PasswordTextField(controller: _passwordController),
               const SizedBox(height: 16),
-
-              TextFormField(
+              PasswordTextField(
                 controller: _confirmPasswordController,
-                decoration: InputDecoration(
-                  labelText: AppLocalizations.of(context)!.confirm_password,
-                  border: OutlineInputBorder(),
-                ),
-                obscureText: true,
-                validator: (value) {
+                labelText: AppLocalizations.of(context)!.confirm_password,
+                customValidator: (value) {
                   if (value == null || value.isEmpty) {
                     return AppLocalizations.of(context)!.empty_password;
                   }
@@ -213,28 +132,13 @@ class RegisterScreenState extends State<RegisterScreen> {
                   }
                   return null;
                 },
-                onTapOutside: (event) {
-                  FocusScope.of(context).unfocus();
-                },
               ),
-
               const SizedBox(height: 32),
-
-              if (loading) ...[
-                const CircularProgressIndicator(),
-              ] else ...[
-                ElevatedButton(
-                  onPressed: _submitForm,
-                  style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                    backgroundColor: AppColors.primary,
-                  ),
-                  child: Text(
-                    AppLocalizations.of(context)!.register,
-                    style: TextStyle(color: AppColors.areaLightGray),
-                  ),
-                ),
-              ],
+              PrimaryButton(
+                text: AppLocalizations.of(context)!.register,
+                onPressed: _submitForm,
+                isLoading: loading,
+              ),
             ],
           ),
         ),

@@ -7,6 +7,13 @@ import 'package:area/core/notifiers/backend_address_notifier.dart';
 import 'package:area/l10n/app_localizations.dart';
 import 'package:area/services/secure_storage.dart';
 import 'package:area/services/secure_http_client.dart';
+import 'package:area/widgets/common/app_bar/custom_app_bar.dart';
+import 'package:area/widgets/common/buttons/oauth_button.dart';
+import 'package:area/widgets/common/buttons/primary_button.dart';
+import 'package:area/widgets/common/buttons/secondary_button.dart';
+import 'package:area/widgets/common/snackbars/app_snackbar.dart';
+import 'package:area/widgets/common/text_fields/email_text_field.dart';
+import 'package:area/widgets/common/text_fields/password_text_field.dart';
 import 'package:area/widgets/widget_oauth_webview.dart';
 import 'package:flutter/material.dart';
 import 'package:icons_plus/icons_plus.dart';
@@ -48,15 +55,7 @@ class LoginScreenState extends State<LoginScreen> {
       );
 
       if (backendAddressNotifier.backendAddress == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              AppLocalizations.of(context)!.empty_backend_server_address,
-              style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
-            ),
-            backgroundColor: AppColors.error,
-          ),
-        );
+        showErrorSnackbar(context, AppLocalizations.of(context)!.empty_backend_server_address);
         setState(() {
           loading = false;
         });
@@ -79,29 +78,13 @@ class LoginScreenState extends State<LoginScreen> {
         await saveJwt(data['token']);
 
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                AppLocalizations.of(context)!.logged_in,
-                style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
-              ),
-              backgroundColor: AppColors.success,
-            ),
-          );
+          showSuccessSnackbar(context, AppLocalizations.of(context)!.logged_in);
 
           Navigator.pop(context, true);
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                e.toString(),
-                style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
-              ),
-              backgroundColor: AppColors.error,
-            ),
-          );
+          showErrorSnackbar(context, e.toString());
         }
       }
     }
@@ -114,15 +97,7 @@ class LoginScreenState extends State<LoginScreen> {
     final backendAddressNotifier = Provider.of<BackendAddressNotifier>(context, listen: false);
 
     if (backendAddressNotifier.backendAddress == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            AppLocalizations.of(context)!.empty_backend_server_address,
-            style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
-          ),
-          backgroundColor: AppColors.error,
-        ),
-      );
+      showErrorSnackbar(context, AppLocalizations.of(context)!.empty_backend_server_address);
       return;
     }
 
@@ -136,7 +111,6 @@ class LoginScreenState extends State<LoginScreen> {
 
     final address = "$base$route?is_mobile=true";
     final appLocalizations = AppLocalizations.of(context);
-    final scaffoldMessenger = ScaffoldMessenger.of(context);
     final navigator = Navigator.of(context);
 
     final cookieManager = WebViewCookieManager();
@@ -161,16 +135,7 @@ class LoginScreenState extends State<LoginScreen> {
     await saveJwt(result);
 
     if (mounted) {
-      scaffoldMessenger.showSnackBar(
-        SnackBar(
-          content: Text(
-            appLocalizations!.logged_in,
-            style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
-          ),
-          backgroundColor: AppColors.success,
-        ),
-      );
-
+      showSuccessSnackbar(context, appLocalizations!.logged_in);
       navigator.pop(true);
     }
   }
@@ -180,11 +145,9 @@ class LoginScreenState extends State<LoginScreen> {
       await _goToOAuth('GitHub', AppRoutes.githubLogin);
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(AppLocalizations.of(context)!.github_login_failed(e.toString())),
-            backgroundColor: AppColors.error,
-          ),
+        showErrorSnackbar(
+          context,
+          AppLocalizations.of(context)!.github_login_failed(e.toString()),
         );
       }
     }
@@ -199,11 +162,9 @@ class LoginScreenState extends State<LoginScreen> {
       await _goToOAuth('Google', AppRoutes.googleLogin);
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(AppLocalizations.of(context)!.google_login_failed(e.toString())),
-            backgroundColor: AppColors.error,
-          ),
+        showErrorSnackbar(
+          context,
+          AppLocalizations.of(context)!.google_login_failed(e.toString()),
         );
       }
     }
@@ -212,14 +173,7 @@ class LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          AppLocalizations.of(context)!.login,
-          style: TextStyle(fontFamily: 'Montserrat', fontWeight: FontWeight.bold),
-        ),
-        backgroundColor: AppColors.areaBlue3,
-        foregroundColor: AppColors.areaLightGray,
-      ),
+      appBar: CustomAppBar(title: AppLocalizations.of(context)!.login),
       body: Padding(
         padding: const EdgeInsets.all(32.0),
         child: Form(
@@ -227,163 +181,59 @@ class LoginScreenState extends State<LoginScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              TextFormField(
-                controller: _emailController,
-                decoration: InputDecoration(
-                  labelText: AppLocalizations.of(context)!.email,
-                  border: OutlineInputBorder(),
-                ),
-                keyboardType: TextInputType.emailAddress,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return AppLocalizations.of(context)!.empty_email;
-                  }
-                  if (!value.contains('@')) {
-                    return AppLocalizations.of(context)!.invalid_email;
-                  }
-                  return null;
-                },
-                onTapOutside: (event) {
-                  FocusScope.of(context).unfocus();
-                },
-              ),
-
+              EmailTextField(controller: _emailController),
               const SizedBox(height: 16),
-
-              TextFormField(
-                controller: _passwordController,
-                decoration: InputDecoration(
-                  labelText: AppLocalizations.of(context)!.password,
-                  border: OutlineInputBorder(),
-                ),
-                obscureText: true,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return AppLocalizations.of(context)!.empty_password;
-                  }
-                  if (value.length < 6) {
-                    return AppLocalizations.of(context)!.invalid_password;
-                  }
-                  return null;
-                },
-                onTapOutside: (event) {
-                  FocusScope.of(context).unfocus();
-                },
-              ),
-
+              PasswordTextField(controller: _passwordController),
               const SizedBox(height: 32),
-
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  ElevatedButton(
+                  SecondaryButton(
+                    text: AppLocalizations.of(context)!.forgot_password_question,
                     onPressed: () {
                       Navigator.pushNamed(context, '/forgot-password');
                     },
-                    style: ElevatedButton.styleFrom(
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                    ),
-                    child: Text(AppLocalizations.of(context)!.forgot_password_question),
                   ),
-                  if (loading) ...[
-                    const CircularProgressIndicator(),
-                  ] else ...[
-                    ElevatedButton(
-                      onPressed: _submitForm,
-                      style: ElevatedButton.styleFrom(
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                        backgroundColor: AppColors.primary,
-                      ),
-                      child: Text(
-                        AppLocalizations.of(context)!.login,
-                        style: TextStyle(color: AppColors.areaLightGray),
-                      ),
-                    ),
-                  ],
+                  PrimaryButton(
+                    text: AppLocalizations.of(context)!.login,
+                    onPressed: _submitForm,
+                    isLoading: loading,
+                  ),
                 ],
               ),
-
               const SizedBox(height: 16),
-
-              Divider(),
-
+              const Divider(),
               const SizedBox(height: 16),
-
               Column(
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: _goToGithub,
-                          style: ElevatedButton.styleFrom(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            backgroundColor: AppColors.primary,
-                            padding: EdgeInsets.symmetric(vertical: 12),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(IonIcons.logo_github, color: AppColors.areaLightGray),
-                              SizedBox(width: 8),
-                              Text(
-                                AppLocalizations.of(context)!.github,
-                                style: TextStyle(color: AppColors.areaLightGray),
-                              ),
-                            ],
-                          ),
-                        ),
+                      OAuthButton(
+                        providerName: AppLocalizations.of(context)!.github,
+                        icon: IonIcons.logo_github,
+                        onPressed: _goToGithub,
+                        backgroundColor: AppColors.primary,
+                        isExpanded: true,
                       ),
                       const SizedBox(width: 8),
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: _goToGoogle,
-                          style: ElevatedButton.styleFrom(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            backgroundColor: Colors.red,
-                            padding: EdgeInsets.symmetric(vertical: 12),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(IonIcons.logo_google, color: AppColors.areaLightGray),
-                              SizedBox(width: 8),
-                              Text(
-                                AppLocalizations.of(context)!.google,
-                                style: TextStyle(color: AppColors.areaLightGray),
-                              ),
-                            ],
-                          ),
-                        ),
+                      OAuthButton(
+                        providerName: AppLocalizations.of(context)!.google,
+                        icon: IonIcons.logo_google,
+                        onPressed: _goToGoogle,
+                        backgroundColor: Colors.red,
+                        isExpanded: true,
                       ),
                     ],
                   ),
                   const SizedBox(height: 12),
                   SizedBox(
                     width: double.infinity,
-                    child: ElevatedButton(
+                    child: OAuthButton(
+                      providerName: AppLocalizations.of(context)!.microsoft,
+                      icon: IonIcons.logo_microsoft,
                       onPressed: _goToMicrosoft,
-                      style: ElevatedButton.styleFrom(
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                        backgroundColor: Colors.blue,
-                        padding: EdgeInsets.symmetric(vertical: 12),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(IonIcons.logo_microsoft, color: AppColors.areaLightGray),
-                          SizedBox(width: 8),
-                          Text(
-                            AppLocalizations.of(context)!.microsoft,
-                            style: TextStyle(color: AppColors.areaLightGray),
-                          ),
-                        ],
-                      ),
+                      backgroundColor: Colors.blue,
                     ),
                   ),
                 ],

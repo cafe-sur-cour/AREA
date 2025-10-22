@@ -1,10 +1,14 @@
 import 'dart:convert';
 
-import 'package:area/core/constants/app_colors.dart';
 import 'package:area/core/constants/app_constants.dart';
 import 'package:area/core/notifiers/backend_address_notifier.dart';
 import 'package:area/l10n/app_localizations.dart';
 import 'package:area/services/secure_http_client.dart';
+import 'package:area/widgets/common/app_bar/custom_app_bar.dart';
+import 'package:area/widgets/common/buttons/primary_button.dart';
+import 'package:area/widgets/common/snackbars/app_snackbar.dart';
+import 'package:area/widgets/common/text_fields/app_text_field.dart';
+import 'package:area/widgets/common/text_fields/email_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -43,14 +47,9 @@ class ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
       if (backendAddressNotifier.backendAddress == null) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                AppLocalizations.of(context)!.empty_backend_server_address,
-                style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
-              ),
-              backgroundColor: AppColors.error,
-            ),
+          showErrorSnackbar(
+            context,
+            AppLocalizations.of(context)!.empty_backend_server_address,
           );
         }
         setState(() {
@@ -73,29 +72,12 @@ class ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         }
 
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                AppLocalizations.of(context)!.email_sent,
-                style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
-              ),
-              backgroundColor: AppColors.success,
-            ),
-          );
-
+          showSuccessSnackbar(context, AppLocalizations.of(context)!.email_sent);
           Navigator.pop(context);
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                e.toString(),
-                style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
-              ),
-              backgroundColor: AppColors.error,
-            ),
-          );
+          showErrorSnackbar(context, e.toString());
         }
       }
     }
@@ -109,14 +91,7 @@ class ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          AppLocalizations.of(context)!.forgot_password,
-          style: TextStyle(fontFamily: 'Montserrat', fontWeight: FontWeight.bold),
-        ),
-        backgroundColor: AppColors.areaBlue3,
-        foregroundColor: AppColors.areaLightGray,
-      ),
+      appBar: CustomAppBar(title: AppLocalizations.of(context)!.forgot_password),
       body: Padding(
         padding: const EdgeInsets.all(32.0),
         child: Form(
@@ -124,35 +99,11 @@ class ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              TextFormField(
-                controller: _emailController,
-                decoration: InputDecoration(
-                  labelText: AppLocalizations.of(context)!.email,
-                  border: OutlineInputBorder(),
-                ),
-                keyboardType: TextInputType.emailAddress,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return AppLocalizations.of(context)!.empty_email;
-                  }
-                  if (!value.contains('@')) {
-                    return AppLocalizations.of(context)!.invalid_email;
-                  }
-                  return null;
-                },
-                onTapOutside: (event) {
-                  FocusScope.of(context).unfocus();
-                },
-              ),
-
+              EmailTextField(controller: _emailController),
               const SizedBox(height: 16),
-
-              TextFormField(
+              AppTextField(
                 controller: _confirmEmailController,
-                decoration: InputDecoration(
-                  labelText: AppLocalizations.of(context)!.confirm_email,
-                  border: OutlineInputBorder(),
-                ),
+                labelText: AppLocalizations.of(context)!.confirm_email,
                 keyboardType: TextInputType.emailAddress,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -166,28 +117,13 @@ class ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   }
                   return null;
                 },
-                onTapOutside: (event) {
-                  FocusScope.of(context).unfocus();
-                },
               ),
-
               const SizedBox(height: 32),
-
-              if (loading) ...[
-                const CircularProgressIndicator(),
-              ] else ...[
-                ElevatedButton(
-                  onPressed: _submitForm,
-                  style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                    backgroundColor: AppColors.primary,
-                  ),
-                  child: Text(
-                    AppLocalizations.of(context)!.send,
-                    style: TextStyle(color: AppColors.areaLightGray),
-                  ),
-                ),
-              ],
+              PrimaryButton(
+                text: AppLocalizations.of(context)!.send,
+                onPressed: _submitForm,
+                isLoading: loading,
+              ),
             ],
           ),
         ),
