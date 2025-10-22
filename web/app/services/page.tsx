@@ -187,7 +187,7 @@ export default function ServicesPage() {
 
                 <div className='grid gap-2 grid-cols-2 mt-auto pt-2'>
                   <Button
-                    onClick={() => handleConnect(service)}
+                    onClick={() => router.push(`/catalogue/?filterService=${service.id}`)}
                     variant='outline'
                     className='w-full border-app-red-primary text-app-red-primary hover:bg-app-red-primary hover:text-blue-500 cursor-pointer'
                   >
