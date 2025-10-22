@@ -115,12 +115,18 @@ class RegisterScreenState extends State<RegisterScreen> {
                   return null;
                 },
               ),
+
               const SizedBox(height: 16),
+
               EmailTextField(controller: _emailController),
+
               const SizedBox(height: 16),
-              PasswordTextField(controller: _passwordController),
+
+              AppPasswordTextField(controller: _passwordController),
+
               const SizedBox(height: 16),
-              PasswordTextField(
+
+              AppPasswordTextField(
                 controller: _confirmPasswordController,
                 labelText: AppLocalizations.of(context)!.confirm_password,
                 customValidator: (value) {

@@ -1,14 +1,13 @@
 import 'package:area/l10n/app_localizations.dart';
-import 'package:area/widgets/common/text_fields/app_text_field.dart';
 import 'package:flutter/material.dart';
 
-class PasswordTextField extends StatelessWidget {
+class AppPasswordTextField extends StatefulWidget {
   final TextEditingController controller;
   final String? labelText;
   final String? Function(String?)? customValidator;
   final VoidCallback? onTapOutside;
 
-  const PasswordTextField({
+  const AppPasswordTextField({
     super.key,
     required this.controller,
     this.labelText,
@@ -17,13 +16,31 @@ class PasswordTextField extends StatelessWidget {
   });
 
   @override
+  State<AppPasswordTextField> createState() => _AppPasswordTextFieldState();
+}
+
+class _AppPasswordTextFieldState extends State<AppPasswordTextField> {
+  bool _obscureText = true;
+
+  @override
   Widget build(BuildContext context) {
-    return AppTextField(
-      controller: controller,
-      labelText: labelText ?? AppLocalizations.of(context)!.password,
-      obscureText: true,
+    return TextFormField(
+      controller: widget.controller,
+      obscureText: _obscureText,
+      decoration: InputDecoration(
+        labelText: widget.labelText ?? AppLocalizations.of(context)!.password,
+        suffixIcon: IconButton(
+          icon: Icon(_obscureText ? Icons.visibility : Icons.visibility_off),
+          onPressed: () {
+            setState(() {
+              _obscureText = !_obscureText;
+            });
+          },
+        ),
+        border: const OutlineInputBorder(),
+      ),
       validator:
-          customValidator ??
+          widget.customValidator ??
           (value) {
             if (value == null || value.isEmpty) {
               return AppLocalizations.of(context)!.empty_password;
@@ -33,7 +50,14 @@ class PasswordTextField extends StatelessWidget {
             }
             return null;
           },
-      onTapOutside: onTapOutside,
+      onTapOutside: widget.onTapOutside != null
+          ? (event) {
+              FocusScope.of(context).unfocus();
+              widget.onTapOutside!();
+            }
+          : (event) {
+              FocusScope.of(context).unfocus();
+            },
     );
   }
 }
