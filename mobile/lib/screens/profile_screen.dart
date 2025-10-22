@@ -8,6 +8,10 @@ import 'package:area/l10n/app_localizations.dart';
 import 'package:area/screens/services_screen.dart';
 import 'package:area/services/secure_storage.dart';
 import 'package:area/services/secure_http_client.dart';
+import 'package:area/widgets/common/buttons/primary_button.dart';
+import 'package:area/widgets/common/snackbars/app_snackbar.dart';
+import 'package:area/widgets/common/state/loading_state.dart';
+import 'package:area/widgets/common/text_fields/app_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -94,15 +98,11 @@ class ProfileScreenState extends State<ProfileScreen> {
     }
 
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            message,
-            style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
-          ),
-          backgroundColor: color,
-        ),
-      );
+      if (color == AppColors.success) {
+        showSuccessSnackbar(context, message);
+      } else {
+        showErrorSnackbar(context, message);
+      }
     }
   }
 
@@ -110,15 +110,7 @@ class ProfileScreenState extends State<ProfileScreen> {
     final backendAddressNotifier = Provider.of<BackendAddressNotifier>(context, listen: false);
 
     if (backendAddressNotifier.backendAddress == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            AppLocalizations.of(context)!.empty_backend_server_address,
-            style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
-          ),
-          backgroundColor: AppColors.error,
-        ),
-      );
+      showErrorSnackbar(context, AppLocalizations.of(context)!.empty_backend_server_address);
       return;
     }
     final address = "${backendAddressNotifier.backendAddress}${AppRoutes.logout}";
@@ -128,15 +120,7 @@ class ProfileScreenState extends State<ProfileScreen> {
     final jwt = await getJwt();
     if (jwt == null) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              appLocalizations!.not_connected,
-              style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
-            ),
-            backgroundColor: AppColors.error,
-          ),
-        );
+        showErrorSnackbar(context, appLocalizations!.not_connected);
       }
       return;
     }
@@ -163,27 +147,11 @@ class ProfileScreenState extends State<ProfileScreen> {
       });
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              AppLocalizations.of(context)!.logged_out,
-              style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
-            ),
-            backgroundColor: AppColors.success,
-          ),
-        );
+        showSuccessSnackbar(context, AppLocalizations.of(context)!.logged_out);
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              e.toString(),
-              style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
-            ),
-            backgroundColor: AppColors.error,
-          ),
-        );
+        showErrorSnackbar(context, e.toString());
       }
     }
   }
@@ -192,15 +160,7 @@ class ProfileScreenState extends State<ProfileScreen> {
     final backendAddressNotifier = Provider.of<BackendAddressNotifier>(context, listen: false);
 
     if (backendAddressNotifier.backendAddress == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            AppLocalizations.of(context)!.empty_backend_server_address,
-            style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
-          ),
-          backgroundColor: AppColors.error,
-        ),
-      );
+      showErrorSnackbar(context, AppLocalizations.of(context)!.empty_backend_server_address);
       setState(() {
         _isLoading = false;
       });
@@ -239,15 +199,7 @@ class ProfileScreenState extends State<ProfileScreen> {
         _isLoading = false;
       });
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              e.toString(),
-              style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
-            ),
-            backgroundColor: AppColors.error,
-          ),
-        );
+        showErrorSnackbar(context, e.toString());
       }
     }
   }
@@ -260,10 +212,7 @@ class ProfileScreenState extends State<ProfileScreen> {
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: _isLoading
-            ? Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [const CircularProgressIndicator()],
-              )
+            ? const LoadingState()
             : Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
@@ -381,12 +330,9 @@ class ProfileScreenState extends State<ProfileScreen> {
 
                   const SizedBox(height: 20),
 
-                  TextFormField(
+                  AppTextField(
                     controller: _backendServerController,
-                    decoration: InputDecoration(
-                      labelText: AppLocalizations.of(context)!.backend_server_address,
-                      border: OutlineInputBorder(),
-                    ),
+                    labelText: AppLocalizations.of(context)!.backend_server_address,
                     keyboardType: TextInputType.url,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -397,10 +343,7 @@ class ProfileScreenState extends State<ProfileScreen> {
                       }
                       return null;
                     },
-                    onTapOutside: (event) {
-                      FocusScope.of(context).unfocus();
-                      _testApiAddress(_backendServerController.text);
-                    },
+                    onTapOutside: () => _testApiAddress(_backendServerController.text),
                     onFieldSubmitted: (value) => _testApiAddress(value),
                   ),
 
@@ -409,22 +352,15 @@ class ProfileScreenState extends State<ProfileScreen> {
 
                     SizedBox(
                       width: double.infinity,
-                      child: ElevatedButton.icon(
+                      child: PrimaryButton(
+                        text: AppLocalizations.of(context)?.services ?? 'Services',
+                        icon: Icons.api,
                         onPressed: () {
                           Navigator.of(context).push(
                             MaterialPageRoute(builder: (context) => const ServicesScreen()),
                           );
                         },
-                        icon: const Icon(Icons.api),
-                        label: Text(AppLocalizations.of(context)?.services ?? 'Services'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
                       ),
                     ),
                   ],

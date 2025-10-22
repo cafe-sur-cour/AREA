@@ -1,3 +1,8 @@
+import 'package:area/widgets/common/buttons/primary_button.dart';
+import 'package:area/widgets/common/buttons/secondary_button.dart';
+import 'package:area/widgets/common/snackbars/app_snackbar.dart';
+import 'package:area/widgets/common/state/error_state.dart';
+import 'package:area/widgets/common/state/loading_state.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:area/core/constants/app_colors.dart';
@@ -217,27 +222,19 @@ class CatalogueScreenState extends State<CatalogueScreen> {
           ),
         ),
         actions: [
-          TextButton(
+          SecondaryButton(
+            text: AppLocalizations.of(context)!.cancel,
             onPressed: () => Navigator.of(dialogContext).pop(),
-            child: Text(AppLocalizations.of(dialogContext)!.cancel),
           ),
-          ElevatedButton(
+          PrimaryButton(
+            text: item.isAction
+                ? AppLocalizations.of(dialogContext)!.use_as_action
+                : AppLocalizations.of(dialogContext)!.use_as_reaction,
             onPressed: () {
               Navigator.of(dialogContext).pop();
               _useItemInAutomation(item);
             },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.areaBlue3,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppDimensions.borderRadiusSM),
-              ),
-            ),
-            child: Text(
-              item.isAction
-                  ? AppLocalizations.of(dialogContext)!.use_as_action
-                  : AppLocalizations.of(dialogContext)!.use_as_reaction,
-            ),
+            borderRadius: AppDimensions.borderRadiusSM,
           ),
         ],
       ),
@@ -250,13 +247,7 @@ class CatalogueScreenState extends State<CatalogueScreen> {
 
     if (backendAddressNotifier.backendAddress == null) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(AppLocalizations.of(context)!.backend_not_configured),
-            backgroundColor: Colors.red,
-            duration: Duration(seconds: 3),
-          ),
-        );
+        showErrorSnackbar(context, AppLocalizations.of(context)!.backend_not_configured);
       }
       return;
     }
@@ -317,18 +308,13 @@ class CatalogueScreenState extends State<CatalogueScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              AppLocalizations.of(context)!.failed_load_item(
-                item.isAction
-                    ? AppLocalizations.of(context)!.action_lower
-                    : AppLocalizations.of(context)!.reaction_lower,
-                e.toString().replaceAll('Exception: ', ''),
-              ),
-            ),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 3),
+        showErrorSnackbar(
+          context,
+          AppLocalizations.of(context)!.failed_load_item(
+            item.isAction
+                ? AppLocalizations.of(context)!.action_lower
+                : AppLocalizations.of(context)!.reaction_lower,
+            e.toString().replaceAll('Exception: ', ''),
           ),
         );
       }
@@ -361,7 +347,9 @@ class CatalogueScreenState extends State<CatalogueScreen> {
             },
             selectedColor: AppColors.areaBlue1.withValues(alpha: 0.5),
           ),
+
           const SizedBox(width: 8),
+
           FilterChip(
             label: Text(AppLocalizations.of(context)!.actions),
             selected: _filter == 'actions',
@@ -370,7 +358,9 @@ class CatalogueScreenState extends State<CatalogueScreen> {
             },
             selectedColor: AppColors.areaBlue1.withValues(alpha: 0.5),
           ),
+
           const SizedBox(width: 8),
+
           FilterChip(
             label: Text(AppLocalizations.of(context)!.reactions_filter),
             selected: _filter == 'reactions',
@@ -386,45 +376,13 @@ class CatalogueScreenState extends State<CatalogueScreen> {
 
   Widget _buildBody() {
     if (_isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(
-          valueColor: AlwaysStoppedAnimation<Color>(AppColors.areaBlue3),
-        ),
-      );
+      return const LoadingState();
     }
 
     if (_error != null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline, size: 64, color: Colors.red),
-            const SizedBox(height: 16),
-            Text(
-              AppLocalizations.of(context)!.error_loading_catalogue,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
-              child: Text(
-                _error!,
-                textAlign: TextAlign.center,
-                style: const TextStyle(color: Colors.grey),
-              ),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton.icon(
-              onPressed: _fetchCatalogue,
-              icon: const Icon(Icons.refresh),
-              label: Text(AppLocalizations.of(context)!.retry),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.areaBlue3,
-                foregroundColor: Colors.white,
-              ),
-            ),
-          ],
-        ),
+      return ErrorState(
+        title: AppLocalizations.of(context)!.error_loading_catalogue,
+        message: _error!.replaceAll('Exception: ', ''),
       );
     }
 
@@ -516,13 +474,17 @@ class CatalogueScreenState extends State<CatalogueScreen> {
               Row(
                 children: [
                   _buildServiceIcon(item.serviceIconSVG),
+
                   const SizedBox(width: 8),
+
                   Icon(
                     item.isAction ? Icons.play_arrow : Icons.bolt,
                     color: item.isAction ? AppColors.areaBlue3 : AppColors.areaBlue1,
                     size: 16,
                   ),
+
                   const SizedBox(width: 4),
+
                   Expanded(
                     child: Text(
                       item.serviceName,
@@ -536,7 +498,9 @@ class CatalogueScreenState extends State<CatalogueScreen> {
                   ),
                 ],
               ),
+
               const SizedBox(height: 8),
+
               Expanded(
                 child: Text(
                   item.name,
