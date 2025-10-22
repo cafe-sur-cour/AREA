@@ -10,6 +10,7 @@ import admin from '../../middleware/admin';
 import { AppDataSource } from '../../config/db';
 import { User } from '../../config/entity/User';
 import { createLog } from '../logs/logs.service';
+import bcrypt from 'bcryptjs';
 
 const router = express.Router();
 
@@ -214,7 +215,9 @@ router.get(
  *             properties:
  *               name:
  *                 type: string
- *               bio:
+ *               email:
+ *                 type: string
+ *               password:
  *                 type: string
  *               picture:
  *                 type: string
@@ -238,9 +241,10 @@ router.put(
   token,
   async (req: Request, res: Response): Promise<Response | void> => {
     try {
-      const { name, bio, picture } = req.body;
+      console.log('Update user request body:', req.body);
+      const { name, email, password, picture } = req.body;
 
-      if (!name && !bio && !picture) {
+      if (!name && !email && !password && !picture) {
         await createLog(
           400,
           'user',
@@ -248,10 +252,12 @@ router.put(
         );
         return res.status(400).json({
           error: 'Bad Request',
-          message: 'At least one field is required: name, bio, or picture',
+          message:
+            'At least one field is required: name, email, password, or picture',
         });
       }
 
+      const { encryption } = await import('../../../index');
       const auth = req.auth as { id: number; email: string; is_admin: boolean };
       const userId = Number(auth.id);
       if (isNaN(userId)) {
@@ -262,11 +268,18 @@ router.put(
         });
       }
 
-      const updatedUser = await updateUser(userId, {
-        name,
-        bio,
-        picture,
-      });
+      // Encrypt fields if present
+      const updateData: Partial<User> = {};
+      if (name) updateData.name = encryption.encryptToString(name);
+      if (email) updateData.email = encryption.encryptToString(email);
+      if (password) {
+        // Hash the password before saving
+        const hashedPassword = await bcrypt.hash(password, 10);
+        updateData.password_hash = hashedPassword;
+      }
+      if (picture) updateData.picture = picture;
+
+      const updatedUser = await updateUser(userId, updateData);
 
       if (!updatedUser) {
         console.log('updateUser returned null');
@@ -281,12 +294,26 @@ router.put(
         });
       }
 
+      // Decrypt name and email before returning
+      let decryptedUser = { ...updatedUser };
+      try {
+        if (decryptedUser.name)
+          decryptedUser.name = encryption.decryptFromString(decryptedUser.name);
+        if (decryptedUser.email)
+          decryptedUser.email = encryption.decryptFromString(
+            decryptedUser.email
+          );
+      } catch (e) {
+        console.error('Decryption error:', e);
+        createLog(500, 'user', `Decryption error: ${e}`);
+        // If decryption fails, just return as is
+      }
       await createLog(
         200,
         'user',
-        `User updated successfully: ${updatedUser.email}`
+        `User updated successfully: ${decryptedUser.email}`
       );
-      return res.status(200).json(updatedUser);
+      return res.status(200).json(decryptedUser);
     } catch (err: unknown) {
       console.error(err);
       await createLog(500, 'user', `Internal Server Error: ${err}`);
