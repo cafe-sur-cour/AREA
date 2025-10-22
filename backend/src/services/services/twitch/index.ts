@@ -1,6 +1,6 @@
 import type { Service } from '../../../types/service';
-import { getIconSvg } from '../../../utils/iconMapping';
 import { twitchActions } from './actions';
+import { twitchReactionExecutor } from './executor';
 import {
   twitchUpdateChannelSchema,
   twitchBanUserSchema,
@@ -21,9 +21,10 @@ function getSubscriptionTypeFromAction(actionType: string): string | null {
 const twitchService: Service = {
   id: 'twitch',
   name: 'Twitch',
-  description: 'Twitch service for live streaming integration',
+  description:
+    'Twitch service for live streaming events, subscription tracking, and channel management',
   version: '1.0.0',
-  icon: getIconSvg('FaTwitch'),
+  icon: `<svg stroke="currentColor" fill="#9146FF" stroke-width="0" viewBox="0 0 512 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M391.17,103.47H352.54v109.7h38.63ZM285,103H246.37V212.75H285ZM120.83,0,24.31,91.42V420.58H140.14V512l96.53-91.42h77.25L487.69,256V0ZM449.07,237.75l-77.22,73.12H294.61l-67.6,64v-64H140.14V36.58H449.07Z"></path></svg>`,
   actions: twitchActions,
   reactions: [
     {
@@ -217,11 +218,11 @@ const twitchService: Service = {
 
 export default twitchService;
 
+export { twitchReactionExecutor as executor };
+
 export async function initialize(): Promise<void> {
   const { initializeTwitchPassport } = await import('./passport');
   initializeTwitchPassport();
 }
 
 export async function cleanup(): Promise<void> {}
-
-export { twitchReactionExecutor as executor } from './executor';
