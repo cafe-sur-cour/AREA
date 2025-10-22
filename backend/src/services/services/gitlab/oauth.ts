@@ -53,7 +53,7 @@ export class GitLabOAuth {
     const params = new URLSearchParams({
       client_id: this.clientId,
       redirect_uri: this.redirectUri,
-      scope: 'read_user read_api',
+      scope: 'api read_user read_api read_repository write_repository read_registry write_registry',
       state: state,
       response_type: 'code',
     });

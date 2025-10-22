@@ -29,7 +29,7 @@ export function initializeGitLabPassport(): void {
         clientSecret: process.env.SERVICE_GITLAB_CLIENT_SECRET || '',
         callbackURL: process.env.SERVICE_GITLAB_REDIRECT_URI || '',
         baseURL: 'https://gitlab.com',
-        scope: ['read_user', 'api', 'write_repository'],
+        scope: 'api read_user read_api read_repository write_repository read_registry write_registry',
         passReqToCallback: true,
       },
       async (
@@ -87,7 +87,7 @@ export function initializeGitLabPassport(): void {
         clientSecret: process.env.SERVICE_GITLAB_CLIENT_SECRET || '',
         callbackURL: process.env.SERVICE_GITLAB_REDIRECT_URI || '',
         baseURL: 'https://gitlab.com',
-        scope: ['read_user', 'api', 'write_repository'],
+        scope: 'api read_user read_api read_repository write_repository read_registry write_registry',
         passReqToCallback: true,
       },
       async (
