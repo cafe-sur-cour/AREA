@@ -13,7 +13,6 @@ import { FaGithub, FaGoogle, FaMicrosoft, FaFacebook } from 'react-icons/fa';
 import { getAPIUrl } from '@/lib/config';
 import InputPassword from './ui/input-password';
 import { toast } from 'sonner';
-import { SiGitlab } from 'react-icons/si';
 
 export function LoginForm({
   className,
@@ -62,10 +61,6 @@ export function LoginForm({
 
   const signInWithMeta = async () => {
     window.location.href = `${await getAPIUrl()}/auth/facebook/login`;
-  };
-
-  const signInWithGitlab = async () => {
-    window.location.href = `${await getAPIUrl()}/auth/gitlab/login`;
   };
 
   return (
@@ -142,13 +137,6 @@ export function LoginForm({
                 >
                   <FaFacebook />
                   <span className='sr-only'>Login with Meta</span>
-                </ButtonWithLoading>
-                <ButtonWithLoading
-                  onClick={async () => await signInWithGitlab()}
-                  className='w-full cursor-pointer'
-                >
-                  <SiGitlab />
-                  <span className='sr-only'>Login with GitLab</span>
                 </ButtonWithLoading>
               </div>
               <div className='text-center text-sm'>

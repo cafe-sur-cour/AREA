@@ -37,6 +37,7 @@ export function initializeGitLabPassport(): void {
         profile: unknown,
         done: unknown
       ) => {
+        console.log('GitLab login callback invoked');
         const doneCallback = done as (
           error: Error | null,
           user?: GitLabUser | null

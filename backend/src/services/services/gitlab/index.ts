@@ -10,7 +10,7 @@ const gitlabService: Service = {
   reactions: [],
   oauth: {
     enabled: true,
-    supportsLogin: true,
+    // supportsLogin: true,
   },
   getCredentials: async (userId: number) => {
     const { gitlabOAuth } = await import('./oauth');
