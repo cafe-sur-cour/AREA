@@ -12,9 +12,13 @@ jest.mock('../../../src/services/ServiceRegistry', () => ({
   },
 }));
 
-const mockSwaggerJsdoc = swaggerJsdoc as jest.MockedFunction<typeof swaggerJsdoc>;
+const mockSwaggerJsdoc = swaggerJsdoc as jest.MockedFunction<
+  typeof swaggerJsdoc
+>;
 const mockSwaggerUi = swaggerUi as jest.Mocked<typeof swaggerUi>;
-const mockServiceRegistry = serviceRegistry as jest.Mocked<typeof serviceRegistry>;
+const mockServiceRegistry = serviceRegistry as jest.Mocked<
+  typeof serviceRegistry
+>;
 
 describe('Swagger Documentation', () => {
   let mockApp: any;
@@ -30,7 +34,9 @@ describe('Swagger Documentation', () => {
 
     // Mock swagger UI
     (mockSwaggerUi.serve as any) = ['swagger-serve-middleware'];
-    mockSwaggerUi.generateHTML = jest.fn().mockReturnValue('<html>Swagger UI</html>');
+    mockSwaggerUi.generateHTML = jest
+      .fn()
+      .mockReturnValue('<html>Swagger UI</html>');
 
     // Mock swaggerJsdoc to return a basic spec
     mockSwaggerJsdoc.mockReturnValue({
@@ -54,8 +60,14 @@ describe('Swagger Documentation', () => {
         setupSwagger(mockApp as Express);
       });
 
-      expect(mockApp.use).toHaveBeenCalledWith('/api-docs', mockSwaggerUi.serve);
-      expect(mockApp.get).toHaveBeenCalledWith('/api-docs', expect.any(Function));
+      expect(mockApp.use).toHaveBeenCalledWith(
+        '/api-docs',
+        mockSwaggerUi.serve
+      );
+      expect(mockApp.get).toHaveBeenCalledWith(
+        '/api-docs',
+        expect.any(Function)
+      );
     });
 
     it('should generate HTML for swagger docs', () => {
@@ -213,7 +225,10 @@ describe('Swagger Documentation', () => {
         setupSwagger(mockApp as Express);
       });
 
-      expect(mockApp.use).toHaveBeenCalledWith('/api-docs', mockSwaggerUi.serve);
+      expect(mockApp.use).toHaveBeenCalledWith(
+        '/api-docs',
+        mockSwaggerUi.serve
+      );
       expect(mockApp.get).toHaveBeenCalled();
     });
 
@@ -242,4 +257,3 @@ describe('Swagger Documentation', () => {
     });
   });
 });
-
