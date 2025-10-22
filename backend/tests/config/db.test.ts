@@ -229,7 +229,12 @@ describe('Database Configuration', () => {
     });
 
     it('should throw error when required environment variables are missing', () => {
-      // Don't set any environment variables
+      // Clear all required environment variables
+      delete process.env.DB_HOST;
+      delete process.env.DB_PORT;
+      delete process.env.DB_USER;
+      delete process.env.DB_PASSWORD;
+      delete process.env.DB_NAME;
 
       expect(() => {
         jest.isolateModules(() => {
