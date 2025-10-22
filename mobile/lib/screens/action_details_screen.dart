@@ -1,3 +1,5 @@
+import 'package:area/widgets/common/app_bar/custom_app_bar.dart';
+import 'package:area/widgets/common/buttons/primary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:area/models/action_models.dart';
 import 'package:area/models/service_models.dart';
@@ -29,15 +31,7 @@ class ActionDetailsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final serviceColor = _getServiceColor();
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          action.name,
-          style: const TextStyle(fontFamily: 'Montserrat', fontWeight: FontWeight.bold),
-        ),
-        backgroundColor: serviceColor,
-        foregroundColor: AppColors.areaLightGray,
-        elevation: 0,
-      ),
+      appBar: CustomAppBar(title: action.name, bgColor: serviceColor),
       body: Column(
         children: [
           Expanded(
@@ -168,32 +162,12 @@ class ActionDetailsScreen extends StatelessWidget {
                 ),
               ],
             ),
-            child: ElevatedButton(
+            child: PrimaryButton(
+              text: AppLocalizations.of(context)!.choose_this_action,
               onPressed: () => _selectAction(context),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: serviceColor,
-                foregroundColor: AppColors.areaLightGray,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                elevation: 0,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.check_circle_outline, size: 24),
-
-                  const SizedBox(width: 12),
-
-                  Text(
-                    AppLocalizations.of(context)!.choose_this_action,
-                    style: TextStyle(
-                      fontFamily: 'Montserrat',
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
+              backgroundColor: serviceColor,
+              icon: Icons.check_circle_outline,
+              iconSize: 24,
             ),
           ),
         ],

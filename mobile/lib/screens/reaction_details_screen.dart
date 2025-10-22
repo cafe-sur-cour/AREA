@@ -1,3 +1,4 @@
+import 'package:area/core/constants/app_constants.dart';
 import 'package:area/l10n/app_localizations.dart';
 import 'package:area/models/reaction_models.dart';
 import 'package:area/models/service_models.dart';
@@ -5,6 +6,9 @@ import 'package:area/models/reaction_with_delay_model.dart';
 import 'package:area/core/constants/app_colors.dart';
 import 'package:area/core/utils/color_utils.dart';
 import 'package:area/core/notifiers/automation_builder_notifier.dart';
+import 'package:area/widgets/common/app_bar/custom_app_bar.dart';
+import 'package:area/widgets/common/buttons/primary_button.dart';
+import 'package:area/widgets/common/buttons/secondary_button.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 
@@ -128,11 +132,12 @@ class ReactionDetailsScreenState extends State<ReactionDetailsScreen> {
                 ),
               ),
               actions: [
-                TextButton(
+                SecondaryButton(
+                  text: AppLocalizations.of(this.context)!.cancel,
                   onPressed: () => Navigator.of(context).pop(),
-                  child: Text(AppLocalizations.of(this.context)!.cancel),
                 ),
-                ElevatedButton(
+                PrimaryButton(
+                  text: AppLocalizations.of(this.context)!.set_delay,
                   onPressed: () {
                     setState(() {
                       _selectedDelayInSeconds = ReactionWithDelayModel.calculateDelayInSeconds(
@@ -144,11 +149,7 @@ class ReactionDetailsScreenState extends State<ReactionDetailsScreen> {
                     });
                     Navigator.of(context).pop();
                   },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: _getServiceColor(),
-                    foregroundColor: Colors.white,
-                  ),
-                  child: Text(AppLocalizations.of(this.context)!.set_delay),
+                  backgroundColor: _getServiceColor(),
                 ),
               ],
             );
@@ -251,15 +252,7 @@ class ReactionDetailsScreenState extends State<ReactionDetailsScreen> {
     final serviceColor = _getServiceColor();
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          widget.reaction.name,
-          style: const TextStyle(fontFamily: 'Montserrat', fontWeight: FontWeight.bold),
-        ),
-        backgroundColor: serviceColor,
-        foregroundColor: AppColors.areaLightGray,
-        elevation: 0,
-      ),
+      appBar: CustomAppBar(title: widget.reaction.name, bgColor: serviceColor),
       body: Column(
         children: [
           Expanded(
@@ -468,25 +461,16 @@ class ReactionDetailsScreenState extends State<ReactionDetailsScreen> {
                           ],
                         ),
                       ),
-                      ElevatedButton.icon(
+                      PrimaryButton(
                         onPressed: _showDelayPicker,
-                        icon: Icon(
-                          _selectedDelayInSeconds > 0 ? Icons.edit : Icons.add,
-                          size: 18,
-                        ),
-                        label: Text(
-                          _selectedDelayInSeconds > 0
-                              ? AppLocalizations.of(context)!.edit
-                              : AppLocalizations.of(context)!.set,
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: serviceColor,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                        ),
+                        text: _selectedDelayInSeconds > 0
+                            ? AppLocalizations.of(context)!.edit
+                            : AppLocalizations.of(context)!.set,
+                        icon: _selectedDelayInSeconds > 0 ? Icons.edit : Icons.add,
+                        iconSize: 18,
+                        backgroundColor: serviceColor,
+                        foregroundColor: Colors.white,
+                        borderRadius: AppDimensions.borderRadiusXL,
                       ),
                     ],
                   ),
@@ -507,32 +491,12 @@ class ReactionDetailsScreenState extends State<ReactionDetailsScreen> {
                 ),
               ],
             ),
-            child: ElevatedButton(
+            child: PrimaryButton(
+              text: AppLocalizations.of(context)!.choose_this_reaction,
               onPressed: () => _selectReaction(context),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: serviceColor,
-                foregroundColor: AppColors.areaLightGray,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                elevation: 0,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.check_circle_outline, size: 24),
-
-                  const SizedBox(width: 12),
-
-                  Text(
-                    AppLocalizations.of(context)!.choose_this_reaction,
-                    style: const TextStyle(
-                      fontFamily: 'Montserrat',
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
+              backgroundColor: serviceColor,
+              icon: Icons.check_circle_outline,
+              iconSize: 24,
             ),
           ),
         ],
