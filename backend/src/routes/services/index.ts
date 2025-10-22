@@ -27,7 +27,7 @@ function generateServiceEndpoints(serviceId: string): {
 }
 
 const router = express.Router();
-// router.use('/auth', subscriptionRoutes); // Removed duplicate mounting
+router.use('/auth', subscriptionRoutes);
 
 /**
  * @swagger
