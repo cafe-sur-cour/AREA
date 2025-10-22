@@ -384,7 +384,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get action_label => 'Action';
 
   @override
-  String get reaction_label => 'RÉAction';
+  String get reaction_label => 'REAction';
 
   @override
   String clear_all_reactions(int count) {

@@ -238,7 +238,7 @@
   "and": "ET",
   "then": "PUIS",
   "action_label": "Action",
-  "reaction_label": "RÉAction",
+  "reaction_label": "REAction",
   "clear_all_reactions": "Effacer toutes les réactions ({count})",
   "@clear_all_reactions": {
     "placeholders": {
