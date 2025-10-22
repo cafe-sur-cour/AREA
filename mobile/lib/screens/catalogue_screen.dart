@@ -382,7 +382,7 @@ class CatalogueScreenState extends State<CatalogueScreen> {
     if (_error != null) {
       return ErrorState(
         title: AppLocalizations.of(context)!.error_loading_catalogue,
-        message: _error.toString(),
+        message: _error!.replaceAll('Exception: ', ''),
       );
     }
 
