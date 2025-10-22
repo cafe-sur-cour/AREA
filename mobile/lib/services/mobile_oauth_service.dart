@@ -1,4 +1,5 @@
 import 'package:area/core/config/app_config.dart';
+import 'package:area/l10n/app_localizations.dart';
 import 'package:area/services/secure_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -25,7 +26,10 @@ class MobileOAuthService {
       return result ?? false;
     } catch (e) {
       if (context.mounted) {
-        _showError(context, 'Service subscription failed: $e');
+        _showError(
+          context,
+          AppLocalizations.of(context)!.service_subscription_failed(e.toString()),
+        );
       }
       return false;
     }
@@ -146,7 +150,7 @@ class _ServiceSubscriptionWebViewState extends State<ServiceSubscriptionWebView>
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                'Complete ${widget.serviceName} setup in your browser, then return to the app.',
+                AppLocalizations.of(context)!.complete_service_setup(widget.serviceName),
               ),
               duration: const Duration(seconds: 5),
             ),
@@ -156,7 +160,10 @@ class _ServiceSubscriptionWebViewState extends State<ServiceSubscriptionWebView>
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to open browser: $e'), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.failed_open_browser(e.toString())),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     }
@@ -166,7 +173,7 @@ class _ServiceSubscriptionWebViewState extends State<ServiceSubscriptionWebView>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Connect ${widget.serviceName}'),
+        title: Text(AppLocalizations.of(context)!.connect_service(widget.serviceName)),
         actions: [
           if (_isLoading)
             const Padding(

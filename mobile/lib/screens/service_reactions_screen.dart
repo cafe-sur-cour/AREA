@@ -208,8 +208,8 @@ class ServiceReactionsScreenState extends State<ServiceReactionsScreen> {
 
             const SizedBox(height: 16),
 
-            const Text(
-              'Loading reactions...',
+            Text(
+              AppLocalizations.of(context)!.loading_reactions,
               style: TextStyle(
                 fontFamily: 'Montserrat',
                 fontSize: 16,
@@ -232,8 +232,8 @@ class ServiceReactionsScreenState extends State<ServiceReactionsScreen> {
 
               const SizedBox(height: 16),
 
-              const Text(
-                'Error loading reactions',
+              Text(
+                AppLocalizations.of(context)!.error_loading_reactions,
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -257,7 +257,7 @@ class ServiceReactionsScreenState extends State<ServiceReactionsScreen> {
                   backgroundColor: _getServiceColor(),
                   foregroundColor: AppColors.areaLightGray,
                 ),
-                child: const Text('Retry'),
+                child: Text(AppLocalizations.of(context)!.retry),
               ),
             ],
           ),

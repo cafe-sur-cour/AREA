@@ -4,6 +4,7 @@ import 'package:area/models/service_models.dart';
 import 'package:area/core/constants/app_colors.dart';
 import 'package:area/core/utils/color_utils.dart';
 import 'package:area/core/notifiers/automation_builder_notifier.dart';
+import 'package:area/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
 class ActionDetailsScreen extends StatelessWidget {
@@ -46,8 +47,8 @@ class ActionDetailsScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (action.description.isNotEmpty) ...[
-                    const Text(
-                      'Description',
+                    Text(
+                      AppLocalizations.of(context)!.description,
                       style: TextStyle(
                         fontFamily: 'Montserrat',
                         fontSize: 18,
@@ -133,7 +134,7 @@ class ActionDetailsScreen extends StatelessWidget {
                                         ),
                                       ),
                                       Text(
-                                        '${field.type}${field.required ? ' (required)' : ''}',
+                                        '${field.type}${field.required ? ' (${AppLocalizations.of(context)!.required_lowercase})' : ''}',
                                         style: const TextStyle(
                                           fontFamily: 'Montserrat',
                                           fontSize: 14,
@@ -183,8 +184,8 @@ class ActionDetailsScreen extends StatelessWidget {
 
                   const SizedBox(width: 12),
 
-                  const Text(
-                    'Choose this Action',
+                  Text(
+                    AppLocalizations.of(context)!.choose_this_action,
                     style: TextStyle(
                       fontFamily: 'Montserrat',
                       fontSize: 18,

@@ -47,6 +47,7 @@ class AutomationsScreenState extends State<AutomationsScreen> {
       }
 
       final automations = await ApiMappingActionReaction.getAutomations(
+        context,
         backendAddressNotifier.backendAddress!,
       );
 
@@ -103,7 +104,7 @@ class AutomationsScreenState extends State<AutomationsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Error deleting automation: $e',
+              AppLocalizations.of(context)!.error_deleting_automation(e.toString()),
               style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
             ),
             backgroundColor: AppColors.error,
@@ -174,13 +175,15 @@ class AutomationsScreenState extends State<AutomationsScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Delete Automation'),
-          content: Text('Are you sure you want to delete "${automation.name}"?'),
+          title: Text(AppLocalizations.of(this.context)!.delete_automation),
+          content: Text(
+            AppLocalizations.of(this.context)!.delete_automation_confirm(automation.name),
+          ),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel'),
+              child: Text(AppLocalizations.of(this.context)!.cancel),
             ),
             ElevatedButton(
               onPressed: () {
@@ -192,7 +195,7 @@ class AutomationsScreenState extends State<AutomationsScreen> {
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               ),
-              child: const Text('Delete'),
+              child: Text(AppLocalizations.of(this.context)!.delete),
             ),
           ],
         );
@@ -221,7 +224,9 @@ class AutomationsScreenState extends State<AutomationsScreen> {
                     borderRadius: BorderRadius.circular(AppDimensions.borderRadiusSM),
                   ),
                   child: Text(
-                    automation.isActive ? 'Active' : 'Inactive',
+                    automation.isActive
+                        ? AppLocalizations.of(context)!.active
+                        : AppLocalizations.of(context)!.inactive,
                     style: const TextStyle(color: Colors.white, fontSize: 12),
                   ),
                 ),
@@ -233,15 +238,15 @@ class AutomationsScreenState extends State<AutomationsScreen> {
                   icon: Icon(automation.isActive ? Icons.pause : Icons.play_arrow),
                   color: automation.isActive ? Colors.orange : Colors.green,
                   tooltip: automation.isActive
-                      ? 'Deactivate automation'
-                      : 'Activate automation',
+                      ? AppLocalizations.of(context)!.deactivate_automation
+                      : AppLocalizations.of(context)!.activate_automation,
                 ),
 
                 IconButton(
                   onPressed: () => _showDeleteConfirmation(automation),
                   icon: const Icon(Icons.delete_outline),
                   color: Colors.red,
-                  tooltip: 'Delete automation',
+                  tooltip: AppLocalizations.of(context)!.delete_automation_tooltip,
                 ),
               ],
             ),
@@ -279,7 +284,10 @@ class AutomationsScreenState extends State<AutomationsScreen> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Action:', style: AppTextStyles.bodyMedium),
+                      Text(
+                        AppLocalizations.of(context)!.action,
+                        style: AppTextStyles.bodyMedium,
+                      ),
                       Text(automation.action.type, style: AppTextStyles.bodySmall),
                     ],
                   ),
@@ -291,7 +299,9 @@ class AutomationsScreenState extends State<AutomationsScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Reaction${automation.reactions.length != 1 ? 's' : ''}:',
+                        automation.reactions.length != 1
+                            ? AppLocalizations.of(context)!.reactions
+                            : AppLocalizations.of(context)!.reaction,
                         style: AppTextStyles.bodyMedium,
                       ),
                       for (final reaction in automation.reactions) ...[
@@ -322,7 +332,7 @@ class AutomationsScreenState extends State<AutomationsScreen> {
                   Icon(Icons.error_outline, size: AppDimensions.iconSizeXL, color: Colors.red),
                   const SizedBox(height: AppDimensions.paddingMD),
                   Text(
-                    'Error loading automations',
+                    AppLocalizations.of(context)!.error_loading_automations,
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
 
@@ -341,7 +351,10 @@ class AutomationsScreenState extends State<AutomationsScreen> {
 
                   const SizedBox(height: AppDimensions.paddingLG),
 
-                  ElevatedButton(onPressed: _loadAutomations, child: const Text('Retry')),
+                  ElevatedButton(
+                    onPressed: _loadAutomations,
+                    child: Text(AppLocalizations.of(context)!.retry),
+                  ),
                 ],
               )
             : _automations.isEmpty
@@ -356,14 +369,17 @@ class AutomationsScreenState extends State<AutomationsScreen> {
 
                   const SizedBox(height: AppDimensions.paddingMD),
 
-                  Text('No automations yet', style: Theme.of(context).textTheme.titleLarge),
+                  Text(
+                    AppLocalizations.of(context)!.no_automations_yet,
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
 
                   const SizedBox(height: AppDimensions.paddingSM),
 
                   Text(
                     _notConnected
-                        ? 'Connect to create your first automation'
-                        : 'Create your first automation to get started',
+                        ? AppLocalizations.of(context)!.connect_to_create
+                        : AppLocalizations.of(context)!.create_first_automation,
                     style: Theme.of(
                       context,
                     ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
@@ -377,7 +393,7 @@ class AutomationsScreenState extends State<AutomationsScreen> {
                     const SizedBox(height: 50),
 
                     Text(
-                      'My AREAs',
+                      AppLocalizations.of(context)!.my_areas,
                       style: TextStyle(
                         fontFamily: 'Montserrat',
                         fontWeight: FontWeight.w700,

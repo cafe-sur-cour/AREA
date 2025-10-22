@@ -75,8 +75,8 @@ class ActionServicesScreenState extends State<ActionServicesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          "Action Services",
+        title: Text(
+          AppLocalizations.of(context)!.action_services,
           style: TextStyle(fontFamily: 'Montserrat', fontWeight: FontWeight.bold),
         ),
         backgroundColor: AppColors.areaBlue3,
@@ -105,7 +105,7 @@ class ActionServicesScreenState extends State<ActionServicesScreen> {
             const SizedBox(height: 16),
 
             Text(
-              'Error loading services',
+              AppLocalizations.of(context)!.error_loading_services,
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -132,7 +132,7 @@ class ActionServicesScreenState extends State<ActionServicesScreen> {
                 backgroundColor: AppColors.areaBlue3,
                 foregroundColor: AppColors.areaLightGray,
               ),
-              child: const Text('Retry'),
+              child: Text(AppLocalizations.of(context)!.retry),
             ),
           ],
         ),
@@ -140,16 +140,16 @@ class ActionServicesScreenState extends State<ActionServicesScreen> {
     }
 
     if (_services.isEmpty) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.cloud_off, size: 64, color: AppColors.areaDarkGray),
+            const Icon(Icons.cloud_off, size: 64, color: AppColors.areaDarkGray),
 
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
 
             Text(
-              'No services available',
+              AppLocalizations.of(context)!.no_services_available,
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -157,12 +157,12 @@ class ActionServicesScreenState extends State<ActionServicesScreen> {
               ),
             ),
 
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
 
             Text(
-              'There are no services with actions available at the moment.',
+              AppLocalizations.of(context)!.no_services_with_actions,
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 14, color: AppColors.areaDarkGray),
+              style: const TextStyle(fontSize: 14, color: AppColors.areaDarkGray),
             ),
           ],
         ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:area/models/action_models.dart';
 import 'package:area/core/constants/app_colors.dart';
+import 'package:area/l10n/app_localizations.dart';
 
 class DynamicTextField extends StatefulWidget {
   final String? label;
@@ -167,7 +168,7 @@ class _DynamicTextFieldState extends State<DynamicTextField> {
                           if (field.example != null) ...[
                             const SizedBox(height: 2),
                             Text(
-                              'Example: ${field.example}',
+                              AppLocalizations.of(context)!.example(field.example!),
                               style: TextStyle(
                                 fontSize: 10,
                                 color: Colors.grey.shade500,
@@ -254,7 +255,7 @@ class _DynamicTextFieldState extends State<DynamicTextField> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'Type { to see action data suggestions',
+                      AppLocalizations.of(context)!.type_brace_for_suggestions('{'),
                       style: TextStyle(
                         fontSize: 12,
                         color: AppColors.areaBlue3,

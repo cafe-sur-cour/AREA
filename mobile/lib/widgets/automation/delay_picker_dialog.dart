@@ -1,4 +1,5 @@
 import 'package:area/core/constants/app_colors.dart';
+import 'package:area/l10n/app_localizations.dart';
 import 'package:area/models/reaction_with_delay_model.dart';
 import 'package:flutter/material.dart';
 
@@ -91,7 +92,7 @@ class DelayPickerDialogState extends State<DelayPickerDialog> {
       seconds: seconds,
     );
 
-    if (totalSeconds == 0) return 'No delay';
+    if (totalSeconds == 0) return AppLocalizations.of(context)!.no_delay;
 
     List<String> parts = [];
     if (days > 0) parts.add('${days}d');
@@ -113,7 +114,9 @@ class DelayPickerDialogState extends State<DelayPickerDialog> {
 
           Expanded(
             child: Text(
-              'Set Delay for\n${widget.reactionWithDelay.reaction.name}',
+              AppLocalizations.of(
+                context,
+              )!.set_delay_for(widget.reactionWithDelay.reaction.name),
               style: const TextStyle(
                 fontFamily: 'Montserrat',
                 fontSize: 16,
@@ -127,25 +130,25 @@ class DelayPickerDialogState extends State<DelayPickerDialog> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _buildDelayInput('Days', _tempDays, (value) {
+            _buildDelayInput(AppLocalizations.of(context)!.days, _tempDays, (value) {
               setState(() => _tempDays = value);
             }),
 
             const SizedBox(height: 16),
 
-            _buildDelayInput('Hours', _tempHours, (value) {
+            _buildDelayInput(AppLocalizations.of(context)!.hours, _tempHours, (value) {
               setState(() => _tempHours = value);
             }, max: 23),
 
             const SizedBox(height: 16),
 
-            _buildDelayInput('Minutes', _tempMinutes, (value) {
+            _buildDelayInput(AppLocalizations.of(context)!.minutes, _tempMinutes, (value) {
               setState(() => _tempMinutes = value);
             }, max: 59),
 
             const SizedBox(height: 16),
 
-            _buildDelayInput('Seconds', _tempSeconds, (value) {
+            _buildDelayInput(AppLocalizations.of(context)!.seconds, _tempSeconds, (value) {
               setState(() => _tempSeconds = value);
             }, max: 59),
 
@@ -166,7 +169,9 @@ class DelayPickerDialogState extends State<DelayPickerDialog> {
 
                   Expanded(
                     child: Text(
-                      'Total delay: ${_formatTotalDelay(_tempDays, _tempHours, _tempMinutes, _tempSeconds)}',
+                      AppLocalizations.of(context)!.total_delay(
+                        _formatTotalDelay(_tempDays, _tempHours, _tempMinutes, _tempSeconds),
+                      ),
                       style: TextStyle(
                         fontFamily: 'Montserrat',
                         fontSize: 14,
@@ -182,7 +187,10 @@ class DelayPickerDialogState extends State<DelayPickerDialog> {
         ),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancel')),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(AppLocalizations.of(context)!.cancel),
+        ),
         ElevatedButton(
           onPressed: () {
             final newDelayInSeconds = ReactionWithDelayModel.calculateDelayInSeconds(
@@ -199,7 +207,7 @@ class DelayPickerDialogState extends State<DelayPickerDialog> {
             backgroundColor: AppColors.areaBlue3,
             foregroundColor: Colors.white,
           ),
-          child: const Text('Set Delay'),
+          child: Text(AppLocalizations.of(context)!.set_delay),
         ),
       ],
     );

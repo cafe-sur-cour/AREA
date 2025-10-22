@@ -20,14 +20,27 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
   bool _isCreating = false;
+  bool _isInitialized = false;
 
   final Map<String, TextEditingController> _configControllers = {};
 
   @override
   void initState() {
     super.initState();
-    _nameController.text = 'My Automation ${DateTime.now().millisecondsSinceEpoch}';
-    _descriptionController.text = 'Created from mobile app';
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_isInitialized) {
+      _nameController.text = AppLocalizations.of(
+        context,
+      )!.default_automation_name(DateTime.now().millisecondsSinceEpoch.toString());
+      _descriptionController.text = AppLocalizations.of(
+        context,
+      )!.default_automation_description;
+      _isInitialized = true;
+    }
   }
 
   @override
@@ -116,7 +129,7 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
           maxLines: field.type == 'textarea' ? 3 : 1,
           validator: (value) {
             if (field.required && (value == null || value.isEmpty)) {
-              return '${field.label} is required';
+              return AppLocalizations.of(context)!.field_required(field.label);
             }
             return null;
           },
@@ -153,11 +166,11 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
           ),
           validator: (value) {
             if (field.required && (value == null || value.isEmpty)) {
-              return '${field.label} is required';
+              return AppLocalizations.of(context)!.field_required(field.label);
             }
             if (field.type == 'email' && value != null && value.isNotEmpty) {
               if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                return 'Please enter a valid email address';
+                return AppLocalizations.of(context)!.valid_email_required;
               }
             }
             return null;
@@ -194,7 +207,7 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
           ),
           validator: (value) {
             if (field.required && (value == null || value.isEmpty)) {
-              return '${field.label} is required';
+              return AppLocalizations.of(context)!.field_required(field.label);
             }
             return null;
           },
@@ -230,11 +243,11 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
           ),
           validator: (value) {
             if (field.required && (value == null || value.isEmpty)) {
-              return '${field.label} is required';
+              return AppLocalizations.of(context)!.field_required(field.label);
             }
             if (value != null && value.isNotEmpty) {
               if (num.tryParse(value) == null) {
-                return 'Please enter a valid number';
+                return AppLocalizations.of(context)!.valid_number_required;
               }
             }
             return null;
@@ -263,7 +276,7 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
           borderRadius: BorderRadius.circular(8),
         ),
         child: Text(
-          'Invalid select field: ${field.label} has no options',
+          AppLocalizations.of(context)!.invalid_select_field(field.label),
           style: const TextStyle(color: Colors.red),
         ),
       );
@@ -287,7 +300,7 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
           onChanged: onChanged,
           validator: (value) {
             if (field.required && (value == null || value.isEmpty)) {
-              return '${field.label} is required';
+              return AppLocalizations.of(context)!.field_required(field.label);
             }
             return null;
           },
@@ -362,13 +375,13 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Action: ${action.name}',
+                AppLocalizations.of(context)!.action_colon(action.name),
                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
-              const Text(
-                'This action requires no additional configuration.',
-                style: TextStyle(color: Colors.grey),
+              Text(
+                AppLocalizations.of(context)!.no_additional_config,
+                style: const TextStyle(color: Colors.grey),
               ),
             ],
           ),
@@ -383,7 +396,7 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Action: ${action.name}',
+              AppLocalizations.of(context)!.action_colon(action.name),
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
@@ -423,13 +436,15 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Reaction ${reactionIndex + 1}: ${reaction.name}',
+                AppLocalizations.of(
+                  context,
+                )!.reaction_number(reactionIndex + 1, reaction.name),
                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
-              const Text(
-                'This reaction requires no additional configuration.',
-                style: TextStyle(color: Colors.grey),
+              Text(
+                AppLocalizations.of(context)!.no_additional_config_reaction,
+                style: const TextStyle(color: Colors.grey),
               ),
             ],
           ),
@@ -444,7 +459,7 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Reaction ${reactionIndex + 1}: ${reaction.name}',
+              AppLocalizations.of(context)!.reaction_number(reactionIndex + 1, reaction.name),
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
@@ -548,7 +563,9 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Failed to create automation: ${e.toString().replaceAll("Exception: ", "")}',
+              AppLocalizations.of(
+                context,
+              )!.failed_create_automation(e.toString().replaceAll("Exception: ", "")),
               style: const TextStyle(color: Colors.white, fontSize: 16),
             ),
             backgroundColor: AppColors.error,
@@ -569,8 +586,8 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
     return Scaffold(
       backgroundColor: AppColors.areaLightGray,
       appBar: AppBar(
-        title: const Text(
-          'Configure Automation',
+        title: Text(
+          AppLocalizations.of(context)!.configure_automation,
           style: TextStyle(fontFamily: 'Montserrat', fontWeight: FontWeight.bold),
         ),
         backgroundColor: AppColors.areaBlue3,
@@ -580,19 +597,19 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
       body: Consumer<AutomationBuilderNotifier>(
         builder: (context, automationBuilder, child) {
           if (!automationBuilder.isComplete) {
-            return const Center(
+            return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(Icons.error_outline, size: 64, color: Colors.red),
                   SizedBox(height: 16),
                   Text(
-                    'Invalid automation state',
+                    AppLocalizations.of(context)!.invalid_automation_state,
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 8),
                   Text(
-                    'Please go back and select both an action and at least one reaction.',
+                    AppLocalizations.of(context)!.go_back_select_action_reaction,
                     textAlign: TextAlign.center,
                     style: TextStyle(color: Colors.grey),
                   ),
@@ -614,22 +631,22 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Automation Details',
+                          Text(
+                            AppLocalizations.of(context)!.automation_details,
                             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 16),
                           TextFormField(
                             controller: _nameController,
-                            decoration: const InputDecoration(
-                              labelText: 'Name *',
+                            decoration: InputDecoration(
+                              labelText: "${AppLocalizations.of(context)!.automation_name}  *",
                               border: OutlineInputBorder(),
                               filled: true,
                               fillColor: Colors.white,
                             ),
                             validator: (value) {
                               if (value == null || value.trim().isEmpty) {
-                                return 'Name is required';
+                                return AppLocalizations.of(context)!.name_required;
                               }
                               return null;
                             },
@@ -638,8 +655,8 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
                           TextFormField(
                             controller: _descriptionController,
                             maxLines: 2,
-                            decoration: const InputDecoration(
-                              labelText: 'Description',
+                            decoration: InputDecoration(
+                              labelText: AppLocalizations.of(context)!.automation_description,
                               border: OutlineInputBorder(),
                               filled: true,
                               fillColor: Colors.white,
@@ -678,7 +695,7 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
                         elevation: 4,
                       ),
                       child: _isCreating
-                          ? const Row(
+                          ? Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 SizedBox(
@@ -691,18 +708,18 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
                                 ),
                                 SizedBox(width: 16),
                                 Text(
-                                  'Creating Automation...',
+                                  AppLocalizations.of(context)!.creating_automation,
                                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                                 ),
                               ],
                             )
-                          : const Row(
+                          : Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Icon(Icons.rocket_launch, size: 24),
                                 SizedBox(width: 8),
                                 Text(
-                                  'Create Automation',
+                                  AppLocalizations.of(context)!.create_automation,
                                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                                 ),
                               ],

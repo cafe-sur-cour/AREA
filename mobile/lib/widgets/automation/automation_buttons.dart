@@ -1,5 +1,6 @@
 import 'package:area/core/constants/app_colors.dart';
 import 'package:area/models/service_models.dart';
+import 'package:area/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 class AutomationButtons extends StatelessWidget {
@@ -50,7 +51,7 @@ class AutomationButtons extends StatelessWidget {
                   children: [
                     Flexible(
                       child: Text(
-                        "Action",
+                        AppLocalizations.of(context)!.action_label,
                         style: const TextStyle(
                           fontFamily: 'Montserrat',
                           color: AppColors.areaLightGray,
@@ -89,7 +90,7 @@ class AutomationButtons extends StatelessWidget {
                   children: [
                     Flexible(
                       child: Text(
-                        "REAction",
+                        AppLocalizations.of(context)!.reaction_label,
                         style: const TextStyle(
                           fontFamily: 'Montserrat',
                           color: AppColors.areaLightGray,
@@ -137,7 +138,7 @@ class AutomationButtons extends StatelessWidget {
                   const SizedBox(width: 8),
 
                   Text(
-                    'Clear All Reactions ($reactionsCount)',
+                    AppLocalizations.of(context)!.clear_all_reactions(reactionsCount),
                     style: const TextStyle(
                       fontFamily: 'Montserrat',
                       fontSize: 14,
@@ -179,7 +180,7 @@ class AutomationButtons extends StatelessWidget {
                   const SizedBox(width: 16),
 
                   Text(
-                    'Create Automation',
+                    AppLocalizations.of(context)!.create_automation,
                     style: const TextStyle(
                       fontFamily: 'Montserrat',
                       fontSize: 18,

@@ -182,7 +182,7 @@ class LoginScreenState extends State<LoginScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('GitHub login failed: ${e.toString()}'),
+            content: Text(AppLocalizations.of(context)!.github_login_failed(e.toString())),
             backgroundColor: AppColors.error,
           ),
         );
@@ -195,7 +195,18 @@ class LoginScreenState extends State<LoginScreen> {
   }
 
   void _goToGoogle() async {
-    await _goToOAuth('Google', AppRoutes.googleLogin);
+    try {
+      await _goToOAuth('Google', AppRoutes.googleLogin);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.google_login_failed(e.toString())),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -318,7 +329,10 @@ class LoginScreenState extends State<LoginScreen> {
                             children: [
                               Icon(IonIcons.logo_github, color: AppColors.areaLightGray),
                               SizedBox(width: 8),
-                              Text('GitHub', style: TextStyle(color: AppColors.areaLightGray)),
+                              Text(
+                                AppLocalizations.of(context)!.github,
+                                style: TextStyle(color: AppColors.areaLightGray),
+                              ),
                             ],
                           ),
                         ),
@@ -339,7 +353,10 @@ class LoginScreenState extends State<LoginScreen> {
                             children: [
                               Icon(IonIcons.logo_google, color: AppColors.areaLightGray),
                               SizedBox(width: 8),
-                              Text('Google', style: TextStyle(color: AppColors.areaLightGray)),
+                              Text(
+                                AppLocalizations.of(context)!.google,
+                                style: TextStyle(color: AppColors.areaLightGray),
+                              ),
                             ],
                           ),
                         ),
@@ -361,7 +378,10 @@ class LoginScreenState extends State<LoginScreen> {
                         children: [
                           Icon(IonIcons.logo_microsoft, color: AppColors.areaLightGray),
                           SizedBox(width: 8),
-                          Text('Microsoft', style: TextStyle(color: AppColors.areaLightGray)),
+                          Text(
+                            AppLocalizations.of(context)!.microsoft,
+                            style: TextStyle(color: AppColors.areaLightGray),
+                          ),
                         ],
                       ),
                     ),

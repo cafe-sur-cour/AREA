@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:area/l10n/app_localizations.dart';
 import 'package:area/models/reaction_models.dart';
 import 'package:area/models/service_models.dart';
 import 'package:area/models/reaction_with_delay_model.dart';
@@ -6,6 +6,7 @@ import 'package:area/core/constants/app_colors.dart';
 import 'package:area/core/utils/color_utils.dart';
 import 'package:area/core/notifiers/automation_builder_notifier.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter/material.dart';
 
 class ReactionDetailsScreen extends StatefulWidget {
   final ReactionModel reaction;
@@ -129,7 +130,7 @@ class ReactionDetailsScreenState extends State<ReactionDetailsScreen> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('Cancel'),
+                  child: Text(AppLocalizations.of(this.context)!.cancel),
                 ),
                 ElevatedButton(
                   onPressed: () {
@@ -147,7 +148,7 @@ class ReactionDetailsScreenState extends State<ReactionDetailsScreen> {
                     backgroundColor: _getServiceColor(),
                     foregroundColor: Colors.white,
                   ),
-                  child: const Text('Set Delay'),
+                  child: Text(AppLocalizations.of(this.context)!.set_delay),
                 ),
               ],
             );
@@ -268,8 +269,8 @@ class ReactionDetailsScreenState extends State<ReactionDetailsScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (widget.reaction.description.isNotEmpty) ...[
-                    const Text(
-                      'Description',
+                    Text(
+                      AppLocalizations.of(context)!.description,
                       style: TextStyle(
                         fontFamily: 'Montserrat',
                         fontSize: 18,
@@ -306,8 +307,8 @@ class ReactionDetailsScreenState extends State<ReactionDetailsScreen> {
                   ],
                   if (widget.reaction.configSchema?.fields != null &&
                       widget.reaction.configSchema!.fields.isNotEmpty) ...[
-                    const Text(
-                      'Parameters',
+                    Text(
+                      AppLocalizations.of(context)!.parameters,
                       style: TextStyle(
                         fontFamily: 'Montserrat',
                         fontSize: 18,
@@ -355,7 +356,7 @@ class ReactionDetailsScreenState extends State<ReactionDetailsScreen> {
                                         ),
                                       ),
                                       Text(
-                                        '${field.type}${field.required ? ' (required)' : ''}',
+                                        '${field.type}${field.required ? ' (${AppLocalizations.of(context)!.required_lowercase})' : ''}',
                                         style: const TextStyle(
                                           fontFamily: 'Montserrat',
                                           fontSize: 14,
@@ -473,7 +474,11 @@ class ReactionDetailsScreenState extends State<ReactionDetailsScreen> {
                           _selectedDelayInSeconds > 0 ? Icons.edit : Icons.add,
                           size: 18,
                         ),
-                        label: Text(_selectedDelayInSeconds > 0 ? 'Edit' : 'Set'),
+                        label: Text(
+                          _selectedDelayInSeconds > 0
+                              ? AppLocalizations.of(context)!.edit
+                              : AppLocalizations.of(context)!.set,
+                        ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: serviceColor,
                           foregroundColor: Colors.white,
@@ -511,16 +516,16 @@ class ReactionDetailsScreenState extends State<ReactionDetailsScreen> {
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 elevation: 0,
               ),
-              child: const Row(
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.check_circle_outline, size: 24),
+                  const Icon(Icons.check_circle_outline, size: 24),
 
-                  SizedBox(width: 12),
+                  const SizedBox(width: 12),
 
                   Text(
-                    'Choose this Reaction',
-                    style: TextStyle(
+                    AppLocalizations.of(context)!.choose_this_reaction,
+                    style: const TextStyle(
                       fontFamily: 'Montserrat',
                       fontSize: 18,
                       fontWeight: FontWeight.bold,

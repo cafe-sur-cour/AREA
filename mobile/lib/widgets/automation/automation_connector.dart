@@ -2,6 +2,7 @@ import 'package:area/core/constants/app_colors.dart';
 import 'package:area/core/utils/color_utils.dart';
 import 'package:area/models/reaction_with_delay_model.dart';
 import 'package:area/models/service_models.dart';
+import 'package:area/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 class AutomationConnector extends StatelessWidget {
@@ -64,7 +65,7 @@ class AutomationConnector extends StatelessWidget {
                 const SizedBox(width: 8),
 
                 Text(
-                  'THEN',
+                  AppLocalizations.of(context)!.then,
                   style: const TextStyle(
                     fontFamily: 'Montserrat',
                     fontSize: 12,
