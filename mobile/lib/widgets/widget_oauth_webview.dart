@@ -1,5 +1,6 @@
-import 'package:area/core/constants/app_colors.dart';
 import 'package:area/l10n/app_localizations.dart';
+import 'package:area/widgets/common/buttons/primary_button.dart';
+import 'package:area/widgets/common/snackbars/app_snackbar.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
@@ -266,13 +267,7 @@ class OAuthWebViewState extends State<OAuthWebView> {
       _isHandlingRedirect = true;
       _timeoutTimer?.cancel();
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(message, style: const TextStyle(color: Colors.white, fontSize: 16)),
-          backgroundColor: AppColors.error,
-          duration: const Duration(seconds: 3),
-        ),
-      );
+      showErrorSnackbar(context, message);
 
       Future.delayed(const Duration(milliseconds: 500), () {
         if (mounted) {
@@ -372,13 +367,11 @@ class OAuthWebViewState extends State<OAuthWebView> {
 
                     const SizedBox(height: 24),
 
-                    ElevatedButton(
+                    PrimaryButton(
+                      text: _retryCount < _maxRetries
+                          ? AppLocalizations.of(context)!.retry
+                          : AppLocalizations.of(context)!.max_retries_reached,
                       onPressed: _retryCount < _maxRetries ? _retryLoad : null,
-                      child: Text(
-                        _retryCount < _maxRetries
-                            ? AppLocalizations.of(context)!.retry
-                            : AppLocalizations.of(context)!.max_retries_reached,
-                      ),
                     ),
                   ],
                 ),
