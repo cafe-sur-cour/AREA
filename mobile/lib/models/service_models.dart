@@ -59,7 +59,7 @@ class ServiceModel {
       description: json['description'] as String? ?? '',
       version: json['version'] as String?,
       color: json['color'] as String? ?? extractedColor ?? '#0175C2',
-      icon: extractedIcon,
+      icon: json['icon'] as String? ?? extractedIcon,
     );
   }
 
