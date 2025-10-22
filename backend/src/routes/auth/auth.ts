@@ -288,8 +288,14 @@ router.post(
         return;
       }
       if (email.endsWith('.com.com')) {
-        await createLog(201, 'register', `New user registered (no email sent): ${email}`);
-        return res.status(201).json({ message: 'User registered successfully' });
+        await createLog(
+          201,
+          'register',
+          `New user registered (no email sent): ${email}`
+        );
+        return res
+          .status(201)
+          .json({ message: 'User registered successfully' });
       }
 
       const transporter = nodemailer.createTransport({
