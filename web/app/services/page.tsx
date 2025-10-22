@@ -154,11 +154,11 @@ export default function ServicesPage() {
               key={service.id}
               className='bg-app-surface border-app-border-light hover:border-area-primary transition-all duration-300 hover:shadow-lg'
             >
-              <CardContent className='p-6'>
+              <CardContent className='p-6 flex flex-col h-full'>
                 <div className='flex items-start justify-between mb-4'>
                   <div
                     className='p-3 bg-app-background rounded-lg'
-                    dangerouslySetInnerHTML={{ __html: service.icon }}
+                    dangerouslySetInnerHTML={{ __html:  service.icon.replaceAll('1em', '1.8em') }}
                   ></div>
                   {service.isSubscribed ? (
                     <Badge className='bg-app-green-light text-app-green-primary border-app-green-primary'>
@@ -179,36 +179,34 @@ export default function ServicesPage() {
                   {service.name}
                 </h3>
 
-                <p className='text-app-text-secondary text-sm mb-4 line-clamp-2'>
+                <p className='text-app-text-secondary text-sm mb-4 line-clamp-2 flex-grow'>
                   {service.description}
                 </p>
 
-                <div className='grid gap-2'>
-                  <>
-                    {service.isSubscribed ? (
-                      <Button
-                        onClick={() => handleDisconnect(service)}
-                        variant='outline'
-                        className='w-full border-app-red-primary text-app-red-primary hover:bg-app-red-primary hover:text-red-700 cursor-pointer'
-                      >
-                        Unsubscribe
-                      </Button>
-                    ) : (
-                      <Button
-                        onClick={() => handleConnect(service)}
-                        className='w-full bg-area-primary hover:bg-area-hover text-white cursor-pointer'
-                      >
-                        Subscribe
-                      </Button>
-                    )}
+                <div className='grid gap-2 grid-cols-2 mt-auto pt-2'>
+                  <Button
+                    onClick={() => handleConnect(service)}
+                    variant='outline'
+                    className='w-full border-app-red-primary text-app-red-primary hover:bg-app-red-primary hover:text-blue-500 cursor-pointer'
+                  >
+                    More details
+                  </Button>
+                  {service.isSubscribed ? (
+                    <Button
+                      onClick={() => handleDisconnect(service)}
+                      variant='outline'
+                      className='w-full border-app-red-primary text-app-red-primary hover:bg-app-red-primary hover:text-red-700 cursor-pointer'
+                    >
+                      Unsubscribe
+                    </Button>
+                  ) : (
                     <Button
                       onClick={() => handleConnect(service)}
-                      variant='outline'
-                      className='w-full border-app-red-primary text-app-red-primary hover:bg-app-red-primary hover:text-blue-500 cursor-pointer'
+                      className='w-full bg-area-primary hover:bg-area-hover text-white cursor-pointer'
                     >
-                      More details
+                      Subscribe
                     </Button>
-                  </>
+                  )}
                 </div>
               </CardContent>
             </Card>
