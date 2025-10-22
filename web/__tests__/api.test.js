@@ -1,41 +1,39 @@
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom';
 
 // Mock getToken
 jest.mock('../lib/manageToken', () => ({
-  getToken: jest.fn(() =>
-    Promise.resolve(null)
-  ),
-}))
+  getToken: jest.fn(() => Promise.resolve(null)),
+}));
 
 // Mock config
 jest.mock('../lib/config', () => ({
   getAPIUrl: jest.fn(() => Promise.resolve('http://localhost:3000/api')),
-}))
+}));
 
 describe('API utilities', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
-  })
+    jest.clearAllMocks();
+  });
 
   it('should have API utilities available', async () => {
-    const api = await import('../lib/api')
-    expect(api).toBeTruthy()
-    expect(api.authenticatedFetch).toBeDefined()
-  })
+    const api = await import('../lib/api');
+    expect(api).toBeTruthy();
+    expect(api.authenticatedFetch).toBeDefined();
+  });
 
   it('should add auth headers when token exists', async () => {
-    const { getToken } = require('../lib/manageToken')
-    getToken.mockResolvedValue({ value: 'test-token' })
+    const { getToken } = require('../lib/manageToken');
+    getToken.mockResolvedValue({ value: 'test-token' });
 
-    const api = await import('../lib/api')
-    expect(api.authenticatedFetch).toBeDefined()
-  })
+    const api = await import('../lib/api');
+    expect(api.authenticatedFetch).toBeDefined();
+  });
 
   it('should work without token', async () => {
-    const { getToken } = require('../lib/manageToken')
-    getToken.mockResolvedValue(null)
+    const { getToken } = require('../lib/manageToken');
+    getToken.mockResolvedValue(null);
 
-    const api = await import('../lib/api')
-    expect(api.authenticatedFetch).toBeDefined()
-  })
-})
+    const api = await import('../lib/api');
+    expect(api.authenticatedFetch).toBeDefined();
+  });
+});

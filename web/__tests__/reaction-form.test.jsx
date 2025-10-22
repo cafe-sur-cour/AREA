@@ -1,5 +1,5 @@
-import '@testing-library/jest-dom'
-import { render, screen } from '@testing-library/react'
+import '@testing-library/jest-dom';
+import { render, screen } from '@testing-library/react';
 
 // Mock Next.js router
 jest.mock('next/navigation', () => ({
@@ -9,11 +9,11 @@ jest.mock('next/navigation', () => ({
     prefetch: jest.fn(),
   })),
   usePathname: jest.fn(() => '/'),
-}))
+}));
 
 describe('ReactionForm', () => {
   it('should be importable', () => {
     // Basic test to ensure the test setup works
-    expect(true).toBe(true)
-  })
-})
+    expect(true).toBe(true);
+  });
+});
