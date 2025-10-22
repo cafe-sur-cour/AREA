@@ -28,6 +28,7 @@ export function initializeGitLabPassport(): void {
         clientID: process.env.SERVICE_GITLAB_CLIENT_ID || '',
         clientSecret: process.env.SERVICE_GITLAB_CLIENT_SECRET || '',
         callbackURL: process.env.SERVICE_GITLAB_REDIRECT_URI || '',
+        baseURL: 'https://gitlab.com',
         passReqToCallback: true,
       },
       async (
@@ -84,6 +85,7 @@ export function initializeGitLabPassport(): void {
         clientID: process.env.SERVICE_GITLAB_CLIENT_ID || '',
         clientSecret: process.env.SERVICE_GITLAB_CLIENT_SECRET || '',
         callbackURL: process.env.SERVICE_GITLAB_REDIRECT_URI || '',
+        baseURL: 'https://gitlab.com',
         passReqToCallback: true,
       },
       async (
