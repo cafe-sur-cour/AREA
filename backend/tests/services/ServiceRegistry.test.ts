@@ -4,7 +4,12 @@ import type { Service } from '../../src/types/service';
 describe('ServiceRegistry', () => {
   let registry: ServiceRegistryImpl;
 
-  const createMockService = (id: string, name: string, actionsCount = 0, reactionsCount = 0): Service => ({
+  const createMockService = (
+    id: string,
+    name: string,
+    actionsCount = 0,
+    reactionsCount = 0
+  ): Service => ({
     id,
     name,
     description: 'Test service description',
@@ -41,7 +46,12 @@ describe('ServiceRegistry', () => {
 
   describe('register', () => {
     it('should register a valid service', () => {
-      const mockService = createMockService('testService', 'Test Service', 1, 1);
+      const mockService = createMockService(
+        'testService',
+        'Test Service',
+        1,
+        1
+      );
 
       registry.register(mockService);
 
@@ -148,23 +158,37 @@ describe('ServiceRegistry', () => {
     });
 
     it('should throw error for duplicate action ids', () => {
-      const mockService = createMockService('testService', 'Test Service', 2, 0);
+      const mockService = createMockService(
+        'testService',
+        'Test Service',
+        2,
+        0
+      );
       // Manually set duplicate IDs
       mockService.actions[1].id = mockService.actions[0].id;
 
       expect(() => {
         registry.register(mockService);
-      }).toThrow(`Duplicate action id '${mockService.actions[0].id}' in service 'testService'`);
+      }).toThrow(
+        `Duplicate action id '${mockService.actions[0].id}' in service 'testService'`
+      );
     });
 
     it('should throw error for duplicate reaction ids', () => {
-      const mockService = createMockService('testService', 'Test Service', 0, 2);
+      const mockService = createMockService(
+        'testService',
+        'Test Service',
+        0,
+        2
+      );
       // Manually set duplicate IDs
       mockService.reactions[1].id = mockService.reactions[0].id;
 
       expect(() => {
         registry.register(mockService);
-      }).toThrow(`Duplicate reaction id '${mockService.reactions[0].id}' in service 'testService'`);
+      }).toThrow(
+        `Duplicate reaction id '${mockService.reactions[0].id}' in service 'testService'`
+      );
     });
   });
 
@@ -272,7 +296,12 @@ describe('ServiceRegistry', () => {
 
   describe('getActionByType', () => {
     it('should return action by type', () => {
-      const mockService = createMockService('testService', 'Test Service', 2, 0);
+      const mockService = createMockService(
+        'testService',
+        'Test Service',
+        2,
+        0
+      );
 
       registry.register(mockService);
 
@@ -300,7 +329,12 @@ describe('ServiceRegistry', () => {
 
   describe('getReactionByType', () => {
     it('should return reaction by type', () => {
-      const mockService = createMockService('testService', 'Test Service', 0, 2);
+      const mockService = createMockService(
+        'testService',
+        'Test Service',
+        0,
+        2
+      );
 
       registry.register(mockService);
 

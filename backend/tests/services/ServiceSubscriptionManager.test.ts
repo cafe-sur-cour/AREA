@@ -31,7 +31,7 @@ describe('ServiceSubscriptionManager', () => {
       save: jest.fn(),
     };
 
-    (AppDataSource.getRepository as jest.Mock).mockImplementation((entity) => {
+    (AppDataSource.getRepository as jest.Mock).mockImplementation(entity => {
       if (entity === UserServiceSubscriptions) {
         return mockRepo;
       }
@@ -275,9 +275,7 @@ describe('ServiceSubscriptionManager', () => {
         deleteWebhook: mockDeleteWebhook,
       });
 
-      const consoleErrorSpy = jest
-        .spyOn(console, 'error')
-        .mockImplementation();
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
 
       const result = await manager.unsubscribeUser(1, 'test-service');
 
@@ -301,9 +299,7 @@ describe('ServiceSubscriptionManager', () => {
       mockRepo.save.mockResolvedValue(subscription);
       mockWebhookRepo.find.mockRejectedValue(new Error('Database error'));
 
-      const consoleErrorSpy = jest
-        .spyOn(console, 'error')
-        .mockImplementation();
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
 
       const result = await manager.unsubscribeUser(1, 'test-service');
 
