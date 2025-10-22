@@ -47,7 +47,8 @@ describe('Logs Service', () => {
     jest.spyOn(console, 'log').mockImplementation();
     jest.spyOn(console, 'warn').mockImplementation();
     jest.spyOn(console, 'error').mockImplementation();
-  });  afterEach(() => {
+  });
+  afterEach(() => {
     jest.restoreAllMocks();
   });
 
@@ -162,7 +163,11 @@ describe('Logs Service', () => {
         message: 'Internal server error',
       });
 
-      const result = await createLog(500, 'server_error', 'Internal server error');
+      const result = await createLog(
+        500,
+        'server_error',
+        'Internal server error'
+      );
 
       expect(result.type).toBe('err');
       expect(result.message).toBe('Internal server error');
