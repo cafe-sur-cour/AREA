@@ -63,6 +63,13 @@ Stress tests simulate heavy load to measure performance and stability.
 
 ---
 
+## Current Stats
+
+**login-test** 60% for a 1000 limit at 500
+**register** 100% for 814 request
+**navigation** 100% for 6 iterration for 300 users, 4050
+**Webhook** 100% for 500 users, 28782 complete
+
 ## Notes
 - Always ensure the backend is running before starting tests.
 - Functional tests are safe and do not overload the server.
