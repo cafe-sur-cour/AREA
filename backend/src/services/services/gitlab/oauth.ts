@@ -28,6 +28,7 @@ export class GitLabOAuth {
   private redirectUri: string;
   private gitlabApiBaseUrl: string;
   private gitlabAuthBaseUrl: string;
+  private isConfigured: boolean = false;
 
   constructor() {
     this.clientId = process.env.SERVICE_GITLAB_CLIENT_ID || '';
@@ -38,12 +39,17 @@ export class GitLabOAuth {
     this.gitlabAuthBaseUrl =
       process.env.SERVICE_GITLAB_AUTH_BASE_URL || 'https://gitlab.com';
 
-    if (!this.clientId || !this.clientSecret || !this.redirectUri) {
-      throw new Error('GitLab OAuth configuration missing');
+    this.isConfigured = !!(this.clientId && this.clientSecret && this.redirectUri);
+    
+    if (!this.isConfigured) {
+      console.warn('GitLab OAuth configuration missing - service will not be available');
     }
   }
 
   getAuthorizationUrl(state: string): string {
+    if (!this.isConfigured) {
+      throw new Error('GitLab OAuth configuration is missing');
+    }
     const params = new URLSearchParams({
       client_id: this.clientId,
       redirect_uri: this.redirectUri,
@@ -55,6 +61,9 @@ export class GitLabOAuth {
   }
 
   async exchangeCodeForToken(code: string): Promise<GitLabTokenResponse> {
+    if (!this.isConfigured) {
+      throw new Error('GitLab OAuth configuration is missing');
+    }
     const response = await fetch(`${this.gitlabAuthBaseUrl}/oauth/token`, {
       method: 'POST',
       headers: {
