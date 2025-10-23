@@ -10,7 +10,6 @@ import 'package:area/models/reaction_with_delay_model.dart';
 import 'package:area/models/reaction_models.dart';
 import 'package:area/core/notifiers/automation_builder_notifier.dart';
 import 'package:area/core/notifiers/backend_address_notifier.dart';
-import 'package:area/services/api_mapping_action_reaction.dart';
 import 'package:area/l10n/app_localizations.dart';
 import 'package:area/widgets/dynamic_text_field.dart';
 import 'package:http/http.dart' as http;

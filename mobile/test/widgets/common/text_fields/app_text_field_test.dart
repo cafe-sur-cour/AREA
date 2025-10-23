@@ -128,15 +128,13 @@ void main() {
     });
 
     testWidgets('calls onFieldSubmitted when provided', (WidgetTester tester) async {
-      String? submittedValue;
-
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             body: AppTextField(
               controller: controller,
               labelText: 'Test Label',
-              onFieldSubmitted: (value) => submittedValue = value,
+              onFieldSubmitted: (value) {},
             ),
           ),
         ),

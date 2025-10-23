@@ -1,4 +1,3 @@
-import 'package:area/core/constants/app_colors.dart';
 import 'package:area/core/utils/color_utils.dart';
 import 'package:area/models/reaction_models.dart';
 import 'package:area/models/reaction_with_delay_model.dart';
@@ -275,8 +274,6 @@ void main() {
         ),
       );
 
-      var delayContainers = tester.widgetList<Container>(find.byType(Container));
-
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -289,8 +286,6 @@ void main() {
           ),
         ),
       );
-
-      delayContainers = tester.widgetList<Container>(find.byType(Container));
     });
 
     testWidgets('has correct margins and padding', (WidgetTester tester) async {

@@ -1,5 +1,4 @@
 import 'package:area/core/constants/app_colors.dart';
-import 'package:area/core/utils/color_utils.dart';
 import 'package:area/l10n/app_localizations.dart';
 import 'package:area/models/reaction_models.dart';
 import 'package:area/models/reaction_with_delay_model.dart';
@@ -197,7 +196,7 @@ void main() {
       final icons = tester.widgetList<Icon>(find.byIcon(Icons.arrow_downward_rounded));
       for (final icon in icons) {
         expect(icon.size, 20);
-        expect(icon.color!.alpha, lessThan(255));
+        expect((icon.color!.a * 255.0).round() & 0xff, lessThan(255));
       }
     });
   });

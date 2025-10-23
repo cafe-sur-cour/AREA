@@ -8,8 +8,6 @@ import 'package:area/models/service_models.dart';
 import 'package:area/core/notifiers/backend_address_notifier.dart';
 import 'package:area/l10n/app_localizations.dart';
 import 'package:area/widgets/service_card.dart';
-import 'package:area/widgets/common/state/error_state.dart';
-import 'package:area/widgets/common/state/empty_state.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:area/services/secure_storage.dart';

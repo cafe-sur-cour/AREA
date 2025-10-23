@@ -217,8 +217,6 @@ void main() {
         ),
       );
 
-      final connectorContainers = tester.widgetList<Container>(find.byType(Container));
-
       final andText = tester.widget<Text>(find.text('AND'));
       expect(andText.style!.fontFamily, 'Montserrat');
       expect(andText.style!.fontSize, 10);
@@ -246,7 +244,7 @@ void main() {
         if (container.decoration is BoxDecoration) {
           final decoration = container.decoration as BoxDecoration;
           if (decoration.color != null &&
-              decoration.color!.alpha < 255 &&
+              (decoration.color!.a * 255.0).round() & 0xff < 255 &&
               container.constraints?.maxWidth == 2 &&
               container.constraints?.maxHeight == 20) {
             foundConnectorLine = true;

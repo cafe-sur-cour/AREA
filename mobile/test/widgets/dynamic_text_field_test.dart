@@ -149,7 +149,6 @@ void main() {
     testWidgets('applies correct styling to text field', (WidgetTester tester) async {
       await tester.pumpWidget(buildTestWidget(DynamicTextField(onChanged: (_) {})));
 
-      final textField = tester.widget<TextFormField>(find.byType(TextFormField));
       final textFieldWidget = tester.widget<TextField>(
         find.descendant(of: find.byType(TextFormField), matching: find.byType(TextField)),
       );

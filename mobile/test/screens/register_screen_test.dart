@@ -501,9 +501,6 @@ void main() {
       await tester.pumpWidget(createTestWidget());
       await tester.pumpAndSettle();
 
-      final context = tester.element(find.byType(RegisterScreen));
-      final localizations = AppLocalizations.of(context)!;
-
       final textFields = find.byType(TextField);
       await tester.enterText(textFields.at(0), 'Valid Name');
       await tester.enterText(textFields.at(1), 'test@example.com');

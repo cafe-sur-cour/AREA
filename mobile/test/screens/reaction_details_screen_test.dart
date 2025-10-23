@@ -6,11 +6,8 @@ import 'package:area/screens/reaction_details_screen.dart';
 import 'package:area/models/reaction_models.dart';
 import 'package:area/models/action_models.dart';
 import 'package:area/models/service_models.dart';
-import 'package:area/models/reaction_with_delay_model.dart';
-import 'package:area/core/constants/app_colors.dart';
 import 'package:area/core/notifiers/automation_builder_notifier.dart';
 import 'package:area/l10n/app_localizations.dart';
-import 'package:area/widgets/common/buttons/primary_button.dart';
 import 'package:area/widgets/common/app_bar/custom_app_bar.dart';
 
 class MockAutomationBuilderNotifier extends Mock implements AutomationBuilderNotifier {}

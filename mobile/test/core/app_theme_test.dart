@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:area/core/themes/app_theme.dart';
 import 'package:area/core/constants/app_colors.dart';
 import 'package:area/core/constants/app_constants.dart';
-import 'package:area/core/constants/app_text_styles.dart';
 
 void main() {
   group('AppTheme', () {

@@ -333,7 +333,7 @@ void main() {
       final paramText = tester.widget<Text>(find.text('3 parameters'));
       expect(paramText.style!.fontFamily, 'Montserrat');
       expect(paramText.style!.fontSize, 12);
-      expect(paramText.style!.color!.alpha, lessThan(255));
+      expect((paramText.style!.color!.a * 255.0).round() & 0xff, lessThan(255));
     });
 
     testWidgets('arrow icon has correct styling', (WidgetTester tester) async {

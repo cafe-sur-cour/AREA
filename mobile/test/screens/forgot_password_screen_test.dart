@@ -7,7 +7,6 @@ import 'package:area/screens/forgot_password_screen.dart';
 import 'package:area/core/notifiers/backend_address_notifier.dart';
 import 'package:area/l10n/app_localizations.dart';
 import 'package:area/widgets/common/text_fields/email_text_field.dart';
-import 'package:area/widgets/common/text_fields/app_text_field.dart';
 import 'package:area/widgets/common/buttons/primary_button.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';

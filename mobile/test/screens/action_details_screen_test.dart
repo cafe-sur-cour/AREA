@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import 'package:area/screens/action_details_screen.dart';
 import 'package:area/models/action_models.dart';
 import 'package:area/models/service_models.dart';
-import 'package:area/core/constants/app_colors.dart';
 import 'package:area/core/notifiers/automation_builder_notifier.dart';
 import 'package:area/l10n/app_localizations.dart';
 import 'package:area/widgets/common/buttons/primary_button.dart';

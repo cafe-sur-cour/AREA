@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:area/widgets/common/buttons/primary_button.dart';
-import 'package:area/core/constants/app_colors.dart';
 
 void main() {
   group('PrimaryButton', () {

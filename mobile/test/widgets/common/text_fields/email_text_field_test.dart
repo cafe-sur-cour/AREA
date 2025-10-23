@@ -114,8 +114,6 @@ void main() {
     });
 
     testWidgets('calls onTapOutside when provided', (WidgetTester tester) async {
-      bool tappedOutside = false;
-
       await tester.pumpWidget(
         MaterialApp(
           localizationsDelegates: const [
@@ -126,10 +124,7 @@ void main() {
           ],
           supportedLocales: const [Locale('en', ''), Locale('fr', '')],
           home: Scaffold(
-            body: EmailTextField(
-              controller: controller,
-              onTapOutside: () => tappedOutside = true,
-            ),
+            body: EmailTextField(controller: controller, onTapOutside: () {}),
           ),
         ),
       );
