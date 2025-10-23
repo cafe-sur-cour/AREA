@@ -57,6 +57,9 @@ services/
     ├── schemas.ts        # Configuration schemas
     ├── oauth.ts          # OAuth implementation
     ├── executor.ts       # Reaction execution logic
+    ├── locales/          # Translation files
+    │   ├── en.json       # English translations
+    │   └── fr.json       # French translations
     └── webhooks/         # Optional: webhook handlers
         ├── index.ts
         └── handlers.ts
@@ -522,7 +525,7 @@ export { yourServiceExecutor as executor };
 ```
 
 :::tip Icon SVG with Brand Colors
-The icon should be a complete SVG string (inline) with your service's brand color. You can get SVG icons from libraries like [React Icons](https://react-icons.github.io/react-icons/) or [Font Awesome](https://fontawesome.com/). 
+The icon should be a complete SVG string (inline) with your service's brand color. You can get SVG icons from libraries like [React Icons](https://react-icons.github.io/react-icons/) or [Font Awesome](https://fontawesome.com/).
 
 **Important:** Replace `fill="currentColor"` with your service's brand color (e.g., `fill="#FF6B35"`). This ensures the icon is immediately recognizable with the correct branding.
 
@@ -812,29 +815,149 @@ app.use('/api/yourservice', yourserviceRoutes);
 
 ## Step 10: Translations
 
-Add to `backend/locales/en.json` and `backend/locales/fr.json`:
+:::info 📁 `locales/` Folder
+
+Each service must have its own `locales/` folder containing translation files for each supported language. This folder is automatically detected and loaded by AREA's modular translation system.
+
+**Required Structure:**
+```
+your-service/
+└── locales/
+    ├── en.json    # English translations
+    └── fr.json    # French translations
+```
+
+**Why a folder per service?**
+- **Modularity**: Each service manages its own translations
+- **Maintenance**: Easier to add/modify translations
+- **Performance**: On-demand loading of translations
+- **Scalability**: New services = new folders, no central files to modify
+
+:::
+
+### Creating Translation Files
+
+Create the `locales/` folder in your service:
+
+```bash
+mkdir -p backend/src/services/services/your-service/locales
+```
+
+#### `en.json` - English Translations
 
 ```json
 {
-  "services": {
-    "yourservice": {
-      "name": "Your Service",
-      "description": "Complete integration with YourService for automation",
-      "actions": {
-        "yourservice.push": {
-          "name": "Repository Push",
-          "description": "Triggers when code is pushed to a repository"
-        }
-      },
-      "reactions": {
-        "yourservice.create_issue": {
-          "name": "Create Issue",
-          "description": "Creates a new issue in a repository"
-        }
-      }
+  "name": "Your Service",
+  "description": "Complete integration with YourService for automation workflows",
+  "actions": {
+    "yourservice.push": {
+      "name": "Repository Push",
+      "description": "Triggers when code is pushed to a repository"
+    },
+    "yourservice.issue_created": {
+      "name": "Issue Created",
+      "description": "Triggers when a new issue is created"
+    }
+  },
+  "reactions": {
+    "yourservice.create_issue": {
+      "name": "Create Issue",
+      "description": "Creates a new issue in a repository"
+    },
+    "yourservice.send_notification": {
+      "name": "Send Notification",
+      "description": "Sends a notification to the user"
     }
   }
 }
+```
+
+#### `fr.json` - French Translations
+
+```json
+{
+  "name": "Votre Service",
+  "description": "Intégration complète avec VotreService pour les workflows d'automatisation",
+  "actions": {
+    "yourservice.push": {
+      "name": "Push sur Dépôt",
+      "description": "Se déclenche lorsqu'un push est fait sur un dépôt"
+    },
+    "yourservice.issue_created": {
+      "name": "Issue Créée",
+      "description": "Se déclenche lorsqu'une nouvelle issue est créée"
+    }
+  },
+  "reactions": {
+    "yourservice.create_issue": {
+      "name": "Créer une Issue",
+      "description": "Crée une nouvelle issue dans un dépôt"
+    },
+    "yourservice.send_notification": {
+      "name": "Envoyer une Notification",
+      "description": "Envoie une notification à l'utilisateur"
+    }
+  }
+}
+```
+
+### Translation Keys Structure
+
+| Key | Description | Example |
+|-----|-------------|---------|
+| `name` | Service name displayed to users | "GitHub", "Spotify" |
+| `description` | Short service description | "Version control platform" |
+| `actions.{actionId}.name` | Action name | "Repository Push" |
+| `actions.{actionId}.description` | Action description | "Triggers when code is pushed" |
+| `reactions.{reactionId}.name` | Reaction name | "Create Issue" |
+| `reactions.{reactionId}.description` | Reaction description | "Creates a new issue" |
+
+:::warning ⚠️ Naming Convention
+
+Action and reaction keys must exactly match the `id` defined in `actions.ts` and `reactions.ts`:
+- Action ID: `"yourservice.push"` → key: `"actions.yourservice.push"`
+- Reaction ID: `"yourservice.create_issue"` → key: `"reactions.yourservice.create_issue"`
+
+:::
+
+### Changing Language via URL
+
+AREA allows users to change the interface language via a URL parameter. This feature is particularly useful for testing translations or allowing users to force a specific language.
+
+**Syntax:**
+```
+GET /api/about?lang={language_code}
+```
+
+**Parameters:**
+- `lang`: ISO 639-1 language code (`en`, `fr`, etc.)
+
+**Examples:**
+```bash
+# Force English
+curl "http://localhost:3001/api/about?lang=en"
+
+# Force French
+curl "http://localhost:3001/api/about?lang=fr"
+
+# Default language (English if not specified)
+curl "http://localhost:3001/api/about"
+```
+
+**Behavior:**
+- The `lang` parameter changes the language for the current request
+- Returned services use translations for the specified language
+- If the language is not supported, English is used by default
+- Language is automatically detected from headers/cookies if not specified
+
+**Frontend Usage:**
+```javascript
+// Change interface language
+const changeLanguage = async (lang) => {
+  const response = await fetch(`/api/about?lang=${lang}`);
+  const data = await response.json();
+  // Services in data.server.services are translated
+};
 ```
 
 ## Step 11: Webhooks (Optional)
