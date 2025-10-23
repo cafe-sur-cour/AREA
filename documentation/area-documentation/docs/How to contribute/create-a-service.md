@@ -920,46 +920,6 @@ Action and reaction keys must exactly match the `id` defined in `actions.ts` and
 
 :::
 
-### Changing Language via URL
-
-AREA allows users to change the interface language via a URL parameter. This feature is particularly useful for testing translations or allowing users to force a specific language.
-
-**Syntax:**
-```
-GET /api/about?lang={language_code}
-```
-
-**Parameters:**
-- `lang`: ISO 639-1 language code (`en`, `fr`, etc.)
-
-**Examples:**
-```bash
-# Force English
-curl "http://localhost:3001/api/about?lang=en"
-
-# Force French
-curl "http://localhost:3001/api/about?lang=fr"
-
-# Default language (English if not specified)
-curl "http://localhost:3001/api/about"
-```
-
-**Behavior:**
-- The `lang` parameter changes the language for the current request
-- Returned services use translations for the specified language
-- If the language is not supported, English is used by default
-- Language is automatically detected from headers/cookies if not specified
-
-**Frontend Usage:**
-```javascript
-// Change interface language
-const changeLanguage = async (lang) => {
-  const response = await fetch(`/api/about?lang=${lang}`);
-  const data = await response.json();
-  // Services in data.server.services are translated
-};
-```
-
 ## Step 11: Webhooks (Optional)
 
 If your service supports webhooks, create `backend/src/webhooks/yourservice/index.ts`:
