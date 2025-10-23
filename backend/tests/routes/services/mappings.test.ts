@@ -36,12 +36,18 @@ describe('Mappings Router', () => {
         reactions: [{ type: 'slack.send_message', config: {} }],
         is_active: true,
         created_by: 1,
+        created_at: '2025-10-23T08:56:44.999Z',
+        updated_at: '2025-10-23T08:56:44.999Z',
       };
 
       (serviceRegistry.getActionByType as jest.Mock).mockReturnValue({
+        id: 'github.push',
+        name: 'Push Event',
         type: 'github.push',
       });
       (serviceRegistry.getReactionByType as jest.Mock).mockReturnValue({
+        id: 'slack.send_message',
+        name: 'Send Message',
         type: 'slack.send_message',
       });
       (serviceRegistry.getService as jest.Mock).mockReturnValue({
@@ -65,7 +71,11 @@ describe('Mappings Router', () => {
         });
 
       expect(response.status).toBe(201);
-      expect(response.body.mapping).toEqual(mockMapping);
+      expect(response.body.mapping).toEqual({
+        ...mockMapping,
+        action: { ...mockMapping.action, name: 'Push Event' },
+        reactions: [{ ...mockMapping.reactions[0], name: 'Send Message' }],
+      });
       expect(mappingService.createMapping).toHaveBeenCalledWith({
         name: 'Test Mapping',
         description: 'Test description',
@@ -102,6 +112,8 @@ describe('Mappings Router', () => {
     it('should return 404 for invalid action type', async () => {
       (serviceRegistry.getActionByType as jest.Mock).mockReturnValue(null);
       (serviceRegistry.getReactionByType as jest.Mock).mockReturnValue({
+        id: 'slack.send_message',
+        name: 'Send Message',
         type: 'slack.send_message',
       });
 
@@ -119,6 +131,8 @@ describe('Mappings Router', () => {
 
     it('should return 404 for invalid reaction type', async () => {
       (serviceRegistry.getActionByType as jest.Mock).mockReturnValue({
+        id: 'github.push',
+        name: 'Push Event',
         type: 'github.push',
       });
       (serviceRegistry.getReactionByType as jest.Mock).mockReturnValue(null);
@@ -162,8 +176,8 @@ describe('Mappings Router', () => {
           reactions: [{ type: 'slack.send_message', config: {} }],
           is_active: true,
           created_by: 1,
-          created_at: new Date(),
-          updated_at: new Date(),
+          created_at: '2025-10-23T08:56:44.999Z',
+          updated_at: '2025-10-23T08:56:44.999Z',
         },
         {
           id: 2,
@@ -173,10 +187,33 @@ describe('Mappings Router', () => {
           reactions: [{ type: 'discord.send_message', config: {} }],
           is_active: false,
           created_by: 1,
-          created_at: new Date(),
-          updated_at: new Date(),
+          created_at: '2025-10-23T08:56:44.999Z',
+          updated_at: '2025-10-23T08:56:44.999Z',
         },
       ];
+
+      (serviceRegistry.getActionByType as jest.Mock)
+        .mockReturnValueOnce({
+          id: 'github.push',
+          name: 'Push Event',
+          type: 'github.push',
+        })
+        .mockReturnValueOnce({
+          id: 'github.pull_request',
+          name: 'Pull Request',
+          type: 'github.pull_request',
+        });
+      (serviceRegistry.getReactionByType as jest.Mock)
+        .mockReturnValueOnce({
+          id: 'slack.send_message',
+          name: 'Send Message',
+          type: 'slack.send_message',
+        })
+        .mockReturnValueOnce({
+          id: 'discord.send_message',
+          name: 'Send Discord Message',
+          type: 'discord.send_message',
+        });
 
       (mappingService.getUserMappings as jest.Mock).mockResolvedValue(
         mockMappings
@@ -187,6 +224,12 @@ describe('Mappings Router', () => {
       expect(response.status).toBe(200);
       expect(response.body.mappings).toHaveLength(2);
       expect(response.body.mappings[0].name).toBe('Mapping 1');
+      expect(response.body.mappings[0].action.name).toBe('Push Event');
+      expect(response.body.mappings[0].reactions[0].name).toBe('Send Message');
+      expect(response.body.mappings[1].action.name).toBe('Pull Request');
+      expect(response.body.mappings[1].reactions[0].name).toBe(
+        'Send Discord Message'
+      );
       expect(mappingService.getUserMappings).toHaveBeenCalledWith(1);
     });
 
@@ -223,9 +266,20 @@ describe('Mappings Router', () => {
         reactions: [{ type: 'slack.send_message', config: {} }],
         is_active: true,
         created_by: 1,
-        created_at: new Date(),
-        updated_at: new Date(),
+        created_at: '2025-10-23T08:56:44.999Z',
+        updated_at: '2025-10-23T08:56:44.999Z',
       };
+
+      (serviceRegistry.getActionByType as jest.Mock).mockReturnValue({
+        id: 'github.push',
+        name: 'Push Event',
+        type: 'github.push',
+      });
+      (serviceRegistry.getReactionByType as jest.Mock).mockReturnValue({
+        id: 'slack.send_message',
+        name: 'Send Message',
+        type: 'slack.send_message',
+      });
 
       (mappingService.getMappingById as jest.Mock).mockResolvedValue(
         mockMapping
@@ -235,6 +289,8 @@ describe('Mappings Router', () => {
 
       expect(response.status).toBe(200);
       expect(response.body.mapping.name).toBe('Test Mapping');
+      expect(response.body.mapping.action.name).toBe('Push Event');
+      expect(response.body.mapping.reactions[0].name).toBe('Send Message');
       expect(mappingService.getMappingById).toHaveBeenCalledWith(1, 1);
     });
 
@@ -314,8 +370,25 @@ describe('Mappings Router', () => {
       const mockMapping = {
         id: 1,
         name: 'Test Mapping',
+        description: null,
+        action: { type: 'github.push', config: {} },
+        reactions: [{ type: 'slack.send_message', config: {} }],
         is_active: true,
+        created_by: 1,
+        created_at: '2025-10-23T08:56:44.999Z',
+        updated_at: '2025-10-23T08:56:44.999Z',
       };
+
+      (serviceRegistry.getActionByType as jest.Mock).mockReturnValue({
+        id: 'github.push',
+        name: 'Push Event',
+        type: 'github.push',
+      });
+      (serviceRegistry.getReactionByType as jest.Mock).mockReturnValue({
+        id: 'slack.send_message',
+        name: 'Send Message',
+        type: 'slack.send_message',
+      });
 
       (mappingService.updateMapping as jest.Mock).mockResolvedValue(
         mockMapping
@@ -325,6 +398,8 @@ describe('Mappings Router', () => {
 
       expect(response.status).toBe(200);
       expect(response.body.mapping.is_active).toBe(true);
+      expect(response.body.mapping.action.name).toBe('Push Event');
+      expect(response.body.mapping.reactions[0].name).toBe('Send Message');
       expect(mappingService.updateMapping).toHaveBeenCalledWith(1, 1, {
         is_active: true,
       });
@@ -365,8 +440,25 @@ describe('Mappings Router', () => {
       const mockMapping = {
         id: 1,
         name: 'Test Mapping',
+        description: null,
+        action: { type: 'github.push', config: {} },
+        reactions: [{ type: 'slack.send_message', config: {} }],
         is_active: false,
+        created_by: 1,
+        created_at: '2025-10-23T08:56:44.999Z',
+        updated_at: '2025-10-23T08:56:44.999Z',
       };
+
+      (serviceRegistry.getActionByType as jest.Mock).mockReturnValue({
+        id: 'github.push',
+        name: 'Push Event',
+        type: 'github.push',
+      });
+      (serviceRegistry.getReactionByType as jest.Mock).mockReturnValue({
+        id: 'slack.send_message',
+        name: 'Send Message',
+        type: 'slack.send_message',
+      });
 
       (mappingService.updateMapping as jest.Mock).mockResolvedValue(
         mockMapping
@@ -376,6 +468,8 @@ describe('Mappings Router', () => {
 
       expect(response.status).toBe(200);
       expect(response.body.mapping.is_active).toBe(false);
+      expect(response.body.mapping.action.name).toBe('Push Event');
+      expect(response.body.mapping.reactions[0].name).toBe('Send Message');
       expect(mappingService.updateMapping).toHaveBeenCalledWith(1, 1, {
         is_active: false,
       });
@@ -416,15 +510,31 @@ describe('Mappings Router', () => {
   describe('Validation Functions', () => {
     it('should validate mapping request with all required fields', async () => {
       (serviceRegistry.getActionByType as jest.Mock).mockReturnValue({
+        id: 'github.push',
+        name: 'Push Event',
         type: 'github.push',
       });
       (serviceRegistry.getReactionByType as jest.Mock).mockReturnValue({
+        id: 'slack.send_message',
+        name: 'Send Message',
         type: 'slack.send_message',
       });
       (serviceRegistry.getService as jest.Mock).mockReturnValue({
         oauth: { enabled: false },
       });
-      (mappingService.createMapping as jest.Mock).mockResolvedValue({ id: 1 });
+      (mappingService.createMapping as jest.Mock).mockResolvedValue({
+        id: 1,
+        name: 'Valid Mapping',
+        description: null,
+        action: { type: 'github.push', config: { repository: 'test/repo' } },
+        reactions: [
+          { type: 'slack.send_message', config: { channel: 'general' } },
+        ],
+        is_active: true,
+        created_by: 1,
+        created_at: '2025-10-23T08:56:44.999Z',
+        updated_at: '2025-10-23T08:56:44.999Z',
+      });
       (
         executionService.ensureExternalWebhooksForMapping as jest.Mock
       ).mockResolvedValue(undefined);

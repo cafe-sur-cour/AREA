@@ -7,6 +7,46 @@ import type { Action, Reaction } from '../../types/mapping';
 
 const router = express.Router();
 
+function enrichActionWithName(action: Action) {
+  const actionDefinition = serviceRegistry.getActionByType(action.type);
+  return {
+    ...action,
+    name: actionDefinition?.name || action.type,
+  };
+}
+
+function enrichReactionWithName(reaction: Reaction) {
+  const reactionDefinition = serviceRegistry.getReactionByType(reaction.type);
+  return {
+    ...reaction,
+    name: reactionDefinition?.name || reaction.type,
+  };
+}
+
+function enrichMappingData(mapping: {
+  id: number;
+  name: string;
+  description?: string | null;
+  action: Action;
+  reactions: Reaction[];
+  is_active: boolean;
+  created_by?: number | null;
+  created_at: Date;
+  updated_at: Date;
+}) {
+  return {
+    id: mapping.id,
+    name: mapping.name,
+    description: mapping.description,
+    action: enrichActionWithName(mapping.action),
+    reactions: mapping.reactions.map(enrichReactionWithName),
+    is_active: mapping.is_active,
+    created_by: mapping.created_by,
+    created_at: mapping.created_at,
+    updated_at: mapping.updated_at,
+  };
+}
+
 function validateMappingRequest(body: unknown): {
   isValid: boolean;
   errors: string[];
@@ -394,17 +434,7 @@ router.post(
       }
 
       return res.status(201).json({
-        mapping: {
-          id: savedMapping.id,
-          name: savedMapping.name,
-          description: savedMapping.description,
-          action: savedMapping.action,
-          reactions: savedMapping.reactions,
-          is_active: savedMapping.is_active,
-          created_by: savedMapping.created_by,
-          created_at: savedMapping.created_at,
-          updated_at: savedMapping.updated_at,
-        },
+        mapping: enrichMappingData(savedMapping),
       });
     } catch (err) {
       console.error('Error creating mapping:', err);
@@ -453,6 +483,9 @@ router.post(
  *                           type:
  *                             type: string
  *                             description: Action type in format "service.action"
+ *                           name:
+ *                             type: string
+ *                             description: Human-readable name of the action
  *                           config:
  *                             type: object
  *                             description: Action configuration parameters
@@ -464,6 +497,9 @@ router.post(
  *                             type:
  *                               type: string
  *                               description: Reaction type in format "service.reaction"
+ *                             name:
+ *                               type: string
+ *                               description: Human-readable name of the reaction
  *                             config:
  *                               type: object
  *                               description: Reaction configuration parameters
@@ -497,17 +533,7 @@ router.get(
       const mappings = await mappingService.getUserMappings(userId);
 
       return res.status(200).json({
-        mappings: mappings.map(mapping => ({
-          id: mapping.id,
-          name: mapping.name,
-          description: mapping.description,
-          action: mapping.action,
-          reactions: mapping.reactions,
-          is_active: mapping.is_active,
-          created_by: mapping.created_by,
-          created_at: mapping.created_at,
-          updated_at: mapping.updated_at,
-        })),
+        mappings: mappings.map(enrichMappingData),
       });
     } catch (err) {
       console.error('Error fetching mappings:', err);
@@ -561,6 +587,9 @@ router.get(
  *                         type:
  *                           type: string
  *                           description: Action type in format "service.action"
+ *                         name:
+ *                           type: string
+ *                           description: Human-readable name of the action
  *                         config:
  *                           type: object
  *                           description: Action configuration parameters
@@ -573,6 +602,9 @@ router.get(
  *                           type:
  *                             type: string
  *                             description: Reaction type in format "service.reaction"
+ *                           name:
+ *                             type: string
+ *                             description: Human-readable name of the reaction
  *                           config:
  *                             type: object
  *                             description: Reaction configuration parameters
@@ -644,17 +676,7 @@ router.get(
       }
 
       return res.status(200).json({
-        mapping: {
-          id: mapping.id,
-          name: mapping.name,
-          description: mapping.description,
-          action: mapping.action,
-          reactions: mapping.reactions,
-          is_active: mapping.is_active,
-          created_by: mapping.created_by,
-          created_at: mapping.created_at,
-          updated_at: mapping.updated_at,
-        },
+        mapping: enrichMappingData(mapping),
       });
     } catch (err) {
       console.error('Error fetching mapping:', err);
@@ -847,12 +869,7 @@ router.put(
       }
 
       return res.status(200).json({
-        mapping: {
-          id: updatedMapping.id,
-          name: updatedMapping.name,
-          is_active: updatedMapping.is_active,
-          updated_at: updatedMapping.updated_at,
-        },
+        mapping: enrichMappingData(updatedMapping),
       });
     } catch (err) {
       console.error('Error activating mapping:', err);
@@ -957,12 +974,7 @@ router.put(
       }
 
       return res.status(200).json({
-        mapping: {
-          id: updatedMapping.id,
-          name: updatedMapping.name,
-          is_active: updatedMapping.is_active,
-          updated_at: updatedMapping.updated_at,
-        },
+        mapping: enrichMappingData(updatedMapping),
       });
     } catch (err) {
       console.error('Error deactivating mapping:', err);
