@@ -2,10 +2,7 @@ import passport from 'passport';
 import GitLabStrategyModule from 'passport-gitlab2';
 import { Request } from 'express';
 import jwt from 'jsonwebtoken';
-import {
-  oauthLogin,
-  connectOAuthProvider,
-} from '../../../routes/auth/auth.service';
+import { connectOAuthProvider } from '../../../routes/auth/auth.service';
 import { gitlabOAuth } from './oauth';
 import { JWT_SECRET } from '../../../../index';
 import { getCurrentUser } from '../../../utils/auth';
