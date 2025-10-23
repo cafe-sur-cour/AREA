@@ -61,7 +61,7 @@ const gitlabService: Service = {
 
 export default gitlabService;
 
-// export const executor = gitlabReactionExecutor;
+export { gitlabReactionExecutor as executor };
 
 export async function initialize(): Promise<void> {
   console.log('Initializing GitLab service...');
