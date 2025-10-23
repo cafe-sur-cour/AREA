@@ -72,6 +72,8 @@ dev_dependencies:
 
   mockito: ^5.4.4
 
+  mocktail: ^1.0.3
+
 flutter_launcher_icons:
   android: true
   ios: true
