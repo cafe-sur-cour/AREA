@@ -1,7 +1,9 @@
 import express, { Request, Response } from 'express';
 import { AppDataSource } from '../../config/db';
 import i18next from 'i18next';
+
 const router = express.Router();
+const languageRouter = express.Router();
 
 /**
  * @swagger
@@ -67,7 +69,7 @@ router.get(
  *                   enum: [en, fr]
  *                   example: en
  */
-router.get('/language', async (_req: Request, res: Response): Promise<void> => {
+languageRouter.get('/', async (_req: Request, res: Response): Promise<void> => {
   try {
     const currentLang = i18next.language || 'en';
     res.status(200).json({ language: currentLang });
@@ -112,7 +114,7 @@ router.get('/language', async (_req: Request, res: Response): Promise<void> => {
  *       500:
  *         description: Internal server error
  */
-router.post('/language', async (req: Request, res: Response): Promise<void> => {
+languageRouter.post('/', async (req: Request, res: Response): Promise<void> => {
   try {
     const { language } = req.body;
 
@@ -130,4 +132,5 @@ router.post('/language', async (req: Request, res: Response): Promise<void> => {
   }
 });
 
+export { languageRouter };
 export default router;
