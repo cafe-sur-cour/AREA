@@ -167,10 +167,7 @@ void main() {
       );
 
       expect(find.byIcon(Icons.clear_all_rounded), findsOneWidget);
-      expect(
-        find.byType(ElevatedButton),
-        findsNWidgets(4),
-      );
+      expect(find.byType(ElevatedButton), findsNWidgets(4));
     });
 
     testWidgets('shows create automation button when has action and reactions', (
@@ -192,10 +189,7 @@ void main() {
       );
 
       expect(find.byIcon(Icons.rocket_launch_rounded), findsOneWidget);
-      expect(
-        find.byType(ElevatedButton),
-        findsNWidgets(4),
-      );
+      expect(find.byType(ElevatedButton), findsNWidgets(4));
     });
 
     testWidgets('calls onAddAction when action button is tapped', (WidgetTester tester) async {

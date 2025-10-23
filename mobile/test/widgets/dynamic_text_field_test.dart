@@ -42,12 +42,7 @@ void main() {
       ],
       supportedLocales: const [Locale('en', ''), Locale('fr', '')],
       home: Scaffold(
-        body: SingleChildScrollView(
-          child: SizedBox(
-            height: 800,
-            child: child,
-          ),
-        ),
+        body: SingleChildScrollView(child: SizedBox(height: 800, child: child)),
       ),
     );
   }

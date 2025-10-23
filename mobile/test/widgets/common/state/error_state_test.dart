@@ -280,10 +280,7 @@ void main() {
 
       final column = tester.widget<Column>(find.byType(Column));
       expect(column.mainAxisAlignment, MainAxisAlignment.center);
-      expect(
-        column.children.length,
-        7,
-      );
+      expect(column.children.length, 7);
     });
   });
 }
