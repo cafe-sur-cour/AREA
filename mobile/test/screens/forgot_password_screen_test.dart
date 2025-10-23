@@ -303,7 +303,6 @@ void main() {
       await tester.tap(find.text(localizations.send));
       await tester.pump();
 
-      // Should not show the error if emails match
       expect(find.text(localizations.confirm_email_differs), findsNothing);
     });
 
