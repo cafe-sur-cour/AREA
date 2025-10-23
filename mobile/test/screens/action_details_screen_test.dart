@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/mockito.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 import 'package:area/screens/action_details_screen.dart';
 import 'package:area/models/action_models.dart';
@@ -19,6 +19,17 @@ void main() {
     late MockAutomationBuilderNotifier mockAutomationBuilder;
 
     setUp(() {
+      registerFallbackValue(
+        ActionModel(
+          id: '',
+          name: '',
+          description: '',
+          configSchema: ConfigSchema(name: '', description: '', fields: []),
+        ),
+      );
+      registerFallbackValue(
+        ServiceModel(id: '', name: '', description: '', color: '', icon: ''),
+      );
       testAction = ActionModel(
         id: 'test-action',
         name: 'Test Action',
@@ -120,13 +131,14 @@ void main() {
     testWidgets('calls setAction and navigates when button is pressed', (
       WidgetTester tester,
     ) async {
+      when(() => mockAutomationBuilder.setAction(any(), any())).thenAnswer((_) async {});
       await tester.pumpWidget(createTestWidget());
       await tester.pumpAndSettle();
 
       await tester.tap(find.byType(PrimaryButton));
       await tester.pumpAndSettle();
 
-      verify(mockAutomationBuilder.setAction(testAction, testService)).called(1);
+      verify(() => mockAutomationBuilder.setAction(testAction, testService)).called(1);
     });
 
     testWidgets('does not render description section when description is empty', (

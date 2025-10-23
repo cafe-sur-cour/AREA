@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/mockito.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 import 'package:area/screens/reaction_details_screen.dart';
 import 'package:area/models/reaction_models.dart';
@@ -8,6 +8,7 @@ import 'package:area/models/action_models.dart';
 import 'package:area/models/service_models.dart';
 import 'package:area/core/notifiers/automation_builder_notifier.dart';
 import 'package:area/l10n/app_localizations.dart';
+import 'package:area/models/reaction_with_delay_model.dart';
 import 'package:area/widgets/common/app_bar/custom_app_bar.dart';
 
 class MockAutomationBuilderNotifier extends Mock implements AutomationBuilderNotifier {}
@@ -19,6 +20,19 @@ void main() {
     late MockAutomationBuilderNotifier mockAutomationBuilder;
 
     setUp(() {
+      registerFallbackValue(
+        ReactionWithDelayModel(
+          reaction: ReactionModel(
+            id: '',
+            name: '',
+            description: '',
+            configSchema: ConfigSchema(name: '', description: '', fields: []),
+          ),
+          config: const {},
+          delayInSeconds: 0,
+          service: ServiceModel(id: '', name: '', description: '', color: ''),
+        ),
+      );
       testReaction = ReactionModel(
         id: 'test-reaction',
         name: 'Test Reaction',
@@ -125,6 +139,7 @@ void main() {
     });
 
     testWidgets('taps choose reaction button', (WidgetTester tester) async {
+      when(() => mockAutomationBuilder.addReaction(any())).thenAnswer((_) {});
       await tester.pumpWidget(createTestWidget());
       await tester.pumpAndSettle();
 
@@ -138,6 +153,7 @@ void main() {
 
       await tester.tap(chooseButton);
       await tester.pumpAndSettle();
+      verify(() => mockAutomationBuilder.addReaction(any())).called(1);
     });
 
     testWidgets('opens delay picker when set button is pressed', (WidgetTester tester) async {
