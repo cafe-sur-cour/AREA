@@ -9,7 +9,7 @@ void main() {
   });
 
   group('ServiceSubscriptionWebView', () {
-    testWidgets('should create widget', (tester) async {
+    test('should create widget', () {
       const widget = ServiceSubscriptionWebView(
         subscriptionUrl: 'https://example.com',
         serviceName: 'TestService',
