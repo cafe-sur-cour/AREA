@@ -1,0 +1,61 @@
+{
+  "name": "Minuteur",
+  "description": "Service de minuterie pour les événements programmés",
+  "actions": {
+    "every_day_at_x_hour": {
+      "name": "Tous les Jours à X Heure",
+      "description": "Se déclenche une fois par jour à une heure spécifique les jours sélectionnés",
+      "schema": {
+        "fields": {
+          "hour": {
+            "label": "Heure (0-23)",
+            "placeholder": "14"
+          },
+          "days": {
+            "label": "Jours de la semaine",
+            "options": {
+              "monday": "Lundi",
+              "tuesday": "Mardi",
+              "wednesday": "Mercredi",
+              "thursday": "Jeudi",
+              "friday": "Vendredi",
+              "saturday": "Samedi",
+              "sunday": "Dimanche"
+            }
+          }
+        }
+      }
+    },
+    "every_hour_at_intervals": {
+      "name": "Toutes les Heures à X Minute",
+      "description": "Se déclenche toutes les heures à une minute spécifique (00, 15, 30, ou 45)",
+      "schema": {
+        "fields": {
+          "minute": {
+            "label": "Minute",
+            "options": {
+              "0": ":00",
+              "15": ":15",
+              "30": ":30",
+              "45": ":45"
+            }
+          }
+        }
+      }
+    }
+  },
+  "properties": {
+    "timestamp": {
+      "description": "Horodatage ISO du déclenchement de la minuterie"
+    },
+    "hour": {
+      "description": "L'heure qui a déclenché"
+    },
+    "day": {
+      "description": "Le jour de la semaine"
+    },
+    "minute": {
+      "description": "La minute qui a déclenché (0, 15, 30, ou 45)"
+    }
+  }
+}
