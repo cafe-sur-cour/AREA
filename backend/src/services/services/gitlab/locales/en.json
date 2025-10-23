@@ -1,0 +1,241 @@
+{
+  "name": "GitLab",
+  "description": "GitLab service for repository events and actions",
+  "actions": {
+    "gitlab.push": {
+      "name": "GitLab Push",
+      "description": "Triggers when a push event occurs on a selected repository",
+      "schema": {
+        "fields": {
+          "project": {
+            "label": "Project Path (group/project)",
+            "placeholder": "my-group/my-project"
+          },
+          "branch": {
+            "label": "Branch (optional, defaults to all branches)",
+            "placeholder": "main"
+          }
+        }
+      }
+    },
+    "gitlab.merge_request_opened": {
+      "name": "GitLab Merge Request Opened",
+      "description": "Triggers when a new merge request is opened",
+      "schema": {
+        "fields": {
+          "project": {
+            "label": "Project Path (group/project)",
+            "placeholder": "my-group/my-project"
+          }
+        }
+      }
+    },
+    "gitlab.merge_request_merged": {
+      "name": "GitLab Merge Request Merged",
+      "description": "Triggers when a merge request is merged",
+      "schema": {
+        "fields": {
+          "project": {
+            "label": "Project Path (group/project)",
+            "placeholder": "my-group/my-project"
+          }
+        }
+      }
+    },
+    "gitlab.issue_opened": {
+      "name": "GitLab Issue Opened",
+      "description": "Triggers when a new issue is opened",
+      "schema": {
+        "fields": {
+          "project": {
+            "label": "Project Path (group/project)",
+            "placeholder": "my-group/my-project"
+          }
+        }
+      }
+    }
+  },
+  "reactions": {
+    "gitlab.create_issue": {
+      "name": "Create GitLab Issue",
+      "description": "Creates a new issue in the specified project",
+      "schema": {
+        "fields": {
+          "project": {
+            "label": "Project Path (group/project)",
+            "placeholder": "my-group/my-project"
+          },
+          "title": {
+            "label": "Issue Title",
+            "placeholder": "Enter issue title..."
+          },
+          "description": {
+            "label": "Issue Description",
+            "placeholder": "Describe the issue in detail..."
+          },
+          "labels": {
+            "label": "Labels (comma-separated)",
+            "placeholder": "bug,urgent"
+          },
+          "assignee_ids": {
+            "label": "Assignee IDs (comma-separated)",
+            "placeholder": "1,2,3"
+          }
+        }
+      }
+    },
+    "gitlab.add_comment": {
+      "name": "Add GitLab Comment",
+      "description": "Adds a comment to an issue or merge request",
+      "schema": {
+        "fields": {
+          "project": {
+            "label": "Project Path (group/project)",
+            "placeholder": "my-group/my-project"
+          },
+          "issue_iid": {
+            "label": "Issue/MR Internal ID",
+            "placeholder": "1"
+          },
+          "note_type": {
+            "label": "Note Type",
+            "options": {
+              "issue": "Issue",
+              "merge_request": "Merge Request"
+            }
+          },
+          "body": {
+            "label": "Comment Body",
+            "placeholder": "Enter your comment..."
+          }
+        }
+      }
+    },
+    "gitlab.create_merge_request": {
+      "name": "Create GitLab Merge Request",
+      "description": "Creates a new merge request in the specified project",
+      "schema": {
+        "fields": {
+          "project": {
+            "label": "Project Path (group/project)",
+            "placeholder": "my-group/my-project"
+          },
+          "source_branch": {
+            "label": "Source Branch",
+            "placeholder": "feature-branch"
+          },
+          "target_branch": {
+            "label": "Target Branch",
+            "placeholder": "main"
+          },
+          "title": {
+            "label": "Merge Request Title",
+            "placeholder": "Enter MR title..."
+          },
+          "description": {
+            "label": "Merge Request Description",
+            "placeholder": "Describe the changes..."
+          },
+          "assignee_ids": {
+            "label": "Assignee IDs (comma-separated)",
+            "placeholder": "1,2,3"
+          }
+        }
+      }
+    },
+    "gitlab.set_project_visibility": {
+      "name": "Set GitLab Project Visibility",
+      "description": "Changes the visibility level of a project",
+      "schema": {
+        "fields": {
+          "project": {
+            "label": "Project Path (group/project)",
+            "placeholder": "my-group/my-project"
+          },
+          "visibility": {
+            "label": "Visibility Level",
+            "options": {
+              "private": "Private",
+              "internal": "Internal",
+              "public": "Public"
+            }
+          }
+        }
+      }
+    }
+  },
+  "properties": {
+    "project": {
+      "id": {
+        "description": "Project ID"
+      },
+      "name": {
+        "description": "Project name"
+      },
+      "path_with_namespace": {
+        "description": "Full project path"
+      },
+      "web_url": {
+        "description": "Project web URL"
+      }
+    },
+    "ref": {
+      "description": "Git reference (branch/tag)"
+    },
+    "before": {
+      "description": "SHA before the push"
+    },
+    "after": {
+      "description": "SHA after the push"
+    },
+    "commits": {
+      "items": {
+        "id": {
+          "description": "Commit SHA"
+        },
+        "message": {
+          "description": "Commit message"
+        },
+        "author": {
+          "name": {
+            "description": "Author name"
+          },
+          "email": {
+            "description": "Author email"
+          }
+        }
+      }
+    },
+    "user": {
+      "id": {
+        "description": "User ID"
+      },
+      "name": {
+        "description": "User name"
+      },
+      "username": {
+        "description": "Username"
+      }
+    },
+    "object_attributes": {
+      "id": {
+        "description": "Object ID"
+      },
+      "iid": {
+        "description": "Internal object ID"
+      },
+      "title": {
+        "description": "Object title"
+      },
+      "description": {
+        "description": "Object description"
+      },
+      "state": {
+        "description": "Object state"
+      },
+      "web_url": {
+        "description": "Object web URL"
+      }
+    }
+  }
+}
