@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:area/core/constants/app_constants.dart';
 import 'package:area/services/secure_storage.dart';
-import 'package:http/http.dart' as http;
+import 'package:area/services/secure_http_client.dart';
 
 class ServiceInfo {
   final String id;
@@ -91,7 +91,9 @@ class ServiceSubscriptionService {
       headers['Authorization'] = 'Bearer $jwt';
     }
 
-    final response = await http.get(
+    final client = SecureHttpClient.getClient();
+
+    final response = await client.get(
       Uri.parse('$backendAddress${AppRoutes.services}'),
       headers: headers,
     );
@@ -120,7 +122,9 @@ class ServiceSubscriptionService {
       headers['Authorization'] = 'Bearer $jwt';
     }
 
-    final response = await http.get(
+    final client = SecureHttpClient.getClient();
+
+    final response = await client.get(
       Uri.parse('$backendAddress${AppRoutes.servicesSubscribed}'),
       headers: headers,
     );
@@ -149,7 +153,9 @@ class ServiceSubscriptionService {
 
     final endpoint = service.unsubscribeEndpoint;
 
-    final response = await http.post(
+    final client = SecureHttpClient.getClient();
+
+    final response = await client.post(
       Uri.parse('${backendAddress}api$endpoint'),
       headers: headers,
     );
@@ -174,7 +180,9 @@ class ServiceSubscriptionService {
 
     final statusEndpoint = service.statusEndpoint;
 
-    final response = await http.get(
+    final client = SecureHttpClient.getClient();
+
+    final response = await client.get(
       Uri.parse('${backendAddress}api$statusEndpoint'),
       headers: headers,
     );
@@ -203,7 +211,9 @@ class ServiceSubscriptionService {
       headers['Authorization'] = 'Bearer $jwt';
     }
 
-    final response = await http.get(
+    final client = SecureHttpClient.getClient();
+
+    final response = await client.get(
       Uri.parse('${backendAddress}api$loginStatusEndpoint'),
       headers: headers,
     );
