@@ -88,12 +88,12 @@ export function LanguageSwitcher({
       />
       {isMobile && (
         <span className='text-app-text-secondary uppercase text-sm'>
-          {currentLang === 'en' ? 'FR' : 'EN'}
+          {currentLang.toUpperCase()}
         </span>
       )}
       {!isMobile && (
         <span className='ml-1 text-xs font-medium uppercase'>
-          {currentLang === 'en' ? 'FR' : 'EN'}
+          {currentLang.toUpperCase()}
         </span>
       )}
     </button>
