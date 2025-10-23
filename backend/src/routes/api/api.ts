@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express';
 import { AppDataSource } from '../../config/db';
+import i18next from 'i18next';
 const router = express.Router();
 
 /**
@@ -45,5 +46,87 @@ router.get(
     }
   }
 );
+
+/**
+ * @swagger
+ * /api/language:
+ *   get:
+ *     summary: Get the current language
+ *     tags:
+ *       - Language
+ *     responses:
+ *       200:
+ *         description: Current language
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 language:
+ *                   type: string
+ *                   enum: [en, fr]
+ *                   example: en
+ */
+router.get('/language', async (_req: Request, res: Response): Promise<void> => {
+  try {
+    const currentLang = i18next.language || 'en';
+    res.status(200).json({ language: currentLang });
+  } catch (err) {
+    console.error('Error getting language:', err);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+/**
+ * @swagger
+ * /api/language:
+ *   post:
+ *     summary: Set the language
+ *     tags:
+ *       - Language
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               language:
+ *                 type: string
+ *                 enum: [en, fr]
+ *                 example: fr
+ *     responses:
+ *       200:
+ *         description: Language set successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 language:
+ *                   type: string
+ *                   enum: [en, fr]
+ *                   example: fr
+ *       400:
+ *         description: Invalid language
+ *       500:
+ *         description: Internal server error
+ */
+router.post('/language', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { language } = req.body;
+
+    if (!language || !['en', 'fr'].includes(language)) {
+      res.status(400).json({ error: 'Invalid language. Must be "en" or "fr"' });
+      return;
+    }
+
+    await i18next.changeLanguage(language);
+    res.status(200).json({ language });
+  } catch (err) {
+    console.error('Error setting language:', err);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
 
 export default router;
