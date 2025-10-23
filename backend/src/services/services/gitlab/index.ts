@@ -9,13 +9,11 @@ const gitlabService: Service = {
   name: 'GitLab',
   description: 'GitLab service for repository events and actions',
   version: '1.0.0',
-  icon: `<svg stroke="currentColor" fill="#FC6D26" stroke-width="0" viewBox="0 0 512 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M256.5 32L256 42.48 72 200.32 72 448h368V200.32L256.5 32zm0 0M72 200.32l184.5-167.84L256 42.48V42.48L441 200.32M72 200.32h368v247.68H72z"></path></svg>`,
+  icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#FC6D26" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-brand-gitlab"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M21 14l-9 7l-9 -7l3 -11l3 7h6l3 -7z" /></svg>`,
   actions: gitlabActions,
   reactions: gitlabReactions,
   oauth: {
     enabled: true,
-
-    // supportsLogin: true,
   },
   getCredentials: async (userId: number) => {
     const { gitlabOAuth } = await import('./oauth');
@@ -74,33 +72,3 @@ export async function cleanup(): Promise<void> {
   console.log('Cleaning up GitLab service...');
   console.log('GitLab service cleaned up');
 }
-
-
-
-// area_server  | 
-// area_server  | 🎣 [SLACK WEBHOOK] Event received (team: T09KRK2SDQD)
-// area_server  | 🔍 [SLACK TEAM] Looking for token for team T09KRK2SDQD
-// area_server  | 📋 [SLACK TEAM] Found 1 potential tokens
-// area_server  | 🔑 [SLACK TEAM] Testing token for user 3
-// area_server  | ✅ [SLACK TEAM] Token valid, team_id: T09KRK2SDQD
-// area_server  | 🎯 [SLACK TEAM] Token matches team T09KRK2SDQD for user 3
-// area_server  | ✅ [SLACK WEBHOOK] Found token for user 3 (team: T09KRK2SDQD)
-// area_server  | 🎣 [SLACK WEBHOOK] Processing message → slack.new_message
-// area_server  | ✅ [SLACK WEBHOOK] Event processed successfully (ID: 3)
-// area_server  | 🔄 [ExecutionService] Processing event 3 - Action: slack.new_message, mapping_id: null
-// area_server  | 🔄 [ExecutionService] Event 3 marked as processing to prevent duplicate execution
-// area_server  | 🚀 [ExecutionService] Processing event 3 - Action: slack.new_message
-// area_server  | 🔍 [ExecutionService] Loading mappings for action: slack.new_message, user: 3
-// area_server  | 🔍 [ExecutionService] Searching for mappings with shared action type: slack.new_message for all users
-// area_server  | 📊 [ExecutionService] Found 1 active mappings for shared action slack.new_message across all users
-// area_server  | 📋 [ExecutionService] Found 1 active mapping(s) for user 3
-// area_server  | 🎯 [ExecutionService] Starting execution of 1 mapping(s)...
-// area_server  | ⚡ [ExecutionService] Executing immediate reaction gitlab.create_issue
-// area_server  | 🔑 [ExecutionService] Executing reaction for mapping 2 (reactuin) owned by user 3
-// area_server  | ❌ [ExecutionService] Reaction attempt 1 failed for gitlab.create_issue: No executor registered for service: gitlab
-// area_server  | 🔑 [ExecutionService] Executing reaction for mapping 2 (reactuin) owned by user 3
-// area_server  | ❌ [ExecutionService] Reaction attempt 2 failed for gitlab.create_issue: No executor registered for service: gitlab
-// area_server  | 🔑 [ExecutionService] Executing reaction for mapping 2 (reactuin) owned by user 3
-// area_server  | ❌ [ExecutionService] Reaction attempt 3 failed for gitlab.create_issue: No executor registered for service: gitlab
-// area_server  | ❌ [ExecutionService] Reaction gitlab.create_issue failed after all retries, continuing with other reactions: No executor registered for service: gitlab
-// area_server  | ✅ [ExecutionService] Event 3 processed successfully

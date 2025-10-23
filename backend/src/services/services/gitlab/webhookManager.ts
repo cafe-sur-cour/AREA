@@ -57,7 +57,6 @@ export class GitLabWebhookManager {
     const webhookUrl = this.generateWebhookUrl();
     const secret = config.secret || this.getDefaultSecret();
 
-    // Map events to GitLab hook events
     const gitlabEvents = this.mapEventsToGitLab(config.events);
 
     const requestBody = {

@@ -1,7 +1,5 @@
 import type { ActionReactionSchema } from '../../../types/mapping';
 
-// Action Schemas - Based on read_api and read_repository scopes
-
 export const gitlabPushSchema: ActionReactionSchema = {
   name: 'GitLab Push',
   description: 'Triggers when a push event occurs on a selected repository',
@@ -65,8 +63,6 @@ export const gitlabIssueOpenedSchema: ActionReactionSchema = {
   ],
 };
 
-// Reaction Schemas - Based on api and write_repository scopes
-
 export const gitlabCreateIssueSchema: ActionReactionSchema = {
   name: 'Create GitLab Issue',
   description: 'Creates a new issue in the specified project',
@@ -94,7 +90,7 @@ export const gitlabCreateIssueSchema: ActionReactionSchema = {
       required: false,
       placeholder: 'Describe the issue in detail...',
       dynamic: true,
-      dynamicPlaceholder: 
+      dynamicPlaceholder:
         'Issue created from MR: {{action.payload.object_attributes.description}}\n\nAuthor: {{action.payload.user.name}}',
     },
     {
