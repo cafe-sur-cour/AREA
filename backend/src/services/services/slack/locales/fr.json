@@ -1,0 +1,115 @@
+{
+  "name": "Slack",
+  "description": "Service Slack pour la communication d'équipe et la messagerie",
+  "actions": {
+    "slack.new_message": {
+      "name": "Nouveau Message dans un Canal",
+      "description": "Se déclenche lorsqu'un nouveau message est posté dans un canal spécifique",
+      "schema": {
+        "fields": {
+          "channel": {
+            "label": "Nom ou ID du Canal (optionnel, laisser vide pour tous les canaux)",
+            "placeholder": "#general ou C1234567890"
+          }
+        }
+      }
+    },
+    "slack.new_dm": {
+      "name": "Nouveau Message Direct",
+      "description": "Se déclenche lorsque l'utilisateur reçoit un nouveau message privé",
+      "schema": {
+        "fields": {}
+      }
+    },
+    "slack.channel_created": {
+      "name": "Canal Créé",
+      "description": "Se déclenche lorsqu'un nouveau canal est créé dans l'espace de travail",
+      "schema": {
+        "fields": {
+          "creator": {
+            "label": "ID Utilisateur Créateur (optionnel, laisser vide pour toutes les créations de canal)",
+            "placeholder": "U1234567890"
+          }
+        }
+      }
+    },
+    "slack.reaction_added": {
+      "name": "Réaction Ajoutée à un Message",
+      "description": "Se déclenche lorsqu'une réaction (emoji) est ajoutée à un message",
+      "schema": {
+        "fields": {
+          "channel": {
+            "label": "Nom ou ID du Canal (optionnel, laisser vide pour tous les canaux)",
+            "placeholder": "#general ou C1234567890"
+          },
+          "emoji": {
+            "label": "Nom de l'Emoji (optionnel, laisser vide pour toute réaction)",
+            "placeholder": "thumbsup ou :thumbsup:"
+          }
+        }
+      }
+    }
+  },
+  "reactions": {
+    "slack.send_message": {
+      "name": "Envoyer un Message au Canal",
+      "description": "Envoyer un message personnalisé à un canal Slack spécifique",
+      "schema": {
+        "fields": {
+          "channel": {
+            "label": "Nom ou ID du Canal",
+            "placeholder": "#general ou C1234567890"
+          },
+          "message": {
+            "label": "Contenu du Message",
+            "placeholder": "Entrez votre message ici..."
+          }
+        }
+      }
+    },
+    "slack.add_reaction": {
+      "name": "Ajouter une Réaction au Dernier Message",
+      "description": "Ajouter une réaction emoji au dernier message d'un canal",
+      "schema": {
+        "fields": {
+          "channel": {
+            "label": "Nom ou ID du Canal",
+            "placeholder": "#general ou C1234567890"
+          },
+          "emoji": {
+            "label": "Nom de l'Emoji",
+            "placeholder": "thumbsup, heart, smile, etc."
+          }
+        }
+      }
+    },
+    "slack.send_dm": {
+      "name": "Envoyer un Message Direct",
+      "description": "Envoyer un message privé direct à un utilisateur Slack",
+      "schema": {
+        "fields": {
+          "userId": {
+            "label": "ID Utilisateur",
+            "placeholder": "U1234567890"
+          },
+          "message": {
+            "label": "Contenu du Message",
+            "placeholder": "Entrez votre message privé ici..."
+          }
+        }
+      }
+    },
+    "slack.pin_message": {
+      "name": "Épingler le Dernier Message",
+      "description": "Épingler le dernier message dans un canal Slack",
+      "schema": {
+        "fields": {
+          "channel": {
+            "label": "Nom ou ID du Canal",
+            "placeholder": "#general ou C1234567890"
+          }
+        }
+      }
+    }
+  }
+}

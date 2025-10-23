@@ -1,0 +1,115 @@
+{
+  "name": "Slack",
+  "description": "Slack service for team communication and messaging",
+  "actions": {
+    "slack.new_message": {
+      "name": "New Message in Channel",
+      "description": "Triggers when a new message is posted in a specific channel",
+      "schema": {
+        "fields": {
+          "channel": {
+            "label": "Channel Name or ID (optional, leave empty for all channels)",
+            "placeholder": "#general or C1234567890"
+          }
+        }
+      }
+    },
+    "slack.new_dm": {
+      "name": "New Direct Message",
+      "description": "Triggers when the user receives a new private message",
+      "schema": {
+        "fields": {}
+      }
+    },
+    "slack.channel_created": {
+      "name": "Channel Created",
+      "description": "Triggers when a new channel is created in the workspace",
+      "schema": {
+        "fields": {
+          "creator": {
+            "label": "Creator User ID (optional, leave empty for all channel creations)",
+            "placeholder": "U1234567890"
+          }
+        }
+      }
+    },
+    "slack.reaction_added": {
+      "name": "Reaction Added to Message",
+      "description": "Triggers when someone adds a reaction (emoji) to a message",
+      "schema": {
+        "fields": {
+          "channel": {
+            "label": "Channel Name or ID (optional, leave empty for all channels)",
+            "placeholder": "#general or C1234567890"
+          },
+          "emoji": {
+            "label": "Emoji Name (optional, leave empty for any reaction)",
+            "placeholder": "thumbsup or :thumbsup:"
+          }
+        }
+      }
+    }
+  },
+  "reactions": {
+    "slack.send_message": {
+      "name": "Send Message to Channel",
+      "description": "Send a custom message to a specific Slack channel",
+      "schema": {
+        "fields": {
+          "channel": {
+            "label": "Channel Name or ID",
+            "placeholder": "#general or C1234567890"
+          },
+          "message": {
+            "label": "Message Content",
+            "placeholder": "Enter your message here..."
+          }
+        }
+      }
+    },
+    "slack.add_reaction": {
+      "name": "Add Reaction to Last Message",
+      "description": "Add an emoji reaction to the last message in a channel",
+      "schema": {
+        "fields": {
+          "channel": {
+            "label": "Channel Name or ID",
+            "placeholder": "#general or C1234567890"
+          },
+          "emoji": {
+            "label": "Emoji Name",
+            "placeholder": "thumbsup, heart, smile, etc."
+          }
+        }
+      }
+    },
+    "slack.send_dm": {
+      "name": "Send Direct Message",
+      "description": "Send a private direct message to a Slack user",
+      "schema": {
+        "fields": {
+          "userId": {
+            "label": "User ID",
+            "placeholder": "U1234567890"
+          },
+          "message": {
+            "label": "Message Content",
+            "placeholder": "Enter your private message here..."
+          }
+        }
+      }
+    },
+    "slack.pin_message": {
+      "name": "Pin Last Message",
+      "description": "Pin the last message in a Slack channel",
+      "schema": {
+        "fields": {
+          "channel": {
+            "label": "Channel Name or ID",
+            "placeholder": "#general or C1234567890"
+          }
+        }
+      }
+    }
+  }
+}

@@ -18,7 +18,7 @@ import passport from 'passport';
 import { StringEncryption } from './src/config/EncryptionService';
 
 import userRoutes from './src/routes/user/user';
-import apiRoutes from './src/routes/api/api';
+import apiRoutes, { languageRouter } from './src/routes/api/api';
 import aboutRoutes from './src/routes/about/about';
 import webhookRoutes from './src/webhooks';
 import servicesRoutes from './src/routes/services';
@@ -139,6 +139,7 @@ const encryption = new StringEncryption();
     app.use('/api/services', servicesRoutes);
     app.use('/api/mappings', mappingsRoutes);
     app.use('/api/info', apiRoutes);
+    app.use('/api/language', languageRouter);
     app.use('/about.json', aboutRoutes);
     app.use('/api/webhooks', webhookRoutes);
 

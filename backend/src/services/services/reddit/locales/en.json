@@ -1,0 +1,48 @@
+{
+  "name": "Reddit",
+  "description": "Reddit service for social media and community discussions",
+  "actions": {
+    "reddit.new_post_in_subreddit": {
+      "name": "New Post in Subreddit",
+      "description": "Triggered when a new post is made in a specified subreddit",
+      "schema": {
+        "fields": {
+          "subreddit": {
+            "label": "Subreddit",
+            "placeholder": "r/programming"
+          }
+        }
+      }
+    }
+  },
+  "reactions": {
+    "reddit.upvote_post": {
+      "name": "Upvote Post",
+      "description": "Upvotes a specific Reddit post",
+      "schema": {
+        "fields": {
+          "post_id": {
+            "label": "Post ID (fullname format: t3_xxxxx)",
+            "placeholder": "t3_abc123"
+          }
+        }
+      }
+    },
+    "reddit.post_comment": {
+      "name": "Post Comment",
+      "description": "Posts a comment on a specific Reddit post",
+      "schema": {
+        "fields": {
+          "post_id": {
+            "label": "Post ID (fullname format: t3_xxxxx)",
+            "placeholder": "t3_abc123"
+          },
+          "comment_text": {
+            "label": "Comment Text",
+            "placeholder": "Enter your comment here..."
+          }
+        }
+      }
+    }
+  }
+}

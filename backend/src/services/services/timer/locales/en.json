@@ -1,0 +1,61 @@
+{
+  "name": "Timer",
+  "description": "Timer service for scheduled events",
+  "actions": {
+    "every_day_at_x_hour": {
+      "name": "Every Day at X Hour",
+      "description": "Triggers once a day at a specific hour on selected days",
+      "schema": {
+        "fields": {
+          "hour": {
+            "label": "Hour (0-23)",
+            "placeholder": "14"
+          },
+          "days": {
+            "label": "Days of the week",
+            "options": {
+              "monday": "Monday",
+              "tuesday": "Tuesday",
+              "wednesday": "Wednesday",
+              "thursday": "Thursday",
+              "friday": "Friday",
+              "saturday": "Saturday",
+              "sunday": "Sunday"
+            }
+          }
+        }
+      }
+    },
+    "every_hour_at_intervals": {
+      "name": "Every Hour at X Minute",
+      "description": "Triggers every hour at a specific minute (00, 15, 30, or 45)",
+      "schema": {
+        "fields": {
+          "minute": {
+            "label": "Minute",
+            "options": {
+              "0": ":00",
+              "15": ":15",
+              "30": ":30",
+              "45": ":45"
+            }
+          }
+        }
+      }
+    }
+  },
+  "properties": {
+    "timestamp": {
+      "description": "ISO timestamp of when the timer triggered"
+    },
+    "hour": {
+      "description": "The hour that triggered"
+    },
+    "day": {
+      "description": "The day of the week"
+    },
+    "minute": {
+      "description": "The minute that triggered (0, 15, 30, or 45)"
+    }
+  }
+}
