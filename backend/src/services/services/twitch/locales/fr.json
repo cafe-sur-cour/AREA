@@ -1,1 +1,21 @@
-{}
+{
+  "name": "Twitch",
+  "description": "Service Twitch pour le streaming en direct et les interactions communautaires",
+  "actions": {
+    "twitch.new_follower": {
+      "name": "Nouveau Follower Twitch",
+      "description": "Se déclenche lorsqu'une personne suit votre chaîne Twitch",
+      "schema": {
+        "fields": {}
+      }
+    },
+    "twitch.new_subscription": {
+      "name": "Nouvel Abonnement Twitch",
+      "description": "Se déclenche lorsqu'une personne s'abonne ou renouvelle un abonnement à votre chaîne",
+      "schema": {
+        "fields": {}
+      }
+    }
+  },
+  "reactions": {}
+}
