@@ -8,6 +8,14 @@ const getAuthHeaders = async (auth_token?: string): Promise<HeadersInit> => {
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
   };
+
+  const storedLang = localStorage.getItem('area-language');
+  if (storedLang && ['en', 'fr'].includes(storedLang)) {
+    headers['accept-language'] = storedLang;
+  } else {
+    headers['accept-language'] = 'en';
+  }
+
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
   }

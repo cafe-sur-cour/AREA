@@ -3,6 +3,15 @@ import 'package:area/core/notifiers/backend_address_notifier.dart';
 import 'package:area/l10n/app_localizations.dart';
 import 'package:area/services/mobile_oauth_service.dart';
 import 'package:area/services/service_subscription_service.dart';
+import 'package:area/widgets/common/app_bar/custom_app_bar.dart';
+import 'package:area/widgets/common/buttons/primary_button.dart';
+import 'package:area/widgets/common/cards/status_badge.dart';
+import 'package:area/widgets/common/dialogs/confirm_dialog.dart';
+import 'package:area/widgets/common/dialogs/loading_dialog.dart';
+import 'package:area/widgets/common/snackbars/app_snackbar.dart';
+import 'package:area/widgets/common/state/empty_state.dart';
+import 'package:area/widgets/common/state/error_state.dart';
+import 'package:area/widgets/common/state/loading_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
@@ -187,61 +196,25 @@ class ServicesScreenState extends State<ServicesScreen> {
   }
 
   void _showLoading(String message) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        content: Row(
-          children: [
-            const CircularProgressIndicator(),
-            const SizedBox(width: 16),
-            Expanded(child: Text(message)),
-          ],
-        ),
-      ),
-    );
+    showLoadingDialog(context, message);
   }
 
   Future<bool> _showConfirmDialog(String title, String message) async {
-    final result = await showDialog<bool>(
+    return await showConfirmDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(title),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(AppLocalizations.of(this.context)!.cancel),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(AppLocalizations.of(this.context)!.confirm),
-          ),
-        ],
-      ),
+      title: title,
+      message: message,
+      confirmText: AppLocalizations.of(context)!.confirm,
+      cancelText: AppLocalizations.of(context)!.cancel,
     );
-
-    return result ?? false;
   }
 
   void _showSuccess(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: AppColors.success,
-        duration: const Duration(seconds: 3),
-      ),
-    );
+    showSuccessSnackbar(context, message);
   }
 
   void _showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: AppColors.error,
-        duration: const Duration(seconds: 4),
-      ),
-    );
+    showErrorSnackbar(context, message);
   }
 
   Widget _buildServiceIcon(String svgIcon) {
@@ -261,72 +234,22 @@ class ServicesScreenState extends State<ServicesScreen> {
 
   Widget _buildServiceStatus(ServiceInfo service) {
     if (service.isSubscribed) {
-      return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(
-          color: AppColors.success.withValues(alpha: 0.2),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.success),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.check_circle, size: 16, color: AppColors.success),
-            const SizedBox(width: 4),
-            Text(
-              AppLocalizations.of(context)!.connected,
-              style: TextStyle(
-                color: AppColors.success,
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
+      return StatusBadge(
+        text: AppLocalizations.of(context)!.connected,
+        color: AppColors.success,
+        icon: Icons.check_circle,
       );
     } else if (service.oauthConnected) {
-      return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(
-          color: Colors.orange.withValues(alpha: 0.2),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.orange),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.link, size: 16, color: Colors.orange),
-            SizedBox(width: 4),
-            Text(
-              AppLocalizations.of(context)!.not_subscribed,
-              style: TextStyle(
-                color: Colors.orange,
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
+      return StatusBadge(
+        text: AppLocalizations.of(context)!.not_subscribed,
+        color: Colors.orange,
+        icon: Icons.link,
       );
     } else {
-      return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(
-          color: Colors.grey.withValues(alpha: 0.2),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.link_off, size: 16, color: Colors.grey),
-            SizedBox(width: 4),
-            Text(
-              AppLocalizations.of(context)!.not_connected,
-              style: TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.w600),
-            ),
-          ],
-        ),
+      return StatusBadge(
+        text: AppLocalizations.of(context)!.not_connected,
+        color: Colors.grey,
+        icon: Icons.link_off,
       );
     }
   }
@@ -364,22 +287,15 @@ class ServicesScreenState extends State<ServicesScreen> {
             const SizedBox(height: 16),
             SizedBox(
               width: double.infinity,
-              child: ElevatedButton(
+              child: PrimaryButton(
+                text: service.isSubscribed
+                    ? AppLocalizations.of(context)!.unsubscribe
+                    : service.oauthConnected
+                    ? AppLocalizations.of(context)!.subscribe
+                    : AppLocalizations.of(context)!.connect_and_subscribe,
                 onPressed: () => _handleServiceAction(service),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: service.isSubscribed ? AppColors.error : AppColors.primary,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                ),
-                child: Text(
-                  service.isSubscribed
-                      ? AppLocalizations.of(context)!.unsubscribe
-                      : service.oauthConnected
-                      ? AppLocalizations.of(context)!.subscribe
-                      : AppLocalizations.of(context)!.connect_and_subscribe,
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                ),
+                backgroundColor: service.isSubscribed ? AppColors.error : AppColors.primary,
+                foregroundColor: Colors.white,
               ),
             ),
           ],
@@ -391,74 +307,30 @@ class ServicesScreenState extends State<ServicesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(AppLocalizations.of(context)?.services ?? 'Services')),
+      appBar: CustomAppBar(title: AppLocalizations.of(context)!.services),
       body: RefreshIndicator(onRefresh: _loadServices, child: _buildBody()),
     );
   }
 
   Widget _buildBody() {
     if (_isLoading) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const CircularProgressIndicator(),
-            const SizedBox(height: 16),
-            Text(AppLocalizations.of(context)!.loading_services),
-          ],
-        ),
-      );
+      return LoadingState(message: AppLocalizations.of(context)!.loading_services);
     }
 
     if (_error != null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline, size: 64, color: Colors.red),
-            const SizedBox(height: 16),
-            Text(
-              AppLocalizations.of(context)!.error,
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red),
-            ),
-            const SizedBox(height: 8),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
-              child: Text(
-                _error!,
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 16),
-              ),
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: _loadServices,
-              child: Text(AppLocalizations.of(context)!.retry),
-            ),
-          ],
-        ),
+      return ErrorState(
+        title: AppLocalizations.of(context)!.error,
+        message: _error!,
+        onRetry: _loadServices,
+        retryButtonText: AppLocalizations.of(context)!.retry,
       );
     }
 
     if (_services.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.api, size: 64, color: Colors.grey),
-            const SizedBox(height: 16),
-            Text(
-              AppLocalizations.of(context)!.no_services_available_title,
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.grey),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              AppLocalizations.of(context)!.no_services_found,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 16, color: Colors.grey),
-            ),
-          ],
-        ),
+      return EmptyState(
+        title: AppLocalizations.of(context)!.no_services_available_title,
+        message: AppLocalizations.of(context)!.no_services_found,
+        icon: Icons.api,
       );
     }
 

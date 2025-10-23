@@ -1,16 +1,15 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { fileURLToPath } from 'url';
 import type { Service, ServiceConfig } from '../types/service';
 import { serviceRegistry } from './ServiceRegistry';
 import { reactionExecutorRegistry } from './ReactionExecutorRegistry';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
 export class ServiceLoader {
   private servicesPath: string;
 
-  constructor(servicesPath: string = path.join(__dirname, 'services')) {
+  constructor(
+    servicesPath: string = path.join(process.cwd(), 'src/services/services')
+  ) {
     this.servicesPath = servicesPath;
   }
 

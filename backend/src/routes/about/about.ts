@@ -191,15 +191,23 @@ router.get('/', async (req: Request, res: Response): Promise<void> => {
       },
     };
 
-    await createLog(200, 'about', response.client.host);
+    try {
+      await createLog(200, 'about', response.client.host);
+    } catch (logErr) {
+      console.error('Failed to log request:', logErr);
+    }
     res.status(200).json(response);
   } catch (err) {
     console.error(err);
-    await createLog(
-      500,
-      'about',
-      err instanceof Error ? err.message : 'Unknown error'
-    );
+    try {
+      await createLog(
+        500,
+        'about',
+        err instanceof Error ? err.message : 'Unknown error'
+      );
+    } catch (logErr) {
+      console.error('Failed to log error:', logErr);
+    }
     res.status(500).json({ error: 'Internal Server Error in about route' });
   }
 });

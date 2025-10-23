@@ -78,6 +78,15 @@ flutter test
 ```
 This will run every tests in the AREA mobile project.
 
+### Coverage
+
+To run tests and display tests, in the `mobile/` directory, run:
+```bash
+flutter test --coverage
+genhtml coverage/lcov.info -o coverage/html
+open coverage/html/index.html
+```
+
 ### Format the files
 
 In the `mobile/` directory, run

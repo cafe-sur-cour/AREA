@@ -1,3 +1,5 @@
+import 'package:area/widgets/common/app_bar/custom_app_bar.dart';
+import 'package:area/widgets/common/snackbars/app_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:area/core/constants/app_colors.dart';
@@ -152,7 +154,9 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildFieldLabel(field),
+
         const SizedBox(height: 8),
+
         TextFormField(
           controller: controller,
           keyboardType: field.type == 'email'
@@ -231,7 +235,9 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildFieldLabel(field),
+
         const SizedBox(height: 8),
+
         TextFormField(
           controller: controller,
           keyboardType: TextInputType.number,
@@ -286,7 +292,9 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildFieldLabel(field),
+
         const SizedBox(height: 8),
+
         DropdownButtonFormField<String>(
           initialValue: currentValue?.toString(),
           decoration: InputDecoration(
@@ -378,7 +386,9 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
                 AppLocalizations.of(context)!.action_colon(action.name),
                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
+
               const SizedBox(height: 8),
+
               Text(
                 AppLocalizations.of(context)!.no_additional_config,
                 style: const TextStyle(color: Colors.grey),
@@ -399,7 +409,9 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
               AppLocalizations.of(context)!.action_colon(action.name),
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
+
             const SizedBox(height: 8),
+
             Text(action.description, style: const TextStyle(color: Colors.grey)),
             const SizedBox(height: 16),
             ...action.configFields.map((field) {
@@ -441,7 +453,9 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
                 )!.reaction_number(reactionIndex + 1, reaction.name),
                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
+
               const SizedBox(height: 8),
+
               Text(
                 AppLocalizations.of(context)!.no_additional_config_reaction,
                 style: const TextStyle(color: Colors.grey),
@@ -462,9 +476,13 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
               AppLocalizations.of(context)!.reaction_number(reactionIndex + 1, reaction.name),
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
+
             const SizedBox(height: 8),
+
             Text(reaction.description, style: const TextStyle(color: Colors.grey)),
+
             const SizedBox(height: 16),
+
             ...reaction.configFields.map((field) {
               final currentValue = reactionWithDelay.getConfigValue(field.name);
               return Padding(
@@ -498,28 +516,12 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
 
     final validationErrors = automationBuilder.getValidationErrors();
     if (validationErrors.isNotEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            validationErrors.first,
-            style: const TextStyle(color: Colors.white, fontSize: 16),
-          ),
-          backgroundColor: AppColors.error,
-        ),
-      );
+      showErrorSnackbar(context, validationErrors.first);
       return;
     }
 
     if (backendAddressNotifier.backendAddress == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            AppLocalizations.of(context)!.empty_backend_server_address,
-            style: const TextStyle(color: Colors.white, fontSize: 16),
-          ),
-          backgroundColor: AppColors.error,
-        ),
-      );
+      showErrorSnackbar(context, AppLocalizations.of(context)!.empty_backend_server_address);
       return;
     }
 
@@ -546,30 +548,17 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
       automationBuilder.clearAll();
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text(
-              'Automation created successfully!',
-              style: TextStyle(color: Colors.white, fontSize: 16),
-            ),
-            backgroundColor: AppColors.areaBlue3,
-          ),
-        );
+        showInfoSnackbar(context, 'Automation created successfully!');
 
         Navigator.of(context).popUntil((route) => route.isFirst);
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              AppLocalizations.of(
-                context,
-              )!.failed_create_automation(e.toString().replaceAll("Exception: ", "")),
-              style: const TextStyle(color: Colors.white, fontSize: 16),
-            ),
-            backgroundColor: AppColors.error,
-          ),
+        showErrorSnackbar(
+          context,
+          AppLocalizations.of(
+            context,
+          )!.failed_create_automation(e.toString().replaceAll("Exception: ", "")),
         );
       }
     } finally {
@@ -585,15 +574,7 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.areaLightGray,
-      appBar: AppBar(
-        title: Text(
-          AppLocalizations.of(context)!.configure_automation,
-          style: TextStyle(fontFamily: 'Montserrat', fontWeight: FontWeight.bold),
-        ),
-        backgroundColor: AppColors.areaBlue3,
-        foregroundColor: AppColors.areaLightGray,
-        elevation: 0,
-      ),
+      appBar: CustomAppBar(title: AppLocalizations.of(context)!.configure_automation),
       body: Consumer<AutomationBuilderNotifier>(
         builder: (context, automationBuilder, child) {
           if (!automationBuilder.isComplete) {
@@ -602,12 +583,16 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(Icons.error_outline, size: 64, color: Colors.red),
+
                   SizedBox(height: 16),
+
                   Text(
                     AppLocalizations.of(context)!.invalid_automation_state,
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
+
                   SizedBox(height: 8),
+
                   Text(
                     AppLocalizations.of(context)!.go_back_select_action_reaction,
                     textAlign: TextAlign.center,
@@ -635,7 +620,9 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
                             AppLocalizations.of(context)!.automation_details,
                             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                           ),
+
                           const SizedBox(height: 16),
+
                           TextFormField(
                             controller: _nameController,
                             decoration: InputDecoration(
@@ -651,7 +638,9 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
                               return null;
                             },
                           ),
+
                           const SizedBox(height: 16),
+
                           TextFormField(
                             controller: _descriptionController,
                             maxLines: 2,
@@ -690,7 +679,7 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
                       onPressed: _isCreating ? null : _createAutomation,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.areaBlue3,
-                        foregroundColor: Colors.white,
+                        foregroundColor: AppColors.areaLightGray,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         elevation: 4,
                       ),

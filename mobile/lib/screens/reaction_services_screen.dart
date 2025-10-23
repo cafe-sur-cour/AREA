@@ -1,3 +1,7 @@
+import 'package:area/widgets/common/app_bar/custom_app_bar.dart';
+import 'package:area/widgets/common/state/empty_state.dart';
+import 'package:area/widgets/common/state/error_state.dart';
+import 'package:area/widgets/common/state/loading_state.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:area/core/constants/app_colors.dart';
@@ -74,98 +78,29 @@ class ReactionServicesScreenState extends State<ReactionServicesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          AppLocalizations.of(context)!.reaction_services,
-          style: TextStyle(fontFamily: 'Montserrat', fontWeight: FontWeight.bold),
-        ),
-        backgroundColor: AppColors.areaBlue3,
-        foregroundColor: AppColors.areaLightGray,
-      ),
+      appBar: CustomAppBar(title: AppLocalizations.of(context)!.reaction_services),
       body: _buildBody(),
     );
   }
 
   Widget _buildBody() {
     if (_isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(
-          valueColor: AlwaysStoppedAnimation<Color>(AppColors.areaBlue3),
-        ),
-      );
+      return const LoadingState();
     }
 
     if (_error != null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline, size: 64, color: AppColors.error),
-
-            const SizedBox(height: 16),
-
-            Text(
-              AppLocalizations.of(context)!.error_loading_services,
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: AppColors.areaBlack,
-              ),
-            ),
-
-            const SizedBox(height: 8),
-
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
-              child: Text(
-                _error!.replaceAll('Exception: ', ''),
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 14, color: AppColors.areaDarkGray),
-              ),
-            ),
-
-            const SizedBox(height: 24),
-
-            ElevatedButton(
-              onPressed: _fetchServices,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.areaBlue3,
-                foregroundColor: AppColors.areaLightGray,
-              ),
-              child: Text(AppLocalizations.of(context)!.retry),
-            ),
-          ],
-        ),
+      return ErrorState(
+        title: AppLocalizations.of(context)!.error_loading_services,
+        message: _error!.replaceAll('Exception: ', ''),
+        onRetry: _fetchServices,
       );
     }
 
     if (_services.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.cloud_off, size: 64, color: AppColors.areaDarkGray),
-
-            const SizedBox(height: 16),
-
-            Text(
-              AppLocalizations.of(context)!.no_services_available,
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: AppColors.areaBlack,
-              ),
-            ),
-
-            const SizedBox(height: 8),
-
-            Text(
-              AppLocalizations.of(context)!.no_services_with_reactions,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 14, color: AppColors.areaDarkGray),
-            ),
-          ],
-        ),
+      return EmptyState(
+        title: AppLocalizations.of(context)!.no_services_available,
+        message: AppLocalizations.of(context)!.no_services_with_reactions,
+        icon: Icons.cloud_off,
       );
     }
 

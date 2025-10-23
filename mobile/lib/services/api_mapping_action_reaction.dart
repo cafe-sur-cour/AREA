@@ -69,9 +69,11 @@ class ApiMappingActionReaction {
 
     final headers = <String, String>{'Content-Type': 'application/json'};
 
-    if (jwt != null) {
-      headers['Authorization'] = 'Bearer $jwt';
+    if (jwt == null) {
+      throw ("JWT token is missing");
     }
+
+    headers['Authorization'] = 'Bearer $jwt';
 
     final client = SecureHttpClient.getClient();
     final response = await client.get(url, headers: headers);

@@ -7,7 +7,7 @@
     "dev": "tsx index.ts",
     "start": "node index.js",
     "build": "tsc",
-    "test": "jest",
+    "test": "jest --coverage",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "lint": "eslint \"src/**/*.{ts,tsx}\"",

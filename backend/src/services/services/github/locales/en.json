@@ -1,0 +1,208 @@
+{
+  "name": "GitHub",
+  "description": "GitHub service for repository events and actions",
+  "actions": {
+    "github.push": {
+      "name": "GitHub Push",
+      "description": "Triggers when a push event occurs on a selected repository",
+      "schema": {
+        "fields": {
+          "repository": {
+            "label": "Repository (owner/repo)",
+            "placeholder": "octocat/Hello-World"
+          },
+          "branch": {
+            "label": "Branch (optional, defaults to all branches)",
+            "placeholder": "main"
+          }
+        }
+      }
+    },
+    "github.pull_request.opened": {
+      "name": "GitHub Pull Request Opened",
+      "description": "Triggers when a new pull request is opened",
+      "schema": {
+        "fields": {
+          "repository": {
+            "label": "Repository (owner/repo)",
+            "placeholder": "octocat/Hello-World"
+          }
+        }
+      }
+    },
+    "github.pull_request.merged": {
+      "name": "GitHub Pull Request Merged",
+      "description": "Triggers when a pull request is merged",
+      "schema": {
+        "fields": {
+          "repository": {
+            "label": "Repository (owner/repo)",
+            "placeholder": "octocat/Hello-World"
+          }
+        }
+      }
+    }
+  },
+  "reactions": {
+    "github.create_issue": {
+      "name": "Create GitHub Issue",
+      "description": "Creates a new issue in the specified repository",
+      "schema": {
+        "fields": {
+          "repository": {
+            "label": "Repository (owner/repo)",
+            "placeholder": "octocat/Hello-World"
+          },
+          "title": {
+            "label": "Issue Title",
+            "placeholder": "Bug report: Something is broken"
+          },
+          "body": {
+            "label": "Issue Description"
+          },
+          "labels": {
+            "label": "Labels (comma-separated)",
+            "placeholder": "bug,urgent"
+          },
+          "assignees": {
+            "label": "Assignees (comma-separated usernames)",
+            "placeholder": "octocat,monalisa"
+          }
+        }
+      }
+    },
+    "github.add_comment": {
+      "name": "Add GitHub Comment",
+      "description": "Adds a comment to an existing issue or pull request",
+      "schema": {
+        "fields": {
+          "repository": {
+            "label": "Repository (owner/repo)",
+            "placeholder": "octocat/Hello-World"
+          },
+          "issue_number": {
+            "label": "Issue/PR Number",
+            "placeholder": "123"
+          },
+          "body": {
+            "label": "Comment Body",
+            "placeholder": "This is an automated comment from AREA"
+          }
+        }
+      }
+    }
+  },
+  "properties": {
+    "repository": {
+      "description": "Repository information",
+      "full_name": {
+        "description": "Full repository name (owner/repo)"
+      },
+      "name": {
+        "description": "Repository name"
+      },
+      "owner": {
+        "description": "Repository owner information",
+        "login": {
+          "description": "Owner username"
+        },
+        "id": {
+          "description": "Owner ID"
+        }
+      }
+    },
+    "ref": {
+      "description": "Git reference (branch/tag)"
+    },
+    "before": {
+      "description": "SHA before the push"
+    },
+    "after": {
+      "description": "SHA after the push"
+    },
+    "commits": {
+      "description": "List of commits in the push",
+      "items": {
+        "description": "Commit information",
+        "id": {
+          "description": "Commit SHA"
+        },
+        "message": {
+          "description": "Commit message"
+        },
+        "author": {
+          "description": "Commit author information",
+          "name": {
+            "description": "Author name"
+          },
+          "email": {
+            "description": "Author email"
+          }
+        }
+      }
+    },
+    "pusher": {
+      "description": "Pusher information",
+      "name": {
+        "description": "Pusher username"
+      },
+      "email": {
+        "description": "Pusher email"
+      }
+    },
+    "action": {
+      "description": "The action that was performed"
+    },
+    "number": {
+      "description": "Pull request number"
+    },
+    "pull_request": {
+      "description": "Pull request details",
+      "id": {
+        "description": "Pull request ID"
+      },
+      "title": {
+        "description": "Pull request title"
+      },
+      "body": {
+        "description": "Pull request body"
+      },
+      "state": {
+        "description": "Pull request state"
+      },
+      "merged": {
+        "description": "Whether pull request is merged"
+      },
+      "merged_at": {
+        "description": "When pull request was merged"
+      },
+      "user": {
+        "description": "User who created the pull request",
+        "login": {
+          "description": "Username"
+        },
+        "id": {
+          "description": "User ID"
+        }
+      },
+      "head": {
+        "description": "Head branch information",
+        "ref": {
+          "description": "Branch name"
+        },
+        "sha": {
+          "description": "Commit SHA"
+        },
+        "repo": {
+          "description": "Head repository information",
+          "full_name": {
+            "description": "Full repository name"
+          }
+        }
+      },
+      "base": {
+        "description": "Base branch information"
+      }
+    }
+  }
+}

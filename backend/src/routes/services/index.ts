@@ -5,6 +5,8 @@ import { extractPayloadFields } from '../../utils/payloadFields';
 import { serviceSubscriptionManager } from '../../services/ServiceSubscriptionManager';
 import subscriptionRoutes from './subscription';
 import { createLog } from '../logs/logs.service';
+import { translateService } from '../../utils/translation';
+import i18next from 'i18next';
 
 function generateServiceEndpoints(serviceId: string): {
   auth?: string;
@@ -112,10 +114,12 @@ router.get(
 
           const endpoints = generateServiceEndpoints(service.id);
 
+          const translatedService = translateService(service, i18next.t);
+
           return {
             id: service.id,
-            name: service.name,
-            description: service.description,
+            name: translatedService.name,
+            description: translatedService.description,
             version: service.version,
             icon: service.icon || '',
             isSubscribed,
@@ -189,13 +193,16 @@ router.get(
         .filter(subscription => subscription.subscribed)
         .map(subscription => {
           const service = serviceRegistry.getService(subscription.service);
+          const translatedService = service
+            ? translateService(service, i18next.t)
+            : null;
           return {
             id: subscription.service,
-            name: service
-              ? service.name
+            name: translatedService
+              ? translatedService.name
               : subscription.service.charAt(0).toUpperCase() +
                 subscription.service.slice(1),
-            description: service ? service.description : '',
+            description: translatedService ? translatedService.description : '',
           };
         });
 
@@ -400,16 +407,19 @@ router.get(
         `User ID: ${(req.auth as { id: number }).id} fetch all services actions`
       );
       return res.status(200).json({
-        services: servicesWithActions.map(service => ({
-          id: service.id,
-          name: service.name,
-          description: service.description,
-          version: service.version,
-          actions: service.actions.map(action => ({
-            ...action,
-            payloadFields: extractPayloadFields(action),
-          })),
-        })),
+        services: servicesWithActions.map(service => {
+          const translatedService = translateService(service, i18next.t);
+          return {
+            id: service.id,
+            name: translatedService.name,
+            description: translatedService.description,
+            version: service.version,
+            actions: translatedService.actions.map(action => ({
+              ...action,
+              payloadFields: extractPayloadFields(action),
+            })),
+          };
+        }),
       });
     } catch (err) {
       console.error('Error fetching services with actions:', err);
@@ -584,13 +594,16 @@ router.get(
         `User ID: ${(req.auth as { id: number }).id} fetch all services reactions`
       );
       return res.status(200).json({
-        services: servicesWithReactions.map(service => ({
-          id: service.id,
-          name: service.name,
-          description: service.description,
-          version: service.version,
-          reactions: service.reactions,
-        })),
+        services: servicesWithReactions.map(service => {
+          const translatedService = translateService(service, i18next.t);
+          return {
+            id: service.id,
+            name: translatedService.name,
+            description: translatedService.description,
+            version: service.version,
+            reactions: translatedService.reactions,
+          };
+        }),
       });
     } catch (err) {
       console.error('Error fetching services with reactions:', err);
@@ -722,16 +735,19 @@ router.get(
         `User ID: ${userId} fetch subscribed services actions`
       );
       return res.status(200).json({
-        services: servicesWithActions.map(service => ({
-          id: service.id,
-          name: service.name,
-          description: service.description,
-          version: service.version,
-          actions: service.actions.map(action => ({
-            ...action,
-            payloadFields: extractPayloadFields(action),
-          })),
-        })),
+        services: servicesWithActions.map(service => {
+          const translatedService = translateService(service, i18next.t);
+          return {
+            id: service.id,
+            name: translatedService.name,
+            description: translatedService.description,
+            version: service.version,
+            actions: translatedService.actions.map(action => ({
+              ...action,
+              payloadFields: extractPayloadFields(action),
+            })),
+          };
+        }),
       });
     } catch (err) {
       await createLog(
@@ -847,13 +863,16 @@ router.get(
         `User ID: ${userId} fetch subscribed services reactions`
       );
       return res.status(200).json({
-        services: servicesWithReactions.map(service => ({
-          id: service.id,
-          name: service.name,
-          description: service.description,
-          version: service.version,
-          reactions: service.reactions,
-        })),
+        services: servicesWithReactions.map(service => {
+          const translatedService = translateService(service, i18next.t);
+          return {
+            id: service.id,
+            name: translatedService.name,
+            description: translatedService.description,
+            version: service.version,
+            reactions: translatedService.reactions,
+          };
+        }),
       });
     } catch (err) {
       console.error('Error fetching subscribed services with reactions:', err);
@@ -1083,6 +1102,8 @@ router.get(
         });
       }
 
+      const translatedService = translateService(service, i18next.t);
+
       await createLog(
         200,
         'service',
@@ -1090,8 +1111,8 @@ router.get(
       );
       return res.status(200).json({
         service_id: service.id,
-        service_name: service.name,
-        actions: service.actions.map(action => ({
+        service_name: translatedService.name,
+        actions: translatedService.actions.map(action => ({
           ...action,
           payloadFields: extractPayloadFields(action),
         })),
@@ -1327,6 +1348,10 @@ router.get(
       }
 
       const action = service.actions.find(element => element.id === id);
+      const translatedService = translateService(service, i18next.t);
+      const translatedAction = translatedService.actions.find(
+        element => element.id === id
+      );
 
       await createLog(
         200,
@@ -1335,7 +1360,7 @@ router.get(
       );
       return res.status(200).json({
         serviceId: service.id,
-        ...action,
+        ...translatedAction,
         payloadFields: extractPayloadFields(action!),
       });
     } catch (err) {
@@ -1546,6 +1571,8 @@ router.get(
         });
       }
 
+      const translatedService = translateService(service, i18next.t);
+
       await createLog(
         200,
         'service',
@@ -1553,8 +1580,8 @@ router.get(
       );
       return res.status(200).json({
         service_id: service.id,
-        service_name: service.name,
-        reactions: service.reactions,
+        service_name: translatedService.name,
+        reactions: translatedService.reactions,
       });
     } catch (err) {
       console.error('Error fetching service reactions:', err);
@@ -1774,6 +1801,11 @@ router.get(
         });
       }
 
+      const translatedService = translateService(service, i18next.t);
+      const translatedReaction = translatedService.reactions.find(
+        element => element.id === id
+      );
+
       await createLog(
         200,
         'service',
@@ -1781,7 +1813,7 @@ router.get(
       );
       return res.status(200).json({
         serviceId: service.id,
-        ...service.reactions.find(element => element.id === id),
+        ...translatedReaction,
       });
     } catch (err) {
       console.error('Error fetching service reactions:', err);

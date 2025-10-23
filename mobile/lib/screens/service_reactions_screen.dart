@@ -1,3 +1,6 @@
+import 'package:area/widgets/common/state/empty_state.dart';
+import 'package:area/widgets/common/state/error_state.dart';
+import 'package:area/widgets/common/state/loading_state.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:area/core/constants/app_colors.dart';
@@ -198,103 +201,22 @@ class ServiceReactionsScreenState extends State<ServiceReactionsScreen> {
 
   Widget _buildBody() {
     if (_isLoading) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(_getServiceColor()),
-            ),
-
-            const SizedBox(height: 16),
-
-            Text(
-              AppLocalizations.of(context)!.loading_reactions,
-              style: TextStyle(
-                fontFamily: 'Montserrat',
-                fontSize: 16,
-                color: AppColors.areaDarkGray,
-              ),
-            ),
-          ],
-        ),
-      );
+      return LoadingState(message: AppLocalizations.of(context)!.loading_reactions);
     }
 
     if (_error != null) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(32.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.error_outline, size: 64, color: AppColors.error),
-
-              const SizedBox(height: 16),
-
-              Text(
-                AppLocalizations.of(context)!.error_loading_reactions,
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.areaBlack,
-                ),
-              ),
-
-              const SizedBox(height: 8),
-
-              Text(
-                _error!.replaceAll('Exception: ', ''),
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 14, color: AppColors.areaDarkGray),
-              ),
-
-              const SizedBox(height: 24),
-
-              ElevatedButton(
-                onPressed: _fetchReactions,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: _getServiceColor(),
-                  foregroundColor: AppColors.areaLightGray,
-                ),
-                child: Text(AppLocalizations.of(context)!.retry),
-              ),
-            ],
-          ),
-        ),
+      return ErrorState(
+        title: AppLocalizations.of(context)!.error_loading_reactions,
+        message: _error!.replaceAll('Exception: ', ''),
+        onRetry: _fetchReactions,
       );
     }
 
     if (_reactions.isEmpty) {
-      return const Center(
-        child: Padding(
-          padding: EdgeInsets.all(32.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.replay_outlined, size: 64, color: AppColors.areaDarkGray),
-
-              SizedBox(height: 16),
-
-              Text(
-                'No reactions available',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.areaBlack,
-                ),
-              ),
-
-              SizedBox(height: 8),
-
-              Text(
-                'This service doesn\'t have any available reactions at the moment.',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 14, color: AppColors.areaDarkGray),
-              ),
-            ],
-          ),
-        ),
+      return EmptyState(
+        title: 'No reactions available',
+        message: 'This service doesn\'t have any available reactions at the moment.',
+        icon: Icons.replay_outlined,
       );
     }
 

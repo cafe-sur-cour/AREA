@@ -1,16 +1,18 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { fileURLToPath } from 'url';
 import type { WebhookHandler, WebhookConfig } from '../types/webhook';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export class WebhookLoader {
   private servicesPath: string;
   private handlers: Map<string, WebhookHandler> = new Map();
 
   constructor(
-    servicesPath: string = path.join(__dirname, '..', 'services', 'services')
+    servicesPath: string = path.join(
+      process.cwd(),
+      'src',
+      'services',
+      'services'
+    )
   ) {
     this.servicesPath = servicesPath;
   }

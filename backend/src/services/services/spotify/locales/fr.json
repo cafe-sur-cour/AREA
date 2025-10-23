@@ -1,0 +1,94 @@
+{
+  "name": "Spotify",
+  "description": "Service Spotify pour l'intégration de streaming musical",
+  "reactions": {
+    "spotify.skip_track": {
+      "name": "Passer la Piste Actuelle",
+      "description": "Passe à la piste suivante dans la lecture actuelle de l'utilisateur",
+      "schema": {
+        "fields": []
+      }
+    },
+    "spotify.pause_resume_playback": {
+      "name": "Pause / Reprendre la Lecture",
+      "description": "Bascule entre pause et reprise selon l'état actuel",
+      "schema": {
+        "fields": []
+      }
+    },
+    "spotify.add_song_to_playlist": {
+      "name": "Ajouter une Chanson à une Playlist",
+      "description": "Ajoute la piste actuelle ou spécifiée à une playlist choisie (ou aux Chansons Aimées si aucune playlist spécifiée)",
+      "schema": {
+        "fields": {
+          "playlist_id": {
+            "label": "ID de Playlist (optionnel, ajoute aux Chansons Aimées si vide)",
+            "placeholder": "spotify:playlist:37i9dQZF1DXcBWIGoYBM5M"
+          },
+          "track_uri": {
+            "label": "URI de Piste (optionnel, utilise la piste en cours si vide)",
+            "placeholder": "spotify:track:4iV5W9uYEdYUVa79Axb7Rh"
+          }
+        }
+      }
+    },
+    "spotify.play_specific_track": {
+      "name": "Jouer une Piste Spécifique",
+      "description": "Démarre la lecture d'une URI de piste ou playlist donnée",
+      "schema": {
+        "fields": {
+          "uri": {
+            "label": "URI Spotify (piste, album, playlist, ou artiste)",
+            "placeholder": "spotify:track:4iV5W9uYEdYUVa79Axb7Rh"
+          },
+          "device_id": {
+            "label": "ID d'Appareil (optionnel, utilise l'appareil actif si vide)",
+            "placeholder": "device_id_here"
+          }
+        }
+      }
+    },
+    "spotify.set_volume": {
+      "name": "Régler le Volume",
+      "description": "Ajuste le volume de lecture à un niveau spécifié",
+      "schema": {
+        "fields": {
+          "volume_percent": {
+            "label": "Niveau de Volume (0-100)",
+            "placeholder": "50"
+          },
+          "device_id": {
+            "label": "ID d'Appareil (optionnel, utilise l'appareil actif si vide)",
+            "placeholder": "device_id_here"
+          }
+        }
+      }
+    }
+  },
+  "properties": {
+    "success": {
+      "description": "Si l'opération a réussi"
+    },
+    "action": {
+      "description": "L'action effectuée (pause ou reprise)"
+    },
+    "playlist_id": {
+      "description": "L'ID de la playlist où la piste a été ajoutée (null si ajouté aux Chansons Aimées)"
+    },
+    "added_to_liked": {
+      "description": "Si la piste a été ajoutée aux Chansons Aimées"
+    },
+    "track_uri": {
+      "description": "L'URI de la piste qui a été ajoutée"
+    },
+    "uri": {
+      "description": "L'URI qui a été jouée"
+    },
+    "device_id": {
+      "description": "L'ID de l'appareil utilisé"
+    },
+    "volume_percent": {
+      "description": "Le niveau de volume qui a été défini"
+    }
+  }
+}
