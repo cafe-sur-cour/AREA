@@ -114,7 +114,6 @@ router.get(
 
           const endpoints = generateServiceEndpoints(service.id);
 
-          // Translate the service
           const translatedService = translateService(service, i18next.t);
 
           return {
