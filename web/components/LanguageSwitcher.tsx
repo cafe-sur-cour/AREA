@@ -17,13 +17,38 @@ export function LanguageSwitcher({
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    const savedLang = localStorage.getItem('area-language') as
-      | 'en'
-      | 'fr'
-      | null;
-    if (savedLang) {
-      setCurrentLang(savedLang);
-    }
+    const fetchCurrentLanguage = async () => {
+      try {
+        const response = await api.get<{ language: string }>({
+          endpoint: '/language',
+        });
+        if (
+          response.data?.language &&
+          ['en', 'fr'].includes(response.data.language)
+        ) {
+          const backendLang = response.data.language as 'en' | 'fr';
+          setCurrentLang(backendLang);
+          localStorage.setItem('area-language', backendLang);
+        }
+      } catch (error) {
+        console.warn(
+          'Failed to fetch language from backend, using localStorage:',
+          error
+        );
+
+        let savedLang = localStorage.getItem('area-language') as
+          | 'en'
+          | 'fr'
+          | null;
+        if (!savedLang) {
+          savedLang = 'en';
+          localStorage.setItem('area-language', savedLang);
+        }
+        setCurrentLang(savedLang);
+      }
+    };
+
+    fetchCurrentLanguage();
   }, []);
 
   const toggleLanguage = async () => {

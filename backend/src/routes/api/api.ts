@@ -122,6 +122,7 @@ router.post('/language', async (req: Request, res: Response): Promise<void> => {
     }
 
     await i18next.changeLanguage(language);
+    console.log(`🌐 Language changed to: ${language}`);
     res.status(200).json({ language });
   } catch (err) {
     console.error('Error setting language:', err);
