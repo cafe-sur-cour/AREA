@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt, { JwtPayload } from 'jsonwebtoken';
-import { JWT_SECRET } from '../../index';
 
 type AuthPayload = JwtPayload & {
   id?: number;
@@ -28,13 +27,17 @@ const token = (
   next: NextFunction
 ): Response | void => {
   try {
+    const JWT_SECRET = process.env.JWT_SECRET;
+    if (!JWT_SECRET) {
+      console.error('JWT_SECRET environment variable is not set');
+      return res.status(500).json({ msg: 'Internal server error' });
+    }
+
     const authHeader = req.header('Authorization');
     if (authHeader && authHeader.startsWith('Bearer ')) {
       const tokenStr = authHeader.replace('Bearer ', '');
       try {
-        const decoded = jwt.verify(tokenStr, JWT_SECRET as string) as
-          | JwtPayload
-          | string;
+        const decoded = jwt.verify(tokenStr, JWT_SECRET) as JwtPayload | string;
         req.auth = decoded;
         return next();
       } catch (err) {
@@ -50,7 +53,7 @@ const token = (
     const cookieToken = req.cookies?.auth_token;
     if (cookieToken) {
       try {
-        const decoded = jwt.verify(cookieToken, JWT_SECRET as string) as
+        const decoded = jwt.verify(cookieToken, JWT_SECRET) as
           | JwtPayload
           | string;
         req.auth = decoded;

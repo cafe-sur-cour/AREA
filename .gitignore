@@ -6,5 +6,7 @@ node_modules
 *lock*
 backend/coverage
 frontend/coverage
+coverage
+coverage-*
 .vscode
 __pycache__/

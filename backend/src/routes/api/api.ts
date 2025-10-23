@@ -39,9 +39,9 @@ router.get(
       return res.status(200).json({ database: 'OK' });
     } catch (err) {
       console.error('Database connection error:', err);
-      return res
-        .status(500)
-        .json({ database: 'Error', error: (err as Error).message });
+      const errorMessage =
+        err instanceof Error ? err.message : String(err || 'Unknown error');
+      return res.status(500).json({ database: 'Error', error: errorMessage });
     }
   }
 );
