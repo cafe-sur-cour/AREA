@@ -28,23 +28,23 @@ void main() {
       test('should have correct app bar theme', () {
         final appBarTheme = AppTheme.lightTheme.appBarTheme;
 
-        expect(appBarTheme?.elevation, AppDimensions.appBarElevation);
-        expect(appBarTheme?.backgroundColor, AppColors.primary);
-        expect(appBarTheme?.foregroundColor, AppColors.areaLightGray);
-        expect(appBarTheme?.titleTextStyle?.fontFamily, 'Montserrat');
-        expect(appBarTheme?.titleTextStyle?.color, AppColors.areaLightGray);
-        expect(appBarTheme?.titleTextStyle?.fontSize, 20);
-        expect(appBarTheme?.titleTextStyle?.fontWeight, FontWeight.w600);
+        expect(appBarTheme.elevation, AppDimensions.appBarElevation);
+        expect(appBarTheme.backgroundColor, AppColors.primary);
+        expect(appBarTheme.foregroundColor, AppColors.areaLightGray);
+        expect(appBarTheme.titleTextStyle?.fontFamily, 'Montserrat');
+        expect(appBarTheme.titleTextStyle?.color, AppColors.areaLightGray);
+        expect(appBarTheme.titleTextStyle?.fontSize, 20);
+        expect(appBarTheme.titleTextStyle?.fontWeight, FontWeight.w600);
       });
 
       test('should have correct bottom navigation bar theme', () {
         final bottomNavTheme = AppTheme.lightTheme.bottomNavigationBarTheme;
 
-        expect(bottomNavTheme?.backgroundColor, AppColors.background);
-        expect(bottomNavTheme?.selectedItemColor, AppColors.primary);
-        expect(bottomNavTheme?.unselectedItemColor, AppColors.textSecondary);
-        expect(bottomNavTheme?.type, BottomNavigationBarType.fixed);
-        expect(bottomNavTheme?.elevation, 8);
+        expect(bottomNavTheme.backgroundColor, AppColors.background);
+        expect(bottomNavTheme.selectedItemColor, AppColors.primary);
+        expect(bottomNavTheme.unselectedItemColor, AppColors.textSecondary);
+        expect(bottomNavTheme.type, BottomNavigationBarType.fixed);
+        expect(bottomNavTheme.elevation, 8);
       });
 
       test('should have correct text theme', () {
@@ -110,23 +110,23 @@ void main() {
       test('should have correct app bar theme', () {
         final appBarTheme = AppTheme.darkTheme.appBarTheme;
 
-        expect(appBarTheme?.elevation, AppDimensions.appBarElevation);
-        expect(appBarTheme?.backgroundColor, AppColors.primary);
-        expect(appBarTheme?.foregroundColor, AppColors.areaLightGray);
-        expect(appBarTheme?.titleTextStyle?.fontFamily, 'Montserrat');
-        expect(appBarTheme?.titleTextStyle?.color, AppColors.areaLightGray);
-        expect(appBarTheme?.titleTextStyle?.fontSize, 20);
-        expect(appBarTheme?.titleTextStyle?.fontWeight, FontWeight.w600);
+        expect(appBarTheme.elevation, AppDimensions.appBarElevation);
+        expect(appBarTheme.backgroundColor, AppColors.primary);
+        expect(appBarTheme.foregroundColor, AppColors.areaLightGray);
+        expect(appBarTheme.titleTextStyle?.fontFamily, 'Montserrat');
+        expect(appBarTheme.titleTextStyle?.color, AppColors.areaLightGray);
+        expect(appBarTheme.titleTextStyle?.fontSize, 20);
+        expect(appBarTheme.titleTextStyle?.fontWeight, FontWeight.w600);
       });
 
       test('should have correct bottom navigation bar theme', () {
         final bottomNavTheme = AppTheme.darkTheme.bottomNavigationBarTheme;
 
-        expect(bottomNavTheme?.backgroundColor, AppColors.background);
-        expect(bottomNavTheme?.selectedItemColor, AppColors.primary);
-        expect(bottomNavTheme?.unselectedItemColor, AppColors.textSecondary);
-        expect(bottomNavTheme?.type, BottomNavigationBarType.fixed);
-        expect(bottomNavTheme?.elevation, 8);
+        expect(bottomNavTheme.backgroundColor, AppColors.background);
+        expect(bottomNavTheme.selectedItemColor, AppColors.primary);
+        expect(bottomNavTheme.unselectedItemColor, AppColors.textSecondary);
+        expect(bottomNavTheme.type, BottomNavigationBarType.fixed);
+        expect(bottomNavTheme.elevation, 8);
       });
 
       test('should have correct text theme', () {
