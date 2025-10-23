@@ -53,9 +53,7 @@ describe('GitLabOAuth', () => {
       expect((oauth as any).redirectUri).toBe(
         'http://localhost:8080/auth/gitlab/callback'
       );
-      expect((oauth as any).gitlabApiBaseUrl).toBe(
-        'https://gitlab.com/api/v4'
-      );
+      expect((oauth as any).gitlabApiBaseUrl).toBe('https://gitlab.com/api/v4');
       expect((oauth as any).gitlabAuthBaseUrl).toBe('https://gitlab.com');
     });
 
@@ -258,9 +256,7 @@ describe('GitLabOAuth', () => {
       };
 
       const mockGetRepository = jest.fn(() => mockRepository);
-      const {
-        AppDataSource,
-      } = require('../../../src/config/db');
+      const { AppDataSource } = require('../../../src/config/db');
       AppDataSource.getRepository = mockGetRepository;
 
       const {
@@ -295,9 +291,7 @@ describe('GitLabOAuth', () => {
       };
 
       const mockGetRepository = jest.fn(() => mockRepository);
-      const {
-        AppDataSource,
-      } = require('../../../src/config/db');
+      const { AppDataSource } = require('../../../src/config/db');
       AppDataSource.getRepository = mockGetRepository;
 
       const {
@@ -330,9 +324,7 @@ describe('GitLabOAuth', () => {
       };
 
       const mockGetRepository = jest.fn(() => mockRepository);
-      const {
-        AppDataSource,
-      } = require('../../../src/config/db');
+      const { AppDataSource } = require('../../../src/config/db');
       AppDataSource.getRepository = mockGetRepository;
 
       const {
@@ -356,9 +348,7 @@ describe('GitLabOAuth', () => {
       };
 
       const mockGetRepository = jest.fn(() => mockRepository);
-      const {
-        AppDataSource,
-      } = require('../../../src/config/db');
+      const { AppDataSource } = require('../../../src/config/db');
       AppDataSource.getRepository = mockGetRepository;
 
       const {
@@ -377,9 +367,7 @@ describe('GitLabOAuth', () => {
       };
 
       const mockGetRepository = jest.fn(() => mockRepository);
-      const {
-        AppDataSource,
-      } = require('../../../src/config/db');
+      const { AppDataSource } = require('../../../src/config/db');
       AppDataSource.getRepository = mockGetRepository;
 
       const {
@@ -407,9 +395,7 @@ describe('GitLabOAuth', () => {
       };
 
       const mockGetRepository = jest.fn(() => mockRepository);
-      const {
-        AppDataSource,
-      } = require('../../../src/config/db');
+      const { AppDataSource } = require('../../../src/config/db');
       AppDataSource.getRepository = mockGetRepository;
 
       const {
@@ -431,9 +417,7 @@ describe('GitLabOAuth', () => {
       };
 
       const mockGetRepository = jest.fn(() => mockRepository);
-      const {
-        AppDataSource,
-      } = require('../../../src/config/db');
+      const { AppDataSource } = require('../../../src/config/db');
       AppDataSource.getRepository = mockGetRepository;
 
       const {

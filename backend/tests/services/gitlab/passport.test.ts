@@ -21,7 +21,6 @@ jest.mock('../../../src/routes/auth/auth.service', () => ({
   connectOAuthProvider: jest.fn(),
 }));
 
-
 // Mock utils
 jest.mock('../../../src/utils/auth', () => ({
   getCurrentUser: jest.fn(),
@@ -94,17 +93,17 @@ describe('GitLab Passport Strategies', () => {
 
   describe('gitlab-subscribe strategy', () => {
     it('should handle successful subscription', async () => {
-      const { connectOAuthProvider } = require(
-        '../../../src/routes/auth/auth.service'
-      );
+      const {
+        connectOAuthProvider,
+      } = require('../../../src/routes/auth/auth.service');
       const { getCurrentUser } = require('../../../src/utils/auth');
-      const { gitlabOAuth } = require(
-        '../../../src/services/services/gitlab/oauth'
-      );
+      const {
+        gitlabOAuth,
+      } = require('../../../src/services/services/gitlab/oauth');
       const { verify } = require('jsonwebtoken');
-      const { serviceSubscriptionManager } = require(
-        '../../../src/services/ServiceSubscriptionManager'
-      );
+      const {
+        serviceSubscriptionManager,
+      } = require('../../../src/services/ServiceSubscriptionManager');
 
       getCurrentUser.mockResolvedValue({ id: 123 });
       connectOAuthProvider.mockResolvedValue('jwt-token');
@@ -130,7 +129,7 @@ describe('GitLab Passport Strategies', () => {
         emails: [{ value: 'test@example.com' }],
       };
 
-      await new Promise((resolve) => {
+      await new Promise(resolve => {
         verifyCallback(
           mockReq,
           'access-token',
@@ -178,7 +177,7 @@ describe('GitLab Passport Strategies', () => {
         displayName: 'Test User',
       };
 
-      await new Promise((resolve) => {
+      await new Promise(resolve => {
         verifyCallback(
           mockReq,
           'access-token',
@@ -194,13 +193,13 @@ describe('GitLab Passport Strategies', () => {
     });
 
     it('should store token data for authenticated user', async () => {
-      const { connectOAuthProvider } = require(
-        '../../../src/routes/auth/auth.service'
-      );
+      const {
+        connectOAuthProvider,
+      } = require('../../../src/routes/auth/auth.service');
       const { getCurrentUser } = require('../../../src/utils/auth');
-      const { gitlabOAuth } = require(
-        '../../../src/services/services/gitlab/oauth'
-      );
+      const {
+        gitlabOAuth,
+      } = require('../../../src/services/services/gitlab/oauth');
       const { verify } = require('jsonwebtoken');
 
       getCurrentUser.mockResolvedValue({ id: 123 });
@@ -225,7 +224,7 @@ describe('GitLab Passport Strategies', () => {
         emails: [{ value: 'test@example.com' }],
       };
 
-      await new Promise((resolve) => {
+      await new Promise(resolve => {
         verifyCallback(
           mockReq,
           'test-access-token',
@@ -249,9 +248,9 @@ describe('GitLab Passport Strategies', () => {
     });
 
     it('should handle connectOAuthProvider errors', async () => {
-      const { connectOAuthProvider } = require(
-        '../../../src/routes/auth/auth.service'
-      );
+      const {
+        connectOAuthProvider,
+      } = require('../../../src/routes/auth/auth.service');
       const { getCurrentUser } = require('../../../src/utils/auth');
 
       const testError = new Error('Failed to connect provider');
@@ -274,7 +273,7 @@ describe('GitLab Passport Strategies', () => {
         emails: [{ value: 'test@example.com' }],
       };
 
-      await new Promise((resolve) => {
+      await new Promise(resolve => {
         verifyCallback(
           mockReq,
           'access-token',
@@ -310,7 +309,7 @@ describe('GitLab Passport Strategies', () => {
         displayName: 'Test User',
       };
 
-      await new Promise((resolve) => {
+      await new Promise(resolve => {
         verifyCallback(
           mockReq,
           'access-token',

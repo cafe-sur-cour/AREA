@@ -248,7 +248,8 @@ describe('GitLab Schemas', () => {
             required: true,
             placeholder: 'Enter MR title...',
             dynamic: true,
-            dynamicPlaceholder: 'MR: {{action.payload.object_attributes.title}}',
+            dynamicPlaceholder:
+              'MR: {{action.payload.object_attributes.title}}',
           },
           {
             name: 'description',

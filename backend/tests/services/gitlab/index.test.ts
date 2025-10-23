@@ -249,9 +249,9 @@ describe('GitLab Service', () => {
 
   describe('initialize', () => {
     it('should initialize GitLab passport', async () => {
-      const { initializeGitLabPassport } = require(
-        '../../../src/services/services/gitlab/passport'
-      );
+      const {
+        initializeGitLabPassport,
+      } = require('../../../src/services/services/gitlab/passport');
 
       const { initialize } = await import(
         '../../../src/services/services/gitlab/index'

@@ -393,7 +393,9 @@ describe('GitLabReactionExecutor', () => {
       expect(result.success).toBe(true);
       expect(result.output.project).toBeDefined();
       expect(result.output.project.visibility).toBe('public');
-      expect(result.output.project.path_with_namespace).toBe('group/my-project');
+      expect(result.output.project.path_with_namespace).toBe(
+        'group/my-project'
+      );
 
       expect(mockFetch).toHaveBeenCalledWith(
         'https://gitlab.com/api/v4/projects/group%2Fmy-project',
@@ -567,7 +569,9 @@ describe('GitLabReactionExecutor', () => {
       const result = await gitlabReactionExecutor.execute(context);
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain('Failed to update GitLab project visibility');
+      expect(result.error).toContain(
+        'Failed to update GitLab project visibility'
+      );
     });
 
     it('should handle merge_request note_type in add_comment', async () => {

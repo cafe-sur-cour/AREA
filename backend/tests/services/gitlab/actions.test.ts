@@ -99,7 +99,14 @@ describe('GitLab Actions', () => {
                 description: 'Total number of commits in the push',
               },
             },
-            required: ['ref', 'before', 'after', 'user_id', 'project', 'commits'],
+            required: [
+              'ref',
+              'before',
+              'after',
+              'user_id',
+              'project',
+              'commits',
+            ],
           },
           metadata: {
             category: 'GitLab',
