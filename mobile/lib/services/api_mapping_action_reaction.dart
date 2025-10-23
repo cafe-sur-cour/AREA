@@ -60,10 +60,7 @@ class ApiMappingActionReaction {
     }
   }
 
-  static Future<List<AutomationModel>> getAutomations(
-    BuildContext context,
-    String backendAddress,
-  ) async {
+  static Future<List<AutomationModel>> getAutomations(String backendAddress) async {
     final jwt = await getJwt();
     final url = Uri.parse("$backendAddress${AppRoutes.getAutomations}");
 
