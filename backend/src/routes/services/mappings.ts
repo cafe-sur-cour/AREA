@@ -476,37 +476,37 @@ router.post(
  *                       description:
  *                         type: string
  *                         description: Optional description of the mapping
-                       action:
-                         type: object
-                         description: Action configuration
-                         properties:
-                           type:
-                             type: string
-                             description: Action type in format "service.action"
-                           name:
-                             type: string
-                             description: Human-readable name of the action
-                           config:
-                             type: object
-                             description: Action configuration parameters
+ *                       action:
+ *                         type: object
+ *                         description: Action configuration
+ *                         properties:
+ *                           type:
+ *                             type: string
+ *                             description: Action type in format "service.action"
+ *                           name:
+ *                             type: string
+ *                             description: Human-readable name of the action
+ *                           config:
+ *                             type: object
+ *                             description: Action configuration parameters
  *                       reactions:
  *                         type: array
-                         items:
-                           type: object
-                           properties:
-                             type:
-                               type: string
-                               description: Reaction type in format "service.reaction"
-                             name:
-                               type: string
-                               description: Human-readable name of the reaction
-                             config:
-                               type: object
-                               description: Reaction configuration parameters
-                             delay:
-                               type: number
-                               description: Optional delay in seconds before executing this reaction
-                               minimum: 0
+ *                         items:
+ *                           type: object
+ *                           properties:
+ *                             type:
+ *                               type: string
+ *                               description: Reaction type in format "service.reaction"
+ *                             name:
+ *                               type: string
+ *                               description: Human-readable name of the reaction
+ *                             config:
+ *                               type: object
+ *                               description: Reaction configuration parameters
+ *                             delay:
+ *                               type: number
+ *                               description: Optional delay in seconds before executing this reaction
+ *                               minimum: 0
  *                       is_active:
  *                         type: boolean
  *                         description: Whether the mapping is currently active
@@ -580,38 +580,38 @@ router.get(
  *                     description:
  *                       type: string
  *                       description: Optional description of the mapping
-                       action:
-                         type: object
-                         description: Action configuration
-                         properties:
-                           type:
-                             type: string
-                             description: Action type in format "service.action"
-                           name:
-                             type: string
-                             description: Human-readable name of the action
-                           config:
-                             type: object
-                             description: Action configuration parameters
+ *                     action:
+ *                       type: object
+ *                       description: Action configuration
+ *                       properties:
+ *                         type:
+ *                           type: string
+ *                           description: Action type in format "service.action"
+ *                         name:
+ *                           type: string
+ *                           description: Human-readable name of the action
+ *                         config:
+ *                           type: object
+ *                           description: Action configuration parameters
  *                     reactions:
  *                       type: array
  *                       description: List of configured reactions
-                         items:
-                           type: object
-                           properties:
-                             type:
-                               type: string
-                               description: Reaction type in format "service.reaction"
-                             name:
-                               type: string
-                               description: Human-readable name of the reaction
-                             config:
-                               type: object
-                               description: Reaction configuration parameters
-                             delay:
-                               type: number
-                               description: Optional delay in seconds before executing this reaction
-                               minimum: 0
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           type:
+ *                             type: string
+ *                             description: Reaction type in format "service.reaction"
+ *                           name:
+ *                             type: string
+ *                             description: Human-readable name of the reaction
+ *                           config:
+ *                             type: object
+ *                             description: Reaction configuration parameters
+ *                           delay:
+ *                             type: number
+ *                             description: Optional delay in seconds before executing this reaction
+ *                             minimum: 0
  *                     is_active:
  *                       type: boolean
  *                       description: Whether the mapping is currently active
