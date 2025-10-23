@@ -388,7 +388,7 @@ export default function MyAreasPage() {
                       <p className='font-semibold text-xs text-muted-foreground uppercase mb-1'>
                         Action
                       </p>
-                      <p className='text-foreground'>{mapping.action.type}</p>
+                      <p className='text-foreground'>{mapping.action.name}</p>
                     </div>
 
                     <div>
@@ -402,7 +402,7 @@ export default function MyAreasPage() {
                             className='flex items-center justify-between'
                           >
                             <span className='text-foreground'>
-                              {reaction.type}
+                              {reaction.name}
                             </span>
                             {reaction.delay > 0 && (
                               <span className='text-xs text-muted-foreground'>
