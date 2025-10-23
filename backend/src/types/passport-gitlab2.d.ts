@@ -9,7 +9,15 @@ declare module 'passport-gitlab2' {
   }
 
   export class Strategy extends PassportStrategy {
-    constructor(options: StrategyOptions, verify: Function);
+    constructor(
+      options: StrategyOptions,
+      verify: (
+        accessToken: string,
+        refreshToken: string,
+        profile: object,
+        done: (error: Error | null, user?: object) => void
+      ) => void
+    );
   }
 
   export { Strategy as default };

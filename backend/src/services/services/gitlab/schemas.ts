@@ -81,7 +81,8 @@ export const gitlabCreateIssueSchema: ActionReactionSchema = {
       required: true,
       placeholder: 'Enter issue title...',
       dynamic: true,
-      dynamicPlaceholder: 'New Issue: {{action.payload.object_attributes.title}}',
+      dynamicPlaceholder:
+        'New Issue: {{action.payload.object_attributes.title}}',
     },
     {
       name: 'description',
@@ -150,7 +151,8 @@ export const gitlabAddCommentSchema: ActionReactionSchema = {
       required: true,
       placeholder: 'Enter your comment...',
       dynamic: true,
-      dynamicPlaceholder: 'Automated comment from AREA: {{action.payload.object_attributes.title}}',
+      dynamicPlaceholder:
+        'Automated comment from AREA: {{action.payload.object_attributes.title}}',
     },
   ],
 };
@@ -199,7 +201,8 @@ export const gitlabCreateMergeRequestSchema: ActionReactionSchema = {
       required: false,
       placeholder: 'Describe the changes...',
       dynamic: true,
-      dynamicPlaceholder: 'Automated MR from push to {{action.payload.ref}}\n\nCommits:\n{{action.payload.commits}}',
+      dynamicPlaceholder:
+        'Automated MR from push to {{action.payload.ref}}\n\nCommits:\n{{action.payload.commits}}',
     },
     {
       name: 'assignee_ids',

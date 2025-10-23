@@ -3,7 +3,6 @@ import { gitlabActions } from './action';
 import { gitlabReactions } from './reactions';
 import { gitlabReactionExecutor } from './executor';
 
-
 const gitlabService: Service = {
   id: 'gitlab',
   name: 'GitLab',

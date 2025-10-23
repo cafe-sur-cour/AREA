@@ -4,25 +4,8 @@ import type {
   ReactionExecutionResult,
 } from '../../../types/service';
 
-interface GitLabIssueData {
-  project: string;
-  title: string;
-  description?: string;
-  labels?: string;
-  assignee_ids?: string;
-}
-
 interface GitLabNoteData {
   body: string;
-}
-
-interface GitLabMergeRequestData {
-  project: string;
-  title: string;
-  description?: string;
-  source_branch: string;
-  target_branch: string;
-  assignee_ids?: string;
 }
 
 interface GitLabProjectData {
@@ -180,7 +163,10 @@ export class GitLabReactionExecutor implements ReactionExecutor {
     }
 
     if (assignee_ids) {
-      const assigneeIds = assignee_ids.split(',').map(id => parseInt(id.trim(), 10)).filter(id => !isNaN(id));
+      const assigneeIds = assignee_ids
+        .split(',')
+        .map(id => parseInt(id.trim(), 10))
+        .filter(id => !isNaN(id));
       if (assigneeIds.length > 0) {
         issueData.assignee_ids = assigneeIds;
       }
@@ -190,9 +176,9 @@ export class GitLabReactionExecutor implements ReactionExecutor {
       const response = await fetch(url, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${accessToken}`,
+          Authorization: `Bearer ${accessToken}`,
           'Content-Type': 'application/json',
-          'Accept': 'application/json',
+          Accept: 'application/json',
           'User-Agent': 'AREA-App',
         },
         body: JSON.stringify(issueData),
@@ -245,12 +231,14 @@ export class GitLabReactionExecutor implements ReactionExecutor {
     if (!project || !issue_iid || !body || !note_type) {
       return {
         success: false,
-        error: 'Project path, issue/MR IID, note type, and body are required for adding a comment',
+        error:
+          'Project path, issue/MR IID, note type, and body are required for adding a comment',
       };
     }
 
     const projectPath = encodeURIComponent(project);
-    const noteableType = note_type === 'merge_request' ? 'merge_requests' : 'issues';
+    const noteableType =
+      note_type === 'merge_request' ? 'merge_requests' : 'issues';
     const url = `${this.apiBaseUrl}/projects/${projectPath}/${noteableType}/${issue_iid}/notes`;
 
     const noteData: GitLabNoteData = {
@@ -261,9 +249,9 @@ export class GitLabReactionExecutor implements ReactionExecutor {
       const response = await fetch(url, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${accessToken}`,
+          Authorization: `Bearer ${accessToken}`,
           'Content-Type': 'application/json',
-          'Accept': 'application/json',
+          Accept: 'application/json',
           'User-Agent': 'AREA-App',
         },
         body: JSON.stringify(noteData),
@@ -315,7 +303,8 @@ export class GitLabReactionExecutor implements ReactionExecutor {
     if (!project || !title || !source_branch || !target_branch) {
       return {
         success: false,
-        error: 'Project path, title, source branch, and target branch are required for creating a merge request',
+        error:
+          'Project path, title, source branch, and target branch are required for creating a merge request',
       };
     }
 
@@ -333,7 +322,10 @@ export class GitLabReactionExecutor implements ReactionExecutor {
     }
 
     if (assignee_ids) {
-      const assigneeIds = assignee_ids.split(',').map(id => parseInt(id.trim(), 10)).filter(id => !isNaN(id));
+      const assigneeIds = assignee_ids
+        .split(',')
+        .map(id => parseInt(id.trim(), 10))
+        .filter(id => !isNaN(id));
       if (assigneeIds.length > 0) {
         mergeRequestData.assignee_ids = assigneeIds;
       }
@@ -343,9 +335,9 @@ export class GitLabReactionExecutor implements ReactionExecutor {
       const response = await fetch(url, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${accessToken}`,
+          Authorization: `Bearer ${accessToken}`,
           'Content-Type': 'application/json',
-          'Accept': 'application/json',
+          Accept: 'application/json',
           'User-Agent': 'AREA-App',
         },
         body: JSON.stringify(mergeRequestData),
@@ -397,7 +389,8 @@ export class GitLabReactionExecutor implements ReactionExecutor {
     if (!project || !visibility) {
       return {
         success: false,
-        error: 'Project path and visibility level are required for setting project visibility',
+        error:
+          'Project path and visibility level are required for setting project visibility',
       };
     }
 
@@ -412,7 +405,7 @@ export class GitLabReactionExecutor implements ReactionExecutor {
     const url = `${this.apiBaseUrl}/projects/${projectPath}`;
 
     const projectData: GitLabProjectData = {
-        project,
+      project,
       visibility,
     };
 
@@ -420,9 +413,9 @@ export class GitLabReactionExecutor implements ReactionExecutor {
       const response = await fetch(url, {
         method: 'PUT',
         headers: {
-          'Authorization': `Bearer ${accessToken}`,
+          Authorization: `Bearer ${accessToken}`,
           'Content-Type': 'application/json',
-          'Accept': 'application/json',
+          Accept: 'application/json',
           'User-Agent': 'AREA-App',
         },
         body: JSON.stringify(projectData),

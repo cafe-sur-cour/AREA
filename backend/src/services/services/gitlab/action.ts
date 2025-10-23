@@ -45,7 +45,10 @@ export const gitlabActions: ActionDefinition[] = [
           properties: {
             id: { type: 'number', description: 'Project ID' },
             name: { type: 'string', description: 'Project name' },
-            path_with_namespace: { type: 'string', description: 'Full project path' },
+            path_with_namespace: {
+              type: 'string',
+              description: 'Full project path',
+            },
             web_url: { type: 'string', description: 'Project web URL' },
           },
         },
@@ -99,7 +102,10 @@ export const gitlabActions: ActionDefinition[] = [
             id: { type: 'number', description: 'Merge request ID' },
             iid: { type: 'number', description: 'Internal merge request ID' },
             title: { type: 'string', description: 'Merge request title' },
-            description: { type: 'string', description: 'Merge request description' },
+            description: {
+              type: 'string',
+              description: 'Merge request description',
+            },
             state: { type: 'string', description: 'Merge request state' },
             target_branch: { type: 'string', description: 'Target branch' },
             source_branch: { type: 'string', description: 'Source branch' },
@@ -111,7 +117,10 @@ export const gitlabActions: ActionDefinition[] = [
               items: { type: 'number', description: 'Assignee ID' },
             },
             created_at: { type: 'string', description: 'Creation timestamp' },
-            updated_at: { type: 'string', description: 'Last update timestamp' },
+            updated_at: {
+              type: 'string',
+              description: 'Last update timestamp',
+            },
           },
         },
         user: {
@@ -129,7 +138,10 @@ export const gitlabActions: ActionDefinition[] = [
           properties: {
             id: { type: 'number', description: 'Project ID' },
             name: { type: 'string', description: 'Project name' },
-            path_with_namespace: { type: 'string', description: 'Full project path' },
+            path_with_namespace: {
+              type: 'string',
+              description: 'Full project path',
+            },
             web_url: { type: 'string', description: 'Project web URL' },
           },
         },
@@ -158,7 +170,10 @@ export const gitlabActions: ActionDefinition[] = [
             id: { type: 'number', description: 'Merge request ID' },
             iid: { type: 'number', description: 'Internal merge request ID' },
             title: { type: 'string', description: 'Merge request title' },
-            description: { type: 'string', description: 'Merge request description' },
+            description: {
+              type: 'string',
+              description: 'Merge request description',
+            },
             state: { type: 'string', description: 'Merge request state' },
             target_branch: { type: 'string', description: 'Target branch' },
             source_branch: { type: 'string', description: 'Source branch' },
@@ -171,7 +186,10 @@ export const gitlabActions: ActionDefinition[] = [
             },
             merged_at: { type: 'string', description: 'Merge timestamp' },
             created_at: { type: 'string', description: 'Creation timestamp' },
-            updated_at: { type: 'string', description: 'Last update timestamp' },
+            updated_at: {
+              type: 'string',
+              description: 'Last update timestamp',
+            },
           },
         },
         user: {
@@ -189,7 +207,10 @@ export const gitlabActions: ActionDefinition[] = [
           properties: {
             id: { type: 'number', description: 'Project ID' },
             name: { type: 'string', description: 'Project name' },
-            path_with_namespace: { type: 'string', description: 'Full project path' },
+            path_with_namespace: {
+              type: 'string',
+              description: 'Full project path',
+            },
             web_url: { type: 'string', description: 'Project web URL' },
           },
         },
@@ -228,7 +249,10 @@ export const gitlabActions: ActionDefinition[] = [
               items: { type: 'number', description: 'Assignee ID' },
             },
             created_at: { type: 'string', description: 'Creation timestamp' },
-            updated_at: { type: 'string', description: 'Last update timestamp' },
+            updated_at: {
+              type: 'string',
+              description: 'Last update timestamp',
+            },
             labels: {
               type: 'array',
               description: 'Issue labels',
@@ -251,7 +275,10 @@ export const gitlabActions: ActionDefinition[] = [
           properties: {
             id: { type: 'number', description: 'Project ID' },
             name: { type: 'string', description: 'Project name' },
-            path_with_namespace: { type: 'string', description: 'Full project path' },
+            path_with_namespace: {
+              type: 'string',
+              description: 'Full project path',
+            },
             web_url: { type: 'string', description: 'Project web URL' },
           },
         },

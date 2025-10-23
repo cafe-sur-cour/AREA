@@ -39,10 +39,16 @@ export class GitLabOAuth {
     this.gitlabAuthBaseUrl =
       process.env.SERVICE_GITLAB_AUTH_BASE_URL || 'https://gitlab.com';
 
-    this.isConfigured = !!(this.clientId && this.clientSecret && this.redirectUri);
-    
+    this.isConfigured = !!(
+      this.clientId &&
+      this.clientSecret &&
+      this.redirectUri
+    );
+
     if (!this.isConfigured) {
-      console.warn('GitLab OAuth configuration missing - service will not be available');
+      console.warn(
+        'GitLab OAuth configuration missing - service will not be available'
+      );
     }
   }
 
@@ -53,7 +59,8 @@ export class GitLabOAuth {
     const params = new URLSearchParams({
       client_id: this.clientId,
       redirect_uri: this.redirectUri,
-      scope: 'api read_user read_api read_repository write_repository read_registry write_registry',
+      scope:
+        'api read_user read_api read_repository write_repository read_registry write_registry',
       state: state,
       response_type: 'code',
     });

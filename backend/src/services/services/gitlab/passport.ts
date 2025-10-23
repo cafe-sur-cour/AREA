@@ -1,5 +1,4 @@
 import passport from 'passport';
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 import GitLabStrategyModule from 'passport-gitlab2';
 import { Request } from 'express';
 import jwt from 'jsonwebtoken';
@@ -29,7 +28,8 @@ export function initializeGitLabPassport(): void {
         clientSecret: process.env.SERVICE_GITLAB_CLIENT_SECRET || '',
         callbackURL: process.env.SERVICE_GITLAB_REDIRECT_URI || '',
         baseURL: 'https://gitlab.com',
-        scope: 'api read_user read_api read_repository write_repository read_registry write_registry',
+        scope:
+          'api read_user read_api read_repository write_repository read_registry write_registry',
         passReqToCallback: true,
       },
       async (
@@ -45,13 +45,18 @@ export function initializeGitLabPassport(): void {
           user?: GitLabUser | null
         ) => void;
         try {
-          const userEmail = (profile as { emails?: { value: string }[] })?.emails?.[0]?.value || '';
+          const userEmail =
+            (profile as { emails?: { value: string }[] })?.emails?.[0]?.value ||
+            '';
 
           const userToken = await oauthLogin(
             'gitlab',
             (profile as { id: string }).id,
             userEmail,
-            (profile as { displayName?: string; username?: string }).displayName || (profile as { username?: string }).username || ''
+            (profile as { displayName?: string; username?: string })
+              .displayName ||
+              (profile as { username?: string }).username ||
+              ''
           );
           if (userToken instanceof Error) {
             return doneCallback(userToken, null);
@@ -68,7 +73,11 @@ export function initializeGitLabPassport(): void {
           await gitlabOAuth.storeUserToken(decoded.id, tokenData);
           return doneCallback(null, {
             id: (profile as { id: string }).id,
-            name: (profile as { displayName?: string; username?: string }).displayName || (profile as { username?: string }).username || '',
+            name:
+              (profile as { displayName?: string; username?: string })
+                .displayName ||
+              (profile as { username?: string }).username ||
+              '',
             email: userEmail,
             token: userToken,
           });
@@ -87,7 +96,8 @@ export function initializeGitLabPassport(): void {
         clientSecret: process.env.SERVICE_GITLAB_CLIENT_SECRET || '',
         callbackURL: process.env.SERVICE_GITLAB_REDIRECT_URI || '',
         baseURL: 'https://gitlab.com',
-        scope: 'api read_user read_api read_repository write_repository read_registry write_registry',
+        scope:
+          'api read_user read_api read_repository write_repository read_registry write_registry',
         passReqToCallback: true,
       },
       async (
@@ -108,14 +118,19 @@ export function initializeGitLabPassport(): void {
             return doneCallback(new Error('User not authenticated'), null);
           }
 
-          const userEmail = (profile as { emails?: { value: string }[] })?.emails?.[0]?.value || '';
+          const userEmail =
+            (profile as { emails?: { value: string }[] })?.emails?.[0]?.value ||
+            '';
 
           const userToken = await connectOAuthProvider(
             currentUser.id,
             'gitlab',
             (profile as { id: string }).id,
             userEmail,
-            (profile as { displayName?: string; username?: string }).displayName || (profile as { username?: string }).username || ''
+            (profile as { displayName?: string; username?: string })
+              .displayName ||
+              (profile as { username?: string }).username ||
+              ''
           );
 
           if (userToken instanceof Error) {
@@ -137,7 +152,10 @@ export function initializeGitLabPassport(): void {
             const { serviceSubscriptionManager } = await import(
               '../../ServiceSubscriptionManager'
             );
-            await serviceSubscriptionManager.subscribeUser(decoded.id, 'gitlab');
+            await serviceSubscriptionManager.subscribeUser(
+              decoded.id,
+              'gitlab'
+            );
           } catch (subscriptionError) {
             console.error(
               'Error auto-subscribing user to GitLab service:',
@@ -147,7 +165,11 @@ export function initializeGitLabPassport(): void {
 
           return doneCallback(null, {
             id: (profile as { id: string }).id,
-            name: (profile as { displayName?: string; username?: string }).displayName || (profile as { username?: string }).username || '',
+            name:
+              (profile as { displayName?: string; username?: string })
+                .displayName ||
+              (profile as { username?: string }).username ||
+              '',
             email: userEmail,
             token: userToken,
           });

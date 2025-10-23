@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import crypto from 'crypto';
 import { AppDataSource } from '../../../../config/db';
 import { WebhookEvents } from '../../../../config/entity/WebhookEvents';
 import { ExternalWebhooks } from '../../../../config/entity/ExternalWebhooks';
@@ -96,7 +95,8 @@ class GitLabWebhookHandler implements WebhookHandler {
       webhookEvent.action_type = actionType;
       webhookEvent.user_id = externalWebhook.user_id;
       webhookEvent.source = 'gitlab';
-      webhookEvent.external_id = req.headers['x-gitlab-event-uuid'] as string || null;
+      webhookEvent.external_id =
+        (req.headers['x-gitlab-event-uuid'] as string) || null;
       webhookEvent.payload = req.body;
       webhookEvent.status = 'received';
       webhookEvent.user_agent = req.get('User-Agent') || null;
@@ -128,7 +128,10 @@ class GitLabWebhookHandler implements WebhookHandler {
       case 'Push Hook':
         return 'gitlab.push';
       case 'Merge Request Hook':
-        const objectAttributes = payload.object_attributes as Record<string, unknown>;
+        const objectAttributes = payload.object_attributes as Record<
+          string,
+          unknown
+        >;
         const action = objectAttributes?.action as string;
         const state = objectAttributes?.state as string;
         if (action === 'open' || state === 'opened') {
@@ -138,7 +141,9 @@ class GitLabWebhookHandler implements WebhookHandler {
         }
         break;
       case 'Issue Hook':
-        const issueAction = (payload.object_attributes as Record<string, unknown>)?.action as string;
+        const issueAction = (
+          payload.object_attributes as Record<string, unknown>
+        )?.action as string;
         if (issueAction === 'open') {
           return 'gitlab.issue_opened';
         }

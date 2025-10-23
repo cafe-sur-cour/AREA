@@ -226,7 +226,7 @@ export class GitLabWebhookManager {
       throw new Error('GitLab token not found for user');
     }
 
-    const gitlabUpdates: any = {};
+    const gitlabUpdates: Record<string, boolean | string> = {};
 
     if (updates.events) {
       const gitlabEvents = this.mapEventsToGitLab(updates.events);
