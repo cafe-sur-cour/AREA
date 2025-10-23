@@ -59,6 +59,8 @@ export const githubCreateIssueSchema: ActionReactionSchema = {
       label: 'Repository (owner/repo)',
       required: true,
       placeholder: 'octocat/Hello-World',
+      dynamic: true,
+      dynamicPlaceholder: '{{action.payload.repository.full_name}}',
     },
     {
       name: 'title',
