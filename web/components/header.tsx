@@ -2,6 +2,7 @@
 
 import { NavLinks } from './NavLinks';
 import { UserActions } from './UserActions';
+import { LanguageSwitcher } from './LanguageSwitcher';
 import { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
 import Image from 'next/image';
@@ -32,7 +33,10 @@ export default function Navigation() {
             alt='Logo'
           />
           <NavLinks className='flex gap-6' />
-          <UserActions className='flex gap-4' />
+          <div className='flex items-center gap-4'>
+            <UserActions className='flex gap-4' />
+            <LanguageSwitcher />
+          </div>
         </div>
 
         {/* Mobile burger */}
@@ -61,6 +65,10 @@ export default function Navigation() {
           <NavLinks className='flex flex-col space-y-3' isMobile />
           <div className='border-t border-border mx-8'></div>
           <UserActions className='flex flex-col space-y-3' isMobile />
+          <div className='border-t border-border mx-8'></div>
+          <div className='px-6'>
+            <LanguageSwitcher isMobile />
+          </div>
         </div>
       )}
     </nav>

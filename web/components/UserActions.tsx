@@ -7,7 +7,6 @@ import { IDAvatar } from './ui/InputAvatar';
 import Link from 'next/link';
 import { TbLoader3 } from 'react-icons/tb';
 import { usePathname } from 'next/navigation';
-import { LanguageSwitcher } from './LanguageSwitcher';
 
 interface UserActionsProps {
   className?: string;
@@ -88,7 +87,6 @@ export function UserActions({ className, isMobile }: UserActionsProps) {
               <span className='text-app-text-secondary'>Profile</span>
             )}
           </button>
-          <LanguageSwitcher isMobile={isMobile} />
           <button
             onClick={handleLogout}
             aria-label='Logout'
