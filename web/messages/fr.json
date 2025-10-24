@@ -1,4 +1,22 @@
 {
+  "catalogue": {
+    "title": "Catalogue d'Actions et de Réactions",
+    "filter": {
+      "label": "Filtrer",
+      "placeholder": "Filtrer par type",
+      "all": "Tout",
+      "actionsOnly": "Actions uniquement",
+      "reactionsOnly": "Réactions uniquement"
+    },
+    "badges": {
+      "action": "Action",
+      "reaction": "Réaction"
+    },
+    "buttons": {
+      "addAction": "Ajouter cette action",
+      "addReaction": "Ajouter cette réaction"
+    }
+  },
   "home": {
     "hero": {
       "title": "Automatisez votre vie avec des connexions puissantes",
