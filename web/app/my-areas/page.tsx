@@ -336,188 +336,254 @@ export default function MyAreasPage() {
                 {t.myAreas.newAreaButton}
               </Button>
             </DrawerTrigger>
-            <DrawerContent className='h-screen w-full fixed inset-0'>
-              <div className='h-full flex flex-col max-w-7xl mx-auto'>
-                <DrawerHeader className='border-b px-6 py-4'>
-                  <DrawerTitle className='text-2xl'>{t.myAreas.drawer.title}</DrawerTitle>
-                  <DrawerDescription>
-                    {t.myAreas.drawer.subtitle}
-                  </DrawerDescription>
-                </DrawerHeader>
-
-                <div className='flex-1 overflow-y-auto px-6 py-6'>
-                  <div className='max-w-4xl mx-auto mb-8 space-y-4'>
-                    <div className='space-y-2'>
-                      <Label htmlFor='name' className='text-sm font-medium'>
-                        {t.myAreas.drawer.nameLabel} <span className='text-destructive'>*</span>
-                      </Label>
-                      <Input
-                        id='name'
-                        placeholder={t.myAreas.drawer.namePlaceholder}
-                        value={formData.name}
-                        onChange={e =>
-                          setFormData({ ...formData, name: e.target.value })
-                        }
-                        className='transition-all focus:ring-2 text-lg h-12'
-                      />
-                    </div>
-
-                    <div className='space-y-2'>
-                      <Label htmlFor='description' className='text-sm font-medium'>
-                        {t.myAreas.drawer.descriptionLabel}
-                      </Label>
-                      <Textarea
-                        id='description'
-                        placeholder={t.myAreas.drawer.descriptionPlaceholder}
-                        value={formData.description}
-                        onChange={e =>
-                          setFormData({ ...formData, description: e.target.value })
-                        }
-                        rows={2}
-                        className='transition-all focus:ring-2 resize-none'
-                      />
-                    </div>
-                  </div>
-
-                  <div className='max-w-6xl mx-auto relative'>
-                    <div className='hidden lg:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 items-center justify-center pointer-events-none'>
-                      <div className='bg-background border-2 border-primary rounded-full px-6 py-3 shadow-lg'>
-                        <div className='flex items-center gap-3'>
-                          <div className='w-3 h-3 rounded-full bg-blue-500 animate-pulse' />
-                          <span className='text-sm font-bold text-primary'>THEN</span>
-                          <div className='w-3 h-3 rounded-full bg-purple-500 animate-pulse' />
-                        </div>
+            <DrawerContent className='h-screen w-full fixed inset-0 bg-transparent border-0'>
+              {/* Overlay assombri */}
+              <div className='fixed inset-0 bg-black/60 backdrop-blur-sm' onClick={() => setIsDrawerOpen(false)} />
+              
+              {/* Modal centré */}
+              <div className='fixed inset-0 flex items-center justify-center p-4 pointer-events-none'>
+                <div className='bg-background rounded-2xl shadow-2xl border w-full max-w-7xl max-h-[95vh] flex flex-col pointer-events-auto overflow-hidden'>
+                  {/* Header */}
+                  <DrawerHeader className='border-b px-6 py-5 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20'>
+                    <div className='flex items-center justify-between'>
+                      <div>
+                        <DrawerTitle className='text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent'>
+                          {t.myAreas.drawer.title}
+                        </DrawerTitle>
+                        <DrawerDescription className='text-base mt-1'>
+                          {t.myAreas.drawer.subtitle}
+                        </DrawerDescription>
                       </div>
+                      <DrawerClose asChild>
+                        <Button
+                          variant='ghost'
+                          size='icon'
+                          className='h-10 w-10 rounded-full hover:bg-background/80'
+                        >
+                          <Plus className='h-5 w-5 rotate-45' />
+                        </Button>
+                      </DrawerClose>
                     </div>
+                  </DrawerHeader>
 
-                    <div className='grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6'>
-                      <Card className='border-2 border-blue-200 dark:border-blue-900 bg-gradient-to-br from-blue-50/50 to-transparent dark:from-blue-950/20 hover:shadow-xl transition-all duration-300'>
-                        <CardHeader>
-                          <div className='flex items-center gap-3'>
-                            <div className='w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center shadow-lg'>
-                              <span className='text-white font-bold text-lg'>1</span>
-                            </div>
-                            <div className='flex-1'>
-                              <CardTitle className='text-xl flex items-center gap-2'>
-                                {t.myAreas.drawer.actionTitle}
-                                {selectedAction && <CheckCircle2 className='w-5 h-5 text-green-500' />}
-                              </CardTitle>
-                              <CardDescription>
-                                {t.myAreas.drawer.actionSubtitle}
-                              </CardDescription>
-                            </div>
-                          </div>
-                        </CardHeader>
-                        <CardContent>
-                          <ActionForm
-                            selectedAction={selectedAction}
-                            onActionChange={setSelectedAction}
-                            actionConfig={actionConfig}
-                            onConfigChange={setActionConfig}
-                          />
-                        </CardContent>
-                      </Card>
-
-                      <Card className='border-2 border-purple-200 dark:border-purple-900 bg-gradient-to-br from-purple-50/50 to-transparent dark:from-purple-950/20 hover:shadow-xl transition-all duration-300'>
-                        <CardHeader>
-                          <div className='flex items-center gap-3'>
-                            <div className='w-10 h-10 rounded-full bg-purple-500 flex items-center justify-center shadow-lg'>
-                              <span className='text-white font-bold text-lg'>2</span>
-                            </div>
-                            <div className='flex-1'>
-                              <CardTitle className='text-xl flex items-center gap-2'>
-                                {t.myAreas.drawer.reactionTitle}
-                                {selectedReactions.length > 0 && (
-                                  <span className='bg-purple-500 text-white text-xs px-2.5 py-1 rounded-full font-medium'>
-                                    {selectedReactions.length}
-                                  </span>
-                                )}
-                              </CardTitle>
-                              <CardDescription>
-                                {t.myAreas.drawer.reactionSubtitle}
-                              </CardDescription>
-                            </div>
-                          </div>
-                        </CardHeader>
-                        <CardContent>
-                          <ReactionForm
-                            onReactionsChange={setSelectedReactions}
-                            onConfigChange={setReactionsConfig}
-                            defaultReaction={selectedReactions[0]}
-                            selectedAction={selectedAction}
-                          />
-                        </CardContent>
-                      </Card>
-                    </div>
-
-                    <div className='flex items-center justify-center -mt-3 mb-6 lg:hidden'>
-                      <div className='flex items-center gap-2 bg-primary/10 border border-primary px-4 py-2 rounded-full'>
-                        <div className='w-2 h-2 rounded-full bg-blue-500 animate-pulse' />
-                        <span className='text-xs font-bold text-primary'>THEN</span>
-                        <div className='w-2 h-2 rounded-full bg-purple-500 animate-pulse' />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className='max-w-4xl mx-auto mt-6'>
-                    <Card className='bg-muted/30'>
-                      <CardContent className='py-4'>
-                        <div className='flex items-center justify-between'>
-                          <div className='space-y-1'>
-                            <Label htmlFor='is_active' className='text-base font-semibold cursor-pointer'>
-                              {t.myAreas.drawer.activeLabel}
-                            </Label>
-                            <p className='text-sm text-muted-foreground'>
-                              {t.myAreas.feedback.automationWillBe} {formData.is_active ? t.myAreas.feedback.active : t.myAreas.feedback.inactive} {t.myAreas.feedback.afterCreation}
-                            </p>
-                          </div>
-                          <Switch
-                            id='is_active'
-                            checked={formData.is_active}
-                            onCheckedChange={checked =>
-                              setFormData({ ...formData, is_active: checked })
+                  {/* Content */}
+                  <div className='flex-1 overflow-y-auto px-8 py-6'>
+                    {/* Section Nom et Description */}
+                    <div className='max-w-5xl mx-auto mb-8'>
+                      <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                        <div className='space-y-2'>
+                          <Label htmlFor='name' className='text-sm font-medium flex items-center gap-2'>
+                            {t.myAreas.drawer.nameLabel}
+                          </Label>
+                          <Input
+                            id='name'
+                            placeholder={t.myAreas.drawer.namePlaceholder}
+                            value={formData.name}
+                            onChange={e =>
+                              setFormData({ ...formData, name: e.target.value })
                             }
+                            className='transition-all focus:ring-2 text-base h-11 bg-background/50'
                           />
                         </div>
-                      </CardContent>
-                    </Card>
-                  </div>
-                </div>
 
-                <DrawerFooter className='border-t bg-background/95 backdrop-blur px-6 py-4'>
-                  <div className='max-w-4xl mx-auto w-full flex gap-3'>
-                    <DrawerClose asChild>
-                      <Button
-                        className='cursor-pointer flex-1'
-                        variant='outline'
-                        disabled={isSubmitting}
-                        onClick={() => {
-                          resetForm();
-                          router.replace('/my-areas');
-                        }}
-                      >
-                        {t.myAreas.drawer.cancelButton}
-                      </Button>
-                    </DrawerClose>
-                    <Button
-                      className='cursor-pointer flex-1 shadow-lg'
-                      onClick={handleCreateAutomation}
-                      disabled={isSubmitting}
-                    >
-                      {isSubmitting ? (
-                        <>
-                          <TbLoader3 className='animate-spin mr-2' size={18} />
-                          {t.myAreas.feedback.creating}
-                        </>
-                      ) : (
-                        <>
-                          <Plus className='w-4 h-4 mr-2' />
-                          {t.myAreas.drawer.createButton}
-                        </>
-                      )}
-                    </Button>
+                        <div className='space-y-2'>
+                          <Label htmlFor='description' className='text-sm font-medium flex items-center gap-2'>
+                            {t.myAreas.drawer.descriptionLabel}
+                          </Label>
+                          <Input
+                            id='description'
+                            placeholder={t.myAreas.drawer.descriptionPlaceholder}
+                            value={formData.description}
+                            onChange={e =>
+                              setFormData({ ...formData, description: e.target.value })
+                            }
+                            className='transition-all focus:ring-2 text-base h-11 bg-background/50'
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Séparateur avec icône */}
+                    <div className='max-w-5xl mx-auto mb-6'>
+                      <div className='relative'>
+                        <div className='absolute inset-0 flex items-center'>
+                          <div className='w-full border-t border-dashed border-muted-foreground/30'></div>
+                        </div>
+                        <div className='relative flex justify-center'>
+                          <span className='bg-background px-4 text-sm text-muted-foreground font-medium'>
+                            Configuration
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Layout en deux colonnes : Action à gauche, Réaction à droite */}
+                    <div className='max-w-5xl mx-auto relative'>
+                      {/* Connecteur visuel "THEN" au centre */}
+                      <div className='hidden lg:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 items-center justify-center pointer-events-none'>
+                        <div className='relative'>
+                          {/* Ligne de connexion */}
+                          <div className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-0.5 bg-gradient-to-r from-blue-500 via-primary to-purple-500 opacity-30' />
+                          {/* Badge THEN */}
+                          <div className='relative bg-background border-4 border-primary rounded-full px-5 py-2.5 shadow-2xl'>
+                            <div className='flex items-center gap-2'>
+                              <div className='w-2 h-2 rounded-full bg-blue-500 animate-pulse' />
+                              <span className='text-sm font-black text-primary tracking-wider'>THEN</span>
+                              <div className='w-2 h-2 rounded-full bg-purple-500 animate-pulse' />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
+                        {/* Colonne ACTION (Gauche) */}
+                        <div className='relative'>
+                          <Card className='border-2 border-blue-300 dark:border-blue-800 bg-gradient-to-br from-blue-50 via-blue-50/30 to-transparent dark:from-blue-950/30 dark:via-blue-950/10 shadow-lg hover:shadow-2xl transition-all duration-300 h-full'>
+                            <CardHeader className='pb-4'>
+                              <div className='flex items-start gap-3'>
+                                <div className='w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg flex-shrink-0'>
+                                  <span className='text-white font-bold text-xl'>1</span>
+                                </div>
+                                <div className='flex-1 min-w-0'>
+                                  <CardTitle className='text-2xl flex items-center gap-2 flex-wrap'>
+                                    <span className='bg-gradient-to-r from-blue-600 to-blue-500 bg-clip-text text-transparent'>
+                                      {t.myAreas.drawer.actionTitle}
+                                    </span>
+                                    {selectedAction && (
+                                      <CheckCircle2 className='w-5 h-5 text-green-500 animate-in fade-in zoom-in' />
+                                    )}
+                                  </CardTitle>
+                                  <CardDescription className='text-sm mt-1'>
+                                    ⚡ {t.myAreas.drawer.actionSubtitle}
+                                  </CardDescription>
+                                </div>
+                              </div>
+                            </CardHeader>
+                            <CardContent className='pt-0'>
+                              <ActionForm
+                                selectedAction={selectedAction}
+                                onActionChange={setSelectedAction}
+                                actionConfig={actionConfig}
+                                onConfigChange={setActionConfig}
+                              />
+                            </CardContent>
+                          </Card>
+                        </div>
+
+                        {/* Colonne RÉACTION (Droite) */}
+                        <div className='relative'>
+                          <Card className='border-2 border-purple-300 dark:border-purple-800 bg-gradient-to-br from-purple-50 via-purple-50/30 to-transparent dark:from-purple-950/30 dark:via-purple-950/10 shadow-lg hover:shadow-2xl transition-all duration-300 h-full'>
+                            <CardHeader className='pb-4'>
+                              <div className='flex items-start gap-3'>
+                                <div className='w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-lg flex-shrink-0'>
+                                  <span className='text-white font-bold text-xl'>2</span>
+                                </div>
+                                <div className='flex-1 min-w-0'>
+                                  <CardTitle className='text-2xl flex items-center gap-2 flex-wrap'>
+                                    <span className='bg-gradient-to-r from-purple-600 to-purple-500 bg-clip-text text-transparent'>
+                                      {t.myAreas.drawer.reactionTitle}
+                                    </span>
+                                    {selectedReactions.length > 0 && (
+                                      <span className='bg-gradient-to-r from-purple-500 to-purple-600 text-white text-xs px-2.5 py-1 rounded-full font-semibold shadow animate-in fade-in zoom-in'>
+                                        {selectedReactions.length}
+                                      </span>
+                                    )}
+                                  </CardTitle>
+                                  <CardDescription className='text-sm mt-1'>
+                                    {t.myAreas.drawer.reactionSubtitle}
+                                  </CardDescription>
+                                </div>
+                              </div>
+                            </CardHeader>
+                            <CardContent className='pt-0'>
+                              <ReactionForm
+                                onReactionsChange={setSelectedReactions}
+                                onConfigChange={setReactionsConfig}
+                                defaultReaction={selectedReactions[0]}
+                                selectedAction={selectedAction}
+                              />
+                            </CardContent>
+                          </Card>
+                        </div>
+                      </div>
+
+                      {/* Connecteur mobile */}
+                      <div className='flex items-center justify-center my-4 lg:hidden'>
+                        <div className='flex items-center gap-2 bg-gradient-to-r from-blue-500/10 via-primary/10 to-purple-500/10 border border-primary/30 px-5 py-2 rounded-full'>
+                          <div className='w-2 h-2 rounded-full bg-blue-500 animate-pulse' />
+                          <span className='text-xs font-bold text-primary tracking-wider'>THEN</span>
+                          <div className='w-2 h-2 rounded-full bg-purple-500 animate-pulse' />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Section Activation */}
+                    <div className='max-w-5xl mx-auto mt-8'>
+                      <Card className='bg-gradient-to-r from-muted/50 to-muted/30 border-2'>
+                        <CardContent className='py-4'>
+                          <div className='flex items-center justify-between gap-4'>
+                            <div className='space-y-1 flex-1'>
+                              <Label htmlFor='is_active' className='text-base font-semibold cursor-pointer flex items-center gap-2'>
+                                {formData.is_active ? '✅' : '⏸️'} {t.myAreas.drawer.activeLabel}
+                              </Label>
+                              <p className='text-sm text-muted-foreground'>
+                                {t.myAreas.feedback.automationWillBe}{' '}
+                                <span className={`font-semibold ${formData.is_active ? 'text-green-600 dark:text-green-400' : 'text-orange-600 dark:text-orange-400'}`}>
+                                  {formData.is_active ? t.myAreas.feedback.active : t.myAreas.feedback.inactive}
+                                </span>
+                                {' '}{t.myAreas.feedback.afterCreation}
+                              </p>
+                            </div>
+                            <Switch
+                              id='is_active'
+                              checked={formData.is_active}
+                              onCheckedChange={checked =>
+                                setFormData({ ...formData, is_active: checked })
+                              }
+                              className='scale-125'
+                            />
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
                   </div>
-                </DrawerFooter>
+
+                  {/* Footer */}
+                  <DrawerFooter className='border-t bg-muted/30 backdrop-blur px-8 py-5'>
+                    <div className='max-w-5xl mx-auto w-full flex gap-4'>
+                      <DrawerClose asChild>
+                        <Button
+                          className='cursor-pointer flex-1 h-11'
+                          variant='outline'
+                          disabled={isSubmitting}
+                          onClick={() => {
+                            resetForm();
+                            router.replace('/my-areas');
+                          }}
+                        >
+                          {t.myAreas.drawer.cancelButton}
+                        </Button>
+                      </DrawerClose>
+                      <Button
+                        className='cursor-pointer flex-1 h-11 shadow-lg bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700'
+                        onClick={handleCreateAutomation}
+                        disabled={isSubmitting}
+                      >
+                        {isSubmitting ? (
+                          <>
+                            <TbLoader3 className='animate-spin mr-2' size={20} />
+                            {t.myAreas.feedback.creating}
+                          </>
+                        ) : (
+                          <>
+                            <Plus className='w-5 h-5 mr-2' />
+                            {t.myAreas.drawer.createButton}
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </DrawerFooter>
+                </div>
               </div>
             </DrawerContent>
           </Drawer>
