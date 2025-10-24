@@ -140,7 +140,9 @@
       "descriptionLabel": "Description *",
       "descriptionPlaceholder": "Décrivez ce que fait cette area...",
       "actionTitle": "Action",
+      "actionSubtitle": "Déclenchez votre automation",
       "reactionTitle": "Réaction",
+      "reactionSubtitle": "Que doit-il se passer ?",
       "activeLabel": "Active",
       "createButton": "Créer l'Area",
       "cancelButton": "Annuler"
