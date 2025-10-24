@@ -162,6 +162,28 @@
       "switchFailed": "Échec du changement de mode actif."
     }
   },
+  "verify": {
+    "invalidLink": {
+      "title": "Lien Invalide",
+      "description": "Ce lien de vérification est invalide ou a expiré.",
+      "button": "Aller à la page de connexion"
+    },
+    "verifying": {
+      "title": "Vérification de l'Email",
+      "description": "Veuillez patienter pendant que nous vérifions votre adresse email..."
+    },
+    "success": {
+      "title": "Email Vérifié !",
+      "description": "Votre email a été vérifié avec succès ! Redirection vers la page de connexion...",
+      "redirecting": "Redirection"
+    },
+    "failed": {
+      "title": "Échec de la Vérification",
+      "description": "La vérification a échoué ou le jeton est invalide. Redirection vers la page de connexion...",
+      "redirecting": "Redirection",
+      "button": "Aller à la Page de Connexion Maintenant"
+    }
+  },
   "catalogue": {
     "title": "Catalogue d'Actions et de Réactions",
     "filter": {

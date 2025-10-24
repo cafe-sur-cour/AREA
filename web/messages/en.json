@@ -162,6 +162,28 @@
       "switchFailed": "Failed to switch active mode."
     }
   },
+  "verify": {
+    "invalidLink": {
+      "title": "Invalid Link",
+      "description": "This verification link is invalid or has expired.",
+      "button": "Go to Login"
+    },
+    "verifying": {
+      "title": "Verifying Email",
+      "description": "Please wait while we verify your email address..."
+    },
+    "success": {
+      "title": "Email Verified!",
+      "description": "Your email has been successfully verified! Redirecting to login...",
+      "redirecting": "Redirecting"
+    },
+    "failed": {
+      "title": "Verification Failed",
+      "description": "Verification failed or token is invalid. Redirecting to login...",
+      "redirecting": "Redirecting",
+      "button": "Go to Login Now"
+    }
+  },
   "catalogue": {
     "title": "Catalogue of Actions and Reactions",
     "filter": {
