@@ -13,7 +13,7 @@ export function LanguageSwitcher({
   className,
   isMobile,
 }: LanguageSwitcherProps) {
-  const [currentLang, setCurrentLang] = useState<'en' | 'fr'>('en');
+  const [currentLang, setCurrentLang] = useState<string>('en');
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -28,21 +28,19 @@ export function LanguageSwitcher({
         ) {
           const backendLang = response.data.language as 'en' | 'fr';
           setCurrentLang(backendLang);
-          localStorage.setItem('area-language', backendLang);
+          document.cookie = `i18next=${backendLang}; path=/; max-age=31536000, SameSite=Strict`;
         }
       } catch (error) {
         console.warn(
-          'Failed to fetch language from backend, using localStorage:',
+          'Failed to fetch language from backend, using cookie:',
           error
         );
 
-        let savedLang = localStorage.getItem('area-language') as
-          | 'en'
-          | 'fr'
-          | null;
-        if (!savedLang) {
+        let savedLang = document.cookie.split('; ').find(row => row.startsWith('i18next='));
+        savedLang = savedLang ? savedLang.split('=')[1] : undefined;
+        if (savedLang === undefined) {
           savedLang = 'en';
-          localStorage.setItem('area-language', savedLang);
+          document.cookie = `i18next=${savedLang}; path=/; max-age=31536000, SameSite=Strict`;
         }
         setCurrentLang(savedLang);
       }
@@ -58,14 +56,14 @@ export function LanguageSwitcher({
     try {
       await api.post('/language', { language: newLang });
 
-      localStorage.setItem('area-language', newLang);
+      document.cookie = `i18next=${newLang}; path=/; max-age=31536000, SameSite=Strict`;
       setCurrentLang(newLang);
 
       window.location.reload();
     } catch (error) {
       console.error('Failed to switch language:', error);
 
-      localStorage.setItem('area-language', newLang);
+      document.cookie = `i18next=${newLang}; path=/; max-age=31536000, SameSite=Strict`;
       setCurrentLang(newLang);
       window.location.reload();
     } finally {
