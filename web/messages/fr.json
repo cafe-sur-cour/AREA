@@ -1,0 +1,89 @@
+{
+  "about": {
+    "hero": {
+      "title": "À propos de",
+      "titleHighlight": "AREA",
+      "description": "Nous construisons l'avenir de l'automatisation en connectant les applications et services que vous aimez, rendant votre vie numérique fluide et efficace."
+    },
+    "mission": {
+      "title": "Notre Mission",
+      "description1": "Chez AREA, nous croyons que la technologie doit travailler pour vous, et non l'inverse. Notre mission est de permettre aux individus et aux équipes d'automatiser les tâches répétitives et de créer des connexions puissantes entre leurs applications préférées.",
+      "description2": "Nous démocratisons l'automatisation en la rendant accessible à tous, quelle que soit l'expertise technique. Que vous soyez développeur, professionnel ou simplement quelqu'un qui cherche à gagner du temps, AREA est là pour vous aider à travailler plus intelligemment.",
+      "stats": {
+        "users": "Utilisateurs Actifs",
+        "automations": "Automatisations",
+        "integrations": "Intégrations",
+        "uptime": "Disponibilité"
+      }
+    },
+    "values": {
+      "title": "Nos Valeurs",
+      "subtitle": "Ces principes fondamentaux guident tout ce que nous faisons",
+      "userCentric": {
+        "title": "Centré sur l'Utilisateur",
+        "description": "Nous mettons nos utilisateurs au premier plan dans chaque décision que nous prenons. Vos retours guident l'évolution de notre produit et nous aident à créer des fonctionnalités qui comptent vraiment."
+      },
+      "innovation": {
+        "title": "Innovation",
+        "description": "Nous repoussons constamment les limites pour vous apporter les dernières capacités d'automatisation. Notre équipe reste à la pointe des tendances technologiques pour proposer des solutions de pointe."
+      },
+      "security": {
+        "title": "Sécurité d'Abord",
+        "description": "La sécurité de vos données est notre priorité absolue. Nous mettons en œuvre les meilleures pratiques de sécurité du secteur et maintenons les normes les plus élevées de protection des données."
+      },
+      "global": {
+        "title": "Portée Mondiale",
+        "description": "Nous servons des utilisateurs du monde entier avec la prise en charge de plusieurs langues et des intégrations avec des services mondiaux. L'automatisation ne connaît pas de frontières."
+      },
+      "openSource": {
+        "title": "Open Source",
+        "description": "Nous croyons au pouvoir de la communauté. Notre plateforme embrasse les principes de l'open source, encourageant les développeurs à contribuer et à étendre notre écosystème."
+      },
+      "passion": {
+        "title": "Guidé par la Passion",
+        "description": "Nous sommes passionnés par l'automatisation et par l'aide aux personnes pour accomplir plus avec moins d'effort. Cette passion alimente notre engagement envers l'excellence."
+      }
+    },
+    "story": {
+      "title": "Notre Histoire",
+      "paragraph1": "AREA est né d'une simple observation : les gens passaient d'innombrables heures sur des tâches répétitives qui pouvaient être automatisées. Nous avons vu des développeurs écrire des scripts personnalisés, des entreprises lutter avec des outils déconnectés, et des individus perdre un temps précieux sur la saisie manuelle de données.",
+      "paragraph2": "En 2024, notre équipe de développeurs passionnés et d'enthousiastes de l'automatisation s'est réunie avec une vision : créer une plateforme qui rende l'automatisation accessible à tous. Nous avons commencé avec une poignée d'intégrations et un engagement envers une conception conviviale.",
+      "paragraph3": "Aujourd'hui, AREA est devenu une plateforme d'automatisation robuste en qui des millions de personnes ont confiance. Nous avons élargi notre bibliothèque d'intégrations, amélioré notre infrastructure et construit une communauté florissante d'utilisateurs qui partagent leurs flux d'automatisation avec d'autres.",
+      "paragraph4": "Mais nous ne faisons que commencer. Chaque jour, nous travaillons sur de nouvelles fonctionnalités, ajoutons plus d'intégrations et affinons notre plateforme en fonction de vos retours. L'avenir de l'automatisation est brillant, et nous sommes ravis de le construire avec vous."
+    },
+    "technology": {
+      "title": "Construit avec des Technologies Modernes",
+      "subtitle": "Nous utilisons des technologies de pointe pour offrir une plateforme d'automatisation rapide, fiable et évolutive"
+    },
+    "whyChoose": {
+      "title": "Pourquoi Choisir AREA ?",
+      "subtitle": "Voici ce qui nous distingue des autres plateformes d'automatisation",
+      "easyToUse": {
+        "title": "Facile à Utiliser",
+        "description": "Aucun codage requis. Notre interface intuitive facilite la création d'automatisations complexes en quelques clics. Que vous soyez débutant ou expert, vous vous sentirez comme chez vous."
+      },
+      "lightningFast": {
+        "title": "Ultra Rapide",
+        "description": "Notre infrastructure est optimisée pour la vitesse. Vos automatisations s'exécutent instantanément lorsqu'elles sont déclenchées, garantissant que vous ne manquez jamais rien dans votre flux de travail."
+      },
+      "enterpriseSecurity": {
+        "title": "Sécurité Entreprise",
+        "description": "Chiffrement de niveau bancaire, conformité SOC 2 et audits de sécurité réguliers garantissent que vos données sont toujours protégées. Nous prenons la sécurité au sérieux pour que vous n'ayez pas à vous inquiéter."
+      },
+      "amazingSupport": {
+        "title": "Support Exceptionnel",
+        "description": "Notre équipe de support dévouée est là pour vous aider à réussir. De l'intégration au dépannage, nous sommes avec vous à chaque étape."
+      }
+    },
+    "cta": {
+      "title": "Prêt à commencer ?",
+      "description": "Rejoignez des millions d'utilisateurs qui ont déjà automatisé leurs flux de travail avec AREA. Commencez à construire votre première automatisation aujourd'hui.",
+      "buttonDashboard": "Aller au Tableau de Bord",
+      "buttonStart": "Commencer gratuitement",
+      "buttonExplore": "Explorer les Services"
+    },
+    "footer": {
+      "copyright": "© 2025 AREA. Tous droits réservés."
+    }
+  }
+}

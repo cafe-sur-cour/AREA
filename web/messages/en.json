@@ -1,0 +1,89 @@
+{
+  "about": {
+    "hero": {
+      "title": "About",
+      "titleHighlight": "AREA",
+      "description": "We're building the future of automation by connecting the apps and services you love, making your digital life seamless and efficient."
+    },
+    "mission": {
+      "title": "Our Mission",
+      "description1": "At AREA, we believe that technology should work for you, not the other way around. Our mission is to empower individuals and teams to automate repetitive tasks and create powerful connections between their favorite apps.",
+      "description2": "We're democratizing automation by making it accessible to everyone, regardless of technical expertise. Whether you're a developer, a business professional, or just someone looking to save time, AREA is here to help you work smarter.",
+      "stats": {
+        "users": "Active Users",
+        "automations": "Automations",
+        "integrations": "Integrations",
+        "uptime": "Uptime"
+      }
+    },
+    "values": {
+      "title": "Our Values",
+      "subtitle": "These core principles guide everything we do",
+      "userCentric": {
+        "title": "User-Centric",
+        "description": "We put our users first in every decision we make. Your feedback drives our product evolution and helps us build features that truly matter."
+      },
+      "innovation": {
+        "title": "Innovation",
+        "description": "We constantly push boundaries to bring you the latest automation capabilities. Our team stays ahead of technology trends to deliver cutting-edge solutions."
+      },
+      "security": {
+        "title": "Security First",
+        "description": "Your data security is our top priority. We implement industry-leading security practices and maintain the highest standards of data protection."
+      },
+      "global": {
+        "title": "Global Reach",
+        "description": "We serve users worldwide with support for multiple languages and integrations with global services. Automation knows no boundaries."
+      },
+      "openSource": {
+        "title": "Open Source",
+        "description": "We believe in the power of community. Our platform embraces open-source principles, encouraging developers to contribute and extend our ecosystem."
+      },
+      "passion": {
+        "title": "Passion Driven",
+        "description": "We're passionate about automation and helping people achieve more with less effort. This passion fuels our commitment to excellence."
+      }
+    },
+    "story": {
+      "title": "Our Story",
+      "paragraph1": "AREA was born from a simple observation: people were spending countless hours on repetitive tasks that could be automated. We saw developers writing custom scripts, businesses struggling with disconnected tools, and individuals losing precious time on manual data entry.",
+      "paragraph2": "In 2024, our team of passionate developers and automation enthusiasts came together with a vision: to create a platform that makes automation accessible to everyone. We started with a handful of integrations and a commitment to user-friendly design.",
+      "paragraph3": "Today, AREA has grown into a robust automation platform trusted by millions. We've expanded our integration library, improved our infrastructure, and built a thriving community of users who share their automation workflows with others.",
+      "paragraph4": "But we're just getting started. Every day, we work on new features, add more integrations, and refine our platform based on your feedback. The future of automation is bright, and we're excited to build it together with you."
+    },
+    "technology": {
+      "title": "Built with Modern Technology",
+      "subtitle": "We use cutting-edge technologies to deliver a fast, reliable, and scalable automation platform"
+    },
+    "whyChoose": {
+      "title": "Why Choose AREA?",
+      "subtitle": "Here's what sets us apart from other automation platforms",
+      "easyToUse": {
+        "title": "Easy to Use",
+        "description": "No coding required. Our intuitive interface makes it simple to create complex automations with just a few clicks. Whether you're a beginner or an expert, you'll feel right at home."
+      },
+      "lightningFast": {
+        "title": "Lightning Fast",
+        "description": "Our infrastructure is optimized for speed. Your automations run instantly when triggered, ensuring you never miss a beat in your workflow."
+      },
+      "enterpriseSecurity": {
+        "title": "Enterprise Security",
+        "description": "Bank-level encryption, SOC 2 compliance, and regular security audits ensure your data is always protected. We take security seriously so you don't have to worry."
+      },
+      "amazingSupport": {
+        "title": "Amazing Support",
+        "description": "Our dedicated support team is here to help you succeed. From onboarding to troubleshooting, we're with you every step of the way."
+      }
+    },
+    "cta": {
+      "title": "Ready to get started?",
+      "description": "Join millions of users who have already automated their workflows with AREA. Start building your first automation today.",
+      "buttonDashboard": "Go to Dashboard",
+      "buttonStart": "Start for free",
+      "buttonExplore": "Explore Services"
+    },
+    "footer": {
+      "copyright": "© 2025 AREA. All rights reserved."
+    }
+  }
+}

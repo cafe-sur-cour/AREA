@@ -17,9 +17,11 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
+import { useI18n } from '@/contexts/I18nContext';
 
 export default function AboutPage() {
   const { isAuthenticated } = useAuth();
+  const { t } = useI18n();
 
   return (
     <div className='min-h-screen bg-background'>
@@ -30,12 +32,10 @@ export default function AboutPage() {
           <div className='max-w-7xl mx-auto'>
             <div className='text-center max-w-4xl mx-auto'>
               <h1 className='text-5xl sm:text-6xl lg:text-7xl font-heading font-bold text-foreground mb-6 text-balance'>
-                About <span className='text-primary'>AREA</span>
+                {t.about.hero.title} <span className='text-primary'>{t.about.hero.titleHighlight}</span>
               </h1>
               <p className='text-lg sm:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto text-pretty'>
-                We&apos;re building the future of automation by connecting the apps
-                and services you love, making your digital life seamless and
-                efficient.
+                {t.about.hero.description}
               </p>
             </div>
           </div>
