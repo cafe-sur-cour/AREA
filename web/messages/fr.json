@@ -1,4 +1,89 @@
 {
+  "home": {
+    "hero": {
+      "title": "Automatisez votre vie avec des connexions puissantes",
+      "description": "Connectez vos applications et services préférés pour créer des automatisations puissantes. Gagnez du temps et concentrez-vous sur l'essentiel.",
+      "getStarted": "Commencer gratuitement",
+      "signIn": "Se connecter",
+      "goToDashboard": "Aller au Tableau de Bord"
+    },
+    "stats": {
+      "automations": "Automatisations actives",
+      "services": "Services connectés",
+      "users": "Utilisateurs satisfaits"
+    },
+    "services": {
+      "title": "Services disponibles",
+      "description": "Découvrez les applications et plateformes que vous pouvez connecter pour créer des automatisations puissantes."
+    },
+    "howItWorks": {
+      "title": "Comment ça marche",
+      "subtitle": "Créez des automatisations puissantes en trois étapes simples",
+      "step1": {
+        "title": "Choisissez un déclencheur",
+        "description": "Sélectionnez une application et un événement qui lance votre automatisation"
+      },
+      "step2": {
+        "title": "Ajoutez une action",
+        "description": "Choisissez ce qui se passe lorsque votre déclencheur s'active"
+      },
+      "step3": {
+        "title": "Activez et détendez-vous",
+        "description": "Votre automatisation s'exécute automatiquement en arrière-plan"
+      }
+    },
+    "popularAutomations": {
+      "title": "Automatisations populaires",
+      "subtitle": "Inspirez-vous de ce que les autres créent",
+      "emailToSlack": {
+        "title": "Email vers Slack",
+        "description": "Soyez notifié dans Slack lorsque vous recevez des emails importants"
+      },
+      "socialMediaSync": {
+        "title": "Synchronisation Réseaux Sociaux",
+        "description": "Publiez sur plusieurs réseaux sociaux en une seule fois"
+      },
+      "calendarReminders": {
+        "title": "Rappels de Calendrier",
+        "description": "Envoyez des rappels SMS avant les événements du calendrier"
+      },
+      "fileBackup": {
+        "title": "Sauvegarde de Fichiers",
+        "description": "Sauvegardez automatiquement vos fichiers dans le cloud"
+      },
+      "taskManagement": {
+        "title": "Gestion des Tâches",
+        "description": "Créez des tâches à partir d'emails ou de messages"
+      },
+      "dataCollection": {
+        "title": "Collecte de Données",
+        "description": "Enregistrez les réponses de formulaires dans des feuilles de calcul"
+      }
+    },
+    "features": {
+      "lightningFast": {
+        "title": "Ultra rapide",
+        "description": "Vos automatisations s'exécutent instantanément lorsqu'elles sont déclenchées, sans délai ni attente."
+      },
+      "saveTime": {
+        "title": "Gagnez du temps",
+        "description": "Automatisez les tâches répétitives et concentrez-vous sur ce qui compte vraiment pour vous."
+      },
+      "secureReliable": {
+        "title": "Sécurisé et fiable",
+        "description": "Sécurité de niveau entreprise avec une garantie de disponibilité de 99,9% pour votre tranquillité d'esprit."
+      }
+    },
+    "cta": {
+      "title": "Prêt à automatiser votre flux de travail ?",
+      "description": "Rejoignez des millions d'utilisateurs qui économisent déjà du temps avec des automatisations puissantes.",
+      "goToMyAreas": "Aller à Mes AREAs",
+      "startFree": "Commencer gratuitement"
+    },
+    "footer": {
+      "copyright": "© 2025 Area. Tous droits réservés."
+    }
+  },
   "about": {
     "hero": {
       "title": "À propos de",

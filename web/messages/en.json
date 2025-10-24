@@ -1,4 +1,89 @@
 {
+  "home": {
+    "hero": {
+      "title": "Automate your life with powerful connections",
+      "description": "Connect your favorite apps and services to create powerful automations. Save time and focus on what matters most.",
+      "getStarted": "Get started free",
+      "signIn": "Sign in",
+      "goToDashboard": "Go to Dashboard"
+    },
+    "stats": {
+      "automations": "Active automations",
+      "services": "Connected services",
+      "users": "Happy users"
+    },
+    "services": {
+      "title": "Availables services",
+      "description": "Discover the apps and platforms you can connect to create powerful automations."
+    },
+    "howItWorks": {
+      "title": "How it works",
+      "subtitle": "Create powerful automations in three simple steps",
+      "step1": {
+        "title": "Choose a trigger",
+        "description": "Select an app and event that starts your automation"
+      },
+      "step2": {
+        "title": "Add an action",
+        "description": "Choose what happens when your trigger fires"
+      },
+      "step3": {
+        "title": "Activate & relax",
+        "description": "Your automation runs automatically in the background"
+      }
+    },
+    "popularAutomations": {
+      "title": "Popular automations",
+      "subtitle": "Get inspired by what others are building",
+      "emailToSlack": {
+        "title": "Email to Slack",
+        "description": "Get notified in Slack when you receive important emails"
+      },
+      "socialMediaSync": {
+        "title": "Social Media Sync",
+        "description": "Post to multiple social networks at once"
+      },
+      "calendarReminders": {
+        "title": "Calendar Reminders",
+        "description": "Send SMS reminders before calendar events"
+      },
+      "fileBackup": {
+        "title": "File Backup",
+        "description": "Automatically backup files to cloud storage"
+      },
+      "taskManagement": {
+        "title": "Task Management",
+        "description": "Create tasks from emails or messages"
+      },
+      "dataCollection": {
+        "title": "Data Collection",
+        "description": "Save form responses to spreadsheets"
+      }
+    },
+    "features": {
+      "lightningFast": {
+        "title": "Lightning fast",
+        "description": "Your automations run instantly when triggered, with no delays or waiting."
+      },
+      "saveTime": {
+        "title": "Save time",
+        "description": "Automate repetitive tasks and focus on what really matters to you."
+      },
+      "secureReliable": {
+        "title": "Secure & reliable",
+        "description": "Enterprise-grade security with 99.9% uptime guarantee for your peace of mind."
+      }
+    },
+    "cta": {
+      "title": "Ready to automate your workflow?",
+      "description": "Join millions of users who are already saving time with powerful automations.",
+      "goToMyAreas": "Go to My AREAs",
+      "startFree": "Start for free"
+    },
+    "footer": {
+      "copyright": "© 2025 Area. All rights reserved."
+    }
+  },
   "about": {
     "hero": {
       "title": "About",
