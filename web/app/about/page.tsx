@@ -49,19 +49,13 @@ export default function AboutPage() {
                   <Target className='h-8 w-8' />
                 </div>
                 <h2 className='text-3xl sm:text-4xl font-heading font-bold text-foreground mb-4'>
-                  Our Mission
+                  {t.about.mission.title}
                 </h2>
                 <p className='text-lg text-muted-foreground mb-4'>
-                  At AREA, we believe that technology should work for you, not
-                  the other way around. Our mission is to empower individuals
-                  and teams to automate repetitive tasks and create powerful
-                  connections between their favorite apps.
+                  {t.about.mission.description1}
                 </p>
                 <p className='text-lg text-muted-foreground'>
-                  We&apos;re democratizing automation by making it accessible to
-                  everyone, regardless of technical expertise. Whether you&apos;re a
-                  developer, a business professional, or just someone looking to
-                  save time, AREA is here to help you work smarter.
+                  {t.about.mission.description2}
                 </p>
               </div>
               <div className='grid grid-cols-2 gap-4'>
@@ -70,7 +64,7 @@ export default function AboutPage() {
                     <div className='text-4xl font-heading font-bold text-primary mb-2'>
                       2M+
                     </div>
-                    <div className='text-muted-foreground'>Active Users</div>
+                    <div className='text-muted-foreground'>{t.about.mission.stats.users}</div>
                   </CardContent>
                 </Card>
                 <Card className='bg-card border-border'>
@@ -78,7 +72,7 @@ export default function AboutPage() {
                     <div className='text-4xl font-heading font-bold text-primary mb-2'>
                       10M+
                     </div>
-                    <div className='text-muted-foreground'>Automations</div>
+                    <div className='text-muted-foreground'>{t.about.mission.stats.automations}</div>
                   </CardContent>
                 </Card>
                 <Card className='bg-card border-border'>
@@ -86,7 +80,7 @@ export default function AboutPage() {
                     <div className='text-4xl font-heading font-bold text-primary mb-2'>
                       500+
                     </div>
-                    <div className='text-muted-foreground'>Integrations</div>
+                    <div className='text-muted-foreground'>{t.about.mission.stats.integrations}</div>
                   </CardContent>
                 </Card>
                 <Card className='bg-card border-border'>
@@ -94,7 +88,7 @@ export default function AboutPage() {
                     <div className='text-4xl font-heading font-bold text-primary mb-2'>
                       99.9%
                     </div>
-                    <div className='text-muted-foreground'>Uptime</div>
+                    <div className='text-muted-foreground'>{t.about.mission.stats.uptime}</div>
                   </CardContent>
                 </Card>
               </div>
@@ -106,10 +100,10 @@ export default function AboutPage() {
           <div className='max-w-7xl mx-auto'>
             <div className='text-center mb-16'>
               <h2 className='text-3xl sm:text-4xl lg:text-5xl font-heading font-bold text-foreground mb-4'>
-                Our Values
+                {t.about.values.title}
               </h2>
               <p className='text-lg text-muted-foreground max-w-2xl mx-auto'>
-                These core principles guide everything we do
+                {t.about.values.subtitle}
               </p>
             </div>
 
@@ -120,12 +114,10 @@ export default function AboutPage() {
                     <Users className='h-6 w-6' />
                   </div>
                   <h3 className='text-xl font-heading font-semibold text-foreground mb-3'>
-                    User-Centric
+                    {t.about.values.userCentric.title}
                   </h3>
                   <p className='text-muted-foreground'>
-                    We put our users first in every decision we make. Your
-                    feedback drives our product evolution and helps us build
-                    features that truly matter.
+                    {t.about.values.userCentric.description}
                   </p>
                 </CardContent>
               </Card>
@@ -136,12 +128,10 @@ export default function AboutPage() {
                     <Zap className='h-6 w-6' />
                   </div>
                   <h3 className='text-xl font-heading font-semibold text-foreground mb-3'>
-                    Innovation
+                    {t.about.values.innovation.title}
                   </h3>
                   <p className='text-muted-foreground'>
-                    We constantly push boundaries to bring you the latest
-                    automation capabilities. Our team stays ahead of technology
-                    trends to deliver cutting-edge solutions.
+                    {t.about.values.innovation.description}
                   </p>
                 </CardContent>
               </Card>
@@ -152,12 +142,10 @@ export default function AboutPage() {
                     <Shield className='h-6 w-6' />
                   </div>
                   <h3 className='text-xl font-heading font-semibold text-foreground mb-3'>
-                    Security First
+                    {t.about.values.security.title}
                   </h3>
                   <p className='text-muted-foreground'>
-                    Your data security is our top priority. We implement
-                    industry-leading security practices and maintain the highest
-                    standards of data protection.
+                    {t.about.values.security.description}
                   </p>
                 </CardContent>
               </Card>
@@ -168,12 +156,10 @@ export default function AboutPage() {
                     <Globe className='h-6 w-6' />
                   </div>
                   <h3 className='text-xl font-heading font-semibold text-foreground mb-3'>
-                    Global Reach
+                    {t.about.values.global.title}
                   </h3>
                   <p className='text-muted-foreground'>
-                    We serve users worldwide with support for multiple languages
-                    and integrations with global services. Automation knows no
-                    boundaries.
+                    {t.about.values.global.description}
                   </p>
                 </CardContent>
               </Card>
@@ -184,12 +170,10 @@ export default function AboutPage() {
                     <Code className='h-6 w-6' />
                   </div>
                   <h3 className='text-xl font-heading font-semibold text-foreground mb-3'>
-                    Open Source
+                    {t.about.values.openSource.title}
                   </h3>
                   <p className='text-muted-foreground'>
-                    We believe in the power of community. Our platform embraces
-                    open-source principles, encouraging developers to contribute
-                    and extend our ecosystem.
+                    {t.about.values.openSource.description}
                   </p>
                 </CardContent>
               </Card>
@@ -200,12 +184,10 @@ export default function AboutPage() {
                     <Heart className='h-6 w-6' />
                   </div>
                   <h3 className='text-xl font-heading font-semibold text-foreground mb-3'>
-                    Passion Driven
+                    {t.about.values.passion.title}
                   </h3>
                   <p className='text-muted-foreground'>
-                    We&apos;re passionate about automation and helping people achieve
-                    more with less effort. This passion fuels our commitment to
-                    excellence.
+                    {t.about.values.passion.description}
                   </p>
                 </CardContent>
               </Card>
@@ -220,35 +202,21 @@ export default function AboutPage() {
                 <Rocket className='h-8 w-8' />
               </div>
               <h2 className='text-3xl sm:text-4xl font-heading font-bold text-foreground mb-4'>
-                Our Story
+                {t.about.story.title}
               </h2>
             </div>
             <div className='prose prose-lg max-w-none text-muted-foreground'>
               <p className='text-lg mb-4'>
-                AREA was born from a simple observation: people were spending
-                countless hours on repetitive tasks that could be automated. We
-                saw developers writing custom scripts, businesses struggling
-                with disconnected tools, and individuals losing precious time on
-                manual data entry.
+                {t.about.story.paragraph1}
               </p>
               <p className='text-lg mb-4'>
-                In 2024, our team of passionate developers and automation
-                enthusiasts came together with a vision: to create a platform
-                that makes automation accessible to everyone. We started with a
-                handful of integrations and a commitment to user-friendly
-                design.
+                {t.about.story.paragraph2}
               </p>
               <p className='text-lg mb-4'>
-                Today, AREA has grown into a robust automation platform trusted
-                by millions. We&apos;ve expanded our integration library, improved
-                our infrastructure, and built a thriving community of users who
-                share their automation workflows with others.
+                {t.about.story.paragraph3}
               </p>
               <p className='text-lg'>
-                But we&apos;re just getting started. Every day, we work on new
-                features, add more integrations, and refine our platform based
-                on your feedback. The future of automation is bright, and we&apos;re
-                excited to build it together with you.
+                {t.about.story.paragraph4}
               </p>
             </div>
           </div>
@@ -258,11 +226,10 @@ export default function AboutPage() {
           <div className='max-w-7xl mx-auto'>
             <div className='text-center mb-16'>
               <h2 className='text-3xl sm:text-4xl lg:text-5xl font-heading font-bold text-foreground mb-4'>
-                Built with Modern Technology
+                {t.about.technology.title}
               </h2>
               <p className='text-lg text-muted-foreground max-w-2xl mx-auto'>
-                We use cutting-edge technologies to deliver a fast, reliable,
-                and scalable automation platform
+                {t.about.technology.subtitle}
               </p>
             </div>
 
@@ -303,10 +270,10 @@ export default function AboutPage() {
           <div className='max-w-7xl mx-auto'>
             <div className='text-center mb-16'>
               <h2 className='text-3xl sm:text-4xl lg:text-5xl font-heading font-bold text-foreground mb-4'>
-                Why Choose AREA?
+                {t.about.whyChoose.title}
               </h2>
               <p className='text-lg text-muted-foreground max-w-2xl mx-auto'>
-                Here&apos;s what sets us apart from other automation platforms
+                {t.about.whyChoose.subtitle}
               </p>
             </div>
 
@@ -317,13 +284,10 @@ export default function AboutPage() {
                     <Award className='h-6 w-6' />
                   </div>
                   <h3 className='text-xl font-heading font-semibold text-foreground mb-3'>
-                    Easy to Use
+                    {t.about.whyChoose.easyToUse.title}
                   </h3>
                   <p className='text-muted-foreground'>
-                    No coding required. Our intuitive interface makes it simple
-                    to create complex automations with just a few clicks.
-                    Whether you&apos;re a beginner or an expert, you&apos;ll feel right at
-                    home.
+                    {t.about.whyChoose.easyToUse.description}
                   </p>
                 </CardContent>
               </Card>
@@ -334,12 +298,10 @@ export default function AboutPage() {
                     <Zap className='h-6 w-6' />
                   </div>
                   <h3 className='text-xl font-heading font-semibold text-foreground mb-3'>
-                    Lightning Fast
+                    {t.about.whyChoose.lightningFast.title}
                   </h3>
                   <p className='text-muted-foreground'>
-                    Our infrastructure is optimized for speed. Your automations
-                    run instantly when triggered, ensuring you never miss a beat
-                    in your workflow.
+                    {t.about.whyChoose.lightningFast.description}
                   </p>
                 </CardContent>
               </Card>
@@ -350,12 +312,10 @@ export default function AboutPage() {
                     <Shield className='h-6 w-6' />
                   </div>
                   <h3 className='text-xl font-heading font-semibold text-foreground mb-3'>
-                    Enterprise Security
+                    {t.about.whyChoose.enterpriseSecurity.title}
                   </h3>
                   <p className='text-muted-foreground'>
-                    Bank-level encryption, SOC 2 compliance, and regular
-                    security audits ensure your data is always protected. We
-                    take security seriously so you don&apos;t have to worry.
+                    {t.about.whyChoose.enterpriseSecurity.description}
                   </p>
                 </CardContent>
               </Card>
@@ -366,12 +326,10 @@ export default function AboutPage() {
                     <Users className='h-6 w-6' />
                   </div>
                   <h3 className='text-xl font-heading font-semibold text-foreground mb-3'>
-                    Amazing Support
+                    {t.about.whyChoose.amazingSupport.title}
                   </h3>
                   <p className='text-muted-foreground'>
-                    Our dedicated support team is here to help you succeed. From
-                    onboarding to troubleshooting, we&apos;re with you every step of
-                    the way.
+                    {t.about.whyChoose.amazingSupport.description}
                   </p>
                 </CardContent>
               </Card>
@@ -382,11 +340,10 @@ export default function AboutPage() {
         <section className='px-4 sm:px-6 lg:px-8 py-24'>
           <div className='max-w-4xl mx-auto text-center'>
             <h2 className='text-3xl sm:text-4xl lg:text-5xl font-heading font-bold text-foreground mb-6'>
-              Ready to get started?
+                {t.about.cta.title}
             </h2>
             <p className='text-lg text-muted-foreground mb-10 max-w-2xl mx-auto'>
-              Join millions of users who have already automated their workflows
-              with AREA. Start building your first automation today.
+              {t.about.cta.description}
             </p>
             {isAuthenticated ? (
               <Button
@@ -395,7 +352,7 @@ export default function AboutPage() {
                 className='text-base px-8 cursor-pointer'
               >
                 <Link href='/dashboard'>
-                  Go to Dashboard
+                  {t.about.cta.buttonDashboard}
                   <ArrowRight className='ml-2 h-5 w-5' />
                 </Link>
               </Button>
@@ -407,7 +364,7 @@ export default function AboutPage() {
                   className='text-base px-8 cursor-pointer'
                 >
                   <Link href='/register'>
-                    Start for free
+                    {t.about.cta.buttonStart}
                     <ArrowRight className='ml-2 h-5 w-5' />
                   </Link>
                 </Button>
@@ -417,7 +374,7 @@ export default function AboutPage() {
                   size='lg'
                   className='text-base px-8 cursor-pointer'
                 >
-                  <Link href='/services'>Explore Services</Link>
+                  <Link href='/services'>{t.about.cta.buttonExplore}</Link>
                 </Button>
               </div>
             )}
@@ -427,7 +384,7 @@ export default function AboutPage() {
 
       <footer className='border-t border-border px-4 sm:px-6 lg:px-8 py-12'>
         <div className='max-w-7xl mx-auto text-center text-muted-foreground text-sm'>
-          <p>&copy; 2025 AREA. All rights reserved.</p>
+          <p>&copy; {t.about.footer.copyright}</p>
         </div>
       </footer>
     </div>

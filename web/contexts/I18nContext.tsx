@@ -23,7 +23,6 @@ const messages: Record<Locale, Messages> = {
 export function I18nProvider({ children }: { children: React.ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>('en');
 
-  // Load locale from localStorage on mount
   useEffect(() => {
     const savedLocale = localStorage.getItem('locale') as Locale;
     if (savedLocale && (savedLocale === 'en' || savedLocale === 'fr')) {

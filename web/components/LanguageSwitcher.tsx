@@ -22,8 +22,6 @@ export function LanguageSwitcher({
 
     try {
       setLocale(newLang);
-      // Optionally sync with backend here if needed
-      // await api.post('/language', { language: newLang });
     } catch (error) {
       console.error('Failed to switch language:', error);
     } finally {
