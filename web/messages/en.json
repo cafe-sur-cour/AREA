@@ -69,6 +69,18 @@
       "resetFailed": "Request password reset failed"
     }
   },
+  "profile": {
+    "loading": "Loading...",
+    "welcome": "Welcome",
+    "avatarHint": "Click to change avatar",
+    "name": "Name",
+    "namePlaceholder": "Enter your name",
+    "password": "Password",
+    "passwordPlaceholder": "Enter your new password",
+    "email": "Email",
+    "nameEmpty": "Name cannot be empty",
+    "passwordEmpty": "Password cannot be empty"
+  },
   "catalogue": {
     "title": "Catalogue of Actions and Reactions",
     "filter": {

@@ -2,7 +2,7 @@
   "auth": {
     "login": {
       "loading": "Chargement...",
-      "title": "Bon retour",
+      "title": "De retour !",
       "subtitle": "Connectez-vous à votre compte Area",
       "email": "Email",
       "emailPlaceholder": "m@exemple.com",
@@ -68,6 +68,18 @@
       "invalidToken": "Jeton invalide ou expiré",
       "resetFailed": "Échec de la réinitialisation du mot de passe"
     }
+  },
+  "profile": {
+    "loading": "Chargement...",
+    "welcome": "Bienvenue",
+    "avatarHint": "Cliquez pour changer l'avatar",
+    "name": "Nom",
+    "namePlaceholder": "Entrez votre nom",
+    "password": "Mot de passe",
+    "passwordPlaceholder": "Entrez votre nouveau mot de passe",
+    "email": "Email",
+    "nameEmpty": "Le nom ne peut pas être vide",
+    "passwordEmpty": "Le mot de passe ne peut pas être vide"
   },
   "catalogue": {
     "title": "Catalogue d'Actions et de Réactions",
