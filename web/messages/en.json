@@ -81,6 +81,14 @@
     "nameEmpty": "Name cannot be empty",
     "passwordEmpty": "Password cannot be empty"
   },
+  "services": {
+    "loading": "Loading...",
+    "subscribed": "Subscribed",
+    "notSubscribed": "Not Subscribed",
+    "moreDetails": "More details",
+    "unsubscribe": "Unsubscribe",
+    "subscribe": "Subscribe"
+  },
   "catalogue": {
     "title": "Catalogue of Actions and Reactions",
     "filter": {

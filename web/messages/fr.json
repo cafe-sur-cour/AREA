@@ -81,6 +81,14 @@
     "nameEmpty": "Le nom ne peut pas être vide",
     "passwordEmpty": "Le mot de passe ne peut pas être vide"
   },
+  "services": {
+    "loading": "Chargement...",
+    "subscribed": "Inscrit",
+    "notSubscribed": "Non inscrit",
+    "moreDetails": "Plus de détails",
+    "unsubscribe": "Se désinscrire",
+    "subscribe": "S'inscrire"
+  },
   "catalogue": {
     "title": "Catalogue d'Actions et de Réactions",
     "filter": {
