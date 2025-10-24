@@ -154,12 +154,40 @@
       "actionLabel": "Action",
       "reactionsLabel": "Reactions",
       "created": "Created",
-      "deleteConfirm": "Are you sure you want to delete this mapping?"
+      "deleteConfirm": "Are you sure you want to delete this mapping?",
+      "noDescription": "No description",
+      "activate": "Activate",
+      "deactivate": "Deactivate"
     },
     "errors": {
       "createFailed": "Failed to create mapping. Please check your input.",
       "deleteFailed": "Failed to delete mapping.",
       "switchFailed": "Failed to switch active mode."
+    },
+    "feedback": {
+      "actionSelected": "Action selected",
+      "actionSelectError": "Error selecting action",
+      "reactionSelected": "Reaction selected",
+      "reactionSelectError": "Error selecting reaction",
+      "loadError": "Error loading",
+      "nameRequired": "Name is required",
+      "actionRequired": "Please select an action",
+      "reactionRequired": "Please select at least one reaction",
+      "createSuccess": "🎉 Automation created successfully!",
+      "createSuccessDescription": "is now",
+      "active": "active",
+      "inactive": "inactive",
+      "deleteSuccess": "Automation deleted successfully",
+      "activateSuccess": "activated",
+      "deactivateInfo": "deactivated",
+      "confirmDelete": "Are you sure?",
+      "confirmDeleteDescription": "This action is irreversible. The automation will be permanently deleted.",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "automationWillBe": "The automation will be",
+      "afterCreation": "after creation",
+      "creating": "Creating...",
+      "createFirstAutomation": "Create your first automation"
     }
   },
   "verify": {

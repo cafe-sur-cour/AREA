@@ -154,12 +154,40 @@
       "actionLabel": "Action",
       "reactionsLabel": "Réactions",
       "created": "Créé le",
-      "deleteConfirm": "Êtes-vous sûr de vouloir supprimer cette correspondance ?"
+      "deleteConfirm": "Êtes-vous sûr de vouloir supprimer cette correspondance ?",
+      "noDescription": "Aucune description",
+      "activate": "Activer",
+      "deactivate": "Désactiver"
     },
     "errors": {
       "createFailed": "Échec de la création de la correspondance. Veuillez vérifier votre saisie.",
       "deleteFailed": "Échec de la suppression de la correspondance.",
       "switchFailed": "Échec du changement de mode actif."
+    },
+    "feedback": {
+      "actionSelected": "Action sélectionnée",
+      "actionSelectError": "Erreur lors de la sélection de l'action",
+      "reactionSelected": "Réaction sélectionnée",
+      "reactionSelectError": "Erreur lors de la sélection de la réaction",
+      "loadError": "Erreur lors du chargement",
+      "nameRequired": "Le nom est requis",
+      "actionRequired": "Veuillez sélectionner une action",
+      "reactionRequired": "Veuillez sélectionner au moins une réaction",
+      "createSuccess": "🎉 Automation créée avec succès !",
+      "createSuccessDescription": "est maintenant",
+      "active": "active",
+      "inactive": "inactive",
+      "deleteSuccess": "Automation supprimée avec succès",
+      "activateSuccess": "activée",
+      "deactivateInfo": "désactivée",
+      "confirmDelete": "Êtes-vous sûr ?",
+      "confirmDeleteDescription": "Cette action est irréversible. L'automation sera définitivement supprimée.",
+      "cancel": "Annuler",
+      "delete": "Supprimer",
+      "automationWillBe": "L'automation sera",
+      "afterCreation": "après création",
+      "creating": "Création en cours...",
+      "createFirstAutomation": "Créer votre première automation"
     }
   },
   "verify": {
