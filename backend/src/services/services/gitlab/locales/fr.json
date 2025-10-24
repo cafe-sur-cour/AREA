@@ -1,0 +1,241 @@
+{
+  "name": "GitLab",
+  "description": "Service GitLab pour les événements et actions de dépôt",
+  "actions": {
+    "gitlab.push": {
+      "name": "Push GitLab",
+      "description": "Se déclenche lorsqu'un événement push se produit sur un dépôt sélectionné",
+      "schema": {
+        "fields": {
+          "project": {
+            "label": "Chemin du Projet (groupe/projet)",
+            "placeholder": "mon-groupe/mon-projet"
+          },
+          "branch": {
+            "label": "Branche (optionnel, par défaut toutes les branches)",
+            "placeholder": "main"
+          }
+        }
+      }
+    },
+    "gitlab.merge_request_opened": {
+      "name": "Merge Request GitLab Ouverte",
+      "description": "Se déclenche lorsqu'une nouvelle merge request est ouverte",
+      "schema": {
+        "fields": {
+          "project": {
+            "label": "Chemin du Projet (groupe/projet)",
+            "placeholder": "mon-groupe/mon-projet"
+          }
+        }
+      }
+    },
+    "gitlab.merge_request_merged": {
+      "name": "Merge Request GitLab Fusionnée",
+      "description": "Se déclenche lorsqu'une merge request est fusionnée",
+      "schema": {
+        "fields": {
+          "project": {
+            "label": "Chemin du Projet (groupe/projet)",
+            "placeholder": "mon-groupe/mon-projet"
+          }
+        }
+      }
+    },
+    "gitlab.issue_opened": {
+      "name": "Issue GitLab Ouverte",
+      "description": "Se déclenche lorsqu'une nouvelle issue est ouverte",
+      "schema": {
+        "fields": {
+          "project": {
+            "label": "Chemin du Projet (groupe/projet)",
+            "placeholder": "mon-groupe/mon-projet"
+          }
+        }
+      }
+    }
+  },
+  "reactions": {
+    "gitlab.create_issue": {
+      "name": "Créer une Issue GitLab",
+      "description": "Crée une nouvelle issue dans le projet spécifié",
+      "schema": {
+        "fields": {
+          "project": {
+            "label": "Chemin du Projet (groupe/projet)",
+            "placeholder": "mon-groupe/mon-projet"
+          },
+          "title": {
+            "label": "Titre de l'Issue",
+            "placeholder": "Entrez le titre de l'issue..."
+          },
+          "description": {
+            "label": "Description de l'Issue",
+            "placeholder": "Décrivez l'issue en détail..."
+          },
+          "labels": {
+            "label": "Étiquettes (séparées par des virgules)",
+            "placeholder": "bug,urgent"
+          },
+          "assignee_ids": {
+            "label": "IDs des Assignés (séparés par des virgules)",
+            "placeholder": "1,2,3"
+          }
+        }
+      }
+    },
+    "gitlab.add_comment": {
+      "name": "Ajouter un Commentaire GitLab",
+      "description": "Ajoute un commentaire à une issue ou merge request",
+      "schema": {
+        "fields": {
+          "project": {
+            "label": "Chemin du Projet (groupe/projet)",
+            "placeholder": "mon-groupe/mon-projet"
+          },
+          "issue_iid": {
+            "label": "ID Interne de l'Issue/MR",
+            "placeholder": "1"
+          },
+          "note_type": {
+            "label": "Type de Note",
+            "options": {
+              "issue": "Issue",
+              "merge_request": "Merge Request"
+            }
+          },
+          "body": {
+            "label": "Corps du Commentaire",
+            "placeholder": "Entrez votre commentaire..."
+          }
+        }
+      }
+    },
+    "gitlab.create_merge_request": {
+      "name": "Créer une Merge Request GitLab",
+      "description": "Crée une nouvelle merge request dans le projet spécifié",
+      "schema": {
+        "fields": {
+          "project": {
+            "label": "Chemin du Projet (groupe/projet)",
+            "placeholder": "mon-groupe/mon-projet"
+          },
+          "source_branch": {
+            "label": "Branche Source",
+            "placeholder": "branche-fonctionnalite"
+          },
+          "target_branch": {
+            "label": "Branche Cible",
+            "placeholder": "main"
+          },
+          "title": {
+            "label": "Titre de la Merge Request",
+            "placeholder": "Entrez le titre du MR..."
+          },
+          "description": {
+            "label": "Description de la Merge Request",
+            "placeholder": "Décrivez les changements..."
+          },
+          "assignee_ids": {
+            "label": "IDs des Assignés (séparés par des virgules)",
+            "placeholder": "1,2,3"
+          }
+        }
+      }
+    },
+    "gitlab.set_project_visibility": {
+      "name": "Définir la Visibilité du Projet GitLab",
+      "description": "Change le niveau de visibilité d'un projet",
+      "schema": {
+        "fields": {
+          "project": {
+            "label": "Chemin du Projet (groupe/projet)",
+            "placeholder": "mon-groupe/mon-projet"
+          },
+          "visibility": {
+            "label": "Niveau de Visibilité",
+            "options": {
+              "private": "Privé",
+              "internal": "Interne",
+              "public": "Public"
+            }
+          }
+        }
+      }
+    }
+  },
+  "properties": {
+    "project": {
+      "id": {
+        "description": "ID du Projet"
+      },
+      "name": {
+        "description": "Nom du Projet"
+      },
+      "path_with_namespace": {
+        "description": "Chemin complet du projet"
+      },
+      "web_url": {
+        "description": "URL Web du Projet"
+      }
+    },
+    "ref": {
+      "description": "Référence Git (branche/tag)"
+    },
+    "before": {
+      "description": "SHA avant le push"
+    },
+    "after": {
+      "description": "SHA après le push"
+    },
+    "commits": {
+      "items": {
+        "id": {
+          "description": "SHA du Commit"
+        },
+        "message": {
+          "description": "Message du Commit"
+        },
+        "author": {
+          "name": {
+            "description": "Nom de l'Auteur"
+          },
+          "email": {
+            "description": "Email de l'Auteur"
+          }
+        }
+      }
+    },
+    "user": {
+      "id": {
+        "description": "ID Utilisateur"
+      },
+      "name": {
+        "description": "Nom d'Utilisateur"
+      },
+      "username": {
+        "description": "Pseudonyme"
+      }
+    },
+    "object_attributes": {
+      "id": {
+        "description": "ID de l'Objet"
+      },
+      "iid": {
+        "description": "ID Interne de l'Objet"
+      },
+      "title": {
+        "description": "Titre de l'Objet"
+      },
+      "description": {
+        "description": "Description de l'Objet"
+      },
+      "state": {
+        "description": "État de l'Objet"
+      },
+      "web_url": {
+        "description": "URL Web de l'Objet"
+      }
+    }
+  }
+}
