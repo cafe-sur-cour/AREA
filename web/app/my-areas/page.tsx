@@ -1,5 +1,6 @@
 'use client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useI18n } from '@/contexts/I18nContext';
 import { useRouter } from 'next/navigation';
 import Navigation from '@/components/header';
 import { useEffect, useState } from 'react';
@@ -39,6 +40,7 @@ import { useSearchParams } from 'next/navigation';
 export default function MyAreasPage() {
   const router = useRouter();
   const { isAuthenticated, isLoading } = useAuth();
+  const { t } = useI18n();
   const [loadingData, setLoadingData] = useState(true);
   const [data, setData] = useState<Mapping[]>([]);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -160,19 +162,19 @@ export default function MyAreasPage() {
       fetchData();
     } catch (error) {
       console.error('Error creating mapping:', error);
-      toast.error('Failed to create mapping. Please check your input.');
+      toast.error(t.myAreas.errors.createFailed);
     }
   };
 
   const handleDeleteMapping = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this mapping?')) return;
+    if (!confirm(t.myAreas.card.deleteConfirm)) return;
 
     try {
       await api.delete(`/mappings/${id}`);
       fetchData();
     } catch (error) {
       console.error('Error deleting mapping:', error);
-      toast.error('Failed to delete mapping.');
+      toast.error(t.myAreas.errors.deleteFailed);
     }
   };
 
@@ -183,7 +185,7 @@ export default function MyAreasPage() {
   if (isLoading) {
     return (
       <div className='min-h-screen flex items-center justify-center'>
-        <div className='text-lg'>Loading...</div>
+        <div className='text-lg'>{t.myAreas.loading}</div>
         <TbLoader3 className='animate-spin text-app-text-secondary' size={24} />
       </div>
     );
@@ -205,7 +207,7 @@ export default function MyAreasPage() {
       }
     } catch (error) {
       console.error('Error switching active mode:', error);
-      toast.error('Failed to switch active mode.');
+      toast.error(t.myAreas.errors.switchFailed);
     }
   };
 
@@ -216,9 +218,9 @@ export default function MyAreasPage() {
       <div className='container mx-auto px-4 py-8'>
         <div className='flex justify-between items-center mb-8'>
           <div>
-            <h1 className='text-4xl font-bold text-primary mb-2'>My AREAs</h1>
+            <h1 className='text-4xl font-bold text-primary mb-2'>{t.myAreas.title}</h1>
             <p className='text-muted-foreground'>
-              Manage your area (actions & reactions) workflows
+              {t.myAreas.subtitle}
             </p>
           </div>
 
@@ -238,23 +240,23 @@ export default function MyAreasPage() {
                 }}
               >
                 <Plus className='w-4 h-4' />
-                New Area
+                {t.myAreas.newAreaButton}
               </Button>
             </DrawerTrigger>
             <DrawerContent className='h-screen w-full sm:w-[500px] fixed right-0 top-0'>
               <DrawerHeader>
-                <DrawerTitle>Create New Area</DrawerTitle>
+                <DrawerTitle>{t.myAreas.drawer.title}</DrawerTitle>
                 <DrawerDescription>
-                  Set up a new area workflow
+                  {t.myAreas.drawer.subtitle}
                 </DrawerDescription>
               </DrawerHeader>
 
               <div className='p-4 space-y-4 overflow-y-auto flex-1'>
                 <div className='space-y-2'>
-                  <Label htmlFor='name'>Name *</Label>
+                  <Label htmlFor='name'>{t.myAreas.drawer.nameLabel}</Label>
                   <Input
                     id='name'
-                    placeholder='My Area'
+                    placeholder={t.myAreas.drawer.namePlaceholder}
                     value={formData.name}
                     onChange={e =>
                       setFormData({ ...formData, name: e.target.value })
@@ -263,10 +265,10 @@ export default function MyAreasPage() {
                 </div>
 
                 <div className='space-y-2'>
-                  <Label htmlFor='description'>Description *</Label>
+                  <Label htmlFor='description'>{t.myAreas.drawer.descriptionLabel}</Label>
                   <Textarea
                     id='description'
-                    placeholder='Describe what this area does...'
+                    placeholder={t.myAreas.drawer.descriptionPlaceholder}
                     value={formData.description}
                     onChange={e =>
                       setFormData({ ...formData, description: e.target.value })
@@ -276,7 +278,7 @@ export default function MyAreasPage() {
                 </div>
 
                 <div className='border-t pt-4'>
-                  <h3 className='font-semibold mb-3'>Action</h3>
+                  <h3 className='font-semibold mb-3'>{t.myAreas.drawer.actionTitle}</h3>
 
                   <ActionForm
                     selectedAction={selectedAction}
@@ -287,7 +289,7 @@ export default function MyAreasPage() {
                 </div>
 
                 <div className='border-t pt-4'>
-                  <h3 className='font-semibold mb-3'>Reaction</h3>
+                  <h3 className='font-semibold mb-3'>{t.myAreas.drawer.reactionTitle}</h3>
 
                   <ReactionForm
                     onReactionsChange={setSelectedReactions}
@@ -298,7 +300,7 @@ export default function MyAreasPage() {
                 </div>
 
                 <div className='flex items-center justify-between border-t pt-4'>
-                  <Label htmlFor='is_active'>Active</Label>
+                  <Label htmlFor='is_active'>{t.myAreas.drawer.activeLabel}</Label>
                   <Switch
                     id='is_active'
                     checked={formData.is_active}
@@ -314,7 +316,7 @@ export default function MyAreasPage() {
                   className='cursor-pointer'
                   onClick={handleCreateAutomation}
                 >
-                  Create Area
+                  {t.myAreas.drawer.createButton}
                 </Button>
                 <DrawerClose asChild>
                   <Button
@@ -324,7 +326,7 @@ export default function MyAreasPage() {
                       router.replace('/my-areas');
                     }}
                   >
-                    Cancel
+                    {t.myAreas.drawer.cancelButton}
                   </Button>
                 </DrawerClose>
               </DrawerFooter>
@@ -335,15 +337,15 @@ export default function MyAreasPage() {
         {loadingData ? (
           <div className='text-center py-12'>
             <div className='text-lg text-muted-foreground'>
-              Loading areas...
+              {t.myAreas.loadingAreas}
             </div>
           </div>
         ) : data.length === 0 ? (
           <Card>
             <CardContent className='py-12 text-center'>
-              <p className='text-muted-foreground mb-4'>No areas yet</p>
+              <p className='text-muted-foreground mb-4'>{t.myAreas.emptyState.noAreas}</p>
               <p className='text-sm text-muted-foreground'>
-                Create your first area to get started
+                {t.myAreas.emptyState.description}
               </p>
             </CardContent>
           </Card>
@@ -386,14 +388,14 @@ export default function MyAreasPage() {
                   <div className='space-y-3 text-sm'>
                     <div>
                       <p className='font-semibold text-xs text-muted-foreground uppercase mb-1'>
-                        Action
+                        {t.myAreas.card.actionLabel}
                       </p>
                       <p className='text-foreground'>{mapping.action.name}</p>
                     </div>
 
                     <div>
                       <p className='font-semibold text-xs text-muted-foreground uppercase mb-1'>
-                        Reactions
+                        {t.myAreas.card.reactionsLabel}
                       </p>
                       <div className='space-y-1'>
                         {mapping.reactions.map((reaction, idx) => (
@@ -416,7 +418,7 @@ export default function MyAreasPage() {
 
                     <div className='pt-3 border-t flex items-center justify-between'>
                       <div className='text-xs text-muted-foreground'>
-                        Created{' '}
+                        {t.myAreas.card.created}{' '}
                         {new Date(
                           mapping.created_at.toString()
                         ).toLocaleDateString()}

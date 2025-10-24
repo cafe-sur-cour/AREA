@@ -127,6 +127,41 @@
       "unknown": "Unknown"
     }
   },
+  "myAreas": {
+    "loading": "Loading...",
+    "title": "My AREAs",
+    "subtitle": "Manage your area (actions & reactions) workflows",
+    "newAreaButton": "New Area",
+    "drawer": {
+      "title": "Create New Area",
+      "subtitle": "Set up a new area workflow",
+      "nameLabel": "Name *",
+      "namePlaceholder": "My Area",
+      "descriptionLabel": "Description *",
+      "descriptionPlaceholder": "Describe what this area does...",
+      "actionTitle": "Action",
+      "reactionTitle": "Reaction",
+      "activeLabel": "Active",
+      "createButton": "Create Area",
+      "cancelButton": "Cancel"
+    },
+    "loadingAreas": "Loading areas...",
+    "emptyState": {
+      "noAreas": "No areas yet",
+      "description": "Create your first area to get started"
+    },
+    "card": {
+      "actionLabel": "Action",
+      "reactionsLabel": "Reactions",
+      "created": "Created",
+      "deleteConfirm": "Are you sure you want to delete this mapping?"
+    },
+    "errors": {
+      "createFailed": "Failed to create mapping. Please check your input.",
+      "deleteFailed": "Failed to delete mapping.",
+      "switchFailed": "Failed to switch active mode."
+    }
+  },
   "catalogue": {
     "title": "Catalogue of Actions and Reactions",
     "filter": {

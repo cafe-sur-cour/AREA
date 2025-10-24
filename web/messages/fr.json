@@ -127,6 +127,41 @@
       "unknown": "Inconnu"
     }
   },
+  "myAreas": {
+    "loading": "Chargement...",
+    "title": "Mes AREAs",
+    "subtitle": "Gérez vos flux de travail (actions & réactions)",
+    "newAreaButton": "Nouvelle Area",
+    "drawer": {
+      "title": "Créer une Nouvelle Area",
+      "subtitle": "Configurez un nouveau flux de travail",
+      "nameLabel": "Nom *",
+      "namePlaceholder": "Mon Area",
+      "descriptionLabel": "Description *",
+      "descriptionPlaceholder": "Décrivez ce que fait cette area...",
+      "actionTitle": "Action",
+      "reactionTitle": "Réaction",
+      "activeLabel": "Active",
+      "createButton": "Créer l'Area",
+      "cancelButton": "Annuler"
+    },
+    "loadingAreas": "Chargement des areas...",
+    "emptyState": {
+      "noAreas": "Aucune area pour le moment",
+      "description": "Créez votre première area pour commencer"
+    },
+    "card": {
+      "actionLabel": "Action",
+      "reactionsLabel": "Réactions",
+      "created": "Créé le",
+      "deleteConfirm": "Êtes-vous sûr de vouloir supprimer cette correspondance ?"
+    },
+    "errors": {
+      "createFailed": "Échec de la création de la correspondance. Veuillez vérifier votre saisie.",
+      "deleteFailed": "Échec de la suppression de la correspondance.",
+      "switchFailed": "Échec du changement de mode actif."
+    }
+  },
   "catalogue": {
     "title": "Catalogue d'Actions et de Réactions",
     "filter": {
