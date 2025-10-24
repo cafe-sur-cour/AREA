@@ -19,8 +19,11 @@ import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function CataloguePage() {
   const [about, setAbout] = useState<About | null>(null);
-  const [selectedFilter, setSelectedFilter] = useState<'all' | 'actions' | 'reactions'>('all');
-  const [selectedFilterService, setSelectedFilterService] = useState<string>('all');
+  const [selectedFilter, setSelectedFilter] = useState<
+    'all' | 'actions' | 'reactions'
+  >('all');
+  const [selectedFilterService, setSelectedFilterService] =
+    useState<string>('all');
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -62,19 +65,27 @@ export default function CataloguePage() {
   const filterItems = (data: 'all' | 'actions' | 'reactions') => {
     if (data === 'actions') {
       setSelectedFilter('actions');
-      router.push(`/catalogue?filterType=actions&filterService=${selectedFilterService}`);
+      router.push(
+        `/catalogue?filterType=actions&filterService=${selectedFilterService}`
+      );
     } else if (data === 'reactions') {
       setSelectedFilter('reactions');
-      router.push(`/catalogue?filterType=reactions&filterService=${selectedFilterService}`);
+      router.push(
+        `/catalogue?filterType=reactions&filterService=${selectedFilterService}`
+      );
     } else if (data === 'all') {
       setSelectedFilter('all');
-      router.push(`/catalogue?filterType=all&filterService=${selectedFilterService}`);
+      router.push(
+        `/catalogue?filterType=all&filterService=${selectedFilterService}`
+      );
     }
   };
 
-  const filterItemsService = (data : string) => {
-      setSelectedFilterService(data);
-      router.push(`/catalogue?filterType=${selectedFilter}&filterService=${data}`);
+  const filterItemsService = (data: string) => {
+    setSelectedFilterService(data);
+    router.push(
+      `/catalogue?filterType=${selectedFilter}&filterService=${data}`
+    );
   };
 
   return (
@@ -94,48 +105,53 @@ export default function CataloguePage() {
             </h2>
           </div>
           <div className='flex gap-5'>
-          <Select
-            onValueChange={value => {
-              filterItems(value as 'all' | 'actions' | 'reactions');
-            }}
-            defaultValue={selectedFilter}
-            value={selectedFilter}
-          >
-            <SelectTrigger className=' md:w-48 bg-app-surface border-app-border-light'>
-              <SelectValue placeholder='Filter by type' />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value='all'>All Types</SelectItem>
-              <SelectItem value='actions'>Actions Only</SelectItem>
-              <SelectItem value='reactions'>Reactions Only</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select
-            onValueChange={value => {
-              filterItemsService(value as string);
-            }}
-            defaultValue={selectedFilterService || 'all'}
-            value={selectedFilterService || 'all'}
-          >
-            <SelectTrigger className=' md:w-48 bg-app-surface border-app-border-light'>
-              <SelectValue placeholder='Filter by Service' />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value='all'>All Services</SelectItem> 
-              {about && about.server.services.map((service: AboutAREA, index: number) => (
-                <SelectItem key={index} value={service.id}>
-                  {service.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            <Select
+              onValueChange={value => {
+                filterItems(value as 'all' | 'actions' | 'reactions');
+              }}
+              defaultValue={selectedFilter}
+              value={selectedFilter}
+            >
+              <SelectTrigger className=' md:w-48 bg-app-surface border-app-border-light'>
+                <SelectValue placeholder='Filter by type' />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value='all'>All Types</SelectItem>
+                <SelectItem value='actions'>Actions Only</SelectItem>
+                <SelectItem value='reactions'>Reactions Only</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select
+              onValueChange={value => {
+                filterItemsService(value as string);
+              }}
+              defaultValue={selectedFilterService || 'all'}
+              value={selectedFilterService || 'all'}
+            >
+              <SelectTrigger className=' md:w-48 bg-app-surface border-app-border-light'>
+                <SelectValue placeholder='Filter by Service' />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value='all'>All Services</SelectItem>
+                {about &&
+                  about.server.services.map(
+                    (service: AboutAREA, index: number) => (
+                      <SelectItem key={index} value={service.id}>
+                        {service.name}
+                      </SelectItem>
+                    )
+                  )}
+              </SelectContent>
+            </Select>
           </div>
         </div>
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
           {about &&
             about.server.services.map((service: AboutAREA, index: number) => (
               <>
-                {(selectedFilterService === 'all' || selectedFilterService === service.id) && service.actions.length > 0 &&
+                {(selectedFilterService === 'all' ||
+                  selectedFilterService === service.id) &&
+                  service.actions.length > 0 &&
                   (selectedFilter === 'actions' || selectedFilter === 'all') &&
                   service.actions.map(action => (
                     <>
@@ -178,8 +194,11 @@ export default function CataloguePage() {
                       </Card>
                     </>
                   ))}
-                {(selectedFilterService === 'all' || selectedFilterService === service.id) && service.reactions.length > 0 &&
-                  (selectedFilter === 'reactions' || selectedFilter === 'all') &&
+                {(selectedFilterService === 'all' ||
+                  selectedFilterService === service.id) &&
+                  service.reactions.length > 0 &&
+                  (selectedFilter === 'reactions' ||
+                    selectedFilter === 'all') &&
                   service.reactions.map(reaction => (
                     <>
                       <Card
