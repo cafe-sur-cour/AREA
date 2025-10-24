@@ -33,7 +33,7 @@ export default function AboutPage() {
                 About <span className='text-primary'>AREA</span>
               </h1>
               <p className='text-lg sm:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto text-pretty'>
-                We're building the future of automation by connecting the apps
+                We&apos;re building the future of automation by connecting the apps
                 and services you love, making your digital life seamless and
                 efficient.
               </p>
@@ -58,8 +58,8 @@ export default function AboutPage() {
                   connections between their favorite apps.
                 </p>
                 <p className='text-lg text-muted-foreground'>
-                  We're democratizing automation by making it accessible to
-                  everyone, regardless of technical expertise. Whether you're a
+                  We&apos;re democratizing automation by making it accessible to
+                  everyone, regardless of technical expertise. Whether you&apos;re a
                   developer, a business professional, or just someone looking to
                   save time, AREA is here to help you work smarter.
                 </p>
@@ -203,7 +203,7 @@ export default function AboutPage() {
                     Passion Driven
                   </h3>
                   <p className='text-muted-foreground'>
-                    We're passionate about automation and helping people achieve
+                    We&apos;re passionate about automation and helping people achieve
                     more with less effort. This passion fuels our commitment to
                     excellence.
                   </p>
@@ -240,14 +240,14 @@ export default function AboutPage() {
               </p>
               <p className='text-lg mb-4'>
                 Today, AREA has grown into a robust automation platform trusted
-                by millions. We've expanded our integration library, improved
+                by millions. We&apos;ve expanded our integration library, improved
                 our infrastructure, and built a thriving community of users who
                 share their automation workflows with others.
               </p>
               <p className='text-lg'>
-                But we're just getting started. Every day, we work on new
+                But we&apos;re just getting started. Every day, we work on new
                 features, add more integrations, and refine our platform based
-                on your feedback. The future of automation is bright, and we're
+                on your feedback. The future of automation is bright, and we&apos;re
                 excited to build it together with you.
               </p>
             </div>
@@ -306,7 +306,7 @@ export default function AboutPage() {
                 Why Choose AREA?
               </h2>
               <p className='text-lg text-muted-foreground max-w-2xl mx-auto'>
-                Here's what sets us apart from other automation platforms
+                Here&apos;s what sets us apart from other automation platforms
               </p>
             </div>
 
@@ -322,7 +322,7 @@ export default function AboutPage() {
                   <p className='text-muted-foreground'>
                     No coding required. Our intuitive interface makes it simple
                     to create complex automations with just a few clicks.
-                    Whether you're a beginner or an expert, you'll feel right at
+                    Whether you&apos;re a beginner or an expert, you&apos;ll feel right at
                     home.
                   </p>
                 </CardContent>
@@ -355,7 +355,7 @@ export default function AboutPage() {
                   <p className='text-muted-foreground'>
                     Bank-level encryption, SOC 2 compliance, and regular
                     security audits ensure your data is always protected. We
-                    take security seriously so you don't have to worry.
+                    take security seriously so you don&apos;t have to worry.
                   </p>
                 </CardContent>
               </Card>
@@ -370,7 +370,7 @@ export default function AboutPage() {
                   </h3>
                   <p className='text-muted-foreground'>
                     Our dedicated support team is here to help you succeed. From
-                    onboarding to troubleshooting, we're with you every step of
+                    onboarding to troubleshooting, we&apos;re with you every step of
                     the way.
                   </p>
                 </CardContent>
