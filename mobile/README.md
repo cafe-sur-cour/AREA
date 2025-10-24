@@ -84,7 +84,7 @@ To run tests and display tests, in the `mobile/` directory, run:
 ```bash
 flutter test --coverage
 genhtml coverage/lcov.info -o coverage/html
-open coverage/html/index.html
+firefox coverage/html/index.html
 ```
 
 ### Format the files

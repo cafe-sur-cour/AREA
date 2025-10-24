@@ -1,6 +1,6 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
+FlutterSecureStorage _secureStorage = FlutterSecureStorage();
 
 Future<void> saveJwt(String token) async {
   await _secureStorage.write(key: "jwt", value: token);
@@ -12,4 +12,8 @@ Future<String?> getJwt() async {
 
 Future<void> deleteJwt() async {
   await _secureStorage.delete(key: "jwt");
+}
+
+void setSecureStorage(FlutterSecureStorage storage) {
+  _secureStorage = storage;
 }

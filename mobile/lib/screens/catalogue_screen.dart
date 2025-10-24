@@ -345,7 +345,7 @@ class CatalogueScreenState extends State<CatalogueScreen> {
             onSelected: (selected) {
               if (selected) setState(() => _filter = 'all');
             },
-            selectedColor: AppColors.areaBlue1.withValues(alpha: 0.5),
+            selectedColor: AppColors.areaBlue1,
           ),
 
           const SizedBox(width: 8),
@@ -356,7 +356,7 @@ class CatalogueScreenState extends State<CatalogueScreen> {
             onSelected: (selected) {
               if (selected) setState(() => _filter = 'actions');
             },
-            selectedColor: AppColors.areaBlue1.withValues(alpha: 0.5),
+            selectedColor: AppColors.areaBlue1,
           ),
 
           const SizedBox(width: 8),
@@ -367,7 +367,7 @@ class CatalogueScreenState extends State<CatalogueScreen> {
             onSelected: (selected) {
               if (selected) setState(() => _filter = 'reactions');
             },
-            selectedColor: AppColors.areaBlue1.withValues(alpha: 0.5),
+            selectedColor: AppColors.areaBlue1,
           ),
         ],
       ),

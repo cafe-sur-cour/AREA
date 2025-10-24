@@ -24,37 +24,40 @@ class ErrorState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon ?? Icons.error_outline, size: 64, color: iconColor ?? AppColors.error),
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(32.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon ?? Icons.error_outline, size: 64, color: iconColor ?? AppColors.error),
 
-            const SizedBox(height: 16),
+              const SizedBox(height: 16),
 
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: iconColor ?? Colors.red,
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: iconColor ?? Colors.red,
+                ),
+                textAlign: TextAlign.center,
               ),
-              textAlign: TextAlign.center,
-            ),
 
-            const SizedBox(height: 8),
+              const SizedBox(height: 8),
 
-            Text(message, textAlign: TextAlign.center, style: const TextStyle(fontSize: 16)),
-            if (onRetry != null) ...[
-              const SizedBox(height: 24),
+              Text(message, textAlign: TextAlign.center, style: const TextStyle(fontSize: 16)),
+              if (onRetry != null) ...[
+                const SizedBox(height: 24),
 
-              PrimaryButton(
-                onPressed: onRetry,
-                text: retryButtonText ?? AppLocalizations.of(context)!.retry,
-              ),
+                PrimaryButton(
+                  onPressed: onRetry,
+                  text: retryButtonText ?? AppLocalizations.of(context)!.retry,
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );

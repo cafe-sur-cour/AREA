@@ -52,7 +52,6 @@ class AutomationsScreenState extends State<AutomationsScreen> {
       }
 
       final automations = await ApiMappingActionReaction.getAutomations(
-        context,
         backendAddressNotifier.backendAddress!,
       );
 
@@ -288,7 +287,7 @@ class AutomationsScreenState extends State<AutomationsScreen> {
               )
             : RefreshIndicator(
                 onRefresh: _loadAutomations,
-                child: Column(
+                child: ListView(
                   children: [
                     const SizedBox(height: 50),
                     Text(
@@ -298,6 +297,7 @@ class AutomationsScreenState extends State<AutomationsScreen> {
                         fontWeight: FontWeight.w700,
                         fontSize: 50,
                       ),
+                      textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 50),
                     for (int index = 0; index < _automations.length; index++) ...[

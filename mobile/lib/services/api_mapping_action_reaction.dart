@@ -6,7 +6,6 @@ import 'package:area/models/automation_models.dart';
 import 'package:area/models/reaction_with_delay_model.dart';
 import 'package:area/services/secure_http_client.dart';
 import 'package:area/services/secure_storage.dart';
-import 'package:flutter/material.dart';
 
 class ApiMappingActionReaction {
   static Future<void> createAutomation(
@@ -60,10 +59,7 @@ class ApiMappingActionReaction {
     }
   }
 
-  static Future<List<AutomationModel>> getAutomations(
-    BuildContext context,
-    String backendAddress,
-  ) async {
+  static Future<List<AutomationModel>> getAutomations(String backendAddress) async {
     final jwt = await getJwt();
     final url = Uri.parse("$backendAddress${AppRoutes.getAutomations}");
 
