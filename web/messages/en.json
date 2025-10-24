@@ -89,6 +89,44 @@
     "unsubscribe": "Unsubscribe",
     "subscribe": "Subscribe"
   },
+  "dashboard": {
+    "loading": "Loading dashboard...",
+    "title": "Dashboard",
+    "subtitle": "Manage your Area and monitor their performance",
+    "newAreaButton": "New Area",
+    "stats": {
+      "totalAreas": "Total Areas",
+      "connectedServices": "Connected Services",
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "quickActions": {
+      "title": "Quick actions",
+      "connectServices": {
+        "title": "Connect Services",
+        "description": "Link new platforms"
+      },
+      "browseTemplates": {
+        "title": "Browse Templates",
+        "description": "Pre-made Area"
+      },
+      "accountSettings": {
+        "title": "Account Settings",
+        "description": "Manage your profile"
+      }
+    },
+    "yourAreas": {
+      "title": "Your Areas",
+      "noAreas": "No Area yet",
+      "noAreasDescription": "Create your first Area to get started",
+      "createArea": "Create Area",
+      "action": "Action",
+      "active": "Active",
+      "inactive": "Inactive",
+      "error": "Error",
+      "unknown": "Unknown"
+    }
+  },
   "catalogue": {
     "title": "Catalogue of Actions and Reactions",
     "filter": {

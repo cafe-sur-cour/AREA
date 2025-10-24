@@ -83,11 +83,49 @@
   },
   "services": {
     "loading": "Chargement...",
-    "subscribed": "Inscrit",
-    "notSubscribed": "Non inscrit",
+    "subscribed": "Connecté",
+    "notSubscribed": "Non connecté",
     "moreDetails": "Plus de détails",
-    "unsubscribe": "Se désinscrire",
-    "subscribe": "S'inscrire"
+    "unsubscribe": "Se déconnecter",
+    "subscribe": "Se connecter"
+  },
+  "dashboard": {
+    "loading": "Chargement du tableau de bord...",
+    "title": "Tableau de Bord",
+    "subtitle": "Gérez vos Area et surveillez leurs performances",
+    "newAreaButton": "Nouvelle Area",
+    "stats": {
+      "totalAreas": "Total des Areas",
+      "connectedServices": "Services Connectés",
+      "active": "Actives",
+      "inactive": "Inactives"
+    },
+    "quickActions": {
+      "title": "Actions rapides",
+      "connectServices": {
+        "title": "Connecter des Services",
+        "description": "Lier de nouvelles plateformes"
+      },
+      "browseTemplates": {
+        "title": "Parcourir les Modèles",
+        "description": "Area pré-faites"
+      },
+      "accountSettings": {
+        "title": "Paramètres du Compte",
+        "description": "Gérer votre profil"
+      }
+    },
+    "yourAreas": {
+      "title": "Vos Areas",
+      "noAreas": "Aucune Area pour le moment",
+      "noAreasDescription": "Créez votre première Area pour commencer",
+      "createArea": "Créer une Area",
+      "action": "Action",
+      "active": "Active",
+      "inactive": "Inactive",
+      "error": "Erreur",
+      "unknown": "Inconnu"
+    }
   },
   "catalogue": {
     "title": "Catalogue d'Actions et de Réactions",
