@@ -7,6 +7,46 @@ import type { Action, Reaction } from '../../types/mapping';
 
 const router = express.Router();
 
+function enrichActionWithName(action: Action) {
+  const actionDefinition = serviceRegistry.getActionByType(action.type);
+  return {
+    ...action,
+    name: actionDefinition?.name || action.type,
+  };
+}
+
+function enrichReactionWithName(reaction: Reaction) {
+  const reactionDefinition = serviceRegistry.getReactionByType(reaction.type);
+  return {
+    ...reaction,
+    name: reactionDefinition?.name || reaction.type,
+  };
+}
+
+function enrichMappingData(mapping: {
+  id: number;
+  name: string;
+  description?: string | null;
+  action: Action;
+  reactions: Reaction[];
+  is_active: boolean;
+  created_by?: number | null;
+  created_at: Date;
+  updated_at: Date;
+}) {
+  return {
+    id: mapping.id,
+    name: mapping.name,
+    description: mapping.description,
+    action: enrichActionWithName(mapping.action),
+    reactions: mapping.reactions.map(enrichReactionWithName),
+    is_active: mapping.is_active,
+    created_by: mapping.created_by,
+    created_at: mapping.created_at,
+    updated_at: mapping.updated_at,
+  };
+}
+
 function validateMappingRequest(body: unknown): {
   isValid: boolean;
   errors: string[];
@@ -394,17 +434,7 @@ router.post(
       }
 
       return res.status(201).json({
-        mapping: {
-          id: savedMapping.id,
-          name: savedMapping.name,
-          description: savedMapping.description,
-          action: savedMapping.action,
-          reactions: savedMapping.reactions,
-          is_active: savedMapping.is_active,
-          created_by: savedMapping.created_by,
-          created_at: savedMapping.created_at,
-          updated_at: savedMapping.updated_at,
-        },
+        mapping: enrichMappingData(savedMapping),
       });
     } catch (err) {
       console.error('Error creating mapping:', err);
@@ -453,6 +483,9 @@ router.post(
  *                           type:
  *                             type: string
  *                             description: Action type in format "service.action"
+ *                           name:
+ *                             type: string
+ *                             description: Human-readable name of the action
  *                           config:
  *                             type: object
  *                             description: Action configuration parameters
@@ -464,6 +497,9 @@ router.post(
  *                             type:
  *                               type: string
  *                               description: Reaction type in format "service.reaction"
+ *                             name:
+ *                               type: string
+ *                               description: Human-readable name of the reaction
  *                             config:
  *                               type: object
  *                               description: Reaction configuration parameters
@@ -497,17 +533,7 @@ router.get(
       const mappings = await mappingService.getUserMappings(userId);
 
       return res.status(200).json({
-        mappings: mappings.map(mapping => ({
-          id: mapping.id,
-          name: mapping.name,
-          description: mapping.description,
-          action: mapping.action,
-          reactions: mapping.reactions,
-          is_active: mapping.is_active,
-          created_by: mapping.created_by,
-          created_at: mapping.created_at,
-          updated_at: mapping.updated_at,
-        })),
+        mappings: mappings.map(enrichMappingData),
       });
     } catch (err) {
       console.error('Error fetching mappings:', err);
@@ -561,6 +587,9 @@ router.get(
  *                         type:
  *                           type: string
  *                           description: Action type in format "service.action"
+ *                         name:
+ *                           type: string
+ *                           description: Human-readable name of the action
  *                         config:
  *                           type: object
  *                           description: Action configuration parameters
@@ -573,6 +602,9 @@ router.get(
  *                           type:
  *                             type: string
  *                             description: Reaction type in format "service.reaction"
+ *                           name:
+ *                             type: string
+ *                             description: Human-readable name of the reaction
  *                           config:
  *                             type: object
  *                             description: Reaction configuration parameters
@@ -644,23 +676,296 @@ router.get(
       }
 
       return res.status(200).json({
-        mapping: {
-          id: mapping.id,
-          name: mapping.name,
-          description: mapping.description,
-          action: mapping.action,
-          reactions: mapping.reactions,
-          is_active: mapping.is_active,
-          created_by: mapping.created_by,
-          created_at: mapping.created_at,
-          updated_at: mapping.updated_at,
-        },
+        mapping: enrichMappingData(mapping),
       });
     } catch (err) {
       console.error('Error fetching mapping:', err);
       return res
         .status(500)
         .json({ error: 'Internal Server Error in get mapping by id' });
+    }
+  }
+);
+
+/**
+ * @swagger
+ * /api/mappings/{id}:
+ *   put:
+ *     summary: Update a mapping
+ *     tags:
+ *       - Mappings
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Unique identifier of the mapping to update
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: Human-readable name for the mapping
+ *               description:
+ *                 type: string
+ *                 description: Optional description of the mapping
+ *               action:
+ *                 type: object
+ *                 properties:
+ *                   type:
+ *                     type: string
+ *                     description: Action type in format "service.action" (must exist in a registered service)
+ *                     example: "github.new_issue"
+ *                   config:
+ *                     type: object
+ *                     description: Action configuration parameters as defined by the action's configSchema from the service registry
+ *                     example: {"repository": "my-repo", "token": "ghp_..."}
+ *               reactions:
+ *                 type: array
+ *                 minItems: 1
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     type:
+ *                       type: string
+ *                       description: Reaction type in format "service.reaction" (must exist in a registered service)
+ *                       example: "discord.send_message"
+ *                     config:
+ *                       type: object
+ *                       description: Reaction configuration parameters as defined by the reaction's configSchema from the service registry
+ *                       example: {"channel_id": "123456789", "message": "Hello World!"}
+ *                     delay:
+ *                       type: number
+ *                       description: Optional delay in seconds before executing this reaction
+ *                       minimum: 0
+ *               is_active:
+ *                 type: boolean
+ *                 description: Whether the mapping is active
+ *     responses:
+ *       200:
+ *         description: Mapping updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 mapping:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                     name:
+ *                       type: string
+ *                     description:
+ *                       type: string
+ *                     action:
+ *                       type: object
+ *                       description: The configured action
+ *                       properties:
+ *                         type:
+ *                           type: string
+ *                           description: Action type identifier
+ *                         config:
+ *                           type: object
+ *                           description: Action configuration parameters
+ *                     reactions:
+ *                       type: array
+ *                       description: List of configured reactions
+ *                     delay:
+ *                       type: number
+ *                     is_active:
+ *                       type: boolean
+ *                     created_by:
+ *                       type: number
+ *                     created_at:
+ *                       type: string
+ *                       format: date-time
+ *                     updated_at:
+ *                       type: string
+ *                       format: date-time
+ *       400:
+ *         description: Invalid request data or mapping ID
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Invalid request data"
+ *                 details:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *                   description: List of validation errors
+ *       404:
+ *         description: Mapping not found or invalid action/reaction types
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Mapping not found"
+ *                 details:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *                   description: List of invalid types
+ *       403:
+ *         description: Missing service authentication
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Missing service authentication"
+ *                 message:
+ *                   type: string
+ *                   example: "You must connect your accounts for the following services before updating this mapping:"
+ *                 details:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *                   description: List of services requiring authentication
+ *       500:
+ *         description: Internal server error
+ */
+router.put(
+  '/:id',
+  token,
+  async (req: Request, res: Response): Promise<Response> => {
+    try {
+      const userId = (req.auth as { id: number }).id;
+      const { id } = req.params;
+
+      if (!id) {
+        return res.status(400).json({ error: 'Mapping ID is required' });
+      }
+
+      const mappingId = parseInt(id);
+
+      if (isNaN(mappingId)) {
+        return res.status(400).json({ error: 'Invalid mapping ID' });
+      }
+
+      const existingMapping = await mappingService.getMappingById(
+        mappingId,
+        userId
+      );
+      if (!existingMapping) {
+        return res.status(404).json({
+          error: 'Mapping not found',
+        });
+      }
+
+      const { name, description, action, reactions, is_active } = req.body;
+
+      if (action || reactions) {
+        const validation = validateMappingRequest({
+          action: action || existingMapping.action,
+          reactions: reactions || existingMapping.reactions,
+          name: name !== undefined ? name : existingMapping.name,
+        });
+        if (!validation.isValid) {
+          return res.status(400).json({
+            error: 'Invalid request data',
+            details: validation.errors,
+          });
+        }
+
+        const typeValidation = validateActionReactionTypes(
+          action || existingMapping.action,
+          reactions || existingMapping.reactions
+        );
+        if (!typeValidation.isValid) {
+          return res.status(404).json({
+            error: 'Invalid action or reaction types',
+            details: typeValidation.errors,
+          });
+        }
+
+        const tokenValidation = await validateUserServiceTokens(
+          userId,
+          action || existingMapping.action,
+          reactions || existingMapping.reactions
+        );
+        if (!tokenValidation.isValid) {
+          return res.status(403).json({
+            error: 'Missing service authentication',
+            message:
+              'You must connect your accounts for the following services before updating this mapping:',
+            details: tokenValidation.errors,
+          });
+        }
+      } else if (
+        name !== undefined &&
+        (typeof name !== 'string' || name.trim() === '')
+      ) {
+        return res.status(400).json({
+          error: 'Invalid request data',
+          details: ['Name must be a non-empty string if provided'],
+        });
+      }
+
+      const updateData: {
+        name?: string;
+        description?: string;
+        action?: Action;
+        reactions?: Reaction[];
+        is_active?: boolean;
+      } = {};
+      if (name !== undefined) updateData.name = name;
+      if (description !== undefined) updateData.description = description;
+      if (action !== undefined) updateData.action = action;
+      if (reactions !== undefined) updateData.reactions = reactions;
+      if (is_active !== undefined) updateData.is_active = is_active;
+
+      const updatedMapping = await mappingService.updateMapping(
+        mappingId,
+        userId,
+        updateData
+      );
+
+      if (!updatedMapping) {
+        return res.status(404).json({
+          error: 'Mapping not found',
+        });
+      }
+
+      if (action || reactions) {
+        try {
+          await executionService.ensureExternalWebhooksForMapping(
+            updatedMapping,
+            userId
+          );
+          console.log('✅ External webhooks updated for modified mapping');
+        } catch (webhookError) {
+          console.error(
+            '❌ Failed to update external webhooks for mapping:',
+            webhookError
+          );
+        }
+      }
+
+      return res.status(200).json({
+        mapping: enrichMappingData(updatedMapping),
+      });
+    } catch (err) {
+      console.error('Error updating mapping:', err);
+      return res
+        .status(500)
+        .json({ error: 'Internal Server Error in update mapping' });
     }
   }
 );
@@ -847,12 +1152,7 @@ router.put(
       }
 
       return res.status(200).json({
-        mapping: {
-          id: updatedMapping.id,
-          name: updatedMapping.name,
-          is_active: updatedMapping.is_active,
-          updated_at: updatedMapping.updated_at,
-        },
+        mapping: enrichMappingData(updatedMapping),
       });
     } catch (err) {
       console.error('Error activating mapping:', err);
@@ -957,12 +1257,7 @@ router.put(
       }
 
       return res.status(200).json({
-        mapping: {
-          id: updatedMapping.id,
-          name: updatedMapping.name,
-          is_active: updatedMapping.is_active,
-          updated_at: updatedMapping.updated_at,
-        },
+        mapping: enrichMappingData(updatedMapping),
       });
     } catch (err) {
       console.error('Error deactivating mapping:', err);

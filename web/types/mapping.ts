@@ -7,11 +7,13 @@ export interface Mapping {
   description: string;
   action: {
     type: string;
+    name: string;
     config: object;
   };
   reactions: [
     {
       type: string;
+      name: string;
       config: object;
       delay: number;
     },

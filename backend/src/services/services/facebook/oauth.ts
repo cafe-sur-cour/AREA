@@ -129,6 +129,7 @@ export class FacebookOAuth {
     if (existingToken) {
       existingToken.token_value = tokenData.access_token;
       existingToken.expires_at = expiresAt;
+      existingToken.scopes = ['email', 'public_profile'];
       await tokenRepository.save(existingToken);
     } else {
       const newToken = tokenRepository.create({

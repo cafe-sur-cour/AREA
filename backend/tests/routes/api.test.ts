@@ -1,72 +1,60 @@
 import request from 'supertest';
 import express from 'express';
+import apiRouter, { languageRouter } from '../../src/routes/api/api';
 import { AppDataSource } from '../../src/config/db';
+import i18next from 'i18next';
 
+// Mock the entire db module to prevent environment variable requirements
 jest.mock('../../src/config/db', () => ({
   AppDataSource: {
     query: jest.fn(),
   },
 }));
 
+// Mock i18next
+jest.mock('i18next', () => ({
+  language: 'en',
+  changeLanguage: jest.fn(),
+}));
+
 const mockAppDataSource = AppDataSource as jest.Mocked<typeof AppDataSource>;
+const mockI18next = i18next as jest.Mocked<typeof i18next>;
 
-const createMockApiRouter = () => {
-  const router = express.Router();
-
-  router.get('/health', async (_req, res) => {
-    return res.status(200).json({ status: 'OK' });
-  });
-
-  router.get('/health-db', async (_req, res) => {
-    try {
-      await mockAppDataSource.query('SELECT 1');
-      return res.status(200).json({ database: 'OK' });
-    } catch (err) {
-      console.error('Database connection error:', err);
-      return res
-        .status(500)
-        .json({ database: 'Error', error: (err as Error).message });
-    }
-  });
-
-  return router;
-};
-
-describe('API Health Routes Integration Tests', () => {
+describe('API Routes', () => {
   let app: express.Application;
-  let consoleSpy: jest.SpyInstance;
 
   beforeEach(() => {
+    // Reset all mocks
+    jest.clearAllMocks();
+
+    // Setup default mocks
+    mockAppDataSource.query.mockResolvedValue([]);
+    mockI18next.changeLanguage.mockResolvedValue();
+    mockI18next.language = 'en';
+
+    // Create test app
     app = express();
     app.use(express.json());
-    app.use('/api/info', createMockApiRouter());
-
-    consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    app.use('/api', apiRouter);
+    app.use('/api/language', languageRouter);
   });
 
   afterEach(() => {
     jest.clearAllMocks();
-    consoleSpy.mockRestore();
   });
 
-  describe('GET /health', () => {
-    it('should return OK status for basic health check', async () => {
-      const response = await request(app).get('/api/info/health');
+  describe('GET /api/health', () => {
+    it('should return OK status', async () => {
+      const response = await request(app).get('/api/health');
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual({ status: 'OK' });
-    });
-
-    it('should return Content-Type as application/json', async () => {
-      const response = await request(app).get('/api/info/health');
-
-      expect(response.status).toBe(200);
       expect(response.headers['content-type']).toMatch(/application\/json/);
     });
 
     it('should handle multiple concurrent requests', async () => {
-      const promises = Array.from({ length: 5 }, () =>
-        request(app).get('/api/info/health')
+      const promises = Array.from({ length: 10 }, () =>
+        request(app).get('/api/health')
       );
 
       const responses = await Promise.all(promises);
@@ -77,39 +65,24 @@ describe('API Health Routes Integration Tests', () => {
       });
     });
 
-    it('should respond quickly (performance test)', async () => {
-      const startTime = Date.now();
-      const response = await request(app).get('/api/info/health');
-      const endTime = Date.now();
-      const responseTime = endTime - startTime;
+    it('should work with different HTTP methods', async () => {
+      // GET should work
+      const getResponse = await request(app).get('/api/health');
+      expect(getResponse.status).toBe(200);
 
-      expect(response.status).toBe(200);
-      expect(responseTime).toBeLessThan(100);
-    });
-
-    it('should handle HEAD requests', async () => {
-      const response = await request(app).head('/api/info/health');
-
-      expect(response.status).toBe(200);
-      expect(response.body).toEqual({});
-    });
-
-    it('should return 404 for unsupported HTTP methods on /health', async () => {
-      const postResponse = await request(app).post('/api/info/health');
+      // Other methods should not be handled by this route
+      const postResponse = await request(app).post('/api/health');
       expect(postResponse.status).toBe(404);
 
-      const putResponse = await request(app).put('/api/info/health');
+      const putResponse = await request(app).put('/api/health');
       expect(putResponse.status).toBe(404);
 
-      const deleteResponse = await request(app).delete('/api/info/health');
+      const deleteResponse = await request(app).delete('/api/health');
       expect(deleteResponse.status).toBe(404);
-
-      const patchResponse = await request(app).patch('/api/info/health');
-      expect(patchResponse.status).toBe(404);
     });
 
-    it('should maintain consistent response structure', async () => {
-      const response = await request(app).get('/api/info/health');
+    it('should return consistent response structure', async () => {
+      const response = await request(app).get('/api/health');
 
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('status');
@@ -117,19 +90,30 @@ describe('API Health Routes Integration Tests', () => {
       expect(response.body.status).toBe('OK');
     });
 
-    it('should not require authentication', async () => {
-      const response = await request(app).get('/api/info/health');
+    it('should handle query parameters gracefully', async () => {
+      const response = await request(app)
+        .get('/api/health')
+        .query({ param: 'value' });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual({ status: 'OK' });
+    });
+
+    it('should handle request body gracefully', async () => {
+      const response = await request(app)
+        .get('/api/health')
+        .send({ some: 'data' });
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual({ status: 'OK' });
     });
   });
 
-  describe('GET /health-db', () => {
-    it('should return OK status when database is healthy', async () => {
-      mockAppDataSource.query.mockResolvedValue([{ '?column?': 1 }]);
+  describe('GET /api/health-db', () => {
+    it('should return database OK when connection is successful', async () => {
+      mockAppDataSource.query.mockResolvedValue([{ '1': 1 }]);
 
-      const response = await request(app).get('/api/info/health-db');
+      const response = await request(app).get('/api/health-db');
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual({ database: 'OK' });
@@ -137,11 +121,11 @@ describe('API Health Routes Integration Tests', () => {
       expect(mockAppDataSource.query).toHaveBeenCalledTimes(1);
     });
 
-    it('should return 500 status when database query fails', async () => {
+    it('should return database Error when connection fails', async () => {
       const dbError = new Error('Connection refused');
       mockAppDataSource.query.mockRejectedValue(dbError);
 
-      const response = await request(app).get('/api/info/health-db');
+      const response = await request(app).get('/api/health-db');
 
       expect(response.status).toBe(500);
       expect(response.body).toEqual({
@@ -149,90 +133,61 @@ describe('API Health Routes Integration Tests', () => {
         error: 'Connection refused',
       });
       expect(mockAppDataSource.query).toHaveBeenCalledWith('SELECT 1');
-      expect(consoleSpy).toHaveBeenCalledWith(
-        'Database connection error:',
-        dbError
-      );
+      expect(mockAppDataSource.query).toHaveBeenCalledTimes(1);
     });
 
-    it('should handle database timeout errors', async () => {
-      const timeoutError = new Error('Query timeout');
-      timeoutError.name = 'TimeoutError';
-      mockAppDataSource.query.mockRejectedValue(timeoutError);
+    it('should handle non-Error objects thrown by query', async () => {
+      mockAppDataSource.query.mockRejectedValue('String error');
 
-      const response = await request(app).get('/api/info/health-db');
+      const response = await request(app).get('/api/health-db');
 
       expect(response.status).toBe(500);
       expect(response.body).toEqual({
         database: 'Error',
-        error: 'Query timeout',
+        error: 'String error',
       });
-      expect(consoleSpy).toHaveBeenCalledWith(
-        'Database connection error:',
-        timeoutError
-      );
     });
 
-    it('should handle database connection pool exhaustion', async () => {
-      const poolError = new Error('Connection pool exhausted');
-      mockAppDataSource.query.mockRejectedValue(poolError);
+    it('should handle null/undefined thrown by query', async () => {
+      mockAppDataSource.query.mockRejectedValue(null);
 
-      const response = await request(app).get('/api/info/health-db');
+      const response = await request(app).get('/api/health-db');
 
       expect(response.status).toBe(500);
       expect(response.body).toEqual({
         database: 'Error',
-        error: 'Connection pool exhausted',
+        error: 'Unknown error',
       });
     });
 
-    it('should handle database authentication errors', async () => {
-      const authError = new Error('authentication failed for user "postgres"');
-      mockAppDataSource.query.mockRejectedValue(authError);
+    it('should handle empty result from query', async () => {
+      mockAppDataSource.query.mockResolvedValue([]);
 
-      const response = await request(app).get('/api/info/health-db');
-
-      expect(response.status).toBe(500);
-      expect(response.body).toEqual({
-        database: 'Error',
-        error: 'authentication failed for user "postgres"',
-      });
-    });
-
-    it('should handle non-Error objects thrown by database', async () => {
-      const stringError = 'Database is down';
-      mockAppDataSource.query.mockRejectedValue(stringError);
-
-      const response = await request(app).get('/api/info/health-db');
-
-      expect(response.status).toBe(500);
-      expect(response.body.database).toBe('Error');
-      expect(response.body.error).toBeUndefined();
-    });
-
-    it('should return Content-Type as application/json for healthy database', async () => {
-      mockAppDataSource.query.mockResolvedValue([{ '?column?': 1 }]);
-
-      const response = await request(app).get('/api/info/health-db');
+      const response = await request(app).get('/api/health-db');
 
       expect(response.status).toBe(200);
-      expect(response.headers['content-type']).toMatch(/application\/json/);
+      expect(response.body).toEqual({ database: 'OK' });
     });
 
-    it('should return Content-Type as application/json for database errors', async () => {
-      mockAppDataSource.query.mockRejectedValue(new Error('Database error'));
+    it('should handle query with different result formats', async () => {
+      mockAppDataSource.query.mockResolvedValue([1]);
+      const response1 = await request(app).get('/api/health-db');
+      expect(response1.status).toBe(200);
 
-      const response = await request(app).get('/api/info/health-db');
+      mockAppDataSource.query.mockResolvedValue([{ result: 'success' }]);
+      const response2 = await request(app).get('/api/health-db');
+      expect(response2.status).toBe(200);
 
-      expect(response.status).toBe(500);
-      expect(response.headers['content-type']).toMatch(/application\/json/);
+      mockAppDataSource.query.mockResolvedValue('success');
+      const response3 = await request(app).get('/api/health-db');
+      expect(response3.status).toBe(200);
     });
 
-    it('should handle multiple concurrent database health checks', async () => {
-      mockAppDataSource.query.mockResolvedValue([{ '?column?': 1 }]);
+    it('should handle concurrent database health checks', async () => {
+      mockAppDataSource.query.mockResolvedValue([{ '1': 1 }]);
 
-      const promises = Array.from({ length: 3 }, () =>
-        request(app).get('/api/info/health-db')
+      const promises = Array.from({ length: 5 }, () =>
+        request(app).get('/api/health-db')
       );
 
       const responses = await Promise.all(promises);
@@ -242,193 +197,533 @@ describe('API Health Routes Integration Tests', () => {
         expect(response.body).toEqual({ database: 'OK' });
       });
 
+      expect(mockAppDataSource.query).toHaveBeenCalledTimes(5);
+    });
+
+    it('should handle database errors during concurrent requests', async () => {
+      const dbError = new Error('Connection timeout');
+      mockAppDataSource.query.mockRejectedValue(dbError);
+
+      const promises = Array.from({ length: 3 }, () =>
+        request(app).get('/api/health-db')
+      );
+
+      const responses = await Promise.all(promises);
+
+      responses.forEach(response => {
+        expect(response.status).toBe(500);
+        expect(response.body).toEqual({
+          database: 'Error',
+          error: 'Connection timeout',
+        });
+      });
+
       expect(mockAppDataSource.query).toHaveBeenCalledTimes(3);
     });
 
-    it('should handle mixed success/failure scenarios', async () => {
-      mockAppDataSource.query.mockResolvedValueOnce([{ '?column?': 1 }]);
-      mockAppDataSource.query.mockRejectedValueOnce(new Error('Network error'));
-
-      const successResponse = await request(app).get('/api/info/health-db');
-      expect(successResponse.status).toBe(200);
-      expect(successResponse.body).toEqual({ database: 'OK' });
-
-      const errorResponse = await request(app).get('/api/info/health-db');
-      expect(errorResponse.status).toBe(500);
-      expect(errorResponse.body).toEqual({
-        database: 'Error',
-        error: 'Network error',
-      });
-
-      expect(mockAppDataSource.query).toHaveBeenCalledTimes(2);
-    });
-
-    it('should maintain consistent response structure for errors', async () => {
-      mockAppDataSource.query.mockRejectedValue(new Error('Test error'));
-
-      const response = await request(app).get('/api/info/health-db');
-
-      expect(response.status).toBe(500);
-      expect(response.body).toHaveProperty('database');
-      expect(response.body).toHaveProperty('error');
-      expect(response.body.database).toBe('Error');
-      expect(typeof response.body.error).toBe('string');
-    });
-
-    it('should not require authentication', async () => {
-      mockAppDataSource.query.mockResolvedValue([{ '?column?': 1 }]);
-
-      const response = await request(app).get('/api/info/health-db');
-
-      expect(response.status).toBe(200);
-      expect(response.body).toEqual({ database: 'OK' });
-    });
-
-    it('should return 404 for unsupported HTTP methods on /health-db', async () => {
-      const postResponse = await request(app).post('/api/info/health-db');
-      expect(postResponse.status).toBe(404);
-
-      const putResponse = await request(app).put('/api/info/health-db');
-      expect(putResponse.status).toBe(404);
-
-      const deleteResponse = await request(app).delete('/api/info/health-db');
-      expect(deleteResponse.status).toBe(404);
-    });
-
-    it('should execute the correct SQL query', async () => {
-      mockAppDataSource.query.mockResolvedValue([{ '?column?': 1 }]);
-
-      await request(app).get('/api/info/health-db');
-
-      expect(mockAppDataSource.query).toHaveBeenCalledWith('SELECT 1');
-      expect(mockAppDataSource.query).toHaveBeenCalledTimes(1);
-    });
-  });
-
-  describe('Route availability and response times', () => {
-    it('should handle rapid sequential requests', async () => {
-      mockAppDataSource.query.mockResolvedValue([{ '?column?': 1 }]);
-      const startTime = Date.now();
-      for (let i = 0; i < 10; i++) {
-        const healthResponse = await request(app).get('/api/info/health');
-        expect(healthResponse.status).toBe(200);
-        const dbHealthResponse = await request(app).get('/api/info/health-db');
-        expect(dbHealthResponse.status).toBe(200);
-      }
-
-      const endTime = Date.now();
-      const totalTime = endTime - startTime;
-      expect(totalTime).toBeLessThan(1000);
-      expect(mockAppDataSource.query).toHaveBeenCalledTimes(10);
-    });
-
-    it('should be available on correct paths', async () => {
-      mockAppDataSource.query.mockResolvedValue([{ '?column?': 1 }]);
-
-      const healthResponse = await request(app).get('/api/info/health');
-      expect(healthResponse.status).toBe(200);
-
-      const dbHealthResponse = await request(app).get('/api/info/health-db');
-      expect(dbHealthResponse.status).toBe(200);
-
-      const wrongPath1 = await request(app).get('/api/health');
-      expect(wrongPath1.status).toBe(404);
-
-      const wrongPath2 = await request(app).get('/health');
-      expect(wrongPath2.status).toBe(404);
-
-      const wrongPath3 = await request(app).get('/api/info/health-database');
-      expect(wrongPath3.status).toBe(404);
-    });
-  });
-
-  describe('Edge cases and error scenarios', () => {
-    it('should handle Express middleware errors gracefully', async () => {
-      const response = await request(app).get('/api/info/health');
-      expect(response.status).toBe(200);
-      expect(response.body).toEqual({ status: 'OK' });
-    });
-
-    it('should handle very long query response times', async () => {
-      mockAppDataSource.query.mockImplementation(
-        () =>
-          new Promise(resolve =>
-            setTimeout(() => resolve([{ '?column?': 1 }]), 100)
-          )
-      );
-
-      const response = await request(app).get('/api/info/health-db');
-
-      expect(response.status).toBe(200);
-      expect(response.body).toEqual({ database: 'OK' });
-    });
-
-    it('should handle database returning unexpected data', async () => {
-      mockAppDataSource.query.mockResolvedValue(null);
-
-      const response = await request(app).get('/api/info/health-db');
-
-      expect(response.status).toBe(200);
-      expect(response.body).toEqual({ database: 'OK' });
-    });
-
-    it('should handle empty database response', async () => {
+    it('should return correct Content-Type header for success', async () => {
       mockAppDataSource.query.mockResolvedValue([]);
 
-      const response = await request(app).get('/api/info/health-db');
+      const response = await request(app).get('/api/health-db');
 
       expect(response.status).toBe(200);
-      expect(response.body).toEqual({ database: 'OK' });
+      expect(response.headers['content-type']).toMatch(/application\/json/);
     });
-  });
 
-  describe('Error logging and monitoring', () => {
-    it('should log database errors with proper context', async () => {
-      const dbError = new Error('Connection lost');
+    it('should return correct Content-Type header for error', async () => {
+      mockAppDataSource.query.mockRejectedValue(new Error('DB Error'));
+
+      const response = await request(app).get('/api/health-db');
+
+      expect(response.status).toBe(500);
+      expect(response.headers['content-type']).toMatch(/application\/json/);
+    });
+
+    it('should handle console.error calls during database errors', async () => {
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+      const dbError = new Error('Database connection failed');
       mockAppDataSource.query.mockRejectedValue(dbError);
 
-      await request(app).get('/api/info/health-db');
+      const response = await request(app).get('/api/health-db');
 
+      expect(response.status).toBe(500);
       expect(consoleSpy).toHaveBeenCalledWith(
         'Database connection error:',
         dbError
       );
-      expect(consoleSpy).toHaveBeenCalledTimes(1);
+      consoleSpy.mockRestore();
     });
 
-    it('should not log anything for successful health checks', async () => {
-      mockAppDataSource.query.mockResolvedValue([{ '?column?': 1 }]);
+    it('should handle query parameters', async () => {
+      mockAppDataSource.query.mockResolvedValue([]);
 
-      await request(app).get('/api/info/health');
-      await request(app).get('/api/info/health-db');
+      const response = await request(app)
+        .get('/api/health-db')
+        .query({ check: 'deep' });
 
-      expect(consoleSpy).not.toHaveBeenCalled();
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual({ database: 'OK' });
     });
 
-    it('should handle complex error objects', async () => {
-      const complexError = {
-        message: 'Complex database error',
-        code: 'ECONNREFUSED',
-        errno: -61,
-        syscall: 'connect',
-        address: '127.0.0.1',
-        port: 5432,
-        name: 'Error',
-        stack: 'Error: Complex database error\n    at ...',
-      };
-      mockAppDataSource.query.mockRejectedValue(complexError);
+    it('should handle request body', async () => {
+      mockAppDataSource.query.mockResolvedValue([]);
 
-      const response = await request(app).get('/api/info/health-db');
+      const response = await request(app)
+        .get('/api/health-db')
+        .send({ test: 'data' });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual({ database: 'OK' });
+    });
+  });
+
+  describe('Route isolation', () => {
+    it('should not interfere with other routes', async () => {
+      // Test that health routes don't affect each other
+      mockAppDataSource.query.mockResolvedValueOnce([]);
+      const healthResponse = await request(app).get('/api/health');
+      expect(healthResponse.status).toBe(200);
+
+      const dbResponse = await request(app).get('/api/health-db');
+      expect(dbResponse.status).toBe(200);
+
+      // Reset and test with error
+      mockAppDataSource.query.mockRejectedValueOnce(new Error('Test error'));
+      const dbResponse2 = await request(app).get('/api/health-db');
+      expect(dbResponse2.status).toBe(500);
+
+      const healthResponse2 = await request(app).get('/api/health');
+      expect(healthResponse2.status).toBe(200);
+    });
+  });
+
+  describe('Error handling edge cases', () => {
+    it('should handle undefined error messages', async () => {
+      const error = new Error('');
+      mockAppDataSource.query.mockRejectedValue(error);
+
+      const response = await request(app).get('/api/health-db');
 
       expect(response.status).toBe(500);
       expect(response.body).toEqual({
         database: 'Error',
-        error: 'Complex database error',
+        error: '',
       });
-      expect(consoleSpy).toHaveBeenCalledWith(
-        'Database connection error:',
-        complexError
+    });
+
+    it('should handle errors without message property', async () => {
+      mockAppDataSource.query.mockRejectedValue({});
+
+      const response = await request(app).get('/api/health-db');
+
+      expect(response.status).toBe(500);
+      expect(response.body).toEqual({
+        database: 'Error',
+        error: '[object Object]',
+      });
+    });
+
+    it('should handle promise rejections with complex objects', async () => {
+      const complexError = {
+        code: 'ECONNREFUSED',
+        errno: -111,
+        syscall: 'connect',
+        hostname: 'localhost',
+        toString: () => 'Connection refused',
+      };
+      mockAppDataSource.query.mockRejectedValue(complexError);
+
+      const response = await request(app).get('/api/health-db');
+
+      expect(response.status).toBe(500);
+      expect(response.body).toEqual({
+        database: 'Error',
+        error: 'Connection refused',
+      });
+    });
+  });
+
+  describe('Performance and load testing', () => {
+    it('should handle rapid successive requests', async () => {
+      mockAppDataSource.query.mockResolvedValue([]);
+
+      for (let i = 0; i < 20; i++) {
+        const response = await request(app).get('/api/health-db');
+        expect(response.status).toBe(200);
+      }
+
+      expect(mockAppDataSource.query).toHaveBeenCalledTimes(20);
+    });
+
+    it('should handle mixed health check patterns', async () => {
+      const pattern = [true, false, true, true, false]; // true = success, false = error
+
+      for (let i = 0; i < pattern.length; i++) {
+        if (pattern[i]) {
+          mockAppDataSource.query.mockResolvedValueOnce([]);
+        } else {
+          mockAppDataSource.query.mockRejectedValueOnce(
+            new Error(`Error ${i}`)
+          );
+        }
+      }
+
+      for (let i = 0; i < pattern.length; i++) {
+        const response = await request(app).get('/api/health-db');
+        if (pattern[i]) {
+          expect(response.status).toBe(200);
+          expect(response.body).toEqual({ database: 'OK' });
+        } else {
+          expect(response.status).toBe(500);
+          expect(response.body).toEqual({
+            database: 'Error',
+            error: `Error ${i}`,
+          });
+        }
+      }
+    });
+  });
+});
+
+describe('Language Routes', () => {
+  let app: express.Application;
+
+  beforeEach(() => {
+    // Reset all mocks
+    jest.clearAllMocks();
+
+    // Setup default mocks
+    mockI18next.changeLanguage.mockResolvedValue();
+    mockI18next.language = 'en';
+
+    // Create test app
+    app = express();
+    app.use(express.json());
+    app.use('/api/language', languageRouter);
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe('GET /api/language', () => {
+    it('should return current language when set to English', async () => {
+      mockI18next.language = 'en';
+
+      const response = await request(app).get('/api/language');
+
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual({ language: 'en' });
+      expect(response.headers['content-type']).toMatch(/application\/json/);
+    });
+
+    it('should return current language when set to French', async () => {
+      mockI18next.language = 'fr';
+
+      const response = await request(app).get('/api/language');
+
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual({ language: 'fr' });
+    });
+
+    it('should return default language when i18next.language is undefined', async () => {
+      mockI18next.language = undefined;
+
+      const response = await request(app).get('/api/language');
+
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual({ language: 'en' });
+    });
+
+    it('should handle multiple concurrent requests', async () => {
+      mockI18next.language = 'fr';
+
+      const promises = Array.from({ length: 5 }, () =>
+        request(app).get('/api/language')
       );
+
+      const responses = await Promise.all(promises);
+
+      responses.forEach(response => {
+        expect(response.status).toBe(200);
+        expect(response.body).toEqual({ language: 'fr' });
+      });
+    });
+
+    it('should work with different HTTP methods', async () => {
+      // GET should work
+      const getResponse = await request(app).get('/api/language');
+      expect(getResponse.status).toBe(200);
+
+      // POST should work (defined route)
+      const postResponse = await request(app)
+        .post('/api/language')
+        .send({ language: 'en' });
+      expect(postResponse.status).toBe(200);
+
+      // Other methods should not be handled by this route
+      const putResponse = await request(app).put('/api/language');
+      expect(putResponse.status).toBe(404);
+
+      const deleteResponse = await request(app).delete('/api/language');
+      expect(deleteResponse.status).toBe(404);
+    });
+
+    it('should return consistent response structure', async () => {
+      const response = await request(app).get('/api/language');
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('language');
+      expect(typeof response.body.language).toBe('string');
+      expect(['en', 'fr']).toContain(response.body.language);
+    });
+
+    it('should handle query parameters gracefully', async () => {
+      const response = await request(app)
+        .get('/api/language')
+        .query({ param: 'value' });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('language');
+    });
+
+    it('should handle request body gracefully', async () => {
+      const response = await request(app)
+        .get('/api/language')
+        .send({ some: 'data' });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('language');
+    });
+  });
+
+  describe('POST /api/language', () => {
+    it('should successfully change language to English', async () => {
+      const response = await request(app)
+        .post('/api/language')
+        .send({ language: 'en' });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual({ language: 'en' });
+      expect(mockI18next.changeLanguage).toHaveBeenCalledWith('en');
+      expect(mockI18next.changeLanguage).toHaveBeenCalledTimes(1);
+    });
+
+    it('should successfully change language to French', async () => {
+      const response = await request(app)
+        .post('/api/language')
+        .send({ language: 'fr' });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual({ language: 'fr' });
+      expect(mockI18next.changeLanguage).toHaveBeenCalledWith('fr');
+      expect(mockI18next.changeLanguage).toHaveBeenCalledTimes(1);
+    });
+
+    it('should return 400 for invalid language', async () => {
+      const response = await request(app)
+        .post('/api/language')
+        .send({ language: 'invalid' });
+
+      expect(response.status).toBe(400);
+      expect(response.body).toEqual({
+        error: 'Invalid language. Must be "en" or "fr"',
+      });
+      expect(mockI18next.changeLanguage).not.toHaveBeenCalled();
+    });
+
+    it('should return 400 when language is missing', async () => {
+      const response = await request(app).post('/api/language').send({});
+
+      expect(response.status).toBe(400);
+      expect(response.body).toEqual({
+        error: 'Invalid language. Must be "en" or "fr"',
+      });
+      expect(mockI18next.changeLanguage).not.toHaveBeenCalled();
+    });
+
+    it('should return 400 when language is null', async () => {
+      const response = await request(app)
+        .post('/api/language')
+        .send({ language: null });
+
+      expect(response.status).toBe(400);
+      expect(response.body).toEqual({
+        error: 'Invalid language. Must be "en" or "fr"',
+      });
+      expect(mockI18next.changeLanguage).not.toHaveBeenCalled();
+    });
+
+    it('should return 400 when language is not a string', async () => {
+      const response = await request(app)
+        .post('/api/language')
+        .send({ language: 123 });
+
+      expect(response.status).toBe(400);
+      expect(response.body).toEqual({
+        error: 'Invalid language. Must be "en" or "fr"',
+      });
+      expect(mockI18next.changeLanguage).not.toHaveBeenCalled();
+    });
+
+    it('should handle i18next changeLanguage errors', async () => {
+      const testError = new Error('i18next changeLanguage failed');
+      mockI18next.changeLanguage.mockRejectedValue(testError);
+
+      const response = await request(app)
+        .post('/api/language')
+        .send({ language: 'fr' });
+
+      expect(response.status).toBe(500);
+      expect(response.body).toEqual({ error: 'Internal Server Error' });
+      expect(mockI18next.changeLanguage).toHaveBeenCalledWith('fr');
+      expect(mockI18next.changeLanguage).toHaveBeenCalledTimes(1);
+    });
+
+    it('should handle concurrent language change requests', async () => {
+      const promises = Array.from({ length: 3 }, () =>
+        request(app).post('/api/language').send({ language: 'fr' })
+      );
+
+      const responses = await Promise.all(promises);
+
+      responses.forEach(response => {
+        expect(response.status).toBe(200);
+        expect(response.body).toEqual({ language: 'fr' });
+      });
+
+      expect(mockI18next.changeLanguage).toHaveBeenCalledTimes(3);
+      expect(mockI18next.changeLanguage).toHaveBeenCalledWith('fr');
+    });
+
+    it('should return correct Content-Type header', async () => {
+      const response = await request(app)
+        .post('/api/language')
+        .send({ language: 'en' });
+
+      expect(response.status).toBe(200);
+      expect(response.headers['content-type']).toMatch(/application\/json/);
+    });
+
+    it('should handle query parameters', async () => {
+      const response = await request(app)
+        .post('/api/language')
+        .query({ param: 'value' })
+        .send({ language: 'en' });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual({ language: 'en' });
+    });
+
+    it('should handle malformed JSON', async () => {
+      const response = await request(app)
+        .post('/api/language')
+        .set('Content-Type', 'application/json')
+        .send('invalid json');
+
+      expect(response.status).toBe(400);
+    });
+  });
+
+  describe('Route isolation', () => {
+    it('should not interfere with other routes', async () => {
+      // Test GET and POST independently
+      const getResponse = await request(app).get('/api/language');
+      expect(getResponse.status).toBe(200);
+
+      const postResponse = await request(app)
+        .post('/api/language')
+        .send({ language: 'fr' });
+      expect(postResponse.status).toBe(200);
+
+      // Test with error
+      const errorResponse = await request(app)
+        .post('/api/language')
+        .send({ language: 'invalid' });
+      expect(errorResponse.status).toBe(400);
+
+      const getResponse2 = await request(app).get('/api/language');
+      expect(getResponse2.status).toBe(200);
+    });
+  });
+
+  describe('Error handling edge cases', () => {
+    it('should handle undefined error messages from i18next', async () => {
+      const error = new Error('');
+      mockI18next.changeLanguage.mockRejectedValue(error);
+
+      const response = await request(app)
+        .post('/api/language')
+        .send({ language: 'fr' });
+
+      expect(response.status).toBe(500);
+      expect(response.body).toEqual({ error: 'Internal Server Error' });
+    });
+
+    it('should handle non-Error objects thrown by i18next', async () => {
+      mockI18next.changeLanguage.mockRejectedValue('String error');
+
+      const response = await request(app)
+        .post('/api/language')
+        .send({ language: 'fr' });
+
+      expect(response.status).toBe(500);
+      expect(response.body).toEqual({ error: 'Internal Server Error' });
+    });
+
+    it('should handle complex error objects from i18next', async () => {
+      const complexError = {
+        code: 'I18N_ERROR',
+        message: 'Language change failed',
+        details: { lang: 'fr' },
+      };
+      mockI18next.changeLanguage.mockRejectedValue(complexError);
+
+      const response = await request(app)
+        .post('/api/language')
+        .send({ language: 'fr' });
+
+      expect(response.status).toBe(500);
+      expect(response.body).toEqual({ error: 'Internal Server Error' });
+    });
+  });
+
+  describe('Performance and load testing', () => {
+    it('should handle rapid successive GET requests', async () => {
+      for (let i = 0; i < 10; i++) {
+        const response = await request(app).get('/api/language');
+        expect(response.status).toBe(200);
+        expect(response.body).toHaveProperty('language');
+      }
+    });
+
+    it('should handle rapid successive POST requests', async () => {
+      for (let i = 0; i < 10; i++) {
+        const response = await request(app)
+          .post('/api/language')
+          .send({ language: i % 2 === 0 ? 'en' : 'fr' });
+        expect(response.status).toBe(200);
+      }
+
+      expect(mockI18next.changeLanguage).toHaveBeenCalledTimes(10);
+    });
+
+    it('should handle mixed GET/POST patterns', async () => {
+      const pattern = ['GET', 'POST', 'GET', 'POST', 'GET'];
+
+      for (let i = 0; i < pattern.length; i++) {
+        if (pattern[i] === 'GET') {
+          const response = await request(app).get('/api/language');
+          expect(response.status).toBe(200);
+        } else {
+          const response = await request(app)
+            .post('/api/language')
+            .send({ language: 'fr' });
+          expect(response.status).toBe(200);
+        }
+      }
+
+      expect(mockI18next.changeLanguage).toHaveBeenCalledTimes(2);
     });
   });
 });

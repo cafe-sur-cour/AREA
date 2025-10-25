@@ -34,4 +34,8 @@ class SecureHttpClient {
   static void reset() {
     close();
   }
+
+  static void setClient(http.Client client) {
+    _client = client;
+  }
 }

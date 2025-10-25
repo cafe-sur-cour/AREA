@@ -1,4 +1,3 @@
-import 'package:area/core/constants/app_colors.dart';
 import 'package:area/l10n/app_localizations.dart';
 import 'package:area/services/secure_storage.dart';
 import 'package:area/widgets/automation/automation_action_card.dart';
@@ -7,6 +6,7 @@ import 'package:area/widgets/automation/reactions_section.dart';
 import 'package:area/widgets/automation/automation_buttons.dart';
 import 'package:area/widgets/automation/delay_picker_dialog.dart';
 import 'package:area/core/notifiers/automation_builder_notifier.dart';
+import 'package:area/widgets/common/snackbars/app_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -23,15 +23,7 @@ class _AddAutomationScreenState extends State<AddAutomationScreen> {
 
     if (jwt == null) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              AppLocalizations.of(context)!.not_connected,
-              style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
-            ),
-            backgroundColor: AppColors.error,
-          ),
-        );
+        showErrorSnackbar(context, AppLocalizations.of(context)!.not_connected);
       }
       return;
     }
@@ -51,15 +43,7 @@ class _AddAutomationScreenState extends State<AddAutomationScreen> {
 
     if (jwt == null) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              AppLocalizations.of(context)!.not_connected,
-              style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
-            ),
-            backgroundColor: AppColors.error,
-          ),
-        );
+        showErrorSnackbar(context, AppLocalizations.of(context)!.not_connected);
       }
       return;
     }
@@ -107,15 +91,7 @@ class _AddAutomationScreenState extends State<AddAutomationScreen> {
     final automationBuilder = Provider.of<AutomationBuilderNotifier>(context, listen: false);
 
     if (!automationBuilder.hasAction || !automationBuilder.hasReactions) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            AppLocalizations.of(context)!.please_add_action_and_reaction,
-            style: TextStyle(color: AppColors.areaLightGray, fontSize: 16),
-          ),
-          backgroundColor: AppColors.error,
-        ),
-      );
+      showErrorSnackbar(context, AppLocalizations.of(context)!.please_add_action_and_reaction);
       return;
     }
 

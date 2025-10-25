@@ -10,7 +10,11 @@ jest.mock('../../src/config/db', () => ({
 jest.mock('../../src/routes/user/user.service');
 jest.mock('../../src/routes/auth/oauth.service');
 jest.mock('bcryptjs');
-jest.mock('jsonwebtoken');
+jest.mock('jsonwebtoken', () => ({
+  sign: jest.fn(),
+  verify: jest.fn(),
+  decode: jest.fn(),
+}));
 
 jest.mock('../../index', () => ({
   JWT_SECRET: 'test-jwt-secret',

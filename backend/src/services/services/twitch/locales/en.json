@@ -1,0 +1,21 @@
+{
+  "name": "Twitch",
+  "description": "Twitch service for live streaming and community interactions",
+  "actions": {
+    "twitch.new_follower": {
+      "name": "Twitch New Follower",
+      "description": "Triggers when someone follows your Twitch channel",
+      "schema": {
+        "fields": {}
+      }
+    },
+    "twitch.new_subscription": {
+      "name": "Twitch New Subscription",
+      "description": "Triggers when someone subscribes or renews a subscription to your channel",
+      "schema": {
+        "fields": {}
+      }
+    }
+  },
+  "reactions": {}
+}

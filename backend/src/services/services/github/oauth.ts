@@ -49,11 +49,18 @@ export class GitHubOAuth {
     }
   }
 
+  ensureInitialized(): void {
+    if (!this.clientId || !this.clientSecret || !this.redirectUri) {
+      throw new Error('GitHub OAuth configuration missing');
+    }
+  }
+
   getAuthorizationUrl(state: string): string {
     const params = new URLSearchParams({
       client_id: this.clientId,
       redirect_uri: this.redirectUri,
       scope: 'repo,user',
+      response_type: 'code',
       state: state,
     });
     return `${this.githubAuthBaseUrl}/login/oauth/authorize?${params.toString()}`;
@@ -148,6 +155,7 @@ export class GitHubOAuth {
     if (existingToken) {
       existingToken.token_value = tokenData.access_token;
       existingToken.expires_at = expiresAt;
+      existingToken.scopes = tokenData.scope.split(',');
       await tokenRepository.save(existingToken);
     } else {
       const newToken = tokenRepository.create({
