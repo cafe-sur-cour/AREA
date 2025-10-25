@@ -116,7 +116,6 @@ class DashboardScreenState extends State<DashboardScreen> {
       final headers = {'Authorization': 'Bearer $jwt'};
       final client = SecureHttpClient.getClient();
 
-      // Fetch mappings using AppRoutes
       final mappingsUrl = Uri.parse('$baseUrl${AppRoutes.getAutomations}');
       final mappingsResponse =
           await client.get(mappingsUrl, headers: headers);
@@ -132,7 +131,6 @@ class DashboardScreenState extends State<DashboardScreen> {
               .toList() ??
           [];
 
-      // Fetch services using AppRoutes
       final servicesUrl = Uri.parse('$baseUrl${AppRoutes.servicesSubscribed}');
       final servicesResponse =
           await client.get(servicesUrl, headers: headers);
@@ -225,13 +223,11 @@ class DashboardScreenState extends State<DashboardScreen> {
               ),
               const SizedBox(height: 24),
 
-              // Stats Cards
               if (_stats != null) ...[
                 _buildStatsGrid(theme),
                 const SizedBox(height: 24),
               ],
 
-              // Quick Actions
               Text(
                 'Quick actions',
                 style: theme.textTheme.titleMedium?.copyWith(
@@ -255,7 +251,6 @@ class DashboardScreenState extends State<DashboardScreen> {
                     title: 'Browse Templates',
                     subtitle: 'Pre-made Areas',
                     onPressed: () {
-                      // Navigate to templates
                     },
                   ),
                   const SizedBox(height: 8),
@@ -271,7 +266,6 @@ class DashboardScreenState extends State<DashboardScreen> {
               ),
               const SizedBox(height: 24),
 
-              // Your Areas Section
               Text(
                 'Your Areas',
                 style: theme.textTheme.titleMedium?.copyWith(

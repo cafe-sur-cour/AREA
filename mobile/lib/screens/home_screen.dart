@@ -29,7 +29,6 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      // Refresh authentication state when screen comes back to focus
       setState(() {
         _isAuthenticatedFuture = _checkAuthentication();
       });
@@ -64,17 +63,15 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // Logo Section
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 32.0),
               child: Image.asset(
                 'assets/base-logo-resized.png',
-                height: 200,
+                height: 100,
                 fit: BoxFit.contain,
               ),
             ),
 
-            // Hero Section
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 40.0),
               child: Column(
@@ -102,9 +99,9 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const CircularProgressIndicator();
                       }
-                      
+
                       final isAuthenticated = snapshot.data ?? false;
-                      
+
                       return Column(
                         children: [
                           if (!isAuthenticated) ...[
@@ -176,8 +173,7 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 ],
               ),
             ),
-            
-            // Stats Section
+
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 40.0),
               child: Column(
@@ -207,7 +203,6 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               ),
             ),
 
-            // How It Works Section
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 40.0),
               child: Column(
@@ -255,7 +250,6 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               ),
             ),
 
-            // Popular Automations Section
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 40.0),
               child: Column(
@@ -320,7 +314,6 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               ),
             ),
 
-            // Features Section
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 40.0),
               child: Column(
@@ -349,7 +342,6 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               ),
             ),
 
-            // CTA Section
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 40.0),
               child: Column(
@@ -375,9 +367,9 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const CircularProgressIndicator();
                       }
-                      
+
                       final isAuthenticated = snapshot.data ?? false;
-                      
+
                       return ElevatedButton(
                         onPressed: isAuthenticated ? _navigateToDashboard : _navigateToRegister,
                         style: ElevatedButton.styleFrom(
