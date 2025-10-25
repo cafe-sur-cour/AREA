@@ -32,9 +32,7 @@ class ErrorState extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(icon ?? Icons.error_outline, size: 64, color: iconColor ?? AppColors.error),
-
               const SizedBox(height: 16),
-
               Text(
                 title,
                 style: TextStyle(
@@ -44,13 +42,10 @@ class ErrorState extends StatelessWidget {
                 ),
                 textAlign: TextAlign.center,
               ),
-
               const SizedBox(height: 8),
-
               Text(message, textAlign: TextAlign.center, style: const TextStyle(fontSize: 16)),
               if (onRetry != null) ...[
                 const SizedBox(height: 24),
-
                 PrimaryButton(
                   onPressed: onRetry,
                   text: retryButtonText ?? AppLocalizations.of(context)!.retry,

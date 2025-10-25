@@ -372,7 +372,6 @@ class ReactionDetailsScreenState extends State<ReactionDetailsScreen> {
               ),
             ),
           ),
-
           Container(
             padding: const EdgeInsets.all(24),
             child: Column(

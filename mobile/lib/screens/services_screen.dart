@@ -266,7 +266,9 @@ class ServicesScreenState extends State<ServicesScreen> {
             Row(
               children: [
                 _buildServiceIcon(service.icon),
+
                 const SizedBox(width: 16),
+
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -275,16 +277,22 @@ class ServicesScreenState extends State<ServicesScreen> {
                         service.name,
                         style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                       ),
+
                       const SizedBox(height: 4),
+
                       _buildServiceStatus(service),
                     ],
                   ),
                 ),
               ],
             ),
+
             const SizedBox(height: 12),
+
             Text(service.description, style: TextStyle(fontSize: 14, color: Colors.grey[600])),
+
             const SizedBox(height: 16),
+
             SizedBox(
               width: double.infinity,
               child: PrimaryButton(

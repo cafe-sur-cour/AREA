@@ -204,6 +204,46 @@ class ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  void _showLanguageSelectionDialog(BuildContext context, LocaleNotifier localeNotifier) {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text('Language'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                title: const Text('English'),
+                trailing: localeNotifier.locale.languageCode == 'en'
+                    ? const Icon(Icons.check, color: Colors.green)
+                    : null,
+                onTap: () {
+                  Navigator.of(dialogContext).pop();
+                  if (localeNotifier.locale.languageCode != 'en') {
+                    localeNotifier.setLocale(const Locale('en'));
+                  }
+                },
+              ),
+              ListTile(
+                title: const Text('Français'),
+                trailing: localeNotifier.locale.languageCode == 'fr'
+                    ? const Icon(Icons.check, color: Colors.green)
+                    : null,
+                onTap: () {
+                  Navigator.of(dialogContext).pop();
+                  if (localeNotifier.locale.languageCode != 'fr') {
+                    localeNotifier.setLocale(const Locale('fr'));
+                  }
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final localeNotifier = Provider.of<LocaleNotifier>(context);
@@ -221,24 +261,36 @@ class ProfileScreenState extends State<ProfileScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      PopupMenuButton<Locale>(
-                        onSelected: (Locale locale) {
-                          localeNotifier.setLocale(locale);
-                          FocusScope.of(context).unfocus();
+                      GestureDetector(
+                        onTap: () {
+                          _showLanguageSelectionDialog(context, localeNotifier);
                         },
-                        itemBuilder: (BuildContext context) => <PopupMenuEntry<Locale>>[
-                          const PopupMenuItem<Locale>(value: Locale('en'), child: Text('EN')),
-                          const PopupMenuItem<Locale>(value: Locale('fr'), child: Text('FR')),
-                        ],
-                        child: Padding(
+                        child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
-                          child: Text(
-                            localeNotifier.locale.languageCode.toUpperCase(),
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Theme.of(context).primaryColor,
-                              fontWeight: FontWeight.bold,
-                            ),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(4),
+                            border: Border.all(color: Colors.transparent),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                localeNotifier.locale.languageCode.toUpperCase(),
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Theme.of(context).primaryColor,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+
+                              const SizedBox(width: 4),
+
+                              Icon(
+                                Icons.keyboard_arrow_down,
+                                size: 16,
+                                color: Theme.of(context).primaryColor,
+                              ),
+                            ],
                           ),
                         ),
                       ),
@@ -346,8 +398,21 @@ class ProfileScreenState extends State<ProfileScreen> {
                     onTapOutside: () => _testApiAddress(_backendServerController.text),
                     onFieldSubmitted: (value) => _testApiAddress(value),
                   ),
-
                   if (_isConnected) ...[
+                    const SizedBox(height: 20),
+
+                    SizedBox(
+                      width: double.infinity,
+                      child: PrimaryButton(
+                        text: 'Dashboard',
+                        icon: Icons.dashboard,
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/dashboard');
+                        },
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                    ),
+
                     const SizedBox(height: 20),
 
                     SizedBox(

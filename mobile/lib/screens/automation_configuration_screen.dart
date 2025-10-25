@@ -199,7 +199,9 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildFieldLabel(field),
+
         const SizedBox(height: 8),
+
         TextFormField(
           controller: controller,
           maxLines: 3,
@@ -413,7 +415,9 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
             const SizedBox(height: 8),
 
             Text(action.description, style: const TextStyle(color: Colors.grey)),
+
             const SizedBox(height: 16),
+
             ...action.configFields.map((field) {
               final currentValue = automationBuilder.getActionConfigValue(field.name);
               return Padding(
@@ -695,7 +699,9 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
                                     strokeWidth: 2,
                                   ),
                                 ),
+
                                 SizedBox(width: 16),
+
                                 Text(
                                   AppLocalizations.of(context)!.creating_automation,
                                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
@@ -706,7 +712,9 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Icon(Icons.rocket_launch, size: 24),
+
                                 SizedBox(width: 8),
+
                                 Text(
                                   AppLocalizations.of(context)!.create_automation,
                                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
