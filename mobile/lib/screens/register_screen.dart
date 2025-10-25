@@ -139,7 +139,9 @@ class RegisterScreenState extends State<RegisterScreen> {
                   return null;
                 },
               ),
+
               const SizedBox(height: 32),
+
               PrimaryButton(
                 text: AppLocalizations.of(context)!.register,
                 onPressed: _submitForm,

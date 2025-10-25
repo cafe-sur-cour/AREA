@@ -191,7 +191,9 @@ class CatalogueScreenState extends State<CatalogueScreen> {
               Row(
                 children: [
                   _buildServiceIcon(item.serviceIconSVG),
+
                   const SizedBox(width: 8),
+
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
@@ -328,7 +330,6 @@ class CatalogueScreenState extends State<CatalogueScreen> {
         const SizedBox(height: 50),
 
         _buildFilterChips(),
-
         Expanded(child: _buildBody()),
       ],
     );
@@ -400,7 +401,9 @@ class CatalogueScreenState extends State<CatalogueScreen> {
               size: 64,
               color: Colors.grey,
             ),
+
             const SizedBox(height: 16),
+
             Text(
               _filter == 'all'
                   ? AppLocalizations.of(context)!.no_items_available

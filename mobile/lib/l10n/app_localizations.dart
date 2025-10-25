@@ -1053,6 +1053,366 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Complete {serviceName} setup in your browser, then return to the app.'**
   String complete_service_setup(String serviceName);
+
+  /// No description provided for @dashboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Dashboard'**
+  String get dashboard;
+
+  /// No description provided for @manage_areas_performance.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage your Areas and monitor their performance'**
+  String get manage_areas_performance;
+
+  /// No description provided for @quick_actions.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick actions'**
+  String get quick_actions;
+
+  /// No description provided for @connect_services.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect Services'**
+  String get connect_services;
+
+  /// No description provided for @link_new_platforms.
+  ///
+  /// In en, this message translates to:
+  /// **'Link new platforms'**
+  String get link_new_platforms;
+
+  /// No description provided for @browse_templates.
+  ///
+  /// In en, this message translates to:
+  /// **'Browse Templates'**
+  String get browse_templates;
+
+  /// No description provided for @pre_made_areas.
+  ///
+  /// In en, this message translates to:
+  /// **'Pre-made Areas'**
+  String get pre_made_areas;
+
+  /// No description provided for @account_settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Account Settings'**
+  String get account_settings;
+
+  /// No description provided for @manage_your_profile.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage your profile'**
+  String get manage_your_profile;
+
+  /// No description provided for @your_areas.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Areas'**
+  String get your_areas;
+
+  /// No description provided for @total_areas.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Areas'**
+  String get total_areas;
+
+  /// No description provided for @connected_services.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected Services'**
+  String get connected_services;
+
+  /// No description provided for @no_area_yet.
+  ///
+  /// In en, this message translates to:
+  /// **'No Area yet'**
+  String get no_area_yet;
+
+  /// No description provided for @create_first_area.
+  ///
+  /// In en, this message translates to:
+  /// **'Create your first Area to get started'**
+  String get create_first_area;
+
+  /// No description provided for @trigger_colon.
+  ///
+  /// In en, this message translates to:
+  /// **'Trigger: {trigger}'**
+  String trigger_colon(String trigger);
+
+  /// No description provided for @automate_your_life.
+  ///
+  /// In en, this message translates to:
+  /// **'Automate your life with powerful connections'**
+  String get automate_your_life;
+
+  /// No description provided for @connect_favorite_apps.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect your favorite apps and services to create powerful automations. Save time and focus on what matters most.'**
+  String get connect_favorite_apps;
+
+  /// No description provided for @get_started_free.
+  ///
+  /// In en, this message translates to:
+  /// **'Get started free'**
+  String get get_started_free;
+
+  /// No description provided for @sign_in.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in'**
+  String get sign_in;
+
+  /// No description provided for @go_to_dashboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to Dashboard'**
+  String get go_to_dashboard;
+
+  /// No description provided for @active_automations.
+  ///
+  /// In en, this message translates to:
+  /// **'10M+'**
+  String get active_automations;
+
+  /// No description provided for @connected_services_count.
+  ///
+  /// In en, this message translates to:
+  /// **'500+'**
+  String get connected_services_count;
+
+  /// No description provided for @happy_users.
+  ///
+  /// In en, this message translates to:
+  /// **'2M+'**
+  String get happy_users;
+
+  /// No description provided for @active_automations_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Active automations'**
+  String get active_automations_label;
+
+  /// No description provided for @connected_services_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected services'**
+  String get connected_services_label;
+
+  /// No description provided for @happy_users_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Happy users'**
+  String get happy_users_label;
+
+  /// No description provided for @how_it_works.
+  ///
+  /// In en, this message translates to:
+  /// **'How it works'**
+  String get how_it_works;
+
+  /// No description provided for @create_powerful_automations.
+  ///
+  /// In en, this message translates to:
+  /// **'Create powerful automations in three simple steps'**
+  String get create_powerful_automations;
+
+  /// No description provided for @choose_a_trigger.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a trigger'**
+  String get choose_a_trigger;
+
+  /// No description provided for @select_app_event.
+  ///
+  /// In en, this message translates to:
+  /// **'Select an app and event that starts your automation'**
+  String get select_app_event;
+
+  /// No description provided for @add_an_action.
+  ///
+  /// In en, this message translates to:
+  /// **'Add an action'**
+  String get add_an_action;
+
+  /// No description provided for @choose_what_happens.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose what happens when your trigger fires'**
+  String get choose_what_happens;
+
+  /// No description provided for @activate_relax.
+  ///
+  /// In en, this message translates to:
+  /// **'Activate & relax'**
+  String get activate_relax;
+
+  /// No description provided for @automation_runs_automatically.
+  ///
+  /// In en, this message translates to:
+  /// **'Your automation runs automatically in the background'**
+  String get automation_runs_automatically;
+
+  /// No description provided for @popular_automations.
+  ///
+  /// In en, this message translates to:
+  /// **'Popular automations'**
+  String get popular_automations;
+
+  /// No description provided for @get_inspired.
+  ///
+  /// In en, this message translates to:
+  /// **'Get inspired by what others are building'**
+  String get get_inspired;
+
+  /// No description provided for @email_to_slack.
+  ///
+  /// In en, this message translates to:
+  /// **'Email to Slack'**
+  String get email_to_slack;
+
+  /// No description provided for @slack_email_notifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Get notified in Slack when you receive important emails'**
+  String get slack_email_notifications;
+
+  /// No description provided for @social_media_sync.
+  ///
+  /// In en, this message translates to:
+  /// **'Social Media Sync'**
+  String get social_media_sync;
+
+  /// No description provided for @post_multiple_networks.
+  ///
+  /// In en, this message translates to:
+  /// **'Post to multiple social networks at once'**
+  String get post_multiple_networks;
+
+  /// No description provided for @calendar_reminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Calendar Reminders'**
+  String get calendar_reminders;
+
+  /// No description provided for @sms_calendar_reminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Send SMS reminders before calendar events'**
+  String get sms_calendar_reminders;
+
+  /// No description provided for @file_backup.
+  ///
+  /// In en, this message translates to:
+  /// **'File Backup'**
+  String get file_backup;
+
+  /// No description provided for @automatic_cloud_backup.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatically backup files to cloud storage'**
+  String get automatic_cloud_backup;
+
+  /// No description provided for @task_management.
+  ///
+  /// In en, this message translates to:
+  /// **'Task Management'**
+  String get task_management;
+
+  /// No description provided for @create_tasks_from_emails.
+  ///
+  /// In en, this message translates to:
+  /// **'Create tasks from emails or messages'**
+  String get create_tasks_from_emails;
+
+  /// No description provided for @data_collection.
+  ///
+  /// In en, this message translates to:
+  /// **'Data Collection'**
+  String get data_collection;
+
+  /// No description provided for @save_forms_to_spreadsheets.
+  ///
+  /// In en, this message translates to:
+  /// **'Save form responses to spreadsheets'**
+  String get save_forms_to_spreadsheets;
+
+  /// No description provided for @lightning_fast.
+  ///
+  /// In en, this message translates to:
+  /// **'Lightning fast'**
+  String get lightning_fast;
+
+  /// No description provided for @automations_run_instantly.
+  ///
+  /// In en, this message translates to:
+  /// **'Your automations run instantly when triggered, with no delays or waiting.'**
+  String get automations_run_instantly;
+
+  /// No description provided for @save_time.
+  ///
+  /// In en, this message translates to:
+  /// **'Save time'**
+  String get save_time;
+
+  /// No description provided for @automate_repetitive_tasks.
+  ///
+  /// In en, this message translates to:
+  /// **'Automate repetitive tasks and focus on what really matters to you.'**
+  String get automate_repetitive_tasks;
+
+  /// No description provided for @secure_reliable.
+  ///
+  /// In en, this message translates to:
+  /// **'Secure & reliable'**
+  String get secure_reliable;
+
+  /// No description provided for @enterprise_grade_security.
+  ///
+  /// In en, this message translates to:
+  /// **'Enterprise-grade security with 99.9% uptime guarantee for your peace of mind.'**
+  String get enterprise_grade_security;
+
+  /// No description provided for @ready_to_automate.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready to automate your workflow?'**
+  String get ready_to_automate;
+
+  /// No description provided for @join_millions_users.
+  ///
+  /// In en, this message translates to:
+  /// **'Join millions of users who are already saving time with powerful automations.'**
+  String get join_millions_users;
+
+  /// No description provided for @go_to_my_areas.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to My AREAs'**
+  String get go_to_my_areas;
+
+  /// No description provided for @start_for_free.
+  ///
+  /// In en, this message translates to:
+  /// **'Start for free'**
+  String get start_for_free;
+
+  /// No description provided for @copyright_notice.
+  ///
+  /// In en, this message translates to:
+  /// **'© 2025 Area. All rights reserved.'**
+  String get copyright_notice;
+
+  /// No description provided for @not_authenticated.
+  ///
+  /// In en, this message translates to:
+  /// **'Not authenticated'**
+  String get not_authenticated;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

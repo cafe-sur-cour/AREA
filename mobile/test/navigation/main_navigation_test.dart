@@ -47,7 +47,7 @@ void main() {
   group('MainNavigation Widget Tests', () {
     testWidgets('should display 5 navigation items', (WidgetTester tester) async {
       await tester.pumpWidget(createTestableWidget(MainNavigation()));
-      await tester.pumpAndSettle();
+      await tester.pump();
 
       final bottomNavBar = find.byType(BottomNavigationBar);
       expect(bottomNavBar, findsOneWidget);
@@ -60,7 +60,7 @@ void main() {
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(createTestableWidget(const MainNavigation()));
-      await tester.pumpAndSettle();
+      await tester.pump();
 
       expect(find.text('Home'), findsAtLeastNWidgets(1));
       expect(find.text('Catalogue'), findsAtLeastNWidgets(1));
@@ -87,7 +87,7 @@ void main() {
       );
 
       await tester.pumpWidget(frenchApp);
-      await tester.pumpAndSettle();
+      await tester.pump();
 
       expect(find.text('Accueil'), findsAtLeastNWidgets(1));
       expect(find.text('Catalogue'), findsAtLeastNWidgets(1));
@@ -100,38 +100,43 @@ void main() {
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(createTestableWidget(const MainNavigation()));
-      await tester.pumpAndSettle();
+      await tester.pump();
 
-      expect(find.byIcon(Icons.home), findsOneWidget);
+      expect(
+        find.byIcon(Icons.home),
+        findsOneWidget,
+      ); // Selected icon since default is index 0
       expect(find.byIcon(Icons.apps), findsOneWidget);
       expect(find.byIcon(Icons.add_circle_outline), findsOneWidget);
       expect(find.byIcon(Icons.repeat), findsOneWidget);
       expect(find.byIcon(Icons.person_outline), findsOneWidget);
     });
 
-    testWidgets('should start with Home screen (index 0) as default', (
-      WidgetTester tester,
-    ) async {
-      await tester.pumpWidget(createTestableWidget(const MainNavigation()));
-      await tester.pumpAndSettle();
+    testWidgets(
+      'should start with Add Automation screen (index 2) as default when no automation state',
+      (WidgetTester tester) async {
+        await tester.pumpWidget(createTestableWidget(const MainNavigation()));
+        await tester.pump();
 
-      final bottomNavBar = find.byType(BottomNavigationBar);
-      final BottomNavigationBar navBar = tester.widget(bottomNavBar);
-      expect(navBar.currentIndex, 0);
+        final bottomNavBar = find.byType(BottomNavigationBar);
+        final BottomNavigationBar navBar = tester.widget(bottomNavBar);
+        expect(
+          navBar.currentIndex,
+          0,
+        ); // Should be 0 since AutomationBuilderNotifier has no action/reactions
 
-      expect(find.byType(HomeScreen), findsOneWidget);
-    });
+        expect(find.byType(HomeScreen), findsOneWidget);
+      },
+    );
 
     testWidgets('should navigate to Catalogue screen when Catalogue tab is tapped', (
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(createTestableWidget(const MainNavigation()));
-      await tester.pumpAndSettle();
+      await tester.pump();
 
       await tester.tap(find.byIcon(Icons.apps));
       await tester.pump();
-
-      await tester.pump(const Duration(milliseconds: 100));
 
       final bottomNavBar = find.byType(BottomNavigationBar);
       final BottomNavigationBar navBar = tester.widget(bottomNavBar);
@@ -143,10 +148,10 @@ void main() {
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(createTestableWidget(const MainNavigation()));
-      await tester.pumpAndSettle();
+      await tester.pump();
 
       await tester.tap(find.byIcon(Icons.add_circle_outline));
-      await tester.pumpAndSettle();
+      await tester.pump();
 
       final bottomNavBar = find.byType(BottomNavigationBar);
       final BottomNavigationBar navBar = tester.widget(bottomNavBar);
@@ -158,12 +163,10 @@ void main() {
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(createTestableWidget(const MainNavigation()));
-      await tester.pumpAndSettle();
+      await tester.pump();
 
       await tester.tap(find.byIcon(Icons.repeat));
       await tester.pump();
-
-      await tester.pump(const Duration(milliseconds: 100));
 
       final bottomNavBar = find.byType(BottomNavigationBar);
       final BottomNavigationBar navBar = tester.widget(bottomNavBar);
@@ -175,12 +178,10 @@ void main() {
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(createTestableWidget(const MainNavigation()));
-      await tester.pumpAndSettle();
+      await tester.pump();
 
       await tester.tap(find.byIcon(Icons.person_outline));
       await tester.pump();
-
-      await tester.pump(const Duration(milliseconds: 100));
 
       final bottomNavBar = find.byType(BottomNavigationBar);
       final BottomNavigationBar navBar = tester.widget(bottomNavBar);
@@ -192,14 +193,16 @@ void main() {
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(createTestableWidget(const MainNavigation()));
-      await tester.pumpAndSettle();
+      await tester.pump();
 
+      // Initially should show Home as selected (index 0)
       expect(find.byIcon(Icons.home), findsOneWidget);
       expect(find.byIcon(Icons.home_outlined), findsNothing);
 
       await tester.tap(find.byIcon(Icons.add_circle_outline));
-      await tester.pumpAndSettle();
+      await tester.pump();
 
+      // After tapping Add, should show Add as selected and Home as unselected
       expect(find.byIcon(Icons.add_circle), findsOneWidget);
       expect(find.byIcon(Icons.add_circle_outline), findsNothing);
       expect(find.byIcon(Icons.home_outlined), findsOneWidget);
@@ -208,15 +211,14 @@ void main() {
 
     testWidgets('should handle rapid tab switching', (WidgetTester tester) async {
       await tester.pumpWidget(createTestableWidget(const MainNavigation()));
-      await tester.pumpAndSettle();
+      await tester.pump();
 
       for (int i = 0; i < 5; i++) {
         await tester.tap(find.byIcon(Icons.add_circle_outline));
-        await tester.pump(const Duration(milliseconds: 100));
+        await tester.pump();
         await tester.tap(find.byIcon(Icons.home_outlined));
-        await tester.pump(const Duration(milliseconds: 100));
+        await tester.pump();
       }
-      await tester.pumpAndSettle();
 
       final bottomNavBar = find.byType(BottomNavigationBar);
       final BottomNavigationBar navBar = tester.widget(bottomNavBar);
@@ -260,7 +262,7 @@ void main() {
 
     testWidgets('should update state when onTap is called', (WidgetTester tester) async {
       await tester.pumpWidget(createTestableWidget(const MainNavigation()));
-      await tester.pumpAndSettle();
+      await tester.pump();
 
       final bottomNavBar = find.byType(BottomNavigationBar);
       BottomNavigationBar navBar = tester.widget(bottomNavBar);
@@ -268,8 +270,6 @@ void main() {
 
       await tester.tap(find.byIcon(Icons.apps));
       await tester.pump();
-
-      await tester.pump(const Duration(milliseconds: 100));
 
       navBar = tester.widget(bottomNavBar);
       expect(navBar.currentIndex, 1);

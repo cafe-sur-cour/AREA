@@ -563,4 +563,199 @@ class AppLocalizationsFr extends AppLocalizations {
   String complete_service_setup(String serviceName) {
     return 'Terminez la configuration de $serviceName dans votre navigateur, puis revenez à l\'application.';
   }
+
+  @override
+  String get dashboard => 'Tableau de bord';
+
+  @override
+  String get manage_areas_performance => 'Gérez vos Areas et surveillez leurs performances';
+
+  @override
+  String get quick_actions => 'Actions rapides';
+
+  @override
+  String get connect_services => 'Connecter des services';
+
+  @override
+  String get link_new_platforms => 'Lier de nouvelles plateformes';
+
+  @override
+  String get browse_templates => 'Parcourir les modèles';
+
+  @override
+  String get pre_made_areas => 'Areas pré-faites';
+
+  @override
+  String get account_settings => 'Paramètres du compte';
+
+  @override
+  String get manage_your_profile => 'Gérer votre profil';
+
+  @override
+  String get your_areas => 'Vos Areas';
+
+  @override
+  String get total_areas => 'Areas totales';
+
+  @override
+  String get connected_services => 'Services connectés';
+
+  @override
+  String get no_area_yet => 'Aucune Area pour le moment';
+
+  @override
+  String get create_first_area => 'Créez votre première Area pour commencer';
+
+  @override
+  String trigger_colon(String trigger) {
+    return 'Déclencheur : $trigger';
+  }
+
+  @override
+  String get automate_your_life => 'Automatisez votre vie avec des connexions puissantes';
+
+  @override
+  String get connect_favorite_apps =>
+      'Connectez vos applications et services préférés pour créer des automatisations puissantes. Gagnez du temps et concentrez-vous sur ce qui compte vraiment.';
+
+  @override
+  String get get_started_free => 'Commencer gratuitement';
+
+  @override
+  String get sign_in => 'Se connecter';
+
+  @override
+  String get go_to_dashboard => 'Aller au tableau de bord';
+
+  @override
+  String get active_automations => '10M+';
+
+  @override
+  String get connected_services_count => '500+';
+
+  @override
+  String get happy_users => '2M+';
+
+  @override
+  String get active_automations_label => 'Automatisations actives';
+
+  @override
+  String get connected_services_label => 'Services connectés';
+
+  @override
+  String get happy_users_label => 'Utilisateurs satisfaits';
+
+  @override
+  String get how_it_works => 'Comment ça marche';
+
+  @override
+  String get create_powerful_automations =>
+      'Créez des automatisations puissantes en trois étapes simples';
+
+  @override
+  String get choose_a_trigger => 'Choisissez un déclencheur';
+
+  @override
+  String get select_app_event =>
+      'Sélectionnez une application et un événement qui démarre votre automatisation';
+
+  @override
+  String get add_an_action => 'Ajoutez une action';
+
+  @override
+  String get choose_what_happens =>
+      'Choisissez ce qui se passe quand votre déclencheur se déclenche';
+
+  @override
+  String get activate_relax => 'Activez et détendez-vous';
+
+  @override
+  String get automation_runs_automatically =>
+      'Votre automatisation fonctionne automatiquement en arrière-plan';
+
+  @override
+  String get popular_automations => 'Automatisations populaires';
+
+  @override
+  String get get_inspired => 'Inspirez-vous de ce que les autres construisent';
+
+  @override
+  String get email_to_slack => 'Email vers Slack';
+
+  @override
+  String get slack_email_notifications =>
+      'Soyez notifié dans Slack quand vous recevez des emails importants';
+
+  @override
+  String get social_media_sync => 'Synchronisation réseaux sociaux';
+
+  @override
+  String get post_multiple_networks => 'Publiez sur plusieurs réseaux sociaux à la fois';
+
+  @override
+  String get calendar_reminders => 'Rappels de calendrier';
+
+  @override
+  String get sms_calendar_reminders =>
+      'Envoyez des rappels SMS avant les événements du calendrier';
+
+  @override
+  String get file_backup => 'Sauvegarde de fichiers';
+
+  @override
+  String get automatic_cloud_backup =>
+      'Sauvegardez automatiquement les fichiers vers le stockage cloud';
+
+  @override
+  String get task_management => 'Gestion des tâches';
+
+  @override
+  String get create_tasks_from_emails => 'Créez des tâches à partir d\'emails ou de messages';
+
+  @override
+  String get data_collection => 'Collection de données';
+
+  @override
+  String get save_forms_to_spreadsheets =>
+      'Sauvegardez les réponses de formulaires dans des feuilles de calcul';
+
+  @override
+  String get lightning_fast => 'Ultra rapide';
+
+  @override
+  String get automations_run_instantly =>
+      'Vos automatisations s\'exécutent instantanément quand elles sont déclenchées, sans délais ni attente.';
+
+  @override
+  String get save_time => 'Gagnez du temps';
+
+  @override
+  String get automate_repetitive_tasks =>
+      'Automatisez les tâches répétitives et concentrez-vous sur ce qui compte vraiment pour vous.';
+
+  @override
+  String get secure_reliable => 'Sécurisé et fiable';
+
+  @override
+  String get enterprise_grade_security =>
+      'Sécurité de niveau entreprise avec une garantie de disponibilité de 99,9% pour votre tranquillité d\'esprit.';
+
+  @override
+  String get ready_to_automate => 'Prêt à automatiser votre flux de travail ?';
+
+  @override
+  String get join_millions_users =>
+      'Rejoignez des millions d\'utilisateurs qui économisent déjà du temps avec des automatisations puissantes.';
+
+  @override
+  String get go_to_my_areas => 'Aller à Mes AREAs';
+
+  @override
+  String get start_for_free => 'Commencer gratuitement';
+
+  @override
+  String get copyright_notice => '© 2025 Area. Tous droits réservés.';
+
+  @override
+  String get not_authenticated => 'Non authentifié';
 }
