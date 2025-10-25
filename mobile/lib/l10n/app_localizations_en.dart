@@ -90,7 +90,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get confirm_password_differs => 'Passwords differ';
 
   @override
-  String get empty_backend_server_address => 'Please enter a backend server address';
+  String get empty_backend_server_address =>
+      'Please enter a backend server address';
 
   @override
   String get invalid_backend_server_address => 'The address is not valid';
@@ -260,7 +261,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get connect_to_create => 'Connect to create your first automation';
 
   @override
-  String get create_first_automation => 'Create your first automation to get started';
+  String get create_first_automation =>
+      'Create your first automation to get started';
 
   @override
   String get my_areas => 'My AREAs';
@@ -295,7 +297,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get use_as_reaction => 'Use as Reaction';
 
   @override
-  String get backend_not_configured => 'Backend server address is not configured';
+  String get backend_not_configured =>
+      'Backend server address is not configured';
 
   @override
   String failed_load_item(String itemType, String error) {
@@ -372,7 +375,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get no_services_available_title => 'No Services Available';
 
   @override
-  String get no_services_found => 'No services found. Please check your connection.';
+  String get no_services_found =>
+      'No services found. Please check your connection.';
 
   @override
   String get and => 'AND';
@@ -422,7 +426,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get no_additional_config => 'This action requires no additional configuration.';
+  String get no_additional_config =>
+      'This action requires no additional configuration.';
 
   @override
   String get no_additional_config_reaction =>
@@ -475,7 +480,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get default_automation_description => 'Created from mobile app';
 
   @override
-  String get backend_server_not_configured => 'Backend server address not configured';
+  String get backend_server_not_configured =>
+      'Backend server address not configured';
 
   @override
   String action_failed(String error) {
@@ -529,7 +535,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get max_retries_reached => 'Max retries reached';
 
   @override
-  String get failed_to_load_authentication => 'Failed to load authentication page';
+  String get failed_to_load_authentication =>
+      'Failed to load authentication page';
 
   @override
   String retrying_count(int count, int max) {
