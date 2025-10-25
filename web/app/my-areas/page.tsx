@@ -11,7 +11,6 @@ import { api } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import {
   Drawer,
@@ -103,7 +102,7 @@ export default function MyAreasPage() {
       console.error(err);
       toast.error(t.myAreas.feedback.actionSelectError);
     }
-  }, []);
+  }, [t.myAreas.feedback.actionSelected, t.myAreas.feedback.actionSelectError]);
 
   const selectReactionUsingFetch = useCallback(async (name: string, id: string) => {
     try {
@@ -120,7 +119,7 @@ export default function MyAreasPage() {
       console.error(err);
       toast.error(t.myAreas.feedback.reactionSelectError);
     }
-  }, []);
+  }, [t.myAreas.feedback.reactionSelected, t.myAreas.feedback.reactionSelectError]);
 
   useEffect(() => {
     if (
@@ -156,7 +155,7 @@ export default function MyAreasPage() {
     } finally {
       setLoadingData(false);
     }
-  }, []);
+  }, [t.myAreas.feedback.loadError]);
 
   const validateForm = (): boolean => {
     if (!formData.name.trim()) {

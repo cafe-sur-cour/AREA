@@ -21,7 +21,6 @@ export default function ProfilePage() {
   const { user, isLoading } = useAuth();
   const [userData, setUserData] = useState<User | undefined>();
   const [editingName, setEditingName] = useState(false);
-  const [editingEmail, setEditingEmail] = useState(false);
   const [editedName, setEditedName] = useState('');
   const [editingPassword, setEditingPassword] = useState(false);
   const [editedPassword, setEditedPassword] = useState('');
