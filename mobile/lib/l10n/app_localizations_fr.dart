@@ -54,7 +54,8 @@ class AppLocalizationsFr extends AppLocalizations {
   String get empty_password => 'Entrez votre mot de passe';
 
   @override
-  String get invalid_password => 'Le mot de passe doit contenir au moins 6 caractères';
+  String get invalid_password =>
+      'Le mot de passe doit contenir au moins 6 caractères';
 
   @override
   String get forgot_password_question => 'Mot de passe oublié ?';
@@ -87,10 +88,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String get confirm_password => 'Confirmer le mot de passe';
 
   @override
-  String get confirm_password_differs => 'Les mots de passe ne correspondent pas';
+  String get confirm_password_differs =>
+      'Les mots de passe ne correspondent pas';
 
   @override
-  String get empty_backend_server_address => 'Entrez une adresse du serveur backend';
+  String get empty_backend_server_address =>
+      'Entrez une adresse du serveur backend';
 
   @override
   String get invalid_backend_server_address => 'L\'adresse n\'est pas valide';
@@ -275,7 +278,8 @@ class AppLocalizationsFr extends AppLocalizations {
   String get reactions_filter => 'Réactions';
 
   @override
-  String get error_loading_catalogue => 'Erreur lors du chargement du catalogue';
+  String get error_loading_catalogue =>
+      'Erreur lors du chargement du catalogue';
 
   @override
   String get no_items_available => 'Aucun élément disponible';
@@ -295,7 +299,8 @@ class AppLocalizationsFr extends AppLocalizations {
   String get use_as_reaction => 'Utiliser comme réaction';
 
   @override
-  String get backend_not_configured => 'L\'adresse du serveur backend n\'est pas configurée';
+  String get backend_not_configured =>
+      'L\'adresse du serveur backend n\'est pas configurée';
 
   @override
   String failed_load_item(String itemType, String error) {
@@ -343,7 +348,8 @@ class AppLocalizationsFr extends AppLocalizations {
   String get loading_reactions => 'Chargement des réactions...';
 
   @override
-  String get error_loading_reactions => 'Erreur lors du chargement des réactions';
+  String get error_loading_reactions =>
+      'Erreur lors du chargement des réactions';
 
   @override
   String get loading_actions => 'Chargement des actions...';
@@ -372,7 +378,8 @@ class AppLocalizationsFr extends AppLocalizations {
   String get no_services_available_title => 'Aucun service disponible';
 
   @override
-  String get no_services_found => 'Aucun service trouvé. Veuillez vérifier votre connexion.';
+  String get no_services_found =>
+      'Aucun service trouvé. Veuillez vérifier votre connexion.';
 
   @override
   String get and => 'ET';
@@ -473,7 +480,8 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get default_automation_description => 'Créée depuis l\'application mobile';
+  String get default_automation_description =>
+      'Créée depuis l\'application mobile';
 
   @override
   String get backend_server_not_configured =>
@@ -568,7 +576,8 @@ class AppLocalizationsFr extends AppLocalizations {
   String get dashboard => 'Tableau de bord';
 
   @override
-  String get manage_areas_performance => 'Gérez vos Areas et surveillez leurs performances';
+  String get manage_areas_performance =>
+      'Gérez vos Areas et surveillez leurs performances';
 
   @override
   String get quick_actions => 'Actions rapides';
@@ -612,7 +621,8 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get automate_your_life => 'Automatisez votre vie avec des connexions puissantes';
+  String get automate_your_life =>
+      'Automatisez votre vie avec des connexions puissantes';
 
   @override
   String get connect_favorite_apps =>
@@ -690,7 +700,8 @@ class AppLocalizationsFr extends AppLocalizations {
   String get social_media_sync => 'Synchronisation réseaux sociaux';
 
   @override
-  String get post_multiple_networks => 'Publiez sur plusieurs réseaux sociaux à la fois';
+  String get post_multiple_networks =>
+      'Publiez sur plusieurs réseaux sociaux à la fois';
 
   @override
   String get calendar_reminders => 'Rappels de calendrier';
@@ -710,7 +721,8 @@ class AppLocalizationsFr extends AppLocalizations {
   String get task_management => 'Gestion des tâches';
 
   @override
-  String get create_tasks_from_emails => 'Créez des tâches à partir d\'emails ou de messages';
+  String get create_tasks_from_emails =>
+      'Créez des tâches à partir d\'emails ou de messages';
 
   @override
   String get data_collection => 'Collection de données';

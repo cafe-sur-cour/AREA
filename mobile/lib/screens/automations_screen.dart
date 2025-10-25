@@ -285,9 +285,7 @@ class AutomationsScreenState extends State<AutomationsScreen> {
                         onRefresh: _loadAutomations,
                         child: ListView(
                           children: [
-
                             const SizedBox(height: 50),
-
                             Text(
                               AppLocalizations.of(context)!.my_areas,
                               style: const TextStyle(
@@ -306,15 +304,6 @@ class AutomationsScreenState extends State<AutomationsScreen> {
                           ],
                         ),
                       ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 50),
-                    for (int index = 0; index < _automations.length; index++) ...[
-                      _buildAutomationCard(_automations[index]),
-                    ],
-                  ],
-                ),
-              ),
       ),
     );
   }
