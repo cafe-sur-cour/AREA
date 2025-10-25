@@ -256,7 +256,6 @@ class ProfileScreenState extends State<ProfileScreen> {
             : Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-
                   const SizedBox(height: 30),
 
                   Row(
@@ -345,7 +344,6 @@ class ProfileScreenState extends State<ProfileScreen> {
                   ),
 
                   SizedBox(
-
                     height: 250,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -401,11 +399,9 @@ class ProfileScreenState extends State<ProfileScreen> {
                     onFieldSubmitted: (value) => _testApiAddress(value),
                   ),
                   if (_isConnected) ...[
-
                     const SizedBox(height: 20),
 
                     SizedBox(
-
                       width: double.infinity,
                       child: PrimaryButton(
                         text: 'Dashboard',
@@ -420,7 +416,6 @@ class ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(height: 20),
 
                     SizedBox(
-
                       width: double.infinity,
                       child: PrimaryButton(
                         text: AppLocalizations.of(context)?.services ?? 'Services',

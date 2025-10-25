@@ -76,7 +76,6 @@ class ActionDetailsScreen extends StatelessWidget {
                     ),
 
                     const SizedBox(height: 24),
-
                   ],
                   if (action.configSchema?.fields != null &&
                       action.configSchema!.fields.isNotEmpty) ...[

@@ -240,7 +240,6 @@ class LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height: 12),
 
                   SizedBox(
-
                     width: double.infinity,
                     child: OAuthButton(
                       providerName: AppLocalizations.of(context)!.microsoft,

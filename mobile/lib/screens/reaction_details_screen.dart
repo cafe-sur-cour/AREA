@@ -297,7 +297,6 @@ class ReactionDetailsScreenState extends State<ReactionDetailsScreen> {
                     ),
 
                     const SizedBox(height: 24),
-
                   ],
                   if (widget.reaction.configSchema?.fields != null &&
                       widget.reaction.configSchema!.fields.isNotEmpty) ...[
@@ -368,7 +367,6 @@ class ReactionDetailsScreenState extends State<ReactionDetailsScreen> {
                     ),
 
                     const SizedBox(height: 24),
-
                   ],
                 ],
               ),
@@ -447,7 +445,6 @@ class ReactionDetailsScreenState extends State<ReactionDetailsScreen> {
                               ),
                             ),
                             if (_selectedDelayInSeconds > 0) ...[
-
                               const SizedBox(height: 4),
 
                               Text(

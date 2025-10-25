@@ -327,7 +327,6 @@ class CatalogueScreenState extends State<CatalogueScreen> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-
         const SizedBox(height: 50),
 
         _buildFilterChips(),
@@ -439,9 +438,7 @@ class CatalogueScreenState extends State<CatalogueScreen> {
   Widget _buildServiceIcon(String svgIcon) {
     if (svgIcon.isNotEmpty && svgIcon.contains('<svg')) {
       try {
-
         return SizedBox(
-
           width: 24,
           height: 24,
           child: SvgPicture.string(svgIcon, width: 24, height: 24, fit: BoxFit.contain),

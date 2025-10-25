@@ -204,14 +204,16 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     child: Column(
                       children: [
                         HomeStatCard(
-                            number: l10n.active_automations,
-                            label: l10n.active_automations_label),
+                          number: l10n.active_automations,
+                          label: l10n.active_automations_label,
+                        ),
 
                         const SizedBox(height: 24),
 
                         HomeStatCard(
-                            number: l10n.connected_services_count,
-                            label: l10n.connected_services_label),
+                          number: l10n.connected_services_count,
+                          label: l10n.connected_services_label,
+                        ),
 
                         const SizedBox(height: 24),
 

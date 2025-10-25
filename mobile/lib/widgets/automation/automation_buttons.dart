@@ -29,7 +29,6 @@ class AutomationButtons extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-
         const SizedBox(height: 30),
 
         Wrap(
@@ -117,7 +116,6 @@ class AutomationButtons extends StatelessWidget {
           ],
         ),
         if (hasReactions) ...[
-
           const SizedBox(height: 24),
 
           Container(
@@ -135,7 +133,6 @@ class AutomationButtons extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-
                   const Icon(Icons.clear_all_rounded, size: 20),
 
                   const SizedBox(width: 8),
@@ -154,7 +151,6 @@ class AutomationButtons extends StatelessWidget {
           ),
         ],
         if (hasAction && hasReactions) ...[
-
           const SizedBox(height: 24),
 
           Container(
@@ -199,7 +195,6 @@ class AutomationButtons extends StatelessWidget {
         ],
 
         const SizedBox(height: 50),
-
       ],
     );
   }

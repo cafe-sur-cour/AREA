@@ -164,7 +164,6 @@ class DashboardScreenState extends State<DashboardScreen> {
                 _buildStatsGrid(theme, l10n),
 
                 const SizedBox(height: 24),
-
               ],
 
               Text(

@@ -267,43 +267,43 @@ class AutomationsScreenState extends State<AutomationsScreen> {
         child: _isLoading
             ? const LoadingState()
             : _errorMessage != null
-                ? ErrorState(
-                    title: AppLocalizations.of(context)!.error_loading_automations,
-                    message: _errorMessage!,
-                    onRetry: _loadAutomations,
-                    retryButtonText: AppLocalizations.of(context)!.retry,
-                  )
-                : _automations.isEmpty
-                    ? EmptyState(
-                        title: AppLocalizations.of(context)!.no_automations_yet,
-                        message: _notConnected
-                            ? AppLocalizations.of(context)!.connect_to_create
-                            : AppLocalizations.of(context)!.create_first_automation,
-                        icon: Icons.auto_awesome_outlined,
-                      )
-                    : RefreshIndicator(
-                        onRefresh: _loadAutomations,
-                        child: ListView(
-                          children: [
-                            const SizedBox(height: 50),
-                            Text(
-                              AppLocalizations.of(context)!.my_areas,
-                              style: const TextStyle(
-                                fontFamily: 'Montserrat',
-                                fontWeight: FontWeight.w700,
-                                fontSize: 50,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-
-                            const SizedBox(height: 50),
-
-                            for (int index = 0; index < _automations.length; index++) ...[
-                              _buildAutomationCard(_automations[index]),
-                            ],
-                          ],
-                        ),
+            ? ErrorState(
+                title: AppLocalizations.of(context)!.error_loading_automations,
+                message: _errorMessage!,
+                onRetry: _loadAutomations,
+                retryButtonText: AppLocalizations.of(context)!.retry,
+              )
+            : _automations.isEmpty
+            ? EmptyState(
+                title: AppLocalizations.of(context)!.no_automations_yet,
+                message: _notConnected
+                    ? AppLocalizations.of(context)!.connect_to_create
+                    : AppLocalizations.of(context)!.create_first_automation,
+                icon: Icons.auto_awesome_outlined,
+              )
+            : RefreshIndicator(
+                onRefresh: _loadAutomations,
+                child: ListView(
+                  children: [
+                    const SizedBox(height: 50),
+                    Text(
+                      AppLocalizations.of(context)!.my_areas,
+                      style: const TextStyle(
+                        fontFamily: 'Montserrat',
+                        fontWeight: FontWeight.w700,
+                        fontSize: 50,
                       ),
+                      textAlign: TextAlign.center,
+                    ),
+
+                    const SizedBox(height: 50),
+
+                    for (int index = 0; index < _automations.length; index++) ...[
+                      _buildAutomationCard(_automations[index]),
+                    ],
+                  ],
+                ),
+              ),
       ),
     );
   }

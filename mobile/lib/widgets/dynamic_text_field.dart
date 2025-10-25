@@ -168,7 +168,6 @@ class _DynamicTextFieldState extends State<DynamicTextField> {
                             style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
                           ),
                           if (field.example != null) ...[
-
                             const SizedBox(height: 2),
 
                             Text(
@@ -244,7 +243,6 @@ class _DynamicTextFieldState extends State<DynamicTextField> {
             ),
 
             const SizedBox(height: 8),
-
           ],
           if (widget.payloadFields.isNotEmpty)
             Container(

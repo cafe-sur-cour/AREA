@@ -220,9 +220,7 @@ class ServicesScreenState extends State<ServicesScreen> {
   Widget _buildServiceIcon(String svgIcon) {
     if (svgIcon.isNotEmpty && svgIcon.contains('<svg')) {
       try {
-
         return SizedBox(
-
           width: 40,
           height: 40,
           child: SvgPicture.string(svgIcon, width: 40, height: 40, fit: BoxFit.contain),
@@ -296,7 +294,6 @@ class ServicesScreenState extends State<ServicesScreen> {
             const SizedBox(height: 16),
 
             SizedBox(
-
               width: double.infinity,
               child: PrimaryButton(
                 text: service.isSubscribed

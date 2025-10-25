@@ -677,7 +677,6 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
                   const SizedBox(height: 24),
 
                   SizedBox(
-
                     width: double.infinity,
                     height: 56,
                     child: ElevatedButton(
@@ -692,9 +691,7 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
                           ? Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-
                                 SizedBox(
-
                                   width: 24,
                                   height: 24,
                                   child: CircularProgressIndicator(
@@ -728,7 +725,6 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
                   ),
 
                   const SizedBox(height: 32),
-
                 ],
               ),
             ),
