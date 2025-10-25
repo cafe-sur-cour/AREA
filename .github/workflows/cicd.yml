@@ -162,6 +162,27 @@ jobs:
         working-directory: ./web
         run: npm run format:check
 
+  frontend-test:
+    name: Frontend tests
+    needs: web-linter
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up NodeJs
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install frontend dependencies
+        working-directory: ./web
+        run: npm install
+
+      - name: Run frontend tests
+        working-directory: ./web
+        run: npm run test:coverage
+
   mobile-linter:
     name: Mobile frontend linter
     needs: check_repository
