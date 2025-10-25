@@ -135,8 +135,9 @@ class ReactionModel {
       id: json['id'] as String,
       name: json['name'] as String,
       description: json['description'] as String? ?? '',
-      configSchema:
-          json['configSchema'] != null ? ConfigSchema.fromJson(json['configSchema']) : null,
+      configSchema: json['configSchema'] != null
+          ? ConfigSchema.fromJson(json['configSchema'])
+          : null,
       outputSchema: json['outputSchema'] as Map<String, dynamic>?,
       metadata: json['metadata'] != null ? ReactionMetadata.fromJson(json['metadata']) : null,
     );

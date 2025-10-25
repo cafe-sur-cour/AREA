@@ -249,13 +249,14 @@ class ActionModel {
       id: json['id'] as String,
       name: json['name'] as String,
       description: json['description'] as String? ?? '',
-      configSchema:
-          json['configSchema'] != null ? ConfigSchema.fromJson(json['configSchema']) : null,
+      configSchema: json['configSchema'] != null
+          ? ConfigSchema.fromJson(json['configSchema'])
+          : null,
       inputSchema: json['inputSchema'] as Map<String, dynamic>?,
       payloadFields: json['payloadFields'] != null
           ? (json['payloadFields'] as List)
-              .map((field) => PayloadField.fromJson(field))
-              .toList()
+                .map((field) => PayloadField.fromJson(field))
+                .toList()
           : null,
       metadata: json['metadata'] != null ? ActionMetadata.fromJson(json['metadata']) : null,
     );

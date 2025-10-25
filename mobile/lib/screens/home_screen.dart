@@ -413,8 +413,9 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       final isAuthenticated = snapshot.data ?? false;
 
                       return ElevatedButton(
-                        onPressed:
-                            isAuthenticated ? _navigateToDashboard : _navigateToRegister,
+                        onPressed: isAuthenticated
+                            ? _navigateToDashboard
+                            : _navigateToRegister,
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                         ),

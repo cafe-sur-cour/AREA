@@ -73,8 +73,9 @@ class ServiceStatus {
       subscribed: json['subscribed'] ?? false,
       oauthConnected: json['oauth_connected'] ?? false,
       canCreateWebhooks: json['can_create_webhooks'] ?? false,
-      subscribedAt:
-          json['subscribed_at'] != null ? DateTime.tryParse(json['subscribed_at']) : null,
+      subscribedAt: json['subscribed_at'] != null
+          ? DateTime.tryParse(json['subscribed_at'])
+          : null,
       message: json['message'],
     );
   }

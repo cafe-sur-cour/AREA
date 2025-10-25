@@ -39,7 +39,8 @@ class _AppPasswordTextFieldState extends State<AppPasswordTextField> {
         ),
         border: const OutlineInputBorder(),
       ),
-      validator: widget.customValidator ??
+      validator:
+          widget.customValidator ??
           (value) {
             if (value == null || value.isEmpty) {
               return AppLocalizations.of(context)!.empty_password;

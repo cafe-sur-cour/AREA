@@ -37,12 +37,10 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
     if (!_isInitialized) {
       _nameController.text = AppLocalizations.of(
         context,
-      )!
-          .default_automation_name(DateTime.now().millisecondsSinceEpoch.toString());
+      )!.default_automation_name(DateTime.now().millisecondsSinceEpoch.toString());
       _descriptionController.text = AppLocalizations.of(
         context,
-      )!
-          .default_automation_description;
+      )!.default_automation_description;
       _isInitialized = true;
     }
   }
@@ -161,8 +159,9 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
 
         TextFormField(
           controller: controller,
-          keyboardType:
-              field.type == 'email' ? TextInputType.emailAddress : TextInputType.text,
+          keyboardType: field.type == 'email'
+              ? TextInputType.emailAddress
+              : TextInputType.text,
           decoration: InputDecoration(
             hintText: field.placeholder,
             border: const OutlineInputBorder(),
@@ -455,8 +454,7 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
               Text(
                 AppLocalizations.of(
                   context,
-                )!
-                    .reaction_number(reactionIndex + 1, reaction.name),
+                )!.reaction_number(reactionIndex + 1, reaction.name),
                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
 
@@ -564,8 +562,7 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
           context,
           AppLocalizations.of(
             context,
-          )!
-              .failed_create_automation(e.toString().replaceAll("Exception: ", "")),
+          )!.failed_create_automation(e.toString().replaceAll("Exception: ", "")),
         );
       }
     } finally {

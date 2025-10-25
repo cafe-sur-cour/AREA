@@ -156,14 +156,16 @@ class OAuthWebViewState extends State<OAuthWebView> {
     try {
       final uri = Uri.parse(url);
 
-      String? token = uri.queryParameters['token'] ??
+      String? token =
+          uri.queryParameters['token'] ??
           uri.queryParameters['auth_token'] ??
           uri.queryParameters['jwt'] ??
           uri.queryParameters['access_token'];
 
       if (token == null && uri.fragment.isNotEmpty) {
         final fragmentParams = Uri.splitQueryString(uri.fragment);
-        token = fragmentParams['token'] ??
+        token =
+            fragmentParams['token'] ??
             fragmentParams['auth_token'] ??
             fragmentParams['jwt'] ??
             fragmentParams['access_token'];
@@ -352,8 +354,7 @@ class OAuthWebViewState extends State<OAuthWebView> {
                       _retryCount > 0
                           ? AppLocalizations.of(
                               context,
-                            )!
-                              .retrying_count(_retryCount, _maxRetries)
+                            )!.retrying_count(_retryCount, _maxRetries)
                           : AppLocalizations.of(context)!.failed_to_load_authentication,
                       style: const TextStyle(fontSize: 16),
                     ),

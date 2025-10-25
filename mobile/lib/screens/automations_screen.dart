@@ -306,6 +306,15 @@ class AutomationsScreenState extends State<AutomationsScreen> {
                           ],
                         ),
                       ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 50),
+                    for (int index = 0; index < _automations.length; index++) ...[
+                      _buildAutomationCard(_automations[index]),
+                    ],
+                  ],
+                ),
+              ),
       ),
     );
   }

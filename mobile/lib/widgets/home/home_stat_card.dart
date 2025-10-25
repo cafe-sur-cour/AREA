@@ -4,11 +4,7 @@ class HomeStatCard extends StatelessWidget {
   final String number;
   final String label;
 
-  const HomeStatCard({
-    super.key,
-    required this.number,
-    required this.label,
-  });
+  const HomeStatCard({super.key, required this.number, required this.label});
 
   @override
   Widget build(BuildContext context) {
