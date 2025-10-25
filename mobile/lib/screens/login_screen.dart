@@ -182,9 +182,13 @@ class LoginScreenState extends State<LoginScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               EmailTextField(controller: _emailController),
+
               const SizedBox(height: 16),
+
               AppPasswordTextField(controller: _passwordController),
+
               const SizedBox(height: 32),
+
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -201,9 +205,13 @@ class LoginScreenState extends State<LoginScreen> {
                   ),
                 ],
               ),
+
               const SizedBox(height: 16),
+
               const Divider(),
+
               const SizedBox(height: 16),
+
               Column(
                 children: [
                   Row(
@@ -216,7 +224,9 @@ class LoginScreenState extends State<LoginScreen> {
                         backgroundColor: AppColors.primary,
                         isExpanded: true,
                       ),
+
                       const SizedBox(width: 8),
+
                       OAuthButton(
                         providerName: AppLocalizations.of(context)!.google,
                         icon: IonIcons.logo_google,
@@ -226,8 +236,11 @@ class LoginScreenState extends State<LoginScreen> {
                       ),
                     ],
                   ),
+
                   const SizedBox(height: 12),
+
                   SizedBox(
+
                     width: double.infinity,
                     child: OAuthButton(
                       providerName: AppLocalizations.of(context)!.microsoft,

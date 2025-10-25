@@ -56,7 +56,9 @@ class AutomationActionCard extends StatelessWidget {
                     ),
                     child: const Icon(Icons.flash_on, color: Colors.white, size: 28),
                   ),
+
                   const SizedBox(width: 16),
+
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -89,7 +91,9 @@ class AutomationActionCard extends StatelessWidget {
                             height: 1.2,
                           ),
                         ),
+
                         const SizedBox(height: 2),
+
                         Row(
                           children: [
                             Container(
@@ -116,7 +120,9 @@ class AutomationActionCard extends StatelessWidget {
                                     )
                                   : Icon(Icons.web, color: _serviceColor, size: 12),
                             ),
+
                             const SizedBox(width: 6),
+
                             Text(
                               service.name,
                               style: TextStyle(

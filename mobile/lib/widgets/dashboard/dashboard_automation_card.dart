@@ -28,7 +28,9 @@ class DashboardAutomationCard extends StatelessWidget {
                       : Icons.bolt,
                   size: 20,
                 ),
+
                 const SizedBox(width: 12),
+
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -39,7 +41,9 @@ class DashboardAutomationCard extends StatelessWidget {
                           fontWeight: FontWeight.w600,
                         ),
                       ),
+
                       const SizedBox(height: 4),
+
                       Text(
                         automation.description,
                         style: theme.textTheme.bodySmall?.copyWith(color: Colors.black),
@@ -69,7 +73,9 @@ class DashboardAutomationCard extends StatelessWidget {
                 ),
               ],
             ),
+
             const SizedBox(height: 12),
+
             Text(
               '${AppLocalizations.of(context)!.trigger_colon(automation.action.type)} ${automation.reactions.isNotEmpty ? '→ ${automation.reactions.map((r) => r.type).join(', ')}' : ''}',
               style: theme.textTheme.bodySmall?.copyWith(color: Colors.black),

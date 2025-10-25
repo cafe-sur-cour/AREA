@@ -27,9 +27,13 @@ class HomeFeatureItem extends StatelessWidget {
           ),
           child: Icon(icon, color: theme.primaryColor, size: 24),
         ),
+
         const SizedBox(height: 16),
+
         Text(title, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600)),
+
         const SizedBox(height: 8),
+
         Text(description, style: theme.textTheme.bodyMedium),
       ],
     );

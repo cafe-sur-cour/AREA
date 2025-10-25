@@ -193,7 +193,9 @@ class AutomationsScreenState extends State<AutomationsScreen> {
                 ),
               ],
             ),
+
             const SizedBox(height: AppDimensions.paddingSM),
+
             Row(
               children: [
                 Expanded(
@@ -204,14 +206,18 @@ class AutomationsScreenState extends State<AutomationsScreen> {
                 ),
               ],
             ),
+
             const SizedBox(height: AppDimensions.paddingSM),
+
             Text(
               automation.description,
               style: AppTextStyles.bodyMedium.copyWith(color: Colors.grey[600]),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
+
             const SizedBox(height: AppDimensions.paddingSM),
+
             Padding(
               padding: const EdgeInsets.fromLTRB(0, 8, 8, 8),
               child: Row(
@@ -279,7 +285,9 @@ class AutomationsScreenState extends State<AutomationsScreen> {
                         onRefresh: _loadAutomations,
                         child: ListView(
                           children: [
+
                             const SizedBox(height: 50),
+
                             Text(
                               AppLocalizations.of(context)!.my_areas,
                               style: const TextStyle(
@@ -289,7 +297,9 @@ class AutomationsScreenState extends State<AutomationsScreen> {
                               ),
                               textAlign: TextAlign.center,
                             ),
+
                             const SizedBox(height: 50),
+
                             for (int index = 0; index < _automations.length; index++) ...[
                               _buildAutomationCard(_automations[index]),
                             ],

@@ -22,7 +22,9 @@ class HomeAutomationCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(icon, style: const TextStyle(fontSize: 36)),
+
             const SizedBox(height: 16),
+
             Text(
               title,
               style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),

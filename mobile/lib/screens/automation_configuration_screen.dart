@@ -156,7 +156,9 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildFieldLabel(field),
+
         const SizedBox(height: 8),
+
         TextFormField(
           controller: controller,
           keyboardType:
@@ -198,7 +200,9 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildFieldLabel(field),
+
         const SizedBox(height: 8),
+
         TextFormField(
           controller: controller,
           maxLines: 3,
@@ -234,7 +238,9 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildFieldLabel(field),
+
         const SizedBox(height: 8),
+
         TextFormField(
           controller: controller,
           keyboardType: TextInputType.number,
@@ -289,7 +295,9 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildFieldLabel(field),
+
         const SizedBox(height: 8),
+
         DropdownButtonFormField<String>(
           initialValue: currentValue?.toString(),
           decoration: InputDecoration(
@@ -381,7 +389,9 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
                 AppLocalizations.of(context)!.action_colon(action.name),
                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
+
               const SizedBox(height: 8),
+
               Text(
                 AppLocalizations.of(context)!.no_additional_config,
                 style: const TextStyle(color: Colors.grey),
@@ -402,9 +412,13 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
               AppLocalizations.of(context)!.action_colon(action.name),
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
+
             const SizedBox(height: 8),
+
             Text(action.description, style: const TextStyle(color: Colors.grey)),
+
             const SizedBox(height: 16),
+
             ...action.configFields.map((field) {
               final currentValue = automationBuilder.getActionConfigValue(field.name);
               return Padding(
@@ -445,7 +459,9 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
                     .reaction_number(reactionIndex + 1, reaction.name),
                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
+
               const SizedBox(height: 8),
+
               Text(
                 AppLocalizations.of(context)!.no_additional_config_reaction,
                 style: const TextStyle(color: Colors.grey),
@@ -466,9 +482,13 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
               AppLocalizations.of(context)!.reaction_number(reactionIndex + 1, reaction.name),
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
+
             const SizedBox(height: 8),
+
             Text(reaction.description, style: const TextStyle(color: Colors.grey)),
+
             const SizedBox(height: 16),
+
             ...reaction.configFields.map((field) {
               final currentValue = reactionWithDelay.getConfigValue(field.name);
               return Padding(
@@ -570,12 +590,16 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(Icons.error_outline, size: 64, color: Colors.red),
+
                   SizedBox(height: 16),
+
                   Text(
                     AppLocalizations.of(context)!.invalid_automation_state,
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
+
                   SizedBox(height: 8),
+
                   Text(
                     AppLocalizations.of(context)!.go_back_select_action_reaction,
                     textAlign: TextAlign.center,
@@ -603,7 +627,9 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
                             AppLocalizations.of(context)!.automation_details,
                             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                           ),
+
                           const SizedBox(height: 16),
+
                           TextFormField(
                             controller: _nameController,
                             decoration: InputDecoration(
@@ -619,7 +645,9 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
                               return null;
                             },
                           ),
+
                           const SizedBox(height: 16),
+
                           TextFormField(
                             controller: _descriptionController,
                             maxLines: 2,
@@ -634,9 +662,13 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
                       ),
                     ),
                   ),
+
                   const SizedBox(height: 16),
+
                   _buildActionConfigSection(automationBuilder),
+
                   const SizedBox(height: 16),
+
                   ...List.generate(
                     automationBuilder.selectedReactionsWithDelay.length,
                     (index) => Padding(
@@ -644,8 +676,11 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
                       child: _buildReactionConfigSection(automationBuilder, index),
                     ),
                   ),
+
                   const SizedBox(height: 24),
+
                   SizedBox(
+
                     width: double.infinity,
                     height: 56,
                     child: ElevatedButton(
@@ -660,7 +695,9 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
                           ? Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
+
                                 SizedBox(
+
                                   width: 24,
                                   height: 24,
                                   child: CircularProgressIndicator(
@@ -668,7 +705,9 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
                                     strokeWidth: 2,
                                   ),
                                 ),
+
                                 SizedBox(width: 16),
+
                                 Text(
                                   AppLocalizations.of(context)!.creating_automation,
                                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
@@ -679,7 +718,9 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Icon(Icons.rocket_launch, size: 24),
+
                                 SizedBox(width: 8),
+
                                 Text(
                                   AppLocalizations.of(context)!.create_automation,
                                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
@@ -688,7 +729,9 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
                             ),
                     ),
                   ),
+
                   const SizedBox(height: 32),
+
                 ],
               ),
             ),

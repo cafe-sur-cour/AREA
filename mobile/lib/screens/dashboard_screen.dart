@@ -147,25 +147,32 @@ class DashboardScreenState extends State<DashboardScreen> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
+
                   const SizedBox(height: 4),
+
                   Text(
                     l10n.manage_areas_performance,
                     style: theme.textTheme.bodySmall?.copyWith(color: Colors.black),
                   ),
                 ],
               ),
+
               const SizedBox(height: 24),
 
               if (_stats != null) ...[
                 _buildStatsGrid(theme, l10n),
+
                 const SizedBox(height: 24),
+
               ],
 
               Text(
                 l10n.quick_actions,
                 style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
+
               const SizedBox(height: 12),
+
               Column(
                 children: [
                   DashboardQuickActionButton(
@@ -176,14 +183,18 @@ class DashboardScreenState extends State<DashboardScreen> {
                       Navigator.pushNamed(context, '/action-services');
                     },
                   ),
+
                   const SizedBox(height: 8),
+
                   DashboardQuickActionButton(
                     icon: Icons.bolt,
                     title: l10n.browse_templates,
                     subtitle: l10n.pre_made_areas,
                     onPressed: () {},
                   ),
+
                   const SizedBox(height: 8),
+
                   DashboardQuickActionButton(
                     icon: Icons.settings,
                     title: l10n.account_settings,
@@ -194,13 +205,16 @@ class DashboardScreenState extends State<DashboardScreen> {
                   ),
                 ],
               ),
+
               const SizedBox(height: 24),
 
               Text(
                 l10n.your_areas,
                 style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
+
               const SizedBox(height: 12),
+
               if (_automations.isEmpty)
                 _buildEmptyState(theme, l10n)
               else
@@ -229,7 +243,9 @@ class DashboardScreenState extends State<DashboardScreen> {
                 color: Colors.blue,
               ),
             ),
+
             const SizedBox(width: 12),
+
             Expanded(
               child: DashboardStatCard(
                 label: l10n.connected_services,
@@ -240,7 +256,9 @@ class DashboardScreenState extends State<DashboardScreen> {
             ),
           ],
         ),
+
         const SizedBox(height: 12),
+
         Row(
           children: [
             Expanded(
@@ -251,7 +269,9 @@ class DashboardScreenState extends State<DashboardScreen> {
                 color: Colors.green,
               ),
             ),
+
             const SizedBox(width: 12),
+
             Expanded(
               child: DashboardStatCard(
                 label: l10n.inactive,
@@ -273,12 +293,16 @@ class DashboardScreenState extends State<DashboardScreen> {
         child: Column(
           children: [
             Icon(Icons.bolt_outlined, size: 48, color: Colors.black),
+
             const SizedBox(height: 16),
+
             Text(
               l10n.no_area_yet,
               style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
+
             const SizedBox(height: 8),
+
             Text(
               l10n.create_first_area,
               style: theme.textTheme.bodySmall?.copyWith(color: Colors.black),

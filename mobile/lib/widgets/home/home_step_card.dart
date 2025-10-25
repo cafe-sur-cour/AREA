@@ -34,13 +34,17 @@ class HomeStepCard extends StatelessWidget {
                 ),
               ),
             ),
+
             const SizedBox(height: 16),
+
             Text(
               title,
               textAlign: TextAlign.center,
               style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
             ),
+
             const SizedBox(height: 12),
+
             Text(description, textAlign: TextAlign.center, style: theme.textTheme.bodyMedium),
           ],
         ),

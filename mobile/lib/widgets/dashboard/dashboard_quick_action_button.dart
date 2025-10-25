@@ -26,7 +26,9 @@ class DashboardQuickActionButton extends StatelessWidget {
       child: Row(
         children: [
           Icon(icon, size: 24),
+
           const SizedBox(width: 16),
+
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

@@ -23,7 +23,9 @@ class HomeStatCard extends StatelessWidget {
             fontSize: 36,
           ),
         ),
+
         const SizedBox(height: 8),
+
         Text(label, style: theme.textTheme.bodyMedium),
       ],
     );

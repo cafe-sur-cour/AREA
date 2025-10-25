@@ -100,7 +100,9 @@ class ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               EmailTextField(controller: _emailController),
+
               const SizedBox(height: 16),
+
               AppTextField(
                 controller: _confirmEmailController,
                 labelText: AppLocalizations.of(context)!.confirm_email,
@@ -118,7 +120,9 @@ class ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   return null;
                 },
               ),
+
               const SizedBox(height: 32),
+
               PrimaryButton(
                 text: AppLocalizations.of(context)!.send,
                 onPressed: _submitForm,

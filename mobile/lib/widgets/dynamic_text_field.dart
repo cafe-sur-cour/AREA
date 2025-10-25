@@ -160,13 +160,17 @@ class _DynamicTextFieldState extends State<DynamicTextField> {
                               fontWeight: FontWeight.w600,
                             ),
                           ),
+
                           const SizedBox(height: 4),
+
                           Text(
                             field.description,
                             style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
                           ),
                           if (field.example != null) ...[
+
                             const SizedBox(height: 2),
+
                             Text(
                               AppLocalizations.of(context)!.example(field.example!),
                               style: TextStyle(
@@ -238,7 +242,9 @@ class _DynamicTextFieldState extends State<DynamicTextField> {
                 ],
               ),
             ),
+
             const SizedBox(height: 8),
+
           ],
           if (widget.payloadFields.isNotEmpty)
             Container(
@@ -252,7 +258,9 @@ class _DynamicTextFieldState extends State<DynamicTextField> {
               child: Row(
                 children: [
                   Icon(Icons.lightbulb_outline, size: 16, color: AppColors.areaBlue3),
+
                   const SizedBox(width: 8),
+
                   Expanded(
                     child: Text(
                       AppLocalizations.of(context)!.type_brace_for_suggestions('{'),

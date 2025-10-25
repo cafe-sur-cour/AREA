@@ -53,7 +53,9 @@ class ActionSelectionCard extends StatelessWidget {
                             size: 24,
                           ),
                   ),
+
                   const SizedBox(width: 12),
+
                   Expanded(
                     child: Text(
                       action.name,
@@ -70,7 +72,9 @@ class ActionSelectionCard extends StatelessWidget {
                   const Icon(Icons.arrow_forward_ios, color: AppColors.areaDarkGray, size: 16),
                 ],
               ),
+
               const SizedBox(height: 12),
+
               if (action.description.isNotEmpty)
                 Text(
                   action.description,
@@ -94,7 +98,9 @@ class ActionSelectionCard extends StatelessWidget {
                         size: 16,
                         color: AppColors.areaDarkGray.withValues(alpha: 0.7),
                       ),
+
                       const SizedBox(width: 4),
+
                       Text(
                         '${action.configSchema!.fields.length} parameter${action.configSchema!.fields.length == 1 ? '' : 's'}',
                         style: TextStyle(

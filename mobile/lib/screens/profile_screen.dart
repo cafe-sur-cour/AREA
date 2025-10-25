@@ -256,7 +256,9 @@ class ProfileScreenState extends State<ProfileScreen> {
             : Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
+
                   const SizedBox(height: 30),
+
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -281,7 +283,9 @@ class ProfileScreenState extends State<ProfileScreen> {
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
+
                               const SizedBox(width: 4),
+
                               Icon(
                                 Icons.keyboard_arrow_down,
                                 size: 16,
@@ -339,7 +343,9 @@ class ProfileScreenState extends State<ProfileScreen> {
                       ],
                     ],
                   ),
+
                   SizedBox(
+
                     height: 250,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -347,7 +353,9 @@ class ProfileScreenState extends State<ProfileScreen> {
                       children: [
                         if (_isConnected) ...[
                           Icon(_userProfileIcon, size: 80),
+
                           const SizedBox(width: 16),
+
                           Flexible(
                             child: Text(
                               _userName,
@@ -358,7 +366,9 @@ class ProfileScreenState extends State<ProfileScreen> {
                           ),
                         ] else ...[
                           const Icon(Icons.account_circle, size: 80),
+
                           const SizedBox(width: 16),
+
                           Flexible(
                             child: Text(
                               AppLocalizations.of(context)!.not_connected,
@@ -371,7 +381,9 @@ class ProfileScreenState extends State<ProfileScreen> {
                       ],
                     ),
                   ),
+
                   const SizedBox(height: 20),
+
                   AppTextField(
                     controller: _backendServerController,
                     labelText: AppLocalizations.of(context)!.backend_server_address,
@@ -389,8 +401,11 @@ class ProfileScreenState extends State<ProfileScreen> {
                     onFieldSubmitted: (value) => _testApiAddress(value),
                   ),
                   if (_isConnected) ...[
+
                     const SizedBox(height: 20),
+
                     SizedBox(
+
                       width: double.infinity,
                       child: PrimaryButton(
                         text: 'Dashboard',
@@ -401,8 +416,11 @@ class ProfileScreenState extends State<ProfileScreen> {
                         padding: const EdgeInsets.symmetric(vertical: 16),
                       ),
                     ),
+
                     const SizedBox(height: 20),
+
                     SizedBox(
+
                       width: double.infinity,
                       child: PrimaryButton(
                         text: AppLocalizations.of(context)?.services ?? 'Services',

@@ -103,13 +103,17 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       fontSize: isMobile ? 28 : 40,
                     ),
                   ),
+
                   const SizedBox(height: 20),
+
                   Text(
                     l10n.connect_favorite_apps,
                     textAlign: TextAlign.center,
                     style: theme.textTheme.bodyLarge?.copyWith(fontSize: 16),
                   ),
+
                   const SizedBox(height: 30),
+
                   FutureBuilder<bool>(
                     future: _isAuthenticatedFuture,
                     builder: (context, snapshot) {
@@ -137,12 +141,16 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                     l10n.get_started_free,
                                     style: theme.textTheme.labelLarge?.copyWith(fontSize: 16),
                                   ),
+
                                   const SizedBox(width: 8),
+
                                   const Icon(Icons.arrow_forward, size: 20),
                                 ],
                               ),
                             ),
+
                             if (isMobile) const SizedBox(height: 12),
+
                             OutlinedButton(
                               onPressed: _navigateToLogin,
                               style: OutlinedButton.styleFrom(
@@ -172,7 +180,9 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                     l10n.go_to_dashboard,
                                     style: theme.textTheme.labelLarge?.copyWith(fontSize: 16),
                                   ),
+
                                   const SizedBox(width: 8),
+
                                   const Icon(Icons.arrow_forward, size: 20),
                                 ],
                               ),
@@ -196,11 +206,15 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                         HomeStatCard(
                             number: l10n.active_automations,
                             label: l10n.active_automations_label),
+
                         const SizedBox(height: 24),
+
                         HomeStatCard(
                             number: l10n.connected_services_count,
                             label: l10n.connected_services_label),
+
                         const SizedBox(height: 24),
+
                         HomeStatCard(number: l10n.happy_users, label: l10n.happy_users_label),
                       ],
                     ),
@@ -221,13 +235,17 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       fontSize: 32,
                     ),
                   ),
+
                   const SizedBox(height: 12),
+
                   Text(
                     l10n.create_powerful_automations,
                     textAlign: TextAlign.center,
                     style: theme.textTheme.bodyLarge,
                   ),
+
                   const SizedBox(height: 32),
+
                   Column(
                     children: [
                       HomeStepCard(
@@ -235,13 +253,17 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                         title: l10n.choose_a_trigger,
                         description: l10n.select_app_event,
                       ),
+
                       const SizedBox(height: 16),
+
                       HomeStepCard(
                         step: 2,
                         title: l10n.add_an_action,
                         description: l10n.choose_what_happens,
                       ),
+
                       const SizedBox(height: 16),
+
                       HomeStepCard(
                         step: 3,
                         title: l10n.activate_relax,
@@ -265,13 +287,17 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       fontSize: 32,
                     ),
                   ),
+
                   const SizedBox(height: 12),
+
                   Text(
                     l10n.get_inspired,
                     textAlign: TextAlign.center,
                     style: theme.textTheme.bodyLarge,
                   ),
+
                   const SizedBox(height: 32),
+
                   Column(
                     children: [
                       HomeAutomationCard(
@@ -279,31 +305,41 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                         title: l10n.email_to_slack,
                         description: l10n.slack_email_notifications,
                       ),
+
                       const SizedBox(height: 12),
+
                       HomeAutomationCard(
                         icon: '📱',
                         title: l10n.social_media_sync,
                         description: l10n.post_multiple_networks,
                       ),
+
                       const SizedBox(height: 12),
+
                       HomeAutomationCard(
                         icon: '📅',
                         title: l10n.calendar_reminders,
                         description: l10n.sms_calendar_reminders,
                       ),
+
                       const SizedBox(height: 12),
+
                       HomeAutomationCard(
                         icon: '💾',
                         title: l10n.file_backup,
                         description: l10n.automatic_cloud_backup,
                       ),
+
                       const SizedBox(height: 12),
+
                       HomeAutomationCard(
                         icon: '✅',
                         title: l10n.task_management,
                         description: l10n.create_tasks_from_emails,
                       ),
+
                       const SizedBox(height: 12),
+
                       HomeAutomationCard(
                         icon: '📊',
                         title: l10n.data_collection,
@@ -324,13 +360,17 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     title: l10n.lightning_fast,
                     description: l10n.automations_run_instantly,
                   ),
+
                   const SizedBox(height: 24),
+
                   HomeFeatureItem(
                     icon: Icons.schedule,
                     title: l10n.save_time,
                     description: l10n.automate_repetitive_tasks,
                   ),
+
                   const SizedBox(height: 24),
+
                   HomeFeatureItem(
                     icon: Icons.shield,
                     title: l10n.secure_reliable,
@@ -352,13 +392,17 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       fontSize: 32,
                     ),
                   ),
+
                   const SizedBox(height: 20),
+
                   Text(
                     l10n.join_millions_users,
                     textAlign: TextAlign.center,
                     style: theme.textTheme.bodyLarge,
                   ),
+
                   const SizedBox(height: 30),
+
                   FutureBuilder<bool>(
                     future: _isAuthenticatedFuture,
                     builder: (context, snapshot) {
@@ -381,7 +425,9 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                               isAuthenticated ? l10n.go_to_my_areas : l10n.start_for_free,
                               style: theme.textTheme.labelLarge?.copyWith(fontSize: 16),
                             ),
+
                             const SizedBox(width: 8),
+
                             const Icon(Icons.arrow_forward, size: 20),
                           ],
                         ),

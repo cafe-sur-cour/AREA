@@ -172,7 +172,9 @@ class CatalogueScreenState extends State<CatalogueScreen> {
               item.isAction ? Icons.play_arrow : Icons.bolt,
               color: item.isAction ? AppColors.areaBlue3 : AppColors.areaBlue1,
             ),
+
             const SizedBox(width: 8),
+
             Expanded(
               child: Text(
                 item.name,
@@ -189,7 +191,9 @@ class CatalogueScreenState extends State<CatalogueScreen> {
               Row(
                 children: [
                   _buildServiceIcon(item.serviceIconSVG),
+
                   const SizedBox(width: 8),
+
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
@@ -207,7 +211,9 @@ class CatalogueScreenState extends State<CatalogueScreen> {
                   ),
                 ],
               ),
+
               const SizedBox(height: 12),
+
               Text(
                 item.description.isNotEmpty
                     ? item.description
@@ -321,7 +327,9 @@ class CatalogueScreenState extends State<CatalogueScreen> {
   Widget build(BuildContext context) {
     return Column(
       children: [
+
         const SizedBox(height: 50),
+
         _buildFilterChips(),
         Expanded(child: _buildBody()),
       ],
@@ -341,7 +349,9 @@ class CatalogueScreenState extends State<CatalogueScreen> {
             },
             selectedColor: AppColors.areaBlue1,
           ),
+
           const SizedBox(width: 8),
+
           FilterChip(
             label: Text(AppLocalizations.of(context)!.actions),
             selected: _filter == 'actions',
@@ -350,7 +360,9 @@ class CatalogueScreenState extends State<CatalogueScreen> {
             },
             selectedColor: AppColors.areaBlue1,
           ),
+
           const SizedBox(width: 8),
+
           FilterChip(
             label: Text(AppLocalizations.of(context)!.reactions_filter),
             selected: _filter == 'reactions',
@@ -390,7 +402,9 @@ class CatalogueScreenState extends State<CatalogueScreen> {
               size: 64,
               color: Colors.grey,
             ),
+
             const SizedBox(height: 16),
+
             Text(
               _filter == 'all'
                   ? AppLocalizations.of(context)!.no_items_available
@@ -425,7 +439,9 @@ class CatalogueScreenState extends State<CatalogueScreen> {
   Widget _buildServiceIcon(String svgIcon) {
     if (svgIcon.isNotEmpty && svgIcon.contains('<svg')) {
       try {
+
         return SizedBox(
+
           width: 24,
           height: 24,
           child: SvgPicture.string(svgIcon, width: 24, height: 24, fit: BoxFit.contain),
@@ -464,13 +480,17 @@ class CatalogueScreenState extends State<CatalogueScreen> {
               Row(
                 children: [
                   _buildServiceIcon(item.serviceIconSVG),
+
                   const SizedBox(width: 8),
+
                   Icon(
                     item.isAction ? Icons.play_arrow : Icons.bolt,
                     color: item.isAction ? AppColors.areaBlue3 : AppColors.areaBlue1,
                     size: 16,
                   ),
+
                   const SizedBox(width: 4),
+
                   Expanded(
                     child: Text(
                       item.serviceName,
@@ -484,7 +504,9 @@ class CatalogueScreenState extends State<CatalogueScreen> {
                   ),
                 ],
               ),
+
               const SizedBox(height: 8),
+
               Expanded(
                 child: Text(
                   item.name,
