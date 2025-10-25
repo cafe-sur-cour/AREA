@@ -146,7 +146,8 @@ void main() {
       final chooseButton = find.text(
         AppLocalizations.of(
           tester.element(find.byType(ReactionDetailsScreen)),
-        )!.choose_this_reaction,
+        )!
+            .choose_this_reaction,
       );
 
       expect(chooseButton, findsOneWidget);

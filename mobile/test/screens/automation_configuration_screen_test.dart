@@ -122,7 +122,8 @@ void main() {
         find.text(
           AppLocalizations.of(
             tester.element(find.byType(AutomationConfigurationScreen)),
-          )!.configure_automation,
+          )!
+              .configure_automation,
         ),
         findsOneWidget,
       );
