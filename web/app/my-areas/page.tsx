@@ -1,9 +1,8 @@
 'use client';
 import { useAuth } from '@/contexts/AuthContext';
-import { useI18n } from '@/contexts/I18nContext';
 import { useRouter } from 'next/navigation';
 import Navigation from '@/components/header';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import type { Mapping, formMapping } from '@/types/mapping';
 import type { Action } from '@/types/action';
 import type { Reaction } from '@/types/reaction';
@@ -30,18 +29,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Trash2, Plus, Power, PowerOff, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Trash2, Plus, Power, PowerOff } from 'lucide-react';
 import ActionForm from '@/components/action-form';
 import ReactionForm from '@/components/reaction-form';
 import { TbLoader3 } from 'react-icons/tb';
@@ -51,13 +39,9 @@ import { useSearchParams } from 'next/navigation';
 export default function MyAreasPage() {
   const router = useRouter();
   const { isAuthenticated, isLoading } = useAuth();
-  const { t } = useI18n();
   const [loadingData, setLoadingData] = useState(true);
   const [data, setData] = useState<Mapping[]>([]);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [mappingToDelete, setMappingToDelete] = useState<number | null>(null);
   const searchParams = useSearchParams();
 
   const [selectedAction, setSelectedAction] = useState<Action | null>(null);
@@ -76,51 +60,31 @@ export default function MyAreasPage() {
     is_active: true,
   });
 
-  const resetForm = useCallback(() => {
-    setFormData({
-      name: '',
-      description: '',
-      action: undefined,
-      reaction: [],
-      is_active: true,
-    });
-    setSelectedAction(null);
-    setSelectedReactions([]);
-    setActionConfig({});
-    setReactionsConfig([]);
-  }, []);
-
-  const selectActionUsingFetch = useCallback(async (name: string, id: string) => {
+  const selectActionUsingFetch = async (name: string, id: string) => {
     try {
       const res = (
         await api.get<Action>({ endpoint: `/services/${name}/actions/${id}` })
       ).data;
-      if (res) {
-        setSelectedAction(res);
-        toast.success(t.myAreas.feedback.actionSelected);
-      }
+      console.log(res);
+      if (res) setSelectedAction(res);
     } catch (err: unknown) {
       console.error(err);
-      toast.error(t.myAreas.feedback.actionSelectError);
     }
-  }, []);
+  };
 
-  const selectReactionUsingFetch = useCallback(async (name: string, id: string) => {
+  const selectReactionUsingFetch = async (name: string, id: string) => {
     try {
       const res = (
         await api.get<Reaction>({
           endpoint: `/services/${name}/reactions/${id}`,
         })
       ).data;
-      if (res) {
-        setSelectedReactions([res]);
-        toast.success(t.myAreas.feedback.reactionSelected);
-      }
+      console.log(res);
+      if (res) setSelectedReactions([res]);
     } catch (err: unknown) {
       console.error(err);
-      toast.error(t.myAreas.feedback.reactionSelectError);
     }
-  }, []);
+  };
 
   useEffect(() => {
     if (
@@ -128,7 +92,7 @@ export default function MyAreasPage() {
       searchParams.get('id') &&
       searchParams.get('isAction')
     ) {
-      if (searchParams.get('isAction') === 'true') {
+      if (searchParams.get('isAction') == 'true') {
         selectActionUsingFetch(
           searchParams.get('service')!,
           searchParams.get('id')!
@@ -141,9 +105,9 @@ export default function MyAreasPage() {
       }
       setIsDrawerOpen(true);
     }
-  }, [searchParams, selectActionUsingFetch, selectReactionUsingFetch]);
+  }, [searchParams]);
 
-  const fetchData = useCallback(async () => {
+  const fetchData = async () => {
     setLoadingData(true);
     try {
       const response = await api.get<{ mappings: Mapping[] }>({
@@ -152,32 +116,12 @@ export default function MyAreasPage() {
       if (response.data) setData(response.data.mappings);
     } catch (error) {
       console.error('Error fetching data:', error);
-      toast.error(t.myAreas.feedback.loadError);
     } finally {
       setLoadingData(false);
     }
-  }, []);
-
-  const validateForm = (): boolean => {
-    if (!formData.name.trim()) {
-      toast.error(t.myAreas.feedback.nameRequired);
-      return false;
-    }
-    if (!selectedAction) {
-      toast.error(t.myAreas.feedback.actionRequired);
-      return false;
-    }
-    if (selectedReactions.length === 0) {
-      toast.error(t.myAreas.feedback.reactionRequired);
-      return false;
-    }
-    return true;
   };
 
   const handleCreateAutomation = async () => {
-    if (!validateForm()) return;
-
-    setIsSubmitting(true);
     try {
       formData.action = {
         type: selectedAction?.id || '',
@@ -188,7 +132,7 @@ export default function MyAreasPage() {
         config: reactionsConfig[index] || {},
         delay: reaction.delay,
       }));
-
+      console.log('Creating mapping with data:', formData);
       const payload = {
         name: formData.name,
         description: formData.description,
@@ -199,101 +143,48 @@ export default function MyAreasPage() {
 
       await api.post('/mappings', payload);
 
-      toast.success(t.myAreas.feedback.createSuccess, {
-        description: `"${formData.name}" ${t.myAreas.feedback.createSuccessDescription} ${formData.is_active ? t.myAreas.feedback.active : t.myAreas.feedback.inactive}`,
+      setFormData({
+        name: '',
+        description: '',
+        action: undefined,
+        reaction: [],
+        is_active: true,
       });
-
-      resetForm();
       setIsDrawerOpen(false);
+      console.log('close');
+      setSelectedAction(null);
+      setSelectedReactions([]);
+      setActionConfig({});
+      setReactionsConfig([]);
       router.replace('/my-areas');
       fetchData();
     } catch (error) {
       console.error('Error creating mapping:', error);
-      toast.error(t.myAreas.errors.createFailed);
-    } finally {
-      setIsSubmitting(false);
+      toast.error('Failed to create mapping. Please check your input.');
     }
   };
 
   const handleDeleteMapping = async (id: number) => {
+    if (!confirm('Are you sure you want to delete this mapping?')) return;
+
     try {
       await api.delete(`/mappings/${id}`);
-      toast.success(t.myAreas.feedback.deleteSuccess);
       fetchData();
     } catch (error) {
       console.error('Error deleting mapping:', error);
-      toast.error(t.myAreas.errors.deleteFailed);
-    } finally {
-      setDeleteDialogOpen(false);
-      setMappingToDelete(null);
-    }
-  };
-
-  const switchActiveModeArea = async (mapping: Mapping) => {
-    try {
-      if (mapping.is_active === false) {
-        await api.put(`/mappings/${mapping.id}/activate`);
-        toast.success(`✅ "${mapping.name}" ${t.myAreas.feedback.activateSuccess}`);
-      } else {
-        await api.put(`/mappings/${mapping.id}/deactivate`);
-        toast.info(`⏸️ "${mapping.name}" ${t.myAreas.feedback.deactivateInfo}`);
-      }
-      fetchData();
-    } catch (error) {
-      console.error('Error switching active mode:', error);
-      toast.error(t.myAreas.errors.switchFailed);
+      toast.error('Failed to delete mapping.');
     }
   };
 
   useEffect(() => {
     fetchData();
-  }, [fetchData]);
-
-  useEffect(() => {
-    if (
-      searchParams.get('service') &&
-      searchParams.get('id') &&
-      searchParams.get('isAction')
-    ) {
-      if (searchParams.get('isAction') === 'true') {
-        selectActionUsingFetch(
-          searchParams.get('service')!,
-          searchParams.get('id')!
-        );
-      } else {
-        selectReactionUsingFetch(
-          searchParams.get('service')!,
-          searchParams.get('id')!
-        );
-      }
-      setIsDrawerOpen(true);
-    }
-  }, [searchParams, selectActionUsingFetch, selectReactionUsingFetch]);
-
-  const LoadingCards = () => (
-    <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-3'>
-      {[1, 2, 3].map((i) => (
-        <Card key={i}>
-          <CardHeader>
-            <Skeleton className='h-6 w-3/4 mb-2' />
-            <Skeleton className='h-4 w-full' />
-          </CardHeader>
-          <CardContent>
-            <Skeleton className='h-4 w-1/2 mb-2' />
-            <Skeleton className='h-4 w-full mb-4' />
-            <Skeleton className='h-4 w-1/2 mb-2' />
-            <Skeleton className='h-4 w-full' />
-          </CardContent>
-        </Card>
-      ))}
-    </div>
-  );
+  }, []);
 
   if (isLoading) {
     return (
-      <div className='min-h-screen flex items-center justify-center gap-3'>
-        <TbLoader3 className='animate-spin text-primary' size={32} />
-        <div className='text-lg text-primary'>{t.myAreas.loading}</div>
+      <div className='min-h-screen flex items-center justify-center'>
+        <div className='text-lg'>Loading...</div>
+        <TbLoader3 className='animate-spin text-app-text-secondary' size={24} />
       </div>
     );
   }
@@ -303,6 +194,21 @@ export default function MyAreasPage() {
     return null;
   }
 
+  const switchActiveModeArea = async (mapping: Mapping) => {
+    try {
+      if (mapping.is_active == false) {
+        await api.put(`/mappings/${mapping.id}/activate`);
+        fetchData();
+      } else {
+        await api.put(`/mappings/${mapping.id}/deactivate`);
+        fetchData();
+      }
+    } catch (error) {
+      console.error('Error switching active mode:', error);
+      toast.error('Failed to switch active mode.');
+    }
+  };
+
   return (
     <div className='min-h-screen bg-gradient-to-br from-jeb-gradient-from to-jeb-gradient-to/50 flex flex-col'>
       <Navigation />
@@ -310,369 +216,196 @@ export default function MyAreasPage() {
       <div className='container mx-auto px-4 py-8'>
         <div className='flex justify-between items-center mb-8'>
           <div>
-            <h1 className='text-4xl font-bold text-primary mb-2'>{t.myAreas.title}</h1>
+            <h1 className='text-4xl font-bold text-primary mb-2'>My AREAs</h1>
             <p className='text-muted-foreground'>
-              {t.myAreas.subtitle}
+              Manage your area (actions & reactions) workflows
             </p>
           </div>
 
           <Drawer
             open={isDrawerOpen}
-            onOpenChange={(open) => {
-              setIsDrawerOpen(open);
-              if (!open) {
-                resetForm();
-                router.replace('/my-areas');
-              }
-            }}
+            onOpenChange={setIsDrawerOpen}
             direction='right'
           >
             <DrawerTrigger asChild>
               <Button
-                className='gap-2 cursor-pointer shadow-lg hover:shadow-xl transition-all'
-                onClick={resetForm}
+                className='gap-2 cursor-pointer'
+                onClick={() => {
+                  setSelectedAction(null);
+                  setSelectedReactions([]);
+                  setActionConfig({});
+                  setReactionsConfig([]);
+                }}
               >
                 <Plus className='w-4 h-4' />
-                {t.myAreas.newAreaButton}
+                New Area
               </Button>
             </DrawerTrigger>
-            <DrawerContent className='h-screen w-full fixed inset-0 bg-transparent border-0'>
-              {/* Overlay assombri */}
-              <div className='fixed inset-0 bg-black/60 backdrop-blur-sm' onClick={() => setIsDrawerOpen(false)} />
-              
-              {/* Modal centré */}
-              <div className='fixed inset-0 flex items-center justify-center p-4 pointer-events-none'>
-                <div className='bg-background rounded-2xl shadow-2xl border w-full max-w-7xl max-h-[95vh] flex flex-col pointer-events-auto overflow-hidden'>
-                  {/* Header */}
-                  <DrawerHeader className='border-b px-6 py-5 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20'>
-                    <div className='flex items-center justify-between'>
-                      <div>
-                        <DrawerTitle className='text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent'>
-                          {t.myAreas.drawer.title}
-                        </DrawerTitle>
-                        <DrawerDescription className='text-base mt-1'>
-                          {t.myAreas.drawer.subtitle}
-                        </DrawerDescription>
-                      </div>
-                      <DrawerClose asChild>
-                        <Button
-                          variant='ghost'
-                          size='icon'
-                          className='h-10 w-10 rounded-full hover:bg-background/80'
-                        >
-                          <Plus className='h-5 w-5 rotate-45' />
-                        </Button>
-                      </DrawerClose>
-                    </div>
-                  </DrawerHeader>
+            <DrawerContent className='h-screen w-full sm:w-[500px] fixed right-0 top-0'>
+              <DrawerHeader>
+                <DrawerTitle>Create New Area</DrawerTitle>
+                <DrawerDescription>
+                  Set up a new area workflow
+                </DrawerDescription>
+              </DrawerHeader>
 
-                  {/* Content */}
-                  <div className='flex-1 overflow-y-auto px-8 py-6'>
-                    {/* Section Nom et Description */}
-                    <div className='max-w-5xl mx-auto mb-8'>
-                      <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                        <div className='space-y-2'>
-                          <Label htmlFor='name' className='text-sm font-medium flex items-center gap-2'>
-                            {t.myAreas.drawer.nameLabel}
-                          </Label>
-                          <Input
-                            id='name'
-                            placeholder={t.myAreas.drawer.namePlaceholder}
-                            value={formData.name}
-                            onChange={e =>
-                              setFormData({ ...formData, name: e.target.value })
-                            }
-                            className='transition-all focus:ring-2 text-base h-11 bg-background/50'
-                          />
-                        </div>
+              <div className='p-4 space-y-4 overflow-y-auto flex-1'>
+                <div className='space-y-2'>
+                  <Label htmlFor='name'>Name *</Label>
+                  <Input
+                    id='name'
+                    placeholder='My Area'
+                    value={formData.name}
+                    onChange={e =>
+                      setFormData({ ...formData, name: e.target.value })
+                    }
+                  />
+                </div>
 
-                        <div className='space-y-2'>
-                          <Label htmlFor='description' className='text-sm font-medium flex items-center gap-2'>
-                            {t.myAreas.drawer.descriptionLabel}
-                          </Label>
-                          <Input
-                            id='description'
-                            placeholder={t.myAreas.drawer.descriptionPlaceholder}
-                            value={formData.description}
-                            onChange={e =>
-                              setFormData({ ...formData, description: e.target.value })
-                            }
-                            className='transition-all focus:ring-2 text-base h-11 bg-background/50'
-                          />
-                        </div>
-                      </div>
-                    </div>
+                <div className='space-y-2'>
+                  <Label htmlFor='description'>Description *</Label>
+                  <Textarea
+                    id='description'
+                    placeholder='Describe what this area does...'
+                    value={formData.description}
+                    onChange={e =>
+                      setFormData({ ...formData, description: e.target.value })
+                    }
+                    rows={3}
+                  />
+                </div>
 
-                    {/* Séparateur avec icône */}
-                    <div className='max-w-5xl mx-auto mb-6'>
-                      <div className='relative'>
-                        <div className='absolute inset-0 flex items-center'>
-                          <div className='w-full border-t border-dashed border-muted-foreground/30'></div>
-                        </div>
-                        <div className='relative flex justify-center'>
-                          <span className='bg-background px-4 text-sm text-muted-foreground font-medium'>
-                            Configuration
-                          </span>
-                        </div>
-                      </div>
-                    </div>
+                <div className='border-t pt-4'>
+                  <h3 className='font-semibold mb-3'>Action</h3>
 
-                    {/* Layout en deux colonnes : Action à gauche, Réaction à droite */}
-                    <div className='max-w-5xl mx-auto relative'>
-                      {/* Connecteur visuel "THEN" au centre */}
-                      <div className='hidden lg:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 items-center justify-center pointer-events-none'>
-                        <div className='relative'>
-                          {/* Ligne de connexion */}
-                          <div className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-0.5 bg-gradient-to-r from-blue-500 via-primary to-purple-500 opacity-30' />
-                          {/* Badge THEN */}
-                          <div className='relative bg-background border-4 border-primary rounded-full px-5 py-2.5 shadow-2xl'>
-                            <div className='flex items-center gap-2'>
-                              <div className='w-2 h-2 rounded-full bg-blue-500 animate-pulse' />
-                              <span className='text-sm font-black text-primary tracking-wider'>THEN</span>
-                              <div className='w-2 h-2 rounded-full bg-purple-500 animate-pulse' />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
+                  <ActionForm
+                    selectedAction={selectedAction}
+                    onActionChange={setSelectedAction}
+                    actionConfig={actionConfig}
+                    onConfigChange={setActionConfig}
+                  />
+                </div>
 
-                      <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
-                        {/* Colonne ACTION (Gauche) */}
-                        <div className='relative'>
-                          <Card className='border-2 border-blue-300 dark:border-blue-800 bg-gradient-to-br from-blue-50 via-blue-50/30 to-transparent dark:from-blue-950/30 dark:via-blue-950/10 shadow-lg hover:shadow-2xl transition-all duration-300 h-full'>
-                            <CardHeader className='pb-4'>
-                              <div className='flex items-start gap-3'>
-                                <div className='w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg flex-shrink-0'>
-                                  <span className='text-white font-bold text-xl'>1</span>
-                                </div>
-                                <div className='flex-1 min-w-0'>
-                                  <CardTitle className='text-2xl flex items-center gap-2 flex-wrap'>
-                                    <span className='bg-gradient-to-r from-blue-600 to-blue-500 bg-clip-text text-transparent'>
-                                      {t.myAreas.drawer.actionTitle}
-                                    </span>
-                                    {selectedAction && (
-                                      <CheckCircle2 className='w-5 h-5 text-green-500 animate-in fade-in zoom-in' />
-                                    )}
-                                  </CardTitle>
-                                  <CardDescription className='text-sm mt-1'>
-                                    ⚡ {t.myAreas.drawer.actionSubtitle}
-                                  </CardDescription>
-                                </div>
-                              </div>
-                            </CardHeader>
-                            <CardContent className='pt-0'>
-                              <ActionForm
-                                selectedAction={selectedAction}
-                                onActionChange={setSelectedAction}
-                                actionConfig={actionConfig}
-                                onConfigChange={setActionConfig}
-                              />
-                            </CardContent>
-                          </Card>
-                        </div>
+                <div className='border-t pt-4'>
+                  <h3 className='font-semibold mb-3'>Reaction</h3>
 
-                        {/* Colonne RÉACTION (Droite) */}
-                        <div className='relative'>
-                          <Card className='border-2 border-purple-300 dark:border-purple-800 bg-gradient-to-br from-purple-50 via-purple-50/30 to-transparent dark:from-purple-950/30 dark:via-purple-950/10 shadow-lg hover:shadow-2xl transition-all duration-300 h-full'>
-                            <CardHeader className='pb-4'>
-                              <div className='flex items-start gap-3'>
-                                <div className='w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-lg flex-shrink-0'>
-                                  <span className='text-white font-bold text-xl'>2</span>
-                                </div>
-                                <div className='flex-1 min-w-0'>
-                                  <CardTitle className='text-2xl flex items-center gap-2 flex-wrap'>
-                                    <span className='bg-gradient-to-r from-purple-600 to-purple-500 bg-clip-text text-transparent'>
-                                      {t.myAreas.drawer.reactionTitle}
-                                    </span>
-                                    {selectedReactions.length > 0 && (
-                                      <span className='bg-gradient-to-r from-purple-500 to-purple-600 text-white text-xs px-2.5 py-1 rounded-full font-semibold shadow animate-in fade-in zoom-in'>
-                                        {selectedReactions.length}
-                                      </span>
-                                    )}
-                                  </CardTitle>
-                                  <CardDescription className='text-sm mt-1'>
-                                    {t.myAreas.drawer.reactionSubtitle}
-                                  </CardDescription>
-                                </div>
-                              </div>
-                            </CardHeader>
-                            <CardContent className='pt-0'>
-                              <ReactionForm
-                                onReactionsChange={setSelectedReactions}
-                                onConfigChange={setReactionsConfig}
-                                defaultReaction={selectedReactions[0]}
-                                selectedAction={selectedAction}
-                              />
-                            </CardContent>
-                          </Card>
-                        </div>
-                      </div>
+                  <ReactionForm
+                    onReactionsChange={setSelectedReactions}
+                    onConfigChange={setReactionsConfig}
+                    defaultReaction={selectedReactions[0]}
+                    selectedAction={selectedAction}
+                  />
+                </div>
 
-                      {/* Connecteur mobile */}
-                      <div className='flex items-center justify-center my-4 lg:hidden'>
-                        <div className='flex items-center gap-2 bg-gradient-to-r from-blue-500/10 via-primary/10 to-purple-500/10 border border-primary/30 px-5 py-2 rounded-full'>
-                          <div className='w-2 h-2 rounded-full bg-blue-500 animate-pulse' />
-                          <span className='text-xs font-bold text-primary tracking-wider'>THEN</span>
-                          <div className='w-2 h-2 rounded-full bg-purple-500 animate-pulse' />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Section Activation */}
-                    <div className='max-w-5xl mx-auto mt-8'>
-                      <Card className='bg-gradient-to-r from-muted/50 to-muted/30 border-2'>
-                        <CardContent className='py-4'>
-                          <div className='flex items-center justify-between gap-4'>
-                            <div className='space-y-1 flex-1'>
-                              <Label htmlFor='is_active' className='text-base font-semibold cursor-pointer flex items-center gap-2'>
-                                {formData.is_active ? '✅' : '⏸️'} {t.myAreas.drawer.activeLabel}
-                              </Label>
-                              <p className='text-sm text-muted-foreground'>
-                                {t.myAreas.feedback.automationWillBe}{' '}
-                                <span className={`font-semibold ${formData.is_active ? 'text-green-600 dark:text-green-400' : 'text-orange-600 dark:text-orange-400'}`}>
-                                  {formData.is_active ? t.myAreas.feedback.active : t.myAreas.feedback.inactive}
-                                </span>
-                                {' '}{t.myAreas.feedback.afterCreation}
-                              </p>
-                            </div>
-                            <Switch
-                              id='is_active'
-                              checked={formData.is_active}
-                              onCheckedChange={checked =>
-                                setFormData({ ...formData, is_active: checked })
-                              }
-                              className='scale-125'
-                            />
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </div>
-                  </div>
-
-                  {/* Footer */}
-                  <DrawerFooter className='border-t bg-muted/30 backdrop-blur px-8 py-5'>
-                    <div className='max-w-5xl mx-auto w-full flex gap-4'>
-                      <DrawerClose asChild>
-                        <Button
-                          className='cursor-pointer flex-1 h-11'
-                          variant='outline'
-                          disabled={isSubmitting}
-                          onClick={() => {
-                            resetForm();
-                            router.replace('/my-areas');
-                          }}
-                        >
-                          {t.myAreas.drawer.cancelButton}
-                        </Button>
-                      </DrawerClose>
-                      <Button
-                        className='cursor-pointer flex-1 h-11 shadow-lg bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700'
-                        onClick={handleCreateAutomation}
-                        disabled={isSubmitting}
-                      >
-                        {isSubmitting ? (
-                          <>
-                            <TbLoader3 className='animate-spin mr-2' size={20} />
-                            {t.myAreas.feedback.creating}
-                          </>
-                        ) : (
-                          <>
-                            <Plus className='w-5 h-5 mr-2' />
-                            {t.myAreas.drawer.createButton}
-                          </>
-                        )}
-                      </Button>
-                    </div>
-                  </DrawerFooter>
+                <div className='flex items-center justify-between border-t pt-4'>
+                  <Label htmlFor='is_active'>Active</Label>
+                  <Switch
+                    id='is_active'
+                    checked={formData.is_active}
+                    onCheckedChange={checked =>
+                      setFormData({ ...formData, is_active: checked })
+                    }
+                  />
                 </div>
               </div>
+
+              <DrawerFooter>
+                <Button
+                  className='cursor-pointer'
+                  onClick={handleCreateAutomation}
+                >
+                  Create Area
+                </Button>
+                <DrawerClose asChild>
+                  <Button
+                    className=' cursor-pointer'
+                    variant='outline'
+                    onClick={() => {
+                      router.replace('/my-areas');
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </DrawerClose>
+              </DrawerFooter>
             </DrawerContent>
           </Drawer>
         </div>
 
         {loadingData ? (
-          <LoadingCards />
+          <div className='text-center py-12'>
+            <div className='text-lg text-muted-foreground'>
+              Loading areas...
+            </div>
+          </div>
         ) : data.length === 0 ? (
-          <Card className='border-dashed border-2'>
-            <CardContent className='py-16 text-center'>
-              <div className='flex flex-col items-center gap-4'>
-                <div className='w-16 h-16 rounded-full bg-muted flex items-center justify-center'>
-                  <AlertCircle className='w-8 h-8 text-muted-foreground' />
-                </div>
-                <div>
-                  <h3 className='text-lg font-semibold mb-2'>{t.myAreas.emptyState.noAreas}</h3>
-                  <p className='text-sm text-muted-foreground max-w-md mx-auto'>
-                    {t.myAreas.emptyState.description}
-                  </p>
-                </div>
-                <Button
-                  onClick={() => setIsDrawerOpen(true)}
-                  className='mt-4 cursor-pointer'
-                >
-                  <Plus className='w-4 h-4 mr-2' />
-                  {t.myAreas.feedback.createFirstAutomation}
-                </Button>
-              </div>
+          <Card>
+            <CardContent className='py-12 text-center'>
+              <p className='text-muted-foreground mb-4'>No areas yet</p>
+              <p className='text-sm text-muted-foreground'>
+                Create your first area to get started
+              </p>
             </CardContent>
           </Card>
         ) : (
           <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-3'>
             {data.map(mapping => (
-              <Card
-                key={mapping.id}
-                className='relative hover:shadow-lg transition-all duration-200 group'
-              >
+              <Card key={mapping.id} className='relative'>
                 <CardHeader>
-                  <div className='flex items-start justify-between gap-3'>
-                    <div className='flex-1 min-w-0'>
-                      <CardTitle className='text-lg truncate'>{mapping.name}</CardTitle>
-                      <CardDescription className='mt-1 line-clamp-2'>
-                        {mapping.description || t.myAreas.card.noDescription}
+                  <div className='flex items-start justify-between'>
+                    <div className='flex-1'>
+                      <CardTitle className='text-lg'>{mapping.name}</CardTitle>
+                      <CardDescription className='mt-1'>
+                        {mapping.description}
                       </CardDescription>
                     </div>
-                    <div className='flex items-center gap-1 flex-shrink-0'>
-                      <Button
-                        variant='ghost'
-                        size='sm'
-                        className='cursor-pointer h-9 w-9 p-0 transition-transform hover:scale-110'
-                        onClick={() => switchActiveModeArea(mapping)}
-                        title={mapping.is_active ? t.myAreas.card.deactivate : t.myAreas.card.activate}
-                      >
-                        {mapping.is_active ? (
+                    <div className='flex items-center gap-2'>
+                      {mapping.is_active ? (
+                        <Button
+                          variant='ghost'
+                          size='sm'
+                          className='cursor-pointer'
+                          onClick={() => switchActiveModeArea(mapping)}
+                        >
                           <Power className='w-4 h-4 text-green-500' />
-                        ) : (
+                        </Button>
+                      ) : (
+                        <Button
+                          variant='ghost'
+                          size='sm'
+                          className='cursor-pointer'
+                          onClick={() => switchActiveModeArea(mapping)}
+                        >
                           <PowerOff className='w-4 h-4 text-gray-400' />
-                        )}
-                      </Button>
+                        </Button>
+                      )}
                     </div>
                   </div>
-                  {mapping.is_active && (
-                    <div className='absolute top-2 right-2 w-2 h-2 bg-green-500 rounded-full animate-pulse' />
-                  )}
                 </CardHeader>
                 <CardContent>
                   <div className='space-y-3 text-sm'>
-                    <div className='bg-blue-50 dark:bg-blue-950/20 p-3 rounded-lg'>
-                      <p className='font-semibold text-xs text-blue-600 dark:text-blue-400 uppercase mb-1.5 flex items-center gap-1'>
-                        ⚡ {t.myAreas.card.actionLabel}
+                    <div>
+                      <p className='font-semibold text-xs text-muted-foreground uppercase mb-1'>
+                        Action
                       </p>
-                      <p className='text-foreground font-medium'>{mapping.action.name}</p>
+                      <p className='text-foreground'>{mapping.action.name}</p>
                     </div>
 
-                    <div className='bg-purple-50 dark:bg-purple-950/20 p-3 rounded-lg'>
-                      <p className='font-semibold text-xs text-purple-600 dark:text-purple-400 uppercase mb-1.5 flex items-center gap-1'>
-                        {t.myAreas.card.reactionsLabel}
+                    <div>
+                      <p className='font-semibold text-xs text-muted-foreground uppercase mb-1'>
+                        Reactions
                       </p>
-                      <div className='space-y-1.5'>
+                      <div className='space-y-1'>
                         {mapping.reactions.map((reaction, idx) => (
                           <div
                             key={idx}
-                            className='flex items-center justify-between bg-background/50 px-2 py-1 rounded'
+                            className='flex items-center justify-between'
                           >
-                            <span className='text-foreground text-xs'>
+                            <span className='text-foreground'>
                               {reaction.name}
                             </span>
                             {reaction.delay > 0 && (
-                              <span className='text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded'>
+                              <span className='text-xs text-muted-foreground'>
                                 +{reaction.delay}s
                               </span>
                             )}
@@ -682,25 +415,17 @@ export default function MyAreasPage() {
                     </div>
 
                     <div className='pt-3 border-t flex items-center justify-between'>
-                      <div className='text-xs text-muted-foreground flex items-center gap-1'>
-                        <span>📅</span>
+                      <div className='text-xs text-muted-foreground'>
+                        Created{' '}
                         {new Date(
                           mapping.created_at.toString()
-                        ).toLocaleDateString('fr-FR', {
-                          day: 'numeric',
-                          month: 'short',
-                          year: 'numeric'
-                        })}
+                        ).toLocaleDateString()}
                       </div>
                       <Button
                         variant='ghost'
                         size='sm'
-                        onClick={() => {
-                          setMappingToDelete(mapping.id);
-                          setDeleteDialogOpen(true);
-                        }}
-                        className='text-destructive hover:text-destructive hover:bg-destructive/10 cursor-pointer h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity'
-                        title={t.myAreas.feedback.delete}
+                        onClick={() => handleDeleteMapping(mapping.id)}
+                        className='text-destructive hover:text-destructive hover:bg-destructive/10 cursor-pointer'
                       >
                         <Trash2 className='w-4 h-4' />
                       </Button>
@@ -712,28 +437,6 @@ export default function MyAreasPage() {
           </div>
         )}
       </div>
-
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t.myAreas.feedback.confirmDelete}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {t.myAreas.feedback.confirmDeleteDescription}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setMappingToDelete(null)}>
-              {t.myAreas.feedback.cancel}
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => mappingToDelete && handleDeleteMapping(mappingToDelete)}
-              className='bg-destructive text-destructive-foreground hover:bg-destructive/90'
-            >
-              {t.myAreas.feedback.delete}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 }
