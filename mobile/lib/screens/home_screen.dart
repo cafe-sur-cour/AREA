@@ -189,9 +189,15 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
                     child: Column(
                       children: [
-                        _StatCard(number: l10n.active_automations, label: l10n.active_automations_label),
+                        _StatCard(
+                          number: l10n.active_automations,
+                          label: l10n.active_automations_label,
+                        ),
                         const SizedBox(height: 24),
-                        _StatCard(number: l10n.connected_services_count, label: l10n.connected_services_label),
+                        _StatCard(
+                          number: l10n.connected_services_count,
+                          label: l10n.connected_services_label,
+                        ),
                         const SizedBox(height: 24),
                         _StatCard(number: l10n.happy_users, label: l10n.happy_users_label),
                       ],

@@ -154,7 +154,10 @@ class DashboardScreenState extends State<DashboardScreen> {
               ),
               const SizedBox(height: 24),
 
-              if (_stats != null) ...[_buildStatsGrid(theme, l10n), const SizedBox(height: 24)],
+              if (_stats != null) ...[
+                _buildStatsGrid(theme, l10n),
+                const SizedBox(height: 24),
+              ],
 
               Text(
                 l10n.quick_actions,
@@ -427,7 +430,9 @@ class _AutomationCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
-                    automation.isActive ? AppLocalizations.of(context)!.active : AppLocalizations.of(context)!.inactive,
+                    automation.isActive
+                        ? AppLocalizations.of(context)!.active
+                        : AppLocalizations.of(context)!.inactive,
                     style: theme.textTheme.bodySmall?.copyWith(
                       fontWeight: FontWeight.w600,
                       color: automation.isActive ? Colors.green : Colors.red,
