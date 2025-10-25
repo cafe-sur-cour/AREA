@@ -14,7 +14,7 @@ if (typeof Response === 'undefined') {
         ...init,
       } as Response;
     }
-  } as unknown;
+  } as typeof Response;
 }
 
 const localStorageMock = {
