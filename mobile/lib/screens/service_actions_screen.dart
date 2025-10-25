@@ -155,9 +155,7 @@ class ServiceActionsScreenState extends State<ServiceActionsScreen> {
                           )
                         : const Icon(Icons.web, color: AppColors.areaLightGray, size: 32),
                   ),
-
                   const SizedBox(width: 16),
-
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -174,9 +172,7 @@ class ServiceActionsScreenState extends State<ServiceActionsScreen> {
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
-
                         const SizedBox(height: 4),
-
                         Text(
                           '${_actions.length} available action${_actions.length == 1 ? '' : 's'}',
                           style: TextStyle(
@@ -192,7 +188,6 @@ class ServiceActionsScreenState extends State<ServiceActionsScreen> {
               ),
             ),
           ),
-
           Expanded(child: _buildBody()),
         ],
       ),

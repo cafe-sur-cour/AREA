@@ -156,9 +156,7 @@ class ServiceReactionsScreenState extends State<ServiceReactionsScreen> {
                           )
                         : const Icon(Icons.web, color: AppColors.areaLightGray, size: 32),
                   ),
-
                   const SizedBox(width: 16),
-
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -175,9 +173,7 @@ class ServiceReactionsScreenState extends State<ServiceReactionsScreen> {
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
-
                         const SizedBox(height: 4),
-
                         Text(
                           '${_reactions.length} available reaction${_reactions.length == 1 ? '' : 's'}',
                           style: TextStyle(

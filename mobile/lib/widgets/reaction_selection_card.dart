@@ -53,9 +53,7 @@ class ReactionSelectionCard extends StatelessWidget {
                             size: 24,
                           ),
                   ),
-
                   const SizedBox(width: 12),
-
                   Expanded(
                     child: Text(
                       reaction.name,
@@ -72,9 +70,7 @@ class ReactionSelectionCard extends StatelessWidget {
                   const Icon(Icons.arrow_forward_ios, color: AppColors.areaDarkGray, size: 16),
                 ],
               ),
-
               const SizedBox(height: 12),
-
               if (reaction.description.isNotEmpty)
                 Text(
                   reaction.description,
@@ -98,9 +94,7 @@ class ReactionSelectionCard extends StatelessWidget {
                         size: 16,
                         color: AppColors.areaDarkGray.withValues(alpha: 0.7),
                       ),
-
                       const SizedBox(width: 4),
-
                       Text(
                         '${reaction.configSchema!.fields.length} parameter${reaction.configSchema!.fields.length == 1 ? '' : 's'}',
                         style: TextStyle(

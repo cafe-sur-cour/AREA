@@ -114,7 +114,6 @@ class _AddAutomationScreenState extends State<AddAutomationScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const SizedBox(height: 30),
-
             SizedBox(
               height: (selectedAction != null || selectedReactionsWithDelay.isNotEmpty)
                   ? 100

@@ -77,8 +77,8 @@ class AutomationBuilderNotifier extends ChangeNotifier {
 
   void setReactionConfigValue(int reactionIndex, String fieldName, dynamic value) {
     if (reactionIndex >= 0 && reactionIndex < _selectedReactionsWithDelay.length) {
-      _selectedReactionsWithDelay[reactionIndex] = _selectedReactionsWithDelay[reactionIndex]
-          .setConfigValue(fieldName, value);
+      _selectedReactionsWithDelay[reactionIndex] =
+          _selectedReactionsWithDelay[reactionIndex].setConfigValue(fieldName, value);
       notifyListeners();
     }
   }

@@ -89,9 +89,7 @@ class AutomationReactionCard extends StatelessWidget {
                       ],
                     ),
                   ),
-
                   const SizedBox(width: 16),
-
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -113,9 +111,7 @@ class AutomationReactionCard extends StatelessWidget {
                             ),
                           ),
                         ),
-
                         const SizedBox(height: 6),
-
                         Text(
                           reaction.name,
                           style: const TextStyle(
@@ -126,9 +122,7 @@ class AutomationReactionCard extends StatelessWidget {
                             height: 1.2,
                           ),
                         ),
-
                         const SizedBox(height: 2),
-
                         Row(
                           children: [
                             Container(
@@ -155,9 +149,7 @@ class AutomationReactionCard extends StatelessWidget {
                                     )
                                   : Icon(Icons.web, color: _serviceColor, size: 12),
                             ),
-
                             const SizedBox(width: 6),
-
                             Text(
                               reactionService.name,
                               style: TextStyle(
@@ -186,9 +178,7 @@ class AutomationReactionCard extends StatelessWidget {
                   ),
                 ],
               ),
-
               const SizedBox(height: 16),
-
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
@@ -211,9 +201,7 @@ class AutomationReactionCard extends StatelessWidget {
                           : AppColors.areaDarkGray,
                       size: 20,
                     ),
-
                     const SizedBox(width: 8),
-
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,

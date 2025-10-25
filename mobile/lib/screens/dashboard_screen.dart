@@ -82,8 +82,7 @@ class DashboardScreenState extends State<DashboardScreen> {
       }
 
       final mappingsData = jsonDecode(mappingsResponse.body) as Map<String, dynamic>;
-      final rawMappings =
-          (mappingsData['mappings'] as List?)
+      final rawMappings = (mappingsData['mappings'] as List?)
               ?.map((m) => AutomationModel.fromJson(m as Map<String, dynamic>))
               .toList() ??
           [];
@@ -157,7 +156,10 @@ class DashboardScreenState extends State<DashboardScreen> {
               ),
               const SizedBox(height: 24),
 
-              if (_stats != null) ...[_buildStatsGrid(theme, l10n), const SizedBox(height: 24)],
+              if (_stats != null) ...[
+                _buildStatsGrid(theme, l10n),
+                const SizedBox(height: 24),
+              ],
 
               Text(
                 l10n.quick_actions,

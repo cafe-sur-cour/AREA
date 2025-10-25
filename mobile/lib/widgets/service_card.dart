@@ -51,9 +51,7 @@ class ServiceCard extends StatelessWidget {
                       )
                     : Icon(Icons.web, color: ColorUtils.getServiceColor(service), size: 32),
               ),
-
               const SizedBox(height: 12),
-
               Text(
                 service.name,
                 style: const TextStyle(
@@ -66,9 +64,7 @@ class ServiceCard extends StatelessWidget {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
-
               const SizedBox(height: 4),
-
               if (service.description.isNotEmpty)
                 Expanded(
                   child: Text(

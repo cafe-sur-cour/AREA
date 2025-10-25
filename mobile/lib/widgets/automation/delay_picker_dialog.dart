@@ -109,14 +109,13 @@ class DelayPickerDialogState extends State<DelayPickerDialog> {
       title: Row(
         children: [
           Icon(Icons.access_time, color: AppColors.areaBlue3),
-
           const SizedBox(width: 12),
-
           Expanded(
             child: Text(
               AppLocalizations.of(
                 context,
-              )!.set_delay_for(widget.reactionWithDelay.reaction.name),
+              )!
+                  .set_delay_for(widget.reactionWithDelay.reaction.name),
               style: const TextStyle(
                 fontFamily: 'Montserrat',
                 fontSize: 16,
@@ -133,27 +132,19 @@ class DelayPickerDialogState extends State<DelayPickerDialog> {
             _buildDelayInput(AppLocalizations.of(context)!.days, _tempDays, (value) {
               setState(() => _tempDays = value);
             }),
-
             const SizedBox(height: 16),
-
             _buildDelayInput(AppLocalizations.of(context)!.hours, _tempHours, (value) {
               setState(() => _tempHours = value);
             }, max: 23),
-
             const SizedBox(height: 16),
-
             _buildDelayInput(AppLocalizations.of(context)!.minutes, _tempMinutes, (value) {
               setState(() => _tempMinutes = value);
             }, max: 59),
-
             const SizedBox(height: 16),
-
             _buildDelayInput(AppLocalizations.of(context)!.seconds, _tempSeconds, (value) {
               setState(() => _tempSeconds = value);
             }, max: 59),
-
             const SizedBox(height: 20),
-
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
@@ -164,9 +155,7 @@ class DelayPickerDialogState extends State<DelayPickerDialog> {
               child: Row(
                 children: [
                   Icon(Icons.info_outline, color: AppColors.areaBlue3, size: 20),
-
                   const SizedBox(width: 8),
-
                   Expanded(
                     child: Text(
                       AppLocalizations.of(context)!.total_delay(

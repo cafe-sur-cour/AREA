@@ -30,7 +30,6 @@ class AutomationButtons extends StatelessWidget {
     return Column(
       children: [
         const SizedBox(height: 30),
-
         Wrap(
           direction: Axis.vertical,
           spacing: 24,
@@ -60,9 +59,7 @@ class AutomationButtons extends StatelessWidget {
                         ),
                       ),
                     ),
-
                     const SizedBox(width: 8),
-
                     Icon(
                       hasAction ? Icons.edit : Icons.add,
                       color: AppColors.areaLightGray,
@@ -99,9 +96,7 @@ class AutomationButtons extends StatelessWidget {
                         ),
                       ),
                     ),
-
                     const SizedBox(width: 8),
-
                     Icon(
                       hasAction ? Icons.add : Icons.lock,
                       color: hasAction
@@ -117,7 +112,6 @@ class AutomationButtons extends StatelessWidget {
         ),
         if (hasReactions) ...[
           const SizedBox(height: 24),
-
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 24),
             child: ElevatedButton(
@@ -134,9 +128,7 @@ class AutomationButtons extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   const Icon(Icons.clear_all_rounded, size: 20),
-
                   const SizedBox(width: 8),
-
                   Text(
                     AppLocalizations.of(context)!.clear_all_reactions(reactionsCount),
                     style: const TextStyle(
@@ -152,7 +144,6 @@ class AutomationButtons extends StatelessWidget {
         ],
         if (hasAction && hasReactions) ...[
           const SizedBox(height: 24),
-
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 24),
             child: ElevatedButton(
@@ -176,9 +167,7 @@ class AutomationButtons extends StatelessWidget {
                     ),
                     child: const Icon(Icons.rocket_launch_rounded, size: 24),
                   ),
-
                   const SizedBox(width: 16),
-
                   Text(
                     AppLocalizations.of(context)!.create_automation,
                     style: const TextStyle(
@@ -193,7 +182,6 @@ class AutomationButtons extends StatelessWidget {
             ),
           ),
         ],
-
         const SizedBox(height: 50),
       ],
     );

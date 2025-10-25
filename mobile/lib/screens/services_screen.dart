@@ -291,8 +291,8 @@ class ServicesScreenState extends State<ServicesScreen> {
                 text: service.isSubscribed
                     ? AppLocalizations.of(context)!.unsubscribe
                     : service.oauthConnected
-                    ? AppLocalizations.of(context)!.subscribe
-                    : AppLocalizations.of(context)!.connect_and_subscribe,
+                        ? AppLocalizations.of(context)!.subscribe
+                        : AppLocalizations.of(context)!.connect_and_subscribe,
                 onPressed: () => _handleServiceAction(service),
                 backgroundColor: service.isSubscribed ? AppColors.error : AppColors.primary,
                 foregroundColor: Colors.white,

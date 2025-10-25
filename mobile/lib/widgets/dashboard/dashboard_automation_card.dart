@@ -58,7 +58,9 @@ class DashboardAutomationCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
-                    automation.isActive ? AppLocalizations.of(context)!.active : AppLocalizations.of(context)!.inactive,
+                    automation.isActive
+                        ? AppLocalizations.of(context)!.active
+                        : AppLocalizations.of(context)!.inactive,
                     style: theme.textTheme.bodySmall?.copyWith(
                       fontWeight: FontWeight.w600,
                       color: automation.isActive ? Colors.green : Colors.red,

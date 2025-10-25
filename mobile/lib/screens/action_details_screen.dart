@@ -50,9 +50,7 @@ class ActionDetailsScreen extends StatelessWidget {
                         color: AppColors.areaBlack,
                       ),
                     ),
-
                     const SizedBox(height: 12),
-
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.all(16),
@@ -74,7 +72,6 @@ class ActionDetailsScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-
                     const SizedBox(height: 24),
                   ],
                   if (action.configSchema?.fields != null &&
@@ -88,9 +85,7 @@ class ActionDetailsScreen extends StatelessWidget {
                         color: AppColors.areaBlack,
                       ),
                     ),
-
                     const SizedBox(height: 12),
-
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.all(16),
@@ -111,9 +106,7 @@ class ActionDetailsScreen extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Icon(Icons.settings, size: 16, color: serviceColor),
-
                                 const SizedBox(width: 8),
-
                                 Expanded(
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,

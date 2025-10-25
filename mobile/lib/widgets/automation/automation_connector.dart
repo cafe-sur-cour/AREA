@@ -61,9 +61,7 @@ class AutomationConnector extends StatelessWidget {
                   color: AppColors.areaBlue3.withValues(alpha: 0.8),
                   size: 20,
                 ),
-
                 const SizedBox(width: 8),
-
                 Text(
                   AppLocalizations.of(context)!.then,
                   style: const TextStyle(
@@ -74,9 +72,7 @@ class AutomationConnector extends StatelessWidget {
                     letterSpacing: 1.5,
                   ),
                 ),
-
                 const SizedBox(width: 8),
-
                 Icon(
                   Icons.arrow_downward_rounded,
                   color: AppColors.areaBlue3.withValues(alpha: 0.8),

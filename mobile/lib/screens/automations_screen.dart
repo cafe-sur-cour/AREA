@@ -177,7 +177,6 @@ class AutomationsScreenState extends State<AutomationsScreen> {
                   color: automation.isActive ? Colors.green : Colors.red,
                 ),
                 const Spacer(),
-
                 IconButton(
                   onPressed: () => _toggleAutomationStatus(automation),
                   icon: Icon(automation.isActive ? Icons.pause : Icons.play_arrow),
@@ -186,7 +185,6 @@ class AutomationsScreenState extends State<AutomationsScreen> {
                       ? AppLocalizations.of(context)!.deactivate_automation
                       : AppLocalizations.of(context)!.activate_automation,
                 ),
-
                 IconButton(
                   onPressed: () => _showDeleteConfirmation(automation),
                   icon: const Icon(Icons.delete_outline),
@@ -195,9 +193,7 @@ class AutomationsScreenState extends State<AutomationsScreen> {
                 ),
               ],
             ),
-
             const SizedBox(height: AppDimensions.paddingSM),
-
             Row(
               children: [
                 Expanded(
@@ -208,18 +204,14 @@ class AutomationsScreenState extends State<AutomationsScreen> {
                 ),
               ],
             ),
-
             const SizedBox(height: AppDimensions.paddingSM),
-
             Text(
               automation.description,
               style: AppTextStyles.bodyMedium.copyWith(color: Colors.grey[600]),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
-
             const SizedBox(height: AppDimensions.paddingSM),
-
             Padding(
               padding: const EdgeInsets.fromLTRB(0, 8, 8, 8),
               child: Row(
@@ -236,9 +228,7 @@ class AutomationsScreenState extends State<AutomationsScreen> {
                       Text(automation.action.type, style: AppTextStyles.bodySmall),
                     ],
                   ),
-
                   const Spacer(),
-
                   Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -271,41 +261,41 @@ class AutomationsScreenState extends State<AutomationsScreen> {
         child: _isLoading
             ? const LoadingState()
             : _errorMessage != null
-            ? ErrorState(
-                title: AppLocalizations.of(context)!.error_loading_automations,
-                message: _errorMessage!,
-                onRetry: _loadAutomations,
-                retryButtonText: AppLocalizations.of(context)!.retry,
-              )
-            : _automations.isEmpty
-            ? EmptyState(
-                title: AppLocalizations.of(context)!.no_automations_yet,
-                message: _notConnected
-                    ? AppLocalizations.of(context)!.connect_to_create
-                    : AppLocalizations.of(context)!.create_first_automation,
-                icon: Icons.auto_awesome_outlined,
-              )
-            : RefreshIndicator(
-                onRefresh: _loadAutomations,
-                child: ListView(
-                  children: [
-                    const SizedBox(height: 50),
-                    Text(
-                      AppLocalizations.of(context)!.my_areas,
-                      style: const TextStyle(
-                        fontFamily: 'Montserrat',
-                        fontWeight: FontWeight.w700,
-                        fontSize: 50,
+                ? ErrorState(
+                    title: AppLocalizations.of(context)!.error_loading_automations,
+                    message: _errorMessage!,
+                    onRetry: _loadAutomations,
+                    retryButtonText: AppLocalizations.of(context)!.retry,
+                  )
+                : _automations.isEmpty
+                    ? EmptyState(
+                        title: AppLocalizations.of(context)!.no_automations_yet,
+                        message: _notConnected
+                            ? AppLocalizations.of(context)!.connect_to_create
+                            : AppLocalizations.of(context)!.create_first_automation,
+                        icon: Icons.auto_awesome_outlined,
+                      )
+                    : RefreshIndicator(
+                        onRefresh: _loadAutomations,
+                        child: ListView(
+                          children: [
+                            const SizedBox(height: 50),
+                            Text(
+                              AppLocalizations.of(context)!.my_areas,
+                              style: const TextStyle(
+                                fontFamily: 'Montserrat',
+                                fontWeight: FontWeight.w700,
+                                fontSize: 50,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 50),
+                            for (int index = 0; index < _automations.length; index++) ...[
+                              _buildAutomationCard(_automations[index]),
+                            ],
+                          ],
+                        ),
                       ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 50),
-                    for (int index = 0; index < _automations.length; index++) ...[
-                      _buildAutomationCard(_automations[index]),
-                    ],
-                  ],
-                ),
-              ),
       ),
     );
   }

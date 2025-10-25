@@ -172,9 +172,7 @@ class CatalogueScreenState extends State<CatalogueScreen> {
               item.isAction ? Icons.play_arrow : Icons.bolt,
               color: item.isAction ? AppColors.areaBlue3 : AppColors.areaBlue1,
             ),
-
             const SizedBox(width: 8),
-
             Expanded(
               child: Text(
                 item.name,
@@ -209,9 +207,7 @@ class CatalogueScreenState extends State<CatalogueScreen> {
                   ),
                 ],
               ),
-
               const SizedBox(height: 12),
-
               Text(
                 item.description.isNotEmpty
                     ? item.description
@@ -326,9 +322,7 @@ class CatalogueScreenState extends State<CatalogueScreen> {
     return Column(
       children: [
         const SizedBox(height: 50),
-
         _buildFilterChips(),
-
         Expanded(child: _buildBody()),
       ],
     );
@@ -347,9 +341,7 @@ class CatalogueScreenState extends State<CatalogueScreen> {
             },
             selectedColor: AppColors.areaBlue1,
           ),
-
           const SizedBox(width: 8),
-
           FilterChip(
             label: Text(AppLocalizations.of(context)!.actions),
             selected: _filter == 'actions',
@@ -358,9 +350,7 @@ class CatalogueScreenState extends State<CatalogueScreen> {
             },
             selectedColor: AppColors.areaBlue1,
           ),
-
           const SizedBox(width: 8),
-
           FilterChip(
             label: Text(AppLocalizations.of(context)!.reactions_filter),
             selected: _filter == 'reactions',
@@ -395,8 +385,8 @@ class CatalogueScreenState extends State<CatalogueScreen> {
               _filter == 'actions'
                   ? Icons.play_arrow
                   : _filter == 'reactions'
-                  ? Icons.bolt
-                  : Icons.apps,
+                      ? Icons.bolt
+                      : Icons.apps,
               size: 64,
               color: Colors.grey,
             ),
@@ -474,17 +464,13 @@ class CatalogueScreenState extends State<CatalogueScreen> {
               Row(
                 children: [
                   _buildServiceIcon(item.serviceIconSVG),
-
                   const SizedBox(width: 8),
-
                   Icon(
                     item.isAction ? Icons.play_arrow : Icons.bolt,
                     color: item.isAction ? AppColors.areaBlue3 : AppColors.areaBlue1,
                     size: 16,
                   ),
-
                   const SizedBox(width: 4),
-
                   Expanded(
                     child: Text(
                       item.serviceName,
@@ -498,9 +484,7 @@ class CatalogueScreenState extends State<CatalogueScreen> {
                   ),
                 ],
               ),
-
               const SizedBox(height: 8),
-
               Expanded(
                 child: Text(
                   item.name,

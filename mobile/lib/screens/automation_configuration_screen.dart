@@ -37,10 +37,12 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
     if (!_isInitialized) {
       _nameController.text = AppLocalizations.of(
         context,
-      )!.default_automation_name(DateTime.now().millisecondsSinceEpoch.toString());
+      )!
+          .default_automation_name(DateTime.now().millisecondsSinceEpoch.toString());
       _descriptionController.text = AppLocalizations.of(
         context,
-      )!.default_automation_description;
+      )!
+          .default_automation_description;
       _isInitialized = true;
     }
   }
@@ -154,14 +156,11 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildFieldLabel(field),
-
         const SizedBox(height: 8),
-
         TextFormField(
           controller: controller,
-          keyboardType: field.type == 'email'
-              ? TextInputType.emailAddress
-              : TextInputType.text,
+          keyboardType:
+              field.type == 'email' ? TextInputType.emailAddress : TextInputType.text,
           decoration: InputDecoration(
             hintText: field.placeholder,
             border: const OutlineInputBorder(),
@@ -235,9 +234,7 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildFieldLabel(field),
-
         const SizedBox(height: 8),
-
         TextFormField(
           controller: controller,
           keyboardType: TextInputType.number,
@@ -292,9 +289,7 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildFieldLabel(field),
-
         const SizedBox(height: 8),
-
         DropdownButtonFormField<String>(
           initialValue: currentValue?.toString(),
           decoration: InputDecoration(
@@ -386,9 +381,7 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
                 AppLocalizations.of(context)!.action_colon(action.name),
                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
-
               const SizedBox(height: 8),
-
               Text(
                 AppLocalizations.of(context)!.no_additional_config,
                 style: const TextStyle(color: Colors.grey),
@@ -409,9 +402,7 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
               AppLocalizations.of(context)!.action_colon(action.name),
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-
             const SizedBox(height: 8),
-
             Text(action.description, style: const TextStyle(color: Colors.grey)),
             const SizedBox(height: 16),
             ...action.configFields.map((field) {
@@ -450,12 +441,11 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
               Text(
                 AppLocalizations.of(
                   context,
-                )!.reaction_number(reactionIndex + 1, reaction.name),
+                )!
+                    .reaction_number(reactionIndex + 1, reaction.name),
                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
-
               const SizedBox(height: 8),
-
               Text(
                 AppLocalizations.of(context)!.no_additional_config_reaction,
                 style: const TextStyle(color: Colors.grey),
@@ -476,13 +466,9 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
               AppLocalizations.of(context)!.reaction_number(reactionIndex + 1, reaction.name),
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-
             const SizedBox(height: 8),
-
             Text(reaction.description, style: const TextStyle(color: Colors.grey)),
-
             const SizedBox(height: 16),
-
             ...reaction.configFields.map((field) {
               final currentValue = reactionWithDelay.getConfigValue(field.name);
               return Padding(
@@ -558,7 +544,8 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
           context,
           AppLocalizations.of(
             context,
-          )!.failed_create_automation(e.toString().replaceAll("Exception: ", "")),
+          )!
+              .failed_create_automation(e.toString().replaceAll("Exception: ", "")),
         );
       }
     } finally {
@@ -583,16 +570,12 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(Icons.error_outline, size: 64, color: Colors.red),
-
                   SizedBox(height: 16),
-
                   Text(
                     AppLocalizations.of(context)!.invalid_automation_state,
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
-
                   SizedBox(height: 8),
-
                   Text(
                     AppLocalizations.of(context)!.go_back_select_action_reaction,
                     textAlign: TextAlign.center,
@@ -620,9 +603,7 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
                             AppLocalizations.of(context)!.automation_details,
                             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                           ),
-
                           const SizedBox(height: 16),
-
                           TextFormField(
                             controller: _nameController,
                             decoration: InputDecoration(
@@ -638,9 +619,7 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
                               return null;
                             },
                           ),
-
                           const SizedBox(height: 16),
-
                           TextFormField(
                             controller: _descriptionController,
                             maxLines: 2,
@@ -655,13 +634,9 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
                       ),
                     ),
                   ),
-
                   const SizedBox(height: 16),
-
                   _buildActionConfigSection(automationBuilder),
-
                   const SizedBox(height: 16),
-
                   ...List.generate(
                     automationBuilder.selectedReactionsWithDelay.length,
                     (index) => Padding(
@@ -669,9 +644,7 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
                       child: _buildReactionConfigSection(automationBuilder, index),
                     ),
                   ),
-
                   const SizedBox(height: 24),
-
                   SizedBox(
                     width: double.infinity,
                     height: 56,
@@ -715,7 +688,6 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
                             ),
                     ),
                   ),
-
                   const SizedBox(height: 32),
                 ],
               ),

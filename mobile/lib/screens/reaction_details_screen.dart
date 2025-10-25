@@ -58,9 +58,7 @@ class ReactionDetailsScreenState extends State<ReactionDetailsScreen> {
               title: Row(
                 children: [
                   Icon(Icons.access_time, color: _getServiceColor()),
-
                   const SizedBox(width: 12),
-
                   Expanded(
                     child: Text(
                       'Set Execution Delay',
@@ -80,27 +78,19 @@ class ReactionDetailsScreenState extends State<ReactionDetailsScreen> {
                     _buildDelayInput('Days', tempDays, (value) {
                       setDialogState(() => tempDays = value);
                     }),
-
                     const SizedBox(height: 16),
-
                     _buildDelayInput('Hours', tempHours, (value) {
                       setDialogState(() => tempHours = value);
                     }, max: 23),
-
                     const SizedBox(height: 16),
-
                     _buildDelayInput('Minutes', tempMinutes, (value) {
                       setDialogState(() => tempMinutes = value);
                     }, max: 59),
-
                     const SizedBox(height: 16),
-
                     _buildDelayInput('Seconds', tempSeconds, (value) {
                       setDialogState(() => tempSeconds = value);
                     }, max: 59),
-
                     const SizedBox(height: 20),
-
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
@@ -111,9 +101,7 @@ class ReactionDetailsScreenState extends State<ReactionDetailsScreen> {
                       child: Row(
                         children: [
                           Icon(Icons.info_outline, color: _getServiceColor(), size: 20),
-
                           const SizedBox(width: 8),
-
                           Expanded(
                             child: Text(
                               'Total delay: ${_formatTotalDelay(tempDays, tempHours, tempMinutes, tempSeconds)}',
@@ -271,9 +259,7 @@ class ReactionDetailsScreenState extends State<ReactionDetailsScreen> {
                         color: AppColors.areaBlack,
                       ),
                     ),
-
                     const SizedBox(height: 12),
-
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.all(16),
@@ -295,7 +281,6 @@ class ReactionDetailsScreenState extends State<ReactionDetailsScreen> {
                         ),
                       ),
                     ),
-
                     const SizedBox(height: 24),
                   ],
                   if (widget.reaction.configSchema?.fields != null &&
@@ -309,9 +294,7 @@ class ReactionDetailsScreenState extends State<ReactionDetailsScreen> {
                         color: AppColors.areaBlack,
                       ),
                     ),
-
                     const SizedBox(height: 12),
-
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.all(16),
@@ -332,9 +315,7 @@ class ReactionDetailsScreenState extends State<ReactionDetailsScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Icon(Icons.settings, size: 16, color: serviceColor),
-
                                 const SizedBox(width: 8),
-
                                 Expanded(
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -365,14 +346,12 @@ class ReactionDetailsScreenState extends State<ReactionDetailsScreen> {
                         }).toList(),
                       ),
                     ),
-
                     const SizedBox(height: 24),
                   ],
                 ],
               ),
             ),
           ),
-
           Container(
             padding: const EdgeInsets.all(24),
             child: Column(
@@ -381,9 +360,7 @@ class ReactionDetailsScreenState extends State<ReactionDetailsScreen> {
                 Row(
                   children: [
                     Icon(Icons.schedule_rounded, color: serviceColor, size: 24),
-
                     const SizedBox(width: 12),
-
                     const Expanded(
                       child: Text(
                         'Execution Delay',
@@ -397,9 +374,7 @@ class ReactionDetailsScreenState extends State<ReactionDetailsScreen> {
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 16),
-
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(16),
@@ -431,9 +406,7 @@ class ReactionDetailsScreenState extends State<ReactionDetailsScreen> {
                                     : AppColors.areaDarkGray,
                               ),
                             ),
-
                             const SizedBox(height: 4),
-
                             Text(
                               _formattedDelay,
                               style: TextStyle(
@@ -447,7 +420,6 @@ class ReactionDetailsScreenState extends State<ReactionDetailsScreen> {
                             ),
                             if (_selectedDelayInSeconds > 0) ...[
                               const SizedBox(height: 4),
-
                               Text(
                                 'This reaction will execute $_formattedDelay after the trigger',
                                 style: const TextStyle(
