@@ -36,7 +36,7 @@ export default function Home() {
                       className='text-base px-8 cursor-pointer'
                     >
                       <Link href='/register'>
-                        Get started free
+                        {t('home.getStarted')}
                         <ArrowRight className='ml-2 h-5 w-5' />
                       </Link>
                     </Button>
@@ -46,7 +46,7 @@ export default function Home() {
                       size='lg'
                       className='text-base px-8 bg-transparent cursor-pointer'
                     >
-                      <Link href='/login'>Sign in</Link>
+                      <Link href='/login'>{t('home.signIn')}</Link>
                     </Button>
                   </>
                 ) : (
@@ -56,7 +56,7 @@ export default function Home() {
                     className='text-base px-8 cursor-pointer'
                   >
                     <Link href='/dashboard'>
-                      Go to Dashboard
+                      {t('home.dashboard')}
                       <ArrowRight className='ml-2 h-5 w-5' />
                     </Link>
                   </Button>
@@ -74,19 +74,19 @@ export default function Home() {
                 <h2 className='text-4xl font-heading font-bold text-foreground mb-2'>
                   10M+
                 </h2>
-                <div className='text-muted-foreground'>Active automations</div>
+                <div className='text-muted-foreground'>{t('home.activeAutomations')}</div>
               </div>
               <div className='text-center md:text-left'>
                 <h2 className='text-4xl font-heading font-bold text-foreground mb-2'>
                   500+
                 </h2>
-                <div className='text-muted-foreground'>Connected services</div>
+                <div className='text-muted-foreground'>{t('home.connectedServices')}</div>
               </div>
               <div className='text-center md:text-left'>
                 <h2 className='text-4xl font-heading font-bold text-foreground mb-2'>
                   2M+
                 </h2>
-                <div className='text-muted-foreground'>Happy users</div>
+                <div className='text-muted-foreground'>{t('home.happyUsers')}</div>
               </div>
             </div>
           </div>
@@ -96,11 +96,10 @@ export default function Home() {
           <div className='max-w-7xl mx-auto'>
             <div className='text-center mb-16'>
               <h2 className='text-3xl sm:text-4xl lg:text-5xl font-heading font-bold text-foreground mb-4'>
-                Availables services
+                {t('home.availableServices')}
               </h2>
               <p className='text-lg text-muted-foreground max-w-2xl mx-auto'>
-                Discover the apps and platforms you can connect to create
-                powerful automations.
+                {t('home.availableServicesDescription')}
               </p>
             </div>
             <div className='m-5x w-4xl max-w-full mx-auto'>
@@ -117,14 +116,14 @@ export default function Home() {
                 id='how-it-works-heading'
                 className='text-3xl sm:text-4xl lg:text-5xl font-heading font-bold text-foreground mb-4'
               >
-                How it works
+                {t('home.howItWorks')}
               </h2>
               <h2
                 className='text-lg text-muted-foreground max-w-2xl mx-auto'
                 aria-labelledby='how-it-works-heading'
                 aria-hidden='false'
               >
-                Create powerful automations in three simple steps
+                {t('home.howItWorksDescription')}
               </h2>
             </div>
 
@@ -135,10 +134,10 @@ export default function Home() {
                   1
                 </h3>
                 <h4 className='text-xl font-heading font-semibold text-foreground mb-3'>
-                  Choose a trigger
+                  {t('home.chooseTrigger')}
                 </h4>
                 <p className='text-muted-foreground'>
-                  Select an app and event that starts your automation
+                  {t('home.selectAppEvent')}
                 </p>
               </div>
 
@@ -148,10 +147,10 @@ export default function Home() {
                   2
                 </h3>
                 <h4 className='text-xl font-heading font-semibold text-foreground mb-3'>
-                  Add an action
+                  {t('home.addAction')}
                 </h4>
                 <p className='text-muted-foreground'>
-                  Choose what happens when your trigger fires
+                  {t('home.chooseWhatHappens')}
                 </p>
               </div>
 
@@ -161,10 +160,10 @@ export default function Home() {
                   3
                 </h3>
                 <h4 className='text-xl font-heading font-semibold text-foreground mb-3'>
-                  Activate & relax
+                  {t('home.activateRelax')}
                 </h4>
                 <p className='text-muted-foreground'>
-                  Your automation runs automatically in the background
+                  {t('home.automationRuns')}
                 </p>
               </div>
             </div>
@@ -179,14 +178,14 @@ export default function Home() {
                 id='popular-automations-heading'
                 className='text-3xl sm:text-4xl lg:text-5xl font-heading font-bold text-foreground mb-4'
               >
-                Popular automations
+                {t('home.popularAutomations')}
               </h2>
               <h2
                 className='text-lg text-muted-foreground max-w-2xl mx-auto'
                 aria-labelledby='popular-automations-heading'
                 aria-hidden='false'
               >
-                Get inspired by what others are building
+                {t('home.popularAutomationsDescription')}
               </h2>
             </div>
 
@@ -256,11 +255,10 @@ export default function Home() {
                   <Zap className='h-6 w-6' />
                 </div>
                 <h3 className='text-xl font-heading font-semibold text-foreground mb-3'>
-                  Lightning fast
+                  {t('home.lightningFast')}
                 </h3>
                 <p className='text-muted-foreground'>
-                  Your automations run instantly when triggered, with no delays
-                  or waiting.
+                  {t('home.automationRuns')}
                 </p>
               </div>
 
@@ -269,11 +267,10 @@ export default function Home() {
                   <Clock className='h-6 w-6' />
                 </div>
                 <h3 className='text-xl font-heading font-semibold text-foreground mb-3'>
-                  Save time
+                  {t('home.saveTime')}
                 </h3>
                 <p className='text-muted-foreground'>
-                  Automate repetitive tasks and focus on what really matters to
-                  you.
+                  {t('home.automateRepetitiveTasks')}
                 </p>
               </div>
 
@@ -282,11 +279,10 @@ export default function Home() {
                   <Shield className='h-6 w-6' />
                 </div>
                 <h3 className='text-xl font-heading font-semibold text-foreground mb-3'>
-                  Secure & reliable
+                  {t('home.secureReliable')}
                 </h3>
                 <p className='text-muted-foreground'>
-                  Enterprise-grade security with 99.9% uptime guarantee for your
-                  peace of mind.
+                  {t('home.enterpriseSecurity')}
                 </p>
               </div>
             </div>
@@ -297,11 +293,10 @@ export default function Home() {
         <section className='px-4 sm:px-6 lg:px-8 py-24'>
           <div className='max-w-4xl mx-auto text-center'>
             <h2 className='text-3xl sm:text-4xl lg:text-5xl font-heading font-bold text-foreground mb-6'>
-              Ready to automate your workflow?
+              {t('home.readyToAutomate')}
             </h2>
             <p className='text-lg text-muted-foreground mb-10 max-w-2xl mx-auto'>
-              Join millions of users who are already saving time with powerful
-              automations.
+              {t('home.ctaDescription')}
             </p>
             {isAuthenticated ? (
               <Button
@@ -310,7 +305,7 @@ export default function Home() {
                 className='text-base px-8 cursor-pointer'
               >
                 <Link href='/my-areas'>
-                  Go to My AREAs
+                  {t('home.my-areas')}
                   <ArrowRight className='ml-2 h-5 w-5' />
                 </Link>
               </Button>
@@ -321,7 +316,7 @@ export default function Home() {
                 className='text-base px-8 cursor-pointer'
               >
                 <Link href='/register'>
-                  Start for free
+                  {t('home.getStarted')}
                   <ArrowRight className='ml-2 h-5 w-5' />
                 </Link>
               </Button>
