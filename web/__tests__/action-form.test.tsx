@@ -1,7 +1,8 @@
 import React from 'react';
-import { render, act, waitFor, fireEvent } from '@testing-library/react';
+import { render, waitFor, fireEvent } from '@testing-library/react';
 import ActionForm from '../components/action-form';
 import api from '@/lib/api';
+import { Action } from '@/types/action';
 
 jest.mock('@/lib/api');
 
@@ -55,47 +56,53 @@ describe('ActionForm', () => {
               configSchema: {
                 name: 'GitHub Issue Config',
                 description: 'Configuration for GitHub issue creation',
-                fields: [{
-                  name: 'repository',
-                  type: 'string',
-                  label: 'Repository',
-                  required: true,
-                  placeholder: 'user/repo',
-                  options: [{ value: 'example/repo', label: 'Example Repo' }],
-                  default: ''
-                }] as [{ 
-                  name: string;
-                  type: string;
-                  label: string;
-                  required: true;
-                  placeholder: string;
-                  options: [{ value: string; label: string; }];
-                  default: string;
-                }]
+                fields: [
+                  {
+                    name: 'repository',
+                    type: 'string',
+                    label: 'Repository',
+                    required: true,
+                    placeholder: 'user/repo',
+                    options: [{ value: 'example/repo', label: 'Example Repo' }],
+                    default: '',
+                  },
+                ] as [
+                  {
+                    name: string;
+                    type: string;
+                    label: string;
+                    required: true;
+                    placeholder: string;
+                    options: [{ value: string; label: string }];
+                    default: string;
+                  },
+                ],
               },
               inputSchema: {
                 type: 'object',
                 properties: {},
-                required: ['repository']
+                required: ['repository'],
               },
-              metadata: {}
-            }
-          ]
-        }
-      ]
+              metadata: {},
+            },
+          ],
+        },
+      ],
     };
 
     (api.get as jest.Mock).mockResolvedValueOnce({
-      data: mockServiceActions
+      data: mockServiceActions,
     });
 
-  const { getByText, getAllByRole, findByText } = render(<ActionForm {...defaultProps} />);
+    const { getByText, getAllByRole, findByText } = render(
+      <ActionForm {...defaultProps} />
+    );
 
     // Wait for the select trigger to appear
     await findByText('Select a service');
 
-  // Open the services select to reveal options
-  fireEvent.click(getAllByRole('combobox')[0]);
+    // Open the services select to reveal options
+    fireEvent.click(getAllByRole('combobox')[0]);
 
     await waitFor(() => {
       expect(getByText('GitHub')).toBeInTheDocument();
@@ -109,13 +116,13 @@ describe('ActionForm', () => {
     });
     // Open the actions dropdown
     fireEvent.click(getAllByRole('combobox')[1]);
-  // Select the action
-  fireEvent.click(getByText('New Issue'));
-    
+    // Select the action
+    fireEvent.click(getByText('New Issue'));
+
     expect(mockOnActionChange).toHaveBeenCalledWith(
       expect.objectContaining({
         id: '1',
-        name: 'New Issue'
+        name: 'New Issue',
       })
     );
   });
@@ -129,23 +136,27 @@ describe('ActionForm', () => {
       configSchema: {
         name: 'GitHub Issue Config',
         description: 'Configuration for GitHub issue creation',
-        fields: [{
-          name: 'repository',
-          type: 'string',
-          label: 'Repository',
-          required: true,
-          placeholder: 'user/repo',
-          options: [{ value: 'example/repo', label: 'Example Repo' }],
-          default: ''
-        }] as [{ 
-          name: string;
-          type: string;
-          label: string;
-          required: true;
-          placeholder: string;
-          options: [{ value: string; label: string; }];
-          default: string;
-        }]
+        fields: [
+          {
+            name: 'repository',
+            type: 'string',
+            label: 'Repository',
+            required: true,
+            placeholder: 'user/repo',
+            options: [{ value: 'example/repo', label: 'Example Repo' }],
+            default: '',
+          },
+        ] as [
+          {
+            name: string;
+            type: string;
+            label: string;
+            required: true;
+            placeholder: string;
+            options: [{ value: string; label: string }];
+            default: string;
+          },
+        ],
       },
       inputSchema: {
         type: {} as object,
@@ -159,7 +170,7 @@ describe('ActionForm', () => {
         color: '#000',
         requiresAuth: true,
         webhookPattern: 'pattern',
-      }
+      },
     };
 
     // Provide matching service/actions so component can preselect and render fields
@@ -186,32 +197,38 @@ describe('ActionForm', () => {
       },
     });
 
-    const { getByPlaceholderText, findByPlaceholderText } = render(
+    const { findByPlaceholderText } = render(
       <ActionForm
         {...defaultProps}
-        selectedAction={selectedAction as any}
+        selectedAction={selectedAction as Action | null}
       />
     );
 
     // Wait for the input to render
-    const input = (await findByPlaceholderText('user/repo')) as HTMLInputElement;
+    const input = (await findByPlaceholderText(
+      'user/repo'
+    )) as HTMLInputElement;
     fireEvent.change(input, { target: { value: 'test/repo' } });
 
     expect(mockOnConfigChange).toHaveBeenCalledWith({
-      repository: 'test/repo'
+      repository: 'test/repo',
     });
   });
 
   test('should handle no subscribed services', async () => {
     (api.get as jest.Mock).mockResolvedValueOnce({
-      data: { services: [] }
+      data: { services: [] },
     });
 
     const { getByText } = render(<ActionForm {...defaultProps} />);
-    
+
     await waitFor(() => {
-      expect(getByText('No subscribed services with actions found.')).toBeInTheDocument();
-      expect(getByText('Click here to subscribe to services.')).toBeInTheDocument();
+      expect(
+        getByText('No subscribed services with actions found.')
+      ).toBeInTheDocument();
+      expect(
+        getByText('Click here to subscribe to services.')
+      ).toBeInTheDocument();
     });
   });
 
@@ -234,23 +251,27 @@ describe('ActionForm', () => {
       configSchema: {
         name: 'GitHub Issue Config',
         description: 'Configuration for GitHub issue creation',
-        fields: [{
-          name: 'repository',
-          type: 'string',
-          label: 'Repository',
-          required: true,
-          placeholder: 'user/repo',
-          options: [{ value: 'example/repo', label: 'Example Repo' }],
-          default: ''
-        }] as [{ 
-          name: string;
-          type: string;
-          label: string;
-          required: true;
-          placeholder: string;
-          options: [{ value: string; label: string; }];
-          default: string;
-        }]
+        fields: [
+          {
+            name: 'repository',
+            type: 'string',
+            label: 'Repository',
+            required: true,
+            placeholder: 'user/repo',
+            options: [{ value: 'example/repo', label: 'Example Repo' }],
+            default: '',
+          },
+        ] as [
+          {
+            name: string;
+            type: string;
+            label: string;
+            required: true;
+            placeholder: string;
+            options: [{ value: string; label: string }];
+            default: string;
+          },
+        ],
       },
       inputSchema: {
         type: {} as object,
@@ -264,7 +285,7 @@ describe('ActionForm', () => {
         color: '#000',
         requiresAuth: true,
         webhookPattern: 'pattern',
-      }
+      },
     };
 
     // Provide matching services to render the field
@@ -291,15 +312,17 @@ describe('ActionForm', () => {
       },
     });
 
-    const { getByPlaceholderText, findByPlaceholderText } = render(
+    const { findByPlaceholderText } = render(
       <ActionForm
         {...defaultProps}
-        selectedAction={selectedAction as any}
+        selectedAction={selectedAction as Action | null}
       />
     );
 
-    const input = (await findByPlaceholderText('user/repo')) as HTMLInputElement;
-    
+    const input = (await findByPlaceholderText(
+      'user/repo'
+    )) as HTMLInputElement;
+
     // Change value and ensure callback is called with updated config
     fireEvent.change(input, { target: { value: 'x' } });
     fireEvent.blur(input);
@@ -310,7 +333,9 @@ describe('ActionForm', () => {
     fireEvent.change(input, { target: { value: 'user/repo' } });
     fireEvent.blur(input);
     await waitFor(() => {
-      expect(mockOnConfigChange).toHaveBeenCalledWith({ repository: 'user/repo' });
+      expect(mockOnConfigChange).toHaveBeenCalledWith({
+        repository: 'user/repo',
+      });
     });
   });
 });

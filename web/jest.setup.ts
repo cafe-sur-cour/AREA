@@ -11,10 +11,10 @@ if (typeof Response === 'undefined') {
         status: 200,
         json: async () => JSON.parse(body as string),
         text: async () => body as string,
-        ...init
+        ...init,
       } as Response;
     }
-  } as any;
+  } as unknown;
 }
 
 const localStorageMock = {
@@ -23,6 +23,6 @@ const localStorageMock = {
   removeItem: jest.fn(),
   clear: jest.fn(),
   length: 0,
-  key: jest.fn()
+  key: jest.fn(),
 } as Storage;
 global.localStorage = localStorageMock;

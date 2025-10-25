@@ -14,14 +14,12 @@ const config: Config = {
     '^@lib/(.*)$': '<rootDir>/lib/$1',
     '^@hooks/(.*)$': '<rootDir>/hooks/$1',
     '^@contexts/(.*)$': '<rootDir>/contexts/$1',
-    '^@types/(.*)$': '<rootDir>/types/$1'
+    '^@types/(.*)$': '<rootDir>/types/$1',
   },
   collectCoverage: true,
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov', 'clover'],
-  testMatch: [
-    '**/__tests__/**/*.test.[jt]s?(x)',
-  ],
+  testMatch: ['**/__tests__/**/*.test.[jt]s?(x)'],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   transform: {
     '^.+\\.(ts|tsx)$': 'ts-jest',

@@ -1,5 +1,10 @@
 import '@testing-library/jest-dom';
-import { getSocketUrl, getAPIUrl, getBackendUrl, getFrontendUrl } from '@/lib/config';
+import {
+  getSocketUrl,
+  getAPIUrl,
+  getBackendUrl,
+  getFrontendUrl,
+} from '@/lib/config';
 
 // Mock getEnv to control env values used by config helpers
 jest.mock('@/lib/load-env', () => ({

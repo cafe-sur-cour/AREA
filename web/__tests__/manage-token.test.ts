@@ -2,7 +2,7 @@ import { getToken } from '../lib/manageToken';
 import { cookies } from 'next/headers';
 
 jest.mock('next/headers', () => ({
-  cookies: jest.fn()
+  cookies: jest.fn(),
 }));
 
 describe('manageToken', () => {
@@ -12,7 +12,7 @@ describe('manageToken', () => {
 
   test('should get token from cookies', async () => {
     const mockCookieStore = {
-      get: jest.fn().mockReturnValue({ value: 'test-token' })
+      get: jest.fn().mockReturnValue({ value: 'test-token' }),
     };
     (cookies as jest.Mock).mockReturnValue(mockCookieStore);
 
@@ -23,7 +23,7 @@ describe('manageToken', () => {
 
   test('should return null when no token is found', async () => {
     const mockCookieStore = {
-      get: jest.fn().mockReturnValue(null)
+      get: jest.fn().mockReturnValue(null),
     };
     (cookies as jest.Mock).mockReturnValue(mockCookieStore);
 
@@ -36,7 +36,7 @@ describe('manageToken', () => {
     const mockCookieStore = {
       get: jest.fn().mockImplementation(() => {
         throw new Error('Cookie store error');
-      })
+      }),
     };
     (cookies as jest.Mock).mockReturnValue(mockCookieStore);
 
@@ -45,7 +45,7 @@ describe('manageToken', () => {
 
   test('should handle invalid token format', async () => {
     const mockCookieStore = {
-      get: jest.fn().mockReturnValue({ value: '' })
+      get: jest.fn().mockReturnValue({ value: '' }),
     };
     (cookies as jest.Mock).mockReturnValue(mockCookieStore);
 
@@ -61,7 +61,7 @@ describe('manageToken', () => {
 
   test('should handle malformed token value', async () => {
     const mockCookieStore = {
-      get: jest.fn().mockReturnValue({ value: null })
+      get: jest.fn().mockReturnValue({ value: null }),
     };
     (cookies as jest.Mock).mockReturnValue(mockCookieStore);
 

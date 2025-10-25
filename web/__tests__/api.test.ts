@@ -29,16 +29,16 @@ describe('API Library', () => {
   describe('authenticatedFetch', () => {
     test('should add auth headers when token is provided', async () => {
       mockFetch.mockResolvedValueOnce(new Response());
-      
+
       await authenticatedFetch('/test', {}, 'custom-token');
-      
+
       expect(mockFetch).toHaveBeenCalledWith(
         'http://api.test/test',
         expect.objectContaining({
           headers: expect.objectContaining({
-            'Authorization': 'Bearer custom-token',
-            'Content-Type': 'application/json'
-          })
+            Authorization: 'Bearer custom-token',
+            'Content-Type': 'application/json',
+          }),
         })
       );
     });
@@ -46,30 +46,30 @@ describe('API Library', () => {
     test('should use stored language in headers', async () => {
       localStorage.setItem('area-language', 'fr');
       mockFetch.mockResolvedValueOnce(new Response());
-      
+
       await authenticatedFetch('/test');
-      
+
       expect(mockFetch).toHaveBeenCalledWith(
         'http://api.test/test',
         expect.objectContaining({
           headers: expect.objectContaining({
-            'accept-language': 'fr'
-          })
+            'accept-language': 'fr',
+          }),
         })
       );
     });
 
     test('should default to en language when no stored language', async () => {
       mockFetch.mockResolvedValueOnce(new Response());
-      
+
       await authenticatedFetch('/test');
-      
+
       expect(mockFetch).toHaveBeenCalledWith(
         'http://api.test/test',
         expect.objectContaining({
           headers: expect.objectContaining({
-            'accept-language': 'en'
-          })
+            'accept-language': 'en',
+          }),
         })
       );
     });
@@ -78,10 +78,12 @@ describe('API Library', () => {
   describe('api methods', () => {
     test('get method should make GET request', async () => {
       const responseData = { test: 'data' };
-      mockFetch.mockResolvedValueOnce(new Response(JSON.stringify(responseData)));
-      
+      mockFetch.mockResolvedValueOnce(
+        new Response(JSON.stringify(responseData))
+      );
+
       const result = await api.get({ endpoint: '/test' });
-      
+
       expect(mockFetch).toHaveBeenCalledWith(
         'http://api.test/test',
         expect.objectContaining({ method: 'GET' })
@@ -92,15 +94,17 @@ describe('API Library', () => {
     test('post method should make POST request with data', async () => {
       const postData = { test: 'data' };
       const responseData = { success: true };
-      mockFetch.mockResolvedValueOnce(new Response(JSON.stringify(responseData)));
-      
+      mockFetch.mockResolvedValueOnce(
+        new Response(JSON.stringify(responseData))
+      );
+
       const result = await api.post('/test', postData);
-      
+
       expect(mockFetch).toHaveBeenCalledWith(
         'http://api.test/test',
         expect.objectContaining({
           method: 'POST',
-          body: JSON.stringify(postData)
+          body: JSON.stringify(postData),
         })
       );
       expect(result).toEqual({ data: responseData });
@@ -109,15 +113,17 @@ describe('API Library', () => {
     test('put method should make PUT request with data', async () => {
       const putData = { test: 'data' };
       const responseData = { success: true };
-      mockFetch.mockResolvedValueOnce(new Response(JSON.stringify(responseData)));
-      
+      mockFetch.mockResolvedValueOnce(
+        new Response(JSON.stringify(responseData))
+      );
+
       const result = await api.put('/test', putData);
-      
+
       expect(mockFetch).toHaveBeenCalledWith(
         'http://api.test/test',
         expect.objectContaining({
           method: 'PUT',
-          body: JSON.stringify(putData)
+          body: JSON.stringify(putData),
         })
       );
       expect(result).toEqual({ data: responseData });
@@ -125,10 +131,12 @@ describe('API Library', () => {
 
     test('delete method should make DELETE request', async () => {
       const responseData = { success: true };
-      mockFetch.mockResolvedValueOnce(new Response(JSON.stringify(responseData)));
-      
+      mockFetch.mockResolvedValueOnce(
+        new Response(JSON.stringify(responseData))
+      );
+
       const result = await api.delete('/test');
-      
+
       expect(mockFetch).toHaveBeenCalledWith(
         'http://api.test/test',
         expect.objectContaining({ method: 'DELETE' })
@@ -138,13 +146,15 @@ describe('API Library', () => {
 
     test('should handle network errors', async () => {
       mockFetch.mockRejectedValueOnce(new Error('Network error'));
-      
-      await expect(api.get({ endpoint: '/test' })).rejects.toThrow('Network error');
+
+      await expect(api.get({ endpoint: '/test' })).rejects.toThrow(
+        'Network error'
+      );
     });
 
     test('should handle non-JSON responses', async () => {
       mockFetch.mockResolvedValueOnce(new Response('Invalid JSON'));
-      
+
       await expect(api.get({ endpoint: '/test' })).rejects.toThrow();
     });
 
@@ -152,10 +162,12 @@ describe('API Library', () => {
 
     test('should handle deeply nested data', async () => {
       const responseData = { nested: { data: 'test' } };
-      mockFetch.mockResolvedValueOnce(new Response(JSON.stringify(responseData)));
-      
+      mockFetch.mockResolvedValueOnce(
+        new Response(JSON.stringify(responseData))
+      );
+
       const result = await api.get({ endpoint: '/test' });
-      
+
       expect(result).toEqual({ data: responseData });
     });
   });

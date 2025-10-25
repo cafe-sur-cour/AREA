@@ -10,7 +10,7 @@ import { api } from '@/lib/api';
 // Mock Lucide-React languages icon with class name support
 jest.mock('lucide-react', () => ({
   Languages: ({ className }: { className?: string }) => (
-    <div data-testid="languages-icon" className={className} />
+    <div data-testid='languages-icon' className={className} />
   ),
 }));
 
@@ -44,7 +44,7 @@ describe('LanguageSwitcher', () => {
 
   test('should fetch and display current language from API', async () => {
     (api.get as jest.Mock).mockResolvedValueOnce({
-      data: { language: 'fr' }
+      data: { language: 'fr' },
     });
 
     const { getByRole, findByText } = render(<LanguageSwitcher />);
@@ -55,7 +55,7 @@ describe('LanguageSwitcher', () => {
 
     const button = getByRole('button');
     expect(button).toBeInTheDocument();
-    
+
     const langText = await findByText('FR');
     expect(langText).toBeInTheDocument();
   });
@@ -75,7 +75,7 @@ describe('LanguageSwitcher', () => {
 
   test('should handle language switch', async () => {
     (api.get as jest.Mock).mockResolvedValueOnce({
-      data: { language: 'en' }
+      data: { language: 'en' },
     });
 
     (api.post as jest.Mock).mockResolvedValueOnce({});
@@ -83,7 +83,7 @@ describe('LanguageSwitcher', () => {
     const { getByRole } = render(<LanguageSwitcher />);
 
     const button = await waitFor(() => getByRole('button'));
-    
+
     await act(async () => {
       fireEvent.click(button);
     });
@@ -94,11 +94,13 @@ describe('LanguageSwitcher', () => {
 
   test('should render mobile version correctly', async () => {
     (api.get as jest.Mock).mockResolvedValueOnce({
-      data: { language: 'en' }
+      data: { language: 'en' },
     });
 
-    const { container, getByText } = render(<LanguageSwitcher isMobile={true} />);
-    
+    const { container, getByText } = render(
+      <LanguageSwitcher isMobile={true} />
+    );
+
     await waitFor(() => {
       expect(container.firstChild).toHaveClass('w-full');
       expect(getByText('EN')).toHaveClass('text-app-text-secondary');
@@ -109,9 +111,9 @@ describe('LanguageSwitcher', () => {
 
   test('should handle invalid language from API', async () => {
     (api.get as jest.Mock).mockResolvedValueOnce({
-      data: { language: 'invalid' }
+      data: { language: 'invalid' },
     });
-    
+
     const { getByRole } = render(<LanguageSwitcher />);
 
     // In this case, it should keep using the default 'en' value from useState
@@ -127,7 +129,7 @@ describe('LanguageSwitcher', () => {
 
   test('should handle API error during language switch', async () => {
     (api.get as jest.Mock).mockResolvedValueOnce({
-      data: { language: 'en' }
+      data: { language: 'en' },
     });
 
     (api.post as jest.Mock).mockRejectedValueOnce(new Error('API error'));
@@ -144,18 +146,18 @@ describe('LanguageSwitcher', () => {
 
   test('should handle loading state', async () => {
     (api.get as jest.Mock).mockResolvedValueOnce({
-      data: { language: 'en' }
+      data: { language: 'en' },
     });
 
     // Create a promise we can manually resolve later
-    let resolvePost: (value: any) => void;
-    const postPromise = new Promise((resolve) => {
+    let resolvePost: (value: unknown) => void;
+    const postPromise = new Promise(resolve => {
       resolvePost = resolve;
     });
     (api.post as jest.Mock).mockImplementationOnce(() => postPromise);
 
     const { getByRole, getByTestId } = render(<LanguageSwitcher />);
-    
+
     // Wait for initial render with English
     const button = await waitFor(() => getByRole('button'));
 
@@ -179,13 +181,13 @@ describe('LanguageSwitcher', () => {
 
   test('should show correct aria-label and title', async () => {
     (api.get as jest.Mock).mockResolvedValueOnce({
-      data: { language: 'en' }
+      data: { language: 'en' },
     });
 
     const { getByRole } = render(<LanguageSwitcher />);
-    
+
     const button = await waitFor(() => getByRole('button'));
-    
+
     expect(button).toHaveAttribute('aria-label', 'Switch to French');
     expect(button).toHaveAttribute('title', 'Switch to French');
   });
