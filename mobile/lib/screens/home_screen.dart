@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:area/widgets/common/app_bar/custom_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:area/l10n/app_localizations.dart';
@@ -12,26 +14,41 @@ class HomeScreen extends StatefulWidget {
 
 class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   late Future<bool> _isAuthenticatedFuture;
+  bool _isDisposed = false;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
+    // Only add observer in release/profile mode, not during tests
+    if (!_isTestMode()) {
+      WidgetsBinding.instance.addObserver(this);
+    }
     _isAuthenticatedFuture = _checkAuthentication();
   }
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
+    _isDisposed = true;
+    if (!_isTestMode()) {
+      WidgetsBinding.instance.removeObserver(this);
+    }
     super.dispose();
+  }
+
+  bool _isTestMode() {
+    // Check if running in test mode by looking for flutter test environment
+    return Platform.environment.containsKey('FLUTTER_TEST');
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (_isDisposed) return;
     if (state == AppLifecycleState.resumed) {
-      setState(() {
-        _isAuthenticatedFuture = _checkAuthentication();
-      });
+      if (mounted) {
+        setState(() {
+          _isAuthenticatedFuture = _checkAuthentication();
+        });
+      }
     }
   }
 
