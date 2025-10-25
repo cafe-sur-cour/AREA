@@ -181,7 +181,7 @@ jobs:
 
       - name: Run frontend tests
         working-directory: ./web
-        run: npm test:coverage
+        run: npm run test:coverage
 
   mobile-linter:
     name: Mobile frontend linter
