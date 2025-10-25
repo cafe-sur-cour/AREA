@@ -169,8 +169,9 @@ void main() {
       await tester.pumpWidget(createTestWidget());
       await tester.pumpAndSettle();
 
-      expect(find.byType(PrimaryButton), findsOneWidget);
-      expect(find.byIcon(Icons.api), findsOneWidget);
+      expect(find.byType(PrimaryButton), findsNWidgets(2)); // Dashboard and Services buttons
+      expect(find.byIcon(Icons.api), findsOneWidget); // Services button icon
+      expect(find.byIcon(Icons.dashboard), findsOneWidget); // Dashboard button icon
     });
 
     testWidgets('successfully logs out', (WidgetTester tester) async {
