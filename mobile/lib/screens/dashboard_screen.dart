@@ -82,7 +82,8 @@ class DashboardScreenState extends State<DashboardScreen> {
       }
 
       final mappingsData = jsonDecode(mappingsResponse.body) as Map<String, dynamic>;
-      final rawMappings = (mappingsData['mappings'] as List?)
+      final rawMappings =
+          (mappingsData['mappings'] as List?)
               ?.map((m) => AutomationModel.fromJson(m as Map<String, dynamic>))
               .toList() ??
           [];

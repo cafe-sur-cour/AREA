@@ -5,10 +5,7 @@ import 'package:flutter/material.dart';
 class DashboardAutomationCard extends StatelessWidget {
   final AutomationModel automation;
 
-  const DashboardAutomationCard({
-    super.key,
-    required this.automation,
-  });
+  const DashboardAutomationCard({super.key, required this.automation});
 
   @override
   Widget build(BuildContext context) {

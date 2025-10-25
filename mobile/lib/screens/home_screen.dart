@@ -194,12 +194,14 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     child: Column(
                       children: [
                         HomeStatCard(
-                            number: l10n.active_automations,
-                            label: l10n.active_automations_label),
+                          number: l10n.active_automations,
+                          label: l10n.active_automations_label,
+                        ),
                         const SizedBox(height: 24),
                         HomeStatCard(
-                            number: l10n.connected_services_count,
-                            label: l10n.connected_services_label),
+                          number: l10n.connected_services_count,
+                          label: l10n.connected_services_label,
+                        ),
                         const SizedBox(height: 24),
                         HomeStatCard(number: l10n.happy_users, label: l10n.happy_users_label),
                       ],
@@ -369,8 +371,9 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       final isAuthenticated = snapshot.data ?? false;
 
                       return ElevatedButton(
-                        onPressed:
-                            isAuthenticated ? _navigateToDashboard : _navigateToRegister,
+                        onPressed: isAuthenticated
+                            ? _navigateToDashboard
+                            : _navigateToRegister,
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                         ),

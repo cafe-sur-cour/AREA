@@ -385,8 +385,8 @@ class CatalogueScreenState extends State<CatalogueScreen> {
               _filter == 'actions'
                   ? Icons.play_arrow
                   : _filter == 'reactions'
-                      ? Icons.bolt
-                      : Icons.apps,
+                  ? Icons.bolt
+                  : Icons.apps,
               size: 64,
               color: Colors.grey,
             ),

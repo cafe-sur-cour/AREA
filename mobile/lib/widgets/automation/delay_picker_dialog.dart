@@ -114,8 +114,7 @@ class DelayPickerDialogState extends State<DelayPickerDialog> {
             child: Text(
               AppLocalizations.of(
                 context,
-              )!
-                  .set_delay_for(widget.reactionWithDelay.reaction.name),
+              )!.set_delay_for(widget.reactionWithDelay.reaction.name),
               style: const TextStyle(
                 fontFamily: 'Montserrat',
                 fontSize: 16,
