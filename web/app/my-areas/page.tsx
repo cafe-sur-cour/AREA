@@ -13,15 +13,15 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from '@/components/ui/drawer';
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import {
   Card,
   CardContent,
@@ -41,7 +41,7 @@ export default function MyAreasPage() {
   const { isAuthenticated, isLoading } = useAuth();
   const [loadingData, setLoadingData] = useState(true);
   const [data, setData] = useState<Mapping[]>([]);
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const searchParams = useSearchParams();
 
   const [selectedAction, setSelectedAction] = useState<Action | null>(null);
@@ -103,7 +103,7 @@ export default function MyAreasPage() {
           searchParams.get('id')!
         );
       }
-      setIsDrawerOpen(true);
+      setIsDialogOpen(true);
     }
   }, [searchParams]);
 
@@ -150,7 +150,7 @@ export default function MyAreasPage() {
         reaction: [],
         is_active: true,
       });
-      setIsDrawerOpen(false);
+      setIsDialogOpen(false);
       console.log('close');
       setSelectedAction(null);
       setSelectedReactions([]);
@@ -222,12 +222,11 @@ export default function MyAreasPage() {
             </p>
           </div>
 
-          <Drawer
-            open={isDrawerOpen}
-            onOpenChange={setIsDrawerOpen}
-            direction='right'
+          <Dialog
+            open={isDialogOpen}
+            onOpenChange={setIsDialogOpen}
           >
-            <DrawerTrigger asChild>
+            <DialogTrigger asChild>
               <Button
                 className='gap-2 cursor-pointer'
                 onClick={() => {
@@ -240,16 +239,16 @@ export default function MyAreasPage() {
                 <Plus className='w-4 h-4' />
                 New Area
               </Button>
-            </DrawerTrigger>
-            <DrawerContent className='h-screen w-full sm:w-[500px] fixed right-0 top-0'>
-              <DrawerHeader>
-                <DrawerTitle>Create New Area</DrawerTitle>
-                <DrawerDescription>
+            </DialogTrigger>
+            <DialogContent className='max-w-2xl max-h-[90vh] overflow-y-auto'>
+              <DialogHeader>
+                <DialogTitle>Create New Area</DialogTitle>
+                <DialogDescription>
                   Set up a new area workflow
-                </DrawerDescription>
-              </DrawerHeader>
+                </DialogDescription>
+              </DialogHeader>
 
-              <div className='p-4 space-y-4 overflow-y-auto flex-1'>
+              <div className='space-y-4'>
                 <div className='space-y-2'>
                   <Label htmlFor='name'>Name *</Label>
                   <Input
@@ -309,16 +308,10 @@ export default function MyAreasPage() {
                 </div>
               </div>
 
-              <DrawerFooter>
-                <Button
-                  className='cursor-pointer'
-                  onClick={handleCreateAutomation}
-                >
-                  Create Area
-                </Button>
-                <DrawerClose asChild>
+              <DialogFooter className='flex gap-2 mt-6'>
+                <DialogClose asChild>
                   <Button
-                    className=' cursor-pointer'
+                    className='cursor-pointer'
                     variant='outline'
                     onClick={() => {
                       router.replace('/my-areas');
@@ -326,10 +319,16 @@ export default function MyAreasPage() {
                   >
                     Cancel
                   </Button>
-                </DrawerClose>
-              </DrawerFooter>
-            </DrawerContent>
-          </Drawer>
+                </DialogClose>
+                <Button
+                  className='cursor-pointer'
+                  onClick={handleCreateAutomation}
+                >
+                  Create Area
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
 
         {loadingData ? (
