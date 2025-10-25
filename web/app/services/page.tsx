@@ -11,11 +11,13 @@ import { Badge } from '@/components/ui/badge';
 import { CheckCircle2 } from 'lucide-react';
 import { Service } from '@/types/service';
 import { useAuth } from '@/contexts/AuthContext';
+import { useI18n } from '@/contexts/I18nContext';
 import api from '@/lib/api';
 import { getAPIUrl } from '@/lib/config';
 import { TbLoader3 } from 'react-icons/tb';
 
 export default function ServicesPage() {
+  const { t } = useI18n();
   const router = useRouter();
   const { user, isLoading: authLoading } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
@@ -136,7 +138,7 @@ export default function ServicesPage() {
       <div className='min-h-screen flex items-center justify-center'>
         <div className='text-center'>
           <TbLoader3 className='size-12 animate-spin text-jeb-primary mb-4' />
-          <p className='mt-4 text-gray-600'>Loading...</p>
+          <p className='mt-4 text-gray-600'>{t.services.loading}</p>
         </div>
       </div>
     );
@@ -165,14 +167,14 @@ export default function ServicesPage() {
                   {service.isSubscribed ? (
                     <Badge className='bg-app-green-light text-app-green-primary border-app-green-primary'>
                       <CheckCircle2 className='w-3 h-3 mr-1' />
-                      Subscribed
+                      {t.services.subscribed}
                     </Badge>
                   ) : (
                     <Badge
                       variant='outline'
                       className='border-app-border-light text-app-text-secondary'
                     >
-                      Not Subscribed
+                      {t.services.notSubscribed}
                     </Badge>
                   )}
                 </div>
@@ -193,7 +195,7 @@ export default function ServicesPage() {
                     variant='outline'
                     className='w-full border-app-red-primary text-app-red-primary hover:bg-app-red-primary hover:text-blue-500 cursor-pointer'
                   >
-                    More details
+                    {t.services.moreDetails}
                   </Button>
                   {service.isSubscribed ? (
                     <Button
@@ -201,14 +203,14 @@ export default function ServicesPage() {
                       variant='outline'
                       className='w-full border-app-red-primary text-app-red-primary hover:bg-app-red-primary hover:text-red-700 cursor-pointer'
                     >
-                      Unsubscribe
+                      {t.services.unsubscribe}
                     </Button>
                   ) : (
                     <Button
                       onClick={() => handleConnect(service)}
                       className='w-full bg-area-primary hover:bg-area-hover text-white cursor-pointer'
                     >
-                      Subscribe
+                      {t.services.subscribe}
                     </Button>
                   )}
                 </div>

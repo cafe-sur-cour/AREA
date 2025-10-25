@@ -2,11 +2,13 @@
 
 import { RegisterForm } from '@/components/register-form';
 import { useAuth } from '@/contexts/AuthContext';
+import { useI18n } from '@/contexts/I18nContext';
 import { useRouter } from 'next/navigation';
 import { TbLoader3 } from 'react-icons/tb';
 
 export default function RegisterPage() {
   const { isAuthenticated, isLoading } = useAuth();
+  const { t } = useI18n();
   const router = useRouter();
 
   if (isLoading && isAuthenticated) {
@@ -17,7 +19,7 @@ export default function RegisterPage() {
   if (isLoading) {
     return (
       <div className='min-h-screen bg-background flex items-center justify-center p-4'>
-        Loading...
+        {t.auth.register.loading}
         <TbLoader3 className='animate-spin h-10 w-10 text-primary' />
       </div>
     );

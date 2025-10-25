@@ -4,9 +4,11 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { useEffect, useState, useCallback } from 'react';
 import { CheckCircle, XCircle, Loader2, Mail, ArrowRight } from 'lucide-react';
 import { api } from '@/lib/api';
+import { useI18n } from '@/contexts/I18nContext';
 
 export default function VerifyPage() {
   const router = useRouter();
+  const { t } = useI18n();
   const [verified, setVerified] = useState(false);
   const [loading, setLoading] = useState(true);
   const searchParams = useSearchParams();
@@ -49,16 +51,16 @@ export default function VerifyPage() {
           <div className='bg-card/50 backdrop-blur-sm border border-border rounded-2xl p-8 shadow-2xl'>
             <XCircle className='w-16 h-16 text-destructive mx-auto mb-4' />
             <h1 className='text-2xl font-bold text-foreground mb-2'>
-              Invalid Link
+              {t.verify.invalidLink.title}
             </h1>
             <p className='text-muted-foreground mb-6'>
-              This verification link is invalid or has expired.
+              {t.verify.invalidLink.description}
             </p>
             <button
               onClick={() => router.push('/login')}
               className='inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-3 rounded-lg font-medium transition-all duration-300 hover:scale-105 cursor-pointer'
             >
-              Go to Login <ArrowRight className='w-4 h-4' />
+              {t.verify.invalidLink.button} <ArrowRight className='w-4 h-4' />
             </button>
           </div>
         </div>
@@ -79,10 +81,10 @@ export default function VerifyPage() {
                 </div>
               </div>
               <h1 className='text-2xl font-bold text-foreground mb-2'>
-                Verifying Email
+                {t.verify.verifying.title}
               </h1>
               <p className='text-muted-foreground'>
-                Please wait while we verify your email address...
+                {t.verify.verifying.description}
               </p>
               <div className='flex justify-center mt-4'>
                 <div className='flex space-x-1'>
@@ -104,14 +106,13 @@ export default function VerifyPage() {
                 </div>
               </div>
               <h1 className='text-2xl font-bold text-foreground mb-2'>
-                Email Verified!
+                {t.verify.success.title}
               </h1>
               <p className='text-muted-foreground mb-6'>
-                Your email has been successfully verified! Redirecting to
-                login...
+                {t.verify.success.description}
               </p>
               <div className='flex items-center justify-center gap-2 text-chart-4'>
-                <span className='text-sm'>Redirecting</span>
+                <span className='text-sm'>{t.verify.success.redirecting}</span>
                 <div className='flex space-x-1'>
                   <div className='w-1 h-1 bg-chart-4 rounded-full animate-bounce [animation-delay:-0.3s]'></div>
                   <div className='w-1 h-1 bg-chart-4 rounded-full animate-bounce [animation-delay:-0.15s]'></div>
@@ -131,14 +132,14 @@ export default function VerifyPage() {
                 </div>
               </div>
               <h1 className='text-2xl font-bold text-foreground mb-2'>
-                Verification Failed
+                {t.verify.failed.title}
               </h1>
               <p className='text-muted-foreground mb-6'>
-                Verification failed or token is invalid. Redirecting to login...
+                {t.verify.failed.description}
               </p>
               <div className='space-y-4'>
                 <div className='flex items-center justify-center gap-2 text-destructive'>
-                  <span className='text-sm'>Redirecting</span>
+                  <span className='text-sm'>{t.verify.failed.redirecting}</span>
                   <div className='flex space-x-1'>
                     <div className='w-1 h-1 bg-destructive rounded-full animate-bounce [animation-delay:-0.3s]'></div>
                     <div className='w-1 h-1 bg-destructive rounded-full animate-bounce [animation-delay:-0.15s]'></div>
@@ -149,7 +150,7 @@ export default function VerifyPage() {
                   onClick={() => router.push('/login')}
                   className='inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-3 rounded-lg font-medium transition-all duration-300 hover:scale-105 cursor-pointer'
                 >
-                  Go to Login Now <ArrowRight className='w-4 h-4' />
+                  {t.verify.failed.button} <ArrowRight className='w-4 h-4' />
                 </button>
               </div>
             </div>
