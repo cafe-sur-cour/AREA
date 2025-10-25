@@ -9,7 +9,8 @@
     "lint": "eslint \"./**/*.{ts,tsx}\"",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "wcag": "achecker --ruleArchive WCAG_2_0 --outputFormat html --outputFolder ./result http://localhost:8081"
+    "wcag": "achecker --ruleArchive WCAG_2_0 --outputFormat html --outputFolder ./result http://localhost:8081",
+    "cypress:open": "cypress open"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.10",
@@ -43,6 +44,7 @@
     "@types/react-dom": "^19",
     "@typescript-eslint/eslint-plugin": "^8.44.1",
     "@typescript-eslint/parser": "^8.44.1",
+    "cypress": "^15.5.0",
     "eslint": "^9.36.0",
     "eslint-config-next": "15.5.3",
     "prettier": "^3.6.2",
