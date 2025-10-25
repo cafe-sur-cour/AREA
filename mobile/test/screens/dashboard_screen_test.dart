@@ -31,7 +31,9 @@ void main() {
       mockNavigatorObserver = MockNavigatorObserver();
       setSecureStorage(mockSecureStorage);
 
-      mocktail.when(() => mockSecureStorage.read(key: 'jwt')).thenAnswer((_) async => 'test-jwt-token');
+      mocktail
+          .when(() => mockSecureStorage.read(key: 'jwt'))
+          .thenAnswer((_) async => 'test-jwt-token');
     });
 
     tearDown(() {
@@ -50,7 +52,8 @@ void main() {
           initialRoute: '/dashboard',
           routes: {
             '/dashboard': (context) => const DashboardScreen(),
-            '/action-services': (context) => const Scaffold(body: Text('Action Services Screen')),
+            '/action-services': (context) =>
+                const Scaffold(body: Text('Action Services Screen')),
             '/': (context) => const Scaffold(body: Text('Home Screen')),
           },
         ),
@@ -64,12 +67,7 @@ void main() {
       SecureHttpClient.setClient(
         MockClient((request) async {
           await Future.delayed(const Duration(milliseconds: 100));
-          return http.Response(
-            jsonEncode({
-              'mappings': [],
-            }),
-            200,
-          );
+          return http.Response(jsonEncode({'mappings': []}), 200);
         }),
       );
 
@@ -85,7 +83,9 @@ void main() {
       expect(find.byType(LoadingState), findsNothing);
     });
 
-    testWidgets('displays dashboard correctly when backend address is null', (WidgetTester tester) async {
+    testWidgets('displays dashboard correctly when backend address is null', (
+      WidgetTester tester,
+    ) async {
       mocktail.when(() => mockBackendNotifier.backendAddress).thenReturn(null);
 
       await tester.pumpWidget(createTestWidget());
@@ -100,12 +100,7 @@ void main() {
 
       SecureHttpClient.setClient(
         MockClient((request) async {
-          return http.Response(
-            jsonEncode({
-              'mappings': [],
-            }),
-            200,
-          );
+          return http.Response(jsonEncode({'mappings': []}), 200);
         }),
       );
 
@@ -157,12 +152,7 @@ void main() {
 
       SecureHttpClient.setClient(
         MockClient((request) async {
-          return http.Response(
-            jsonEncode({
-              'mappings': testAutomations,
-            }),
-            200,
-          );
+          return http.Response(jsonEncode({'mappings': testAutomations}), 200);
         }),
       );
 
@@ -194,7 +184,9 @@ void main() {
           'description': 'First test automation',
           'is_active': true,
           'action': {'type': 'github.push'},
-          'reactions': [{'type': 'discord.message'}],
+          'reactions': [
+            {'type': 'discord.message'},
+          ],
           'created_at': '2024-01-01T00:00:00Z',
         },
         {
@@ -203,19 +195,16 @@ void main() {
           'description': 'Second test automation',
           'is_active': false,
           'action': {'type': 'timer.schedule'},
-          'reactions': [{'type': 'slack.message'}],
+          'reactions': [
+            {'type': 'slack.message'},
+          ],
           'created_at': '2024-01-02T00:00:00Z',
         },
       ];
 
       SecureHttpClient.setClient(
         MockClient((request) async {
-          return http.Response(
-            jsonEncode({
-              'mappings': testAutomations,
-            }),
-            200,
-          );
+          return http.Response(jsonEncode({'mappings': testAutomations}), 200);
         }),
       );
 
@@ -234,12 +223,7 @@ void main() {
 
       SecureHttpClient.setClient(
         MockClient((request) async {
-          return http.Response(
-            jsonEncode({
-              'mappings': [],
-            }),
-            200,
-          );
+          return http.Response(jsonEncode({'mappings': []}), 200);
         }),
       );
 
@@ -260,17 +244,14 @@ void main() {
       expect(find.text('Manage your profile'), findsOneWidget);
     });
 
-    testWidgets('navigates to action services when Connect Services is tapped', (WidgetTester tester) async {
+    testWidgets('navigates to action services when Connect Services is tapped', (
+      WidgetTester tester,
+    ) async {
       mocktail.when(() => mockBackendNotifier.backendAddress).thenReturn('http://test.com/');
 
       SecureHttpClient.setClient(
         MockClient((request) async {
-          return http.Response(
-            jsonEncode({
-              'mappings': [],
-            }),
-            200,
-          );
+          return http.Response(jsonEncode({'mappings': []}), 200);
         }),
       );
 
@@ -285,17 +266,14 @@ void main() {
       expect(find.text('Action Services Screen'), findsOneWidget);
     });
 
-    testWidgets('navigates to home when Account Settings is tapped', (WidgetTester tester) async {
+    testWidgets('navigates to home when Account Settings is tapped', (
+      WidgetTester tester,
+    ) async {
       mocktail.when(() => mockBackendNotifier.backendAddress).thenReturn('http://test.com/');
 
       SecureHttpClient.setClient(
         MockClient((request) async {
-          return http.Response(
-            jsonEncode({
-              'mappings': [],
-            }),
-            200,
-          );
+          return http.Response(jsonEncode({'mappings': []}), 200);
         }),
       );
 
@@ -327,7 +305,9 @@ void main() {
       expect(find.text('Manage your Areas and monitor their performance'), findsOneWidget);
     });
 
-    testWidgets('displays automation cards with correct information', (WidgetTester tester) async {
+    testWidgets('displays automation cards with correct information', (
+      WidgetTester tester,
+    ) async {
       mocktail.when(() => mockBackendNotifier.backendAddress).thenReturn('http://test.com/');
 
       final testAutomations = [
@@ -346,12 +326,7 @@ void main() {
 
       SecureHttpClient.setClient(
         MockClient((request) async {
-          return http.Response(
-            jsonEncode({
-              'mappings': testAutomations,
-            }),
-            200,
-          );
+          return http.Response(jsonEncode({'mappings': testAutomations}), 200);
         }),
       );
 
@@ -369,18 +344,14 @@ void main() {
       expect(find.textContaining('discord.message'), findsOneWidget);
     });
 
-
-    testWidgets('displays automation creation prompt when no automations exist', (WidgetTester tester) async {
+    testWidgets('displays automation creation prompt when no automations exist', (
+      WidgetTester tester,
+    ) async {
       mocktail.when(() => mockBackendNotifier.backendAddress).thenReturn('http://test.com/');
 
       SecureHttpClient.setClient(
         MockClient((request) async {
-          return http.Response(
-            jsonEncode({
-              'mappings': [],
-            }),
-            200,
-          );
+          return http.Response(jsonEncode({'mappings': []}), 200);
         }),
       );
 
