@@ -102,25 +102,32 @@ void main() {
       await tester.pumpWidget(createTestableWidget(const MainNavigation()));
       await tester.pump();
 
-      expect(find.byIcon(Icons.home), findsOneWidget); // Selected icon since default is index 0
+      expect(
+        find.byIcon(Icons.home),
+        findsOneWidget,
+      ); // Selected icon since default is index 0
       expect(find.byIcon(Icons.apps), findsOneWidget);
       expect(find.byIcon(Icons.add_circle_outline), findsOneWidget);
       expect(find.byIcon(Icons.repeat), findsOneWidget);
       expect(find.byIcon(Icons.person_outline), findsOneWidget);
     });
 
-    testWidgets('should start with Add Automation screen (index 2) as default when no automation state', (
-      WidgetTester tester,
-    ) async {
-      await tester.pumpWidget(createTestableWidget(const MainNavigation()));
-      await tester.pump();
+    testWidgets(
+      'should start with Add Automation screen (index 2) as default when no automation state',
+      (WidgetTester tester) async {
+        await tester.pumpWidget(createTestableWidget(const MainNavigation()));
+        await tester.pump();
 
-      final bottomNavBar = find.byType(BottomNavigationBar);
-      final BottomNavigationBar navBar = tester.widget(bottomNavBar);
-      expect(navBar.currentIndex, 0); // Should be 0 since AutomationBuilderNotifier has no action/reactions
+        final bottomNavBar = find.byType(BottomNavigationBar);
+        final BottomNavigationBar navBar = tester.widget(bottomNavBar);
+        expect(
+          navBar.currentIndex,
+          0,
+        ); // Should be 0 since AutomationBuilderNotifier has no action/reactions
 
-      expect(find.byType(HomeScreen), findsOneWidget);
-    });
+        expect(find.byType(HomeScreen), findsOneWidget);
+      },
+    );
 
     testWidgets('should navigate to Catalogue screen when Catalogue tab is tapped', (
       WidgetTester tester,

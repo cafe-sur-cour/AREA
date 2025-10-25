@@ -86,8 +86,10 @@ class DashboardScreenState extends State<DashboardScreen> {
     });
 
     try {
-      final backendAddressNotifier =
-          Provider.of<BackendAddressNotifier>(context, listen: false);
+      final backendAddressNotifier = Provider.of<BackendAddressNotifier>(
+        context,
+        listen: false,
+      );
       final baseUrl = backendAddressNotifier.backendAddress;
 
       if (baseUrl == null) {
@@ -118,28 +120,25 @@ class DashboardScreenState extends State<DashboardScreen> {
       final client = SecureHttpClient.getClient();
 
       final mappingsUrl = Uri.parse('$baseUrl${AppRoutes.getAutomations}');
-      final mappingsResponse =
-          await client.get(mappingsUrl, headers: headers);
+      final mappingsResponse = await client.get(mappingsUrl, headers: headers);
 
       if (mappingsResponse.statusCode != 200) {
         throw 'Failed to fetch mappings: ${mappingsResponse.statusCode}';
       }
 
-      final mappingsData =
-          jsonDecode(mappingsResponse.body) as Map<String, dynamic>;
-      final rawMappings = (mappingsData['mappings'] as List?)
+      final mappingsData = jsonDecode(mappingsResponse.body) as Map<String, dynamic>;
+      final rawMappings =
+          (mappingsData['mappings'] as List?)
               ?.map((m) => Mapping.fromJson(m as Map<String, dynamic>))
               .toList() ??
           [];
 
       final servicesUrl = Uri.parse('$baseUrl${AppRoutes.servicesSubscribed}');
-      final servicesResponse =
-          await client.get(servicesUrl, headers: headers);
+      final servicesResponse = await client.get(servicesUrl, headers: headers);
 
       int totalServices = 0;
       if (servicesResponse.statusCode == 200) {
-        final servicesData =
-            jsonDecode(servicesResponse.body) as Map<String, dynamic>;
+        final servicesData = jsonDecode(servicesResponse.body) as Map<String, dynamic>;
         final services = (servicesData['services'] as List?) ?? [];
         totalServices = services.length;
       }
@@ -148,10 +147,8 @@ class DashboardScreenState extends State<DashboardScreen> {
         _automations = rawMappings;
         _stats = DashboardStats(
           totalAutomations: rawMappings.length,
-          activeAutomations:
-              rawMappings.where((a) => a.isActive).length,
-          inactiveAutomations:
-              rawMappings.where((a) => !a.isActive).length,
+          activeAutomations: rawMappings.where((a) => a.isActive).length,
+          inactiveAutomations: rawMappings.where((a) => !a.isActive).length,
           totalServices: totalServices,
         );
         _isLoading = false;
@@ -165,7 +162,6 @@ class DashboardScreenState extends State<DashboardScreen> {
       });
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -200,24 +196,17 @@ class DashboardScreenState extends State<DashboardScreen> {
                   const SizedBox(height: 4),
                   Text(
                     'Manage your Areas and monitor their performance',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: Colors.black,
-                    ),
+                    style: theme.textTheme.bodySmall?.copyWith(color: Colors.black),
                   ),
                 ],
               ),
               const SizedBox(height: 24),
 
-              if (_stats != null) ...[
-                _buildStatsGrid(theme),
-                const SizedBox(height: 24),
-              ],
+              if (_stats != null) ...[_buildStatsGrid(theme), const SizedBox(height: 24)],
 
               Text(
                 'Quick actions',
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 12),
               Column(
@@ -235,8 +224,7 @@ class DashboardScreenState extends State<DashboardScreen> {
                     icon: Icons.bolt,
                     title: 'Browse Templates',
                     subtitle: 'Pre-made Areas',
-                    onPressed: () {
-                    },
+                    onPressed: () {},
                   ),
                   const SizedBox(height: 8),
                   _QuickActionButton(
@@ -253,9 +241,7 @@ class DashboardScreenState extends State<DashboardScreen> {
 
               Text(
                 'Your Areas',
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 12),
               if (_automations.isEmpty)
@@ -263,8 +249,7 @@ class DashboardScreenState extends State<DashboardScreen> {
               else
                 Column(
                   children: _automations
-                      .map((automation) =>
-                          _AutomationCard(automation: automation))
+                      .map((automation) => _AutomationCard(automation: automation))
                       .toList(),
                 ),
             ],
@@ -330,24 +315,16 @@ class DashboardScreenState extends State<DashboardScreen> {
         padding: const EdgeInsets.symmetric(vertical: 48.0),
         child: Column(
           children: [
-            Icon(
-              Icons.bolt_outlined,
-              size: 48,
-              color: Colors.black,
-            ),
+            Icon(Icons.bolt_outlined, size: 48, color: Colors.black),
             const SizedBox(height: 16),
             Text(
               'No Area yet',
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text(
               'Create your first Area to get started',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: Colors.black,
-              ),
+              style: theme.textTheme.bodySmall?.copyWith(color: Colors.black),
             ),
           ],
         ),
@@ -381,21 +358,14 @@ class _StatCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  label,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: Colors.black,
-                  ),
-                ),
+                Text(label, style: theme.textTheme.bodySmall?.copyWith(color: Colors.black)),
                 Icon(icon, color: color, size: 20),
               ],
             ),
             const SizedBox(height: 8),
             Text(
               value,
-              style: theme.textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
             ),
           ],
         ),
@@ -424,9 +394,7 @@ class _QuickActionButton extends StatelessWidget {
       onPressed: onPressed,
       style: OutlinedButton.styleFrom(
         padding: const EdgeInsets.all(16),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
       child: Row(
         children: [
@@ -438,15 +406,11 @@ class _QuickActionButton extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
                 ),
                 Text(
                   subtitle,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: Colors.black,
-                  ),
+                  style: theme.textTheme.bodySmall?.copyWith(color: Colors.black),
                 ),
               ],
             ),
@@ -495,9 +459,7 @@ class _AutomationCard extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         automation.description,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: Colors.black,
-                        ),
+                        style: theme.textTheme.bodySmall?.copyWith(color: Colors.black),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -505,21 +467,18 @@ class _AutomationCard extends StatelessWidget {
                   ),
                 ),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-          color: automation.isActive
-            ? Colors.green.withAlpha(51)
-            : Colors.red.withAlpha(51),
+                    color: automation.isActive
+                        ? Colors.green.withAlpha(51)
+                        : Colors.red.withAlpha(51),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
                     automation.isActive ? 'Active' : 'Inactive',
                     style: theme.textTheme.bodySmall?.copyWith(
                       fontWeight: FontWeight.w600,
-                      color: automation.isActive
-                          ? Colors.green
-                          : Colors.red,
+                      color: automation.isActive ? Colors.green : Colors.red,
                     ),
                   ),
                 ),
@@ -528,9 +487,7 @@ class _AutomationCard extends StatelessWidget {
             const SizedBox(height: 12),
             Text(
               'Trigger: ${automation.trigger} ${automation.actions.isNotEmpty ? '→ ${automation.actions.join(', ')}' : ''}',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: Colors.black,
-              ),
+              style: theme.textTheme.bodySmall?.copyWith(color: Colors.black),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),

@@ -105,9 +105,7 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                   Text(
                     'Connect your favorite apps and services to create powerful automations. Save time and focus on what matters most.',
                     textAlign: TextAlign.center,
-                    style: theme.textTheme.bodyLarge?.copyWith(
-                      fontSize: 16,
-                    ),
+                    style: theme.textTheme.bodyLarge?.copyWith(fontSize: 16),
                   ),
                   const SizedBox(height: 30),
                   FutureBuilder<bool>(
@@ -135,9 +133,7 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                 children: [
                                   Text(
                                     'Get started free',
-                                    style: theme.textTheme.labelLarge?.copyWith(
-                                      fontSize: 16,
-                                    ),
+                                    style: theme.textTheme.labelLarge?.copyWith(fontSize: 16),
                                   ),
                                   const SizedBox(width: 8),
                                   const Icon(Icons.arrow_forward, size: 20),
@@ -155,9 +151,7 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                               ),
                               child: Text(
                                 'Sign in',
-                                style: theme.textTheme.labelLarge?.copyWith(
-                                  fontSize: 16,
-                                ),
+                                style: theme.textTheme.labelLarge?.copyWith(fontSize: 16),
                               ),
                             ),
                           ] else
@@ -174,9 +168,7 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                 children: [
                                   Text(
                                     'Go to Dashboard',
-                                    style: theme.textTheme.labelLarge?.copyWith(
-                                      fontSize: 16,
-                                    ),
+                                    style: theme.textTheme.labelLarge?.copyWith(fontSize: 16),
                                   ),
                                   const SizedBox(width: 8),
                                   const Icon(Icons.arrow_forward, size: 20),
@@ -199,20 +191,11 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
                     child: Column(
                       children: [
-                        _StatCard(
-                          number: '10M+',
-                          label: 'Active automations',
-                        ),
+                        _StatCard(number: '10M+', label: 'Active automations'),
                         const SizedBox(height: 24),
-                        _StatCard(
-                          number: '500+',
-                          label: 'Connected services',
-                        ),
+                        _StatCard(number: '500+', label: 'Connected services'),
                         const SizedBox(height: 24),
-                        _StatCard(
-                          number: '2M+',
-                          label: 'Happy users',
-                        ),
+                        _StatCard(number: '2M+', label: 'Happy users'),
                       ],
                     ),
                   ),
@@ -244,22 +227,19 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       _StepCard(
                         step: 1,
                         title: 'Choose a trigger',
-                        description:
-                            'Select an app and event that starts your automation',
+                        description: 'Select an app and event that starts your automation',
                       ),
                       const SizedBox(height: 16),
                       _StepCard(
                         step: 2,
                         title: 'Add an action',
-                        description:
-                            'Choose what happens when your trigger fires',
+                        description: 'Choose what happens when your trigger fires',
                       ),
                       const SizedBox(height: 16),
                       _StepCard(
                         step: 3,
                         title: 'Activate & relax',
-                        description:
-                            'Your automation runs automatically in the background',
+                        description: 'Your automation runs automatically in the background',
                       ),
                     ],
                   ),
@@ -291,8 +271,7 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       _AutomationCard(
                         icon: '📧',
                         title: 'Email to Slack',
-                        description:
-                            'Get notified in Slack when you receive important emails',
+                        description: 'Get notified in Slack when you receive important emails',
                       ),
                       const SizedBox(height: 12),
                       _AutomationCard(
@@ -310,8 +289,7 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       _AutomationCard(
                         icon: '💾',
                         title: 'File Backup',
-                        description:
-                            'Automatically backup files to cloud storage',
+                        description: 'Automatically backup files to cloud storage',
                       ),
                       const SizedBox(height: 12),
                       _AutomationCard(
@@ -388,21 +366,18 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       final isAuthenticated = snapshot.data ?? false;
 
                       return ElevatedButton(
-                        onPressed: isAuthenticated ? _navigateToDashboard : _navigateToRegister,
+                        onPressed: isAuthenticated
+                            ? _navigateToDashboard
+                            : _navigateToRegister,
                         style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 32,
-                            vertical: 16,
-                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
                               isAuthenticated ? 'Go to My AREAs' : 'Start for free',
-                              style: theme.textTheme.labelLarge?.copyWith(
-                                fontSize: 16,
-                              ),
+                              style: theme.textTheme.labelLarge?.copyWith(fontSize: 16),
                             ),
                             const SizedBox(width: 8),
                             const Icon(Icons.arrow_forward, size: 20),
@@ -435,10 +410,7 @@ class _StatCard extends StatelessWidget {
   final String number;
   final String label;
 
-  const _StatCard({
-    required this.number,
-    required this.label,
-  });
+  const _StatCard({required this.number, required this.label});
 
   @override
   Widget build(BuildContext context) {
@@ -454,10 +426,7 @@ class _StatCard extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 8),
-        Text(
-          label,
-          style: theme.textTheme.bodyMedium,
-        ),
+        Text(label, style: theme.textTheme.bodyMedium),
       ],
     );
   }
@@ -468,11 +437,7 @@ class _StepCard extends StatelessWidget {
   final String title;
   final String description;
 
-  const _StepCard({
-    required this.step,
-    required this.title,
-    required this.description,
-  });
+  const _StepCard({required this.step, required this.title, required this.description});
 
   @override
   Widget build(BuildContext context) {
@@ -485,10 +450,7 @@ class _StepCard extends StatelessWidget {
             Container(
               width: 56,
               height: 56,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: theme.primaryColor,
-              ),
+              decoration: BoxDecoration(shape: BoxShape.circle, color: theme.primaryColor),
               child: Center(
                 child: Text(
                   '$step',
@@ -503,16 +465,10 @@ class _StepCard extends StatelessWidget {
             Text(
               title,
               textAlign: TextAlign.center,
-              style: theme.textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+              style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 12),
-            Text(
-              description,
-              textAlign: TextAlign.center,
-              style: theme.textTheme.bodyMedium,
-            ),
+            Text(description, textAlign: TextAlign.center, style: theme.textTheme.bodyMedium),
           ],
         ),
       ),
@@ -525,11 +481,7 @@ class _AutomationCard extends StatelessWidget {
   final String title;
   final String description;
 
-  const _AutomationCard({
-    required this.icon,
-    required this.title,
-    required this.description,
-  });
+  const _AutomationCard({required this.icon, required this.title, required this.description});
 
   @override
   Widget build(BuildContext context) {
@@ -540,22 +492,14 @@ class _AutomationCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              icon,
-              style: const TextStyle(fontSize: 36),
-            ),
+            Text(icon, style: const TextStyle(fontSize: 36)),
             const SizedBox(height: 16),
             Text(
               title,
-              style: theme.textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+              style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),
-            Text(
-              description,
-              style: theme.textTheme.bodySmall,
-            ),
+            Text(description, style: theme.textTheme.bodySmall),
           ],
         ),
       ),
@@ -568,11 +512,7 @@ class _FeatureItem extends StatelessWidget {
   final String title;
   final String description;
 
-  const _FeatureItem({
-    required this.icon,
-    required this.title,
-    required this.description,
-  });
+  const _FeatureItem({required this.icon, required this.title, required this.description});
 
   @override
   Widget build(BuildContext context) {
@@ -587,24 +527,12 @@ class _FeatureItem extends StatelessWidget {
             borderRadius: BorderRadius.circular(8),
             color: theme.primaryColor.withAlpha(26),
           ),
-          child: Icon(
-            icon,
-            color: theme.primaryColor,
-            size: 24,
-          ),
+          child: Icon(icon, color: theme.primaryColor, size: 24),
         ),
         const SizedBox(height: 16),
-        Text(
-          title,
-          style: theme.textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
-        ),
+        Text(title, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600)),
         const SizedBox(height: 8),
-        Text(
-          description,
-          style: theme.textTheme.bodyMedium,
-        ),
+        Text(description, style: theme.textTheme.bodyMedium),
       ],
     );
   }
