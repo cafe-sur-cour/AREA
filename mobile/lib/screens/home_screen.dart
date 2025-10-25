@@ -1,6 +1,10 @@
 import 'dart:io';
 
 import 'package:area/widgets/common/app_bar/custom_app_bar.dart';
+import 'package:area/widgets/home/home_automation_card.dart';
+import 'package:area/widgets/home/home_feature_item.dart';
+import 'package:area/widgets/home/home_stat_card.dart';
+import 'package:area/widgets/home/home_step_card.dart';
 import 'package:flutter/material.dart';
 import 'package:area/l10n/app_localizations.dart';
 import 'package:area/services/secure_storage.dart';
@@ -189,11 +193,11 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
                     child: Column(
                       children: [
-                        _StatCard(number: l10n.active_automations, label: l10n.active_automations_label),
+                        HomeStatCard(number: l10n.active_automations, label: l10n.active_automations_label),
                         const SizedBox(height: 24),
-                        _StatCard(number: l10n.connected_services_count, label: l10n.connected_services_label),
+                        HomeStatCard(number: l10n.connected_services_count, label: l10n.connected_services_label),
                         const SizedBox(height: 24),
-                        _StatCard(number: l10n.happy_users, label: l10n.happy_users_label),
+                        HomeStatCard(number: l10n.happy_users, label: l10n.happy_users_label),
                       ],
                     ),
                   ),
@@ -222,19 +226,19 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                   const SizedBox(height: 32),
                   Column(
                     children: [
-                      _StepCard(
+                      HomeStepCard(
                         step: 1,
                         title: l10n.choose_a_trigger,
                         description: l10n.select_app_event,
                       ),
                       const SizedBox(height: 16),
-                      _StepCard(
+                      HomeStepCard(
                         step: 2,
                         title: l10n.add_an_action,
                         description: l10n.choose_what_happens,
                       ),
                       const SizedBox(height: 16),
-                      _StepCard(
+                      HomeStepCard(
                         step: 3,
                         title: l10n.activate_relax,
                         description: l10n.automation_runs_automatically,
@@ -266,37 +270,37 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                   const SizedBox(height: 32),
                   Column(
                     children: [
-                      _AutomationCard(
+                      HomeAutomationCard(
                         icon: '📧',
                         title: l10n.email_to_slack,
                         description: l10n.slack_email_notifications,
                       ),
                       const SizedBox(height: 12),
-                      _AutomationCard(
+                      HomeAutomationCard(
                         icon: '📱',
                         title: l10n.social_media_sync,
                         description: l10n.post_multiple_networks,
                       ),
                       const SizedBox(height: 12),
-                      _AutomationCard(
+                      HomeAutomationCard(
                         icon: '📅',
                         title: l10n.calendar_reminders,
                         description: l10n.sms_calendar_reminders,
                       ),
                       const SizedBox(height: 12),
-                      _AutomationCard(
+                      HomeAutomationCard(
                         icon: '💾',
                         title: l10n.file_backup,
                         description: l10n.automatic_cloud_backup,
                       ),
                       const SizedBox(height: 12),
-                      _AutomationCard(
+                      HomeAutomationCard(
                         icon: '✅',
                         title: l10n.task_management,
                         description: l10n.create_tasks_from_emails,
                       ),
                       const SizedBox(height: 12),
-                      _AutomationCard(
+                      HomeAutomationCard(
                         icon: '📊',
                         title: l10n.data_collection,
                         description: l10n.save_forms_to_spreadsheets,
@@ -311,19 +315,19 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 40.0),
               child: Column(
                 children: [
-                  _FeatureItem(
+                  HomeFeatureItem(
                     icon: Icons.flash_on,
                     title: l10n.lightning_fast,
                     description: l10n.automations_run_instantly,
                   ),
                   const SizedBox(height: 24),
-                  _FeatureItem(
+                  HomeFeatureItem(
                     icon: Icons.schedule,
                     title: l10n.save_time,
                     description: l10n.automate_repetitive_tasks,
                   ),
                   const SizedBox(height: 24),
-                  _FeatureItem(
+                  HomeFeatureItem(
                     icon: Icons.shield,
                     title: l10n.secure_reliable,
                     description: l10n.enterprise_grade_security,
@@ -397,138 +401,6 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           ],
         ),
       ),
-    );
-  }
-}
-
-class _StatCard extends StatelessWidget {
-  final String number;
-  final String label;
-
-  const _StatCard({required this.number, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          number,
-          style: theme.textTheme.headlineMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-            fontSize: 36,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(label, style: theme.textTheme.bodyMedium),
-      ],
-    );
-  }
-}
-
-class _StepCard extends StatelessWidget {
-  final int step;
-  final String title;
-  final String description;
-
-  const _StepCard({required this.step, required this.title, required this.description});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          children: [
-            Container(
-              width: 56,
-              height: 56,
-              decoration: BoxDecoration(shape: BoxShape.circle, color: theme.primaryColor),
-              child: Center(
-                child: Text(
-                  '$step',
-                  style: theme.textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 12),
-            Text(description, textAlign: TextAlign.center, style: theme.textTheme.bodyMedium),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _AutomationCard extends StatelessWidget {
-  final String icon;
-  final String title;
-  final String description;
-
-  const _AutomationCard({required this.icon, required this.title, required this.description});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(icon, style: const TextStyle(fontSize: 36)),
-            const SizedBox(height: 16),
-            Text(
-              title,
-              style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 8),
-            Text(description, style: theme.textTheme.bodySmall),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _FeatureItem extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String description;
-
-  const _FeatureItem({required this.icon, required this.title, required this.description});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: 48,
-          height: 48,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8),
-            color: theme.primaryColor.withAlpha(26),
-          ),
-          child: Icon(icon, color: theme.primaryColor, size: 24),
-        ),
-        const SizedBox(height: 16),
-        Text(title, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600)),
-        const SizedBox(height: 8),
-        Text(description, style: theme.textTheme.bodyMedium),
-      ],
     );
   }
 }

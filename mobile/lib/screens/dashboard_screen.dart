@@ -9,6 +9,9 @@ import 'package:area/services/secure_storage.dart';
 import 'package:area/widgets/common/app_bar/custom_app_bar.dart';
 import 'package:area/widgets/common/snackbars/app_snackbar.dart';
 import 'package:area/widgets/common/state/loading_state.dart';
+import 'package:area/widgets/dashboard/dashboard_automation_card.dart';
+import 'package:area/widgets/dashboard/dashboard_quick_action_button.dart';
+import 'package:area/widgets/dashboard/dashboard_stat_card.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -163,7 +166,7 @@ class DashboardScreenState extends State<DashboardScreen> {
               const SizedBox(height: 12),
               Column(
                 children: [
-                  _QuickActionButton(
+                  DashboardQuickActionButton(
                     icon: Icons.people,
                     title: l10n.connect_services,
                     subtitle: l10n.link_new_platforms,
@@ -172,14 +175,14 @@ class DashboardScreenState extends State<DashboardScreen> {
                     },
                   ),
                   const SizedBox(height: 8),
-                  _QuickActionButton(
+                  DashboardQuickActionButton(
                     icon: Icons.bolt,
                     title: l10n.browse_templates,
                     subtitle: l10n.pre_made_areas,
                     onPressed: () {},
                   ),
                   const SizedBox(height: 8),
-                  _QuickActionButton(
+                  DashboardQuickActionButton(
                     icon: Icons.settings,
                     title: l10n.account_settings,
                     subtitle: l10n.manage_your_profile,
@@ -201,7 +204,7 @@ class DashboardScreenState extends State<DashboardScreen> {
               else
                 Column(
                   children: _automations
-                      .map((automation) => _AutomationCard(automation: automation))
+                      .map((automation) => DashboardAutomationCard(automation: automation))
                       .toList(),
                 ),
             ],
@@ -217,7 +220,7 @@ class DashboardScreenState extends State<DashboardScreen> {
         Row(
           children: [
             Expanded(
-              child: _StatCard(
+              child: DashboardStatCard(
                 label: l10n.total_areas,
                 value: _stats!.totalAutomations.toString(),
                 icon: Icons.bolt,
@@ -226,7 +229,7 @@ class DashboardScreenState extends State<DashboardScreen> {
             ),
             const SizedBox(width: 12),
             Expanded(
-              child: _StatCard(
+              child: DashboardStatCard(
                 label: l10n.connected_services,
                 value: _stats!.totalServices.toString(),
                 icon: Icons.cloud_circle,
@@ -239,7 +242,7 @@ class DashboardScreenState extends State<DashboardScreen> {
         Row(
           children: [
             Expanded(
-              child: _StatCard(
+              child: DashboardStatCard(
                 label: l10n.active,
                 value: _stats!.activeAutomations.toString(),
                 icon: Icons.power_settings_new,
@@ -248,7 +251,7 @@ class DashboardScreenState extends State<DashboardScreen> {
             ),
             const SizedBox(width: 12),
             Expanded(
-              child: _StatCard(
+              child: DashboardStatCard(
                 label: l10n.inactive,
                 value: _stats!.inactiveAutomations.toString(),
                 icon: Icons.power_settings_new,
@@ -277,171 +280,6 @@ class DashboardScreenState extends State<DashboardScreen> {
             Text(
               l10n.create_first_area,
               style: theme.textTheme.bodySmall?.copyWith(color: Colors.black),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _StatCard extends StatelessWidget {
-  final String label;
-  final String value;
-  final IconData icon;
-  final Color color;
-
-  const _StatCard({
-    required this.label,
-    required this.value,
-    required this.icon,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(label, style: theme.textTheme.bodySmall?.copyWith(color: Colors.black)),
-                Icon(icon, color: color, size: 20),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              value,
-              style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _QuickActionButton extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final VoidCallback onPressed;
-
-  const _QuickActionButton({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.onPressed,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return OutlinedButton(
-      onPressed: onPressed,
-      style: OutlinedButton.styleFrom(
-        padding: const EdgeInsets.all(16),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, size: 24),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
-                ),
-                Text(
-                  subtitle,
-                  style: theme.textTheme.bodySmall?.copyWith(color: Colors.black),
-                ),
-              ],
-            ),
-          ),
-          const Icon(Icons.chevron_right),
-        ],
-      ),
-    );
-  }
-}
-
-class _AutomationCard extends StatelessWidget {
-  final AutomationModel automation;
-
-  const _AutomationCard({required this.automation});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  automation.action.type.toLowerCase().contains('github')
-                      ? Icons.code
-                      : Icons.bolt,
-                  size: 20,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        automation.name,
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        automation.description,
-                        style: theme.textTheme.bodySmall?.copyWith(color: Colors.black),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: automation.isActive
-                        ? Colors.green.withAlpha(51)
-                        : Colors.red.withAlpha(51),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Text(
-                    automation.isActive ? AppLocalizations.of(context)!.active : AppLocalizations.of(context)!.inactive,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: automation.isActive ? Colors.green : Colors.red,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Text(
-              '${AppLocalizations.of(context)!.trigger_colon(automation.action.type)} ${automation.reactions.isNotEmpty ? '→ ${automation.reactions.map((r) => r.type).join(', ')}' : ''}',
-              style: theme.textTheme.bodySmall?.copyWith(color: Colors.black),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),
