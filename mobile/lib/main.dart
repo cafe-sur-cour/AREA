@@ -91,7 +91,7 @@ class MyApp extends StatelessWidget {
         '/action-services': (context) => const ActionServicesScreen(),
         '/reaction-services': (context) => const ReactionServicesScreen(),
         '/automation-configuration': (context) => const AutomationConfigurationScreen(),
-        '/areas': (context) => const DashboardScreen(),
+        '/dashboard': (context) => const DashboardScreen(),
       },
     );
   }

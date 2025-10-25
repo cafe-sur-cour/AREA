@@ -66,7 +66,7 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   }
 
   void _navigateToDashboard() {
-    Navigator.of(context).pushNamed('/areas');
+    Navigator.of(context).pushNamed('/dashboard');
   }
 
   @override

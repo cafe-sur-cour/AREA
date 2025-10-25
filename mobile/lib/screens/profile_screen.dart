@@ -356,7 +356,7 @@ class ProfileScreenState extends State<ProfileScreen> {
                         text: 'Dashboard',
                         icon: Icons.dashboard,
                         onPressed: () {
-                          Navigator.pushNamed(context, '/areas');
+                          Navigator.pushNamed(context, '/dashboard');
                         },
                         padding: const EdgeInsets.symmetric(vertical: 16),
                       ),
