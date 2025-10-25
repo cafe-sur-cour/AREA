@@ -353,6 +353,20 @@ class ProfileScreenState extends State<ProfileScreen> {
                     SizedBox(
                       width: double.infinity,
                       child: PrimaryButton(
+                        text: 'Dashboard',
+                        icon: Icons.dashboard,
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/areas');
+                        },
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    SizedBox(
+                      width: double.infinity,
+                      child: PrimaryButton(
                         text: AppLocalizations.of(context)?.services ?? 'Services',
                         icon: Icons.api,
                         onPressed: () {
