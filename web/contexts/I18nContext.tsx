@@ -1,32 +1,38 @@
 'use client';
 
-import React, { createContext, useContext, useTransition } from 'react';
-import { useLocale, useTranslations } from 'next-intl';
-import { useRouter, usePathname } from 'next/navigation';
-import Cookies from 'js-cookie';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import en from '@/messages/en.json';
+import fr from '@/messages/fr.json';
 
 type Locale = 'en' | 'fr';
+type Messages = typeof en;
 
 interface I18nContextType {
   locale: Locale;
   setLocale: (locale: Locale) => void;
-  t: any; // Use any for now to avoid TypeScript issues
+  t: Messages;
 }
 
 const I18nContext = createContext<I18nContextType | undefined>(undefined);
 
+const messages: Record<Locale, Messages> = {
+  en,
+  fr,
+};
+
 export function I18nProvider({ children }: { children: React.ReactNode }) {
-  const locale = useLocale() as Locale;
-  const t = useTranslations();
-  const router = useRouter();
-  const pathname = usePathname();
-  const [isPending, startTransition] = useTransition();
+  const [locale, setLocaleState] = useState<Locale>('en');
+
+  useEffect(() => {
+    const savedLocale = localStorage.getItem('locale') as Locale;
+    if (savedLocale && (savedLocale === 'en' || savedLocale === 'fr')) {
+      setLocaleState(savedLocale);
+    }
+  }, []);
 
   const setLocale = (newLocale: Locale) => {
-    startTransition(() => {
-      Cookies.set('locale', newLocale, { expires: 365 });
-      window.location.reload();
-    });
+    setLocaleState(newLocale);
+    localStorage.setItem('locale', newLocale);
   };
 
   return (
@@ -34,7 +40,7 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
       value={{
         locale,
         setLocale,
-        t,
+        t: messages[locale],
       }}
     >
       {children}
