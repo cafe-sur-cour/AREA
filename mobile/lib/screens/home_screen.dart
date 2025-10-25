@@ -585,7 +585,7 @@ class _FeatureItem extends StatelessWidget {
           height: 48,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
-            color: theme.primaryColor.withOpacity(0.1),
+            color: theme.primaryColor.withAlpha(26),
           ),
           child: Icon(
             icon,

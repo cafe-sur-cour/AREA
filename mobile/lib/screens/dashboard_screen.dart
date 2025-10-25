@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:area/core/config/app_config.dart';
 import 'package:area/core/constants/app_constants.dart';
 import 'package:area/core/notifiers/backend_address_notifier.dart';
 import 'package:area/l10n/app_localizations.dart';
@@ -167,22 +166,6 @@ class DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
-  IconData _getTriggerIcon(String trigger) {
-    if (trigger.toLowerCase().contains('github'))
-      return Icons.code;
-    if (trigger.toLowerCase().contains('gmail') ||
-        trigger.toLowerCase().contains('mail'))
-      return Icons.mail;
-    if (trigger.toLowerCase().contains('calendar'))
-      return Icons.calendar_today;
-    if (trigger.toLowerCase().contains('discord') ||
-        trigger.toLowerCase().contains('twitter') ||
-        trigger.toLowerCase().contains('slack'))
-      return Icons.message;
-    if (trigger.toLowerCase().contains('timer'))
-      return Icons.timer;
-    return Icons.bolt;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -525,9 +508,9 @@ class _AutomationCard extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: automation.isActive
-                        ? Colors.green.withOpacity(0.2)
-                        : Colors.red.withOpacity(0.2),
+          color: automation.isActive
+            ? Colors.green.withAlpha(51)
+            : Colors.red.withAlpha(51),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
