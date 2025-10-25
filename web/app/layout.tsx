@@ -3,6 +3,7 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import { Toaster } from '@/components/ui/sonner';
 import { Montserrat, Open_Sans } from 'next/font/google';
 import DownloadAPPButton from '@/components/download-app-button';
+import {NextIntlClientProvider} from 'next-intl';
 import './globals.css';
 
 const montserrat = Montserrat({
@@ -32,7 +33,7 @@ export default function RootLayout({
       <body
         className={`${montserrat.variable} ${openSans.variable} antialiased font-sans`}
       >
-        <AuthProvider>{children}</AuthProvider>
+        <NextIntlClientProvider><AuthProvider>{children}</AuthProvider></NextIntlClientProvider>
         <Toaster />
         <DownloadAPPButton />
       </body>
