@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'package:area/core/constants/app_constants.dart';
 import 'package:area/core/notifiers/backend_address_notifier.dart';
 import 'package:area/l10n/app_localizations.dart';
+import 'package:area/models/automation_models.dart';
+import 'package:area/models/dashboard_stats_model.dart';
 import 'package:area/services/secure_http_client.dart';
 import 'package:area/services/secure_storage.dart';
 import 'package:area/widgets/common/app_bar/custom_app_bar.dart';
@@ -9,56 +11,6 @@ import 'package:area/widgets/common/snackbars/app_snackbar.dart';
 import 'package:area/widgets/common/state/loading_state.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
-class Mapping {
-  final int id;
-  final String name;
-  final String description;
-  final bool isActive;
-  final String trigger;
-  final List<String> actions;
-  final DateTime createdAt;
-
-  Mapping({
-    required this.id,
-    required this.name,
-    required this.description,
-    required this.isActive,
-    required this.trigger,
-    required this.actions,
-    required this.createdAt,
-  });
-
-  factory Mapping.fromJson(Map<String, dynamic> json) {
-    return Mapping(
-      id: json['id'] ?? 0,
-      name: json['name'] ?? 'Untitled',
-      description: json['description'] ?? '',
-      isActive: json['is_active'] ?? false,
-      trigger: json['action']?['type'] ?? 'Unknown',
-      actions: List<String>.from(
-        (json['reactions'] as List?)?.map((r) => r['type'] ?? 'Unknown') ?? [],
-      ),
-      createdAt: json['created_at'] != null
-          ? DateTime.parse(json['created_at'])
-          : DateTime.now(),
-    );
-  }
-}
-
-class DashboardStats {
-  final int totalAutomations;
-  final int activeAutomations;
-  final int inactiveAutomations;
-  final int totalServices;
-
-  DashboardStats({
-    required this.totalAutomations,
-    required this.activeAutomations,
-    required this.inactiveAutomations,
-    required this.totalServices,
-  });
-}
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -68,7 +20,7 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class DashboardScreenState extends State<DashboardScreen> {
-  List<Mapping> _automations = [];
+  List<AutomationModel> _automations = [];
   DashboardStats? _stats;
   bool _isLoading = true;
 
@@ -108,7 +60,7 @@ class DashboardScreenState extends State<DashboardScreen> {
       final jwt = await getJwt();
       if (jwt == null) {
         if (mounted) {
-          showErrorSnackbar(context, 'Not authenticated');
+          showErrorSnackbar(context, AppLocalizations.of(context)!.not_authenticated);
         }
         setState(() {
           _isLoading = false;
@@ -129,7 +81,7 @@ class DashboardScreenState extends State<DashboardScreen> {
       final mappingsData = jsonDecode(mappingsResponse.body) as Map<String, dynamic>;
       final rawMappings =
           (mappingsData['mappings'] as List?)
-              ?.map((m) => Mapping.fromJson(m as Map<String, dynamic>))
+              ?.map((m) => AutomationModel.fromJson(m as Map<String, dynamic>))
               .toList() ??
           [];
 
@@ -170,13 +122,13 @@ class DashboardScreenState extends State<DashboardScreen> {
 
     if (_isLoading) {
       return Scaffold(
-        appBar: CustomAppBar(title: 'Dashboard'),
+        appBar: CustomAppBar(title: l10n.dashboard),
         body: const LoadingState(),
       );
     }
 
     return Scaffold(
-      appBar: CustomAppBar(title: 'Dashboard'),
+      appBar: CustomAppBar(title: l10n.dashboard),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -188,24 +140,24 @@ class DashboardScreenState extends State<DashboardScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Dashboard',
+                    l10n.dashboard,
                     style: theme.textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Manage your Areas and monitor their performance',
+                    l10n.manage_areas_performance,
                     style: theme.textTheme.bodySmall?.copyWith(color: Colors.black),
                   ),
                 ],
               ),
               const SizedBox(height: 24),
 
-              if (_stats != null) ...[_buildStatsGrid(theme), const SizedBox(height: 24)],
+              if (_stats != null) ...[_buildStatsGrid(theme, l10n), const SizedBox(height: 24)],
 
               Text(
-                'Quick actions',
+                l10n.quick_actions,
                 style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 12),
@@ -213,8 +165,8 @@ class DashboardScreenState extends State<DashboardScreen> {
                 children: [
                   _QuickActionButton(
                     icon: Icons.people,
-                    title: 'Connect Services',
-                    subtitle: 'Link new platforms',
+                    title: l10n.connect_services,
+                    subtitle: l10n.link_new_platforms,
                     onPressed: () {
                       Navigator.pushNamed(context, '/action-services');
                     },
@@ -222,15 +174,15 @@ class DashboardScreenState extends State<DashboardScreen> {
                   const SizedBox(height: 8),
                   _QuickActionButton(
                     icon: Icons.bolt,
-                    title: 'Browse Templates',
-                    subtitle: 'Pre-made Areas',
+                    title: l10n.browse_templates,
+                    subtitle: l10n.pre_made_areas,
                     onPressed: () {},
                   ),
                   const SizedBox(height: 8),
                   _QuickActionButton(
                     icon: Icons.settings,
-                    title: 'Account Settings',
-                    subtitle: 'Manage your profile',
+                    title: l10n.account_settings,
+                    subtitle: l10n.manage_your_profile,
                     onPressed: () {
                       Navigator.pushNamed(context, '/');
                     },
@@ -240,7 +192,7 @@ class DashboardScreenState extends State<DashboardScreen> {
               const SizedBox(height: 24),
 
               Text(
-                'Your Areas',
+                l10n.your_areas,
                 style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 12),
@@ -259,14 +211,14 @@ class DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildStatsGrid(ThemeData theme) {
+  Widget _buildStatsGrid(ThemeData theme, AppLocalizations l10n) {
     return Column(
       children: [
         Row(
           children: [
             Expanded(
               child: _StatCard(
-                label: 'Total Areas',
+                label: l10n.total_areas,
                 value: _stats!.totalAutomations.toString(),
                 icon: Icons.bolt,
                 color: Colors.blue,
@@ -275,7 +227,7 @@ class DashboardScreenState extends State<DashboardScreen> {
             const SizedBox(width: 12),
             Expanded(
               child: _StatCard(
-                label: 'Connected Services',
+                label: l10n.connected_services,
                 value: _stats!.totalServices.toString(),
                 icon: Icons.cloud_circle,
                 color: Colors.blue,
@@ -288,7 +240,7 @@ class DashboardScreenState extends State<DashboardScreen> {
           children: [
             Expanded(
               child: _StatCard(
-                label: 'Active',
+                label: l10n.active,
                 value: _stats!.activeAutomations.toString(),
                 icon: Icons.power_settings_new,
                 color: Colors.green,
@@ -297,7 +249,7 @@ class DashboardScreenState extends State<DashboardScreen> {
             const SizedBox(width: 12),
             Expanded(
               child: _StatCard(
-                label: 'Inactive',
+                label: l10n.inactive,
                 value: _stats!.inactiveAutomations.toString(),
                 icon: Icons.power_settings_new,
                 color: Colors.red,
@@ -318,12 +270,12 @@ class DashboardScreenState extends State<DashboardScreen> {
             Icon(Icons.bolt_outlined, size: 48, color: Colors.black),
             const SizedBox(height: 16),
             Text(
-              'No Area yet',
+              l10n.no_area_yet,
               style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text(
-              'Create your first Area to get started',
+              l10n.create_first_area,
               style: theme.textTheme.bodySmall?.copyWith(color: Colors.black),
             ),
           ],
@@ -423,7 +375,7 @@ class _QuickActionButton extends StatelessWidget {
 }
 
 class _AutomationCard extends StatelessWidget {
-  final Mapping automation;
+  final AutomationModel automation;
 
   const _AutomationCard({required this.automation});
 
@@ -440,7 +392,7 @@ class _AutomationCard extends StatelessWidget {
             Row(
               children: [
                 Icon(
-                  automation.trigger.toLowerCase().contains('github')
+                  automation.action.type.toLowerCase().contains('github')
                       ? Icons.code
                       : Icons.bolt,
                   size: 20,
@@ -475,7 +427,7 @@ class _AutomationCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
-                    automation.isActive ? 'Active' : 'Inactive',
+                    automation.isActive ? AppLocalizations.of(context)!.active : AppLocalizations.of(context)!.inactive,
                     style: theme.textTheme.bodySmall?.copyWith(
                       fontWeight: FontWeight.w600,
                       color: automation.isActive ? Colors.green : Colors.red,
@@ -486,7 +438,7 @@ class _AutomationCard extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              'Trigger: ${automation.trigger} ${automation.actions.isNotEmpty ? '→ ${automation.actions.join(', ')}' : ''}',
+              '${AppLocalizations.of(context)!.trigger_colon(automation.action.type)} ${automation.reactions.isNotEmpty ? '→ ${automation.reactions.map((r) => r.type).join(', ')}' : ''}',
               style: theme.textTheme.bodySmall?.copyWith(color: Colors.black),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,

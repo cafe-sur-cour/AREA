@@ -237,7 +237,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('EN'), findsOneWidget);
-      expect(find.byType(PopupMenuButton<Locale>), findsOneWidget);
+      expect(find.byIcon(Icons.keyboard_arrow_down), findsOneWidget);
     });
 
     testWidgets('changes language when selected', (WidgetTester tester) async {
@@ -246,12 +246,17 @@ void main() {
       await tester.pumpWidget(createTestWidget());
       await tester.pumpAndSettle();
 
+      // Tap on the language selector to open the dialog
       await tester.tap(find.text('EN'));
       await tester.pumpAndSettle();
 
-      expect(find.text('FR'), findsOneWidget);
+      // Verify dialog is shown with language options
+      expect(find.text('Language'), findsOneWidget);
+      expect(find.text('English'), findsOneWidget);
+      expect(find.text('Français'), findsOneWidget);
 
-      await tester.tap(find.text('FR').last);
+      // Tap on French option
+      await tester.tap(find.text('Français'));
       await tester.pumpAndSettle();
 
       mocktail.verify(() => mockLocaleNotifier.setLocale(const Locale('fr'))).called(1);
