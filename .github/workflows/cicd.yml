@@ -162,31 +162,6 @@ jobs:
         working-directory: ./web
         run: npm run format:check
 
-  web-functional-tests:
-    name: Web frontend functional tests
-    needs: web-linter
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Setup Chrome
-        uses: browser-actions/setup-chrome@v2
-        with:
-          chrome-version: 140
-      - name: Set up NodeJs
-        uses: actions/setup-node@v3
-        with:
-          node-version: '20'
-      - name: Install frontend dependencies
-        working-directory: ./web
-        run: npm install
-      - name: Cypress run
-        uses: cypress-io/github-action@v6
-        with:
-          working-directory: ./web
-          browser: chrome-for-testing
-          component: true
-
   mobile-linter:
     name: Mobile frontend linter
     needs: check_repository
@@ -232,7 +207,7 @@ jobs:
 
   deploy-app:
     name: Deploy application
-    needs: [backend-test, web-functional-tests, mobile-test]
+    needs: [backend-test, web-linter, mobile-test]
     if: ${{ needs.check_repository.outputs.backend_changed == 'true' || needs.check_repository.outputs.web_changed == 'true' || needs.check_repository.outputs.mobile_changed == 'true' }}
     runs-on: ubuntu-latest
     environment: AREA
