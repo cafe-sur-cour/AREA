@@ -173,6 +173,13 @@ jobs:
         uses: browser-actions/setup-chrome@v2
         with:
           chrome-version: 140
+      - name: Set up NodeJs
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+      - name: Install frontend dependencies
+        working-directory: ./web
+        run: npm install
       - name: Cypress run
         uses: cypress-io/github-action@v6
         with:
