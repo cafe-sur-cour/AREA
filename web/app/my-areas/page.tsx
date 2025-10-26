@@ -313,6 +313,7 @@ export default function MyAreasPage() {
                 <Button
                   className='cursor-pointer'
                   onClick={handleCreateAutomation}
+                  type='submit'
                 >
                   Create Area
                 </Button>
