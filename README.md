@@ -67,7 +67,7 @@ The platform targets:
 ## Technologies
 
 - **Web Frontend:** Tailwind, NextJS
-- **Mobile Frontend:** Flutter
+- **Mobile Frontend:** Flutter 3.35.7
 - **Backend:** TypeScript Express
 - **Database:** Postgres
 - **Other tools:** Docker, Github Actions CI/CD
