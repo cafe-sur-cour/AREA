@@ -16,7 +16,7 @@ import { getAPIUrl } from '@/lib/config';
 import ButtonWithLoading from './ui/button-with-loading';
 import { useI18n } from '@/contexts/I18nContext';
 
-export function RegisterForm({
+export default function RegisterForm({
   className,
   ...props
 }: React.ComponentProps<'div'>) {

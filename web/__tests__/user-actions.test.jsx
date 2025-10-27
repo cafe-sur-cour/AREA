@@ -19,6 +19,14 @@ jest.mock('../contexts/AuthContext', () => ({
 }));
 
 describe('UserActions', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    // Mock console methods to suppress logs in tests
+    jest.spyOn(console, 'log').mockImplementation(() => {});
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
   it('renders user actions component', () => {
     const { container } = render(<UserActions />);
     expect(container).toBeInTheDocument();

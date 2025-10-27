@@ -24,6 +24,10 @@ describe('API Library', () => {
     localStorage.clear();
     (getToken as jest.Mock).mockResolvedValue({ value: 'test-token' });
     (getAPIUrl as jest.Mock).mockResolvedValue('http://api.test');
+    // Mock console methods to suppress logs in tests
+    jest.spyOn(console, 'log').mockImplementation(() => {});
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    jest.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   describe('authenticatedFetch', () => {

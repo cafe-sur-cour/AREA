@@ -25,16 +25,19 @@ jest.mock('@/lib/api', () => ({
 // Mock console.warn and console.error to reduce noise in tests
 const originalWarn = console.warn;
 const originalError = console.error;
+const originalLog = console.log;
 
 describe('LanguageSwitcher', () => {
   beforeAll(() => {
     console.warn = jest.fn();
     console.error = jest.fn();
+    console.log = jest.fn();
   });
 
   afterAll(() => {
     console.warn = originalWarn;
     console.error = originalError;
+    console.log = originalLog;
   });
 
   beforeEach(() => {

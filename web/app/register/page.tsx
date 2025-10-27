@@ -1,6 +1,6 @@
 'use client';
 
-import { RegisterForm } from '@/components/register-form';
+import RegisterForm from '@/components/register-form';
 import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/contexts/I18nContext';
 import { useRouter } from 'next/navigation';

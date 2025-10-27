@@ -68,6 +68,7 @@ export function PasswordEmailForm({
                   name='email'
                   type='email'
                   placeholder={t.auth.forgotPassword.emailPlaceholder}
+                  data-testid='email-input'
                   required
                 />
               </div>
