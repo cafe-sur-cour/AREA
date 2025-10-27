@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from './test-utils';
 import { LoginForm } from '../components/login-form';
 import api from '../lib/api';
 import { toast } from 'sonner';

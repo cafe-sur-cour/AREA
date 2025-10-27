@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Languages } from 'lucide-react';
 import { useI18n } from '@/contexts/I18nContext';
+import { api } from '@/lib/api';
 
 interface LanguageSwitcherProps {
   className?: string;
@@ -16,14 +17,44 @@ export function LanguageSwitcher({
   const { locale, setLocale } = useI18n();
   const [isLoading, setIsLoading] = useState(false);
 
+  useEffect(() => {
+    const fetchCurrentLanguage = async () => {
+      try {
+        const response = await api.get<{ language: string }>({
+          endpoint: '/language',
+        });
+        if (
+          response.data?.language &&
+          (response.data.language === 'en' || response.data.language === 'fr')
+        ) {
+          setLocale(response.data.language);
+        }
+      } catch (error) {
+        console.error('Failed to fetch language:', error);
+        const savedLocale = localStorage.getItem('area-language') as
+          | 'en'
+          | 'fr';
+        if (savedLocale && (savedLocale === 'en' || savedLocale === 'fr')) {
+          setLocale(savedLocale);
+        }
+      }
+    };
+
+    fetchCurrentLanguage();
+  }, [setLocale]);
+
   const toggleLanguage = async () => {
     const newLang = locale === 'en' ? 'fr' : 'en';
     setIsLoading(true);
 
     try {
+      await api.post('/language', { language: newLang });
       setLocale(newLang);
+      localStorage.setItem('area-language', newLang);
     } catch (error) {
       console.error('Failed to switch language:', error);
+      setLocale(newLang);
+      localStorage.setItem('area-language', newLang);
     } finally {
       setIsLoading(false);
     }

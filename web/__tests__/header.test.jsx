@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import { render, screen } from '@testing-library/react';
+import { render, screen } from './test-utils';
 import Navigation from '../components/header';
 
 // Mock Next.js router
