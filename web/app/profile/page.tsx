@@ -165,12 +165,12 @@ export default function ProfilePage() {
                     url={userData?.picture}
                     defaultChar={userData.name.charAt(0)}
                     size={20}
-                    variente='modifiable'
+                    // variente='modifiable'
                     onChange={handleAvatarChange}
                   />
-                  <p className='text-sm text-app-text-secondary text-center'>
+                  {/* <p className='text-sm text-app-text-secondary text-center'>
                     Click to change avatar
-                  </p>
+                  </p> */}
                 </CardContent>
               </Card>
 
