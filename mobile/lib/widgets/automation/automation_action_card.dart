@@ -80,9 +80,7 @@ class AutomationActionCard extends StatelessWidget {
                             ),
                           ),
                         ),
-
                         const SizedBox(height: 6),
-
                         Text(
                           action.name,
                           style: const TextStyle(

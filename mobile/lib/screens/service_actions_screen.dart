@@ -192,7 +192,6 @@ class ServiceActionsScreenState extends State<ServiceActionsScreen> {
               ),
             ),
           ),
-
           Expanded(child: _buildBody()),
         ],
       ),

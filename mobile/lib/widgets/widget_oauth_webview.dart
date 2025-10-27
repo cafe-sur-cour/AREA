@@ -330,9 +330,7 @@ class OAuthWebViewState extends State<OAuthWebView> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const CircularProgressIndicator(),
-
                     const SizedBox(height: 16),
-
                     Text(
                       AppLocalizations.of(context)!.loading_authentication,
                       style: TextStyle(fontSize: 16),
@@ -346,16 +344,12 @@ class OAuthWebViewState extends State<OAuthWebView> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Icon(Icons.error_outline, size: 64, color: Colors.red),
-
                     const SizedBox(height: 16),
-
                     Text(
                       AppLocalizations.of(context)!.authentication_error,
                       style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
-
                     const SizedBox(height: 8),
-
                     Text(
                       _retryCount > 0
                           ? AppLocalizations.of(
@@ -364,9 +358,7 @@ class OAuthWebViewState extends State<OAuthWebView> {
                           : AppLocalizations.of(context)!.failed_to_load_authentication,
                       style: const TextStyle(fontSize: 16),
                     ),
-
                     const SizedBox(height: 24),
-
                     PrimaryButton(
                       text: _retryCount < _maxRetries
                           ? AppLocalizations.of(context)!.retry

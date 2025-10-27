@@ -87,7 +87,6 @@ class ActionSelectionCard extends StatelessWidget {
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
                 ),
-
               if (action.configSchema?.fields != null &&
                   action.configSchema!.fields.isNotEmpty)
                 Padding(

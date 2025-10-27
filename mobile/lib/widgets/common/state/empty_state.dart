@@ -22,17 +22,13 @@ class EmptyState extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(icon, size: 64, color: iconColor ?? AppColors.areaDarkGray),
-
           const SizedBox(height: 16),
-
           Text(
             title,
             style: Theme.of(context).textTheme.titleLarge,
             textAlign: TextAlign.center,
           ),
-
           const SizedBox(height: 8),
-
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 32),
             child: Text(
