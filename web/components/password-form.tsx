@@ -64,6 +64,7 @@ export function PasswordEmailForm({
                   name='email'
                   type='email'
                   placeholder='m@example.com'
+                  data-testid='email-input'
                   required
                 />
               </div>
