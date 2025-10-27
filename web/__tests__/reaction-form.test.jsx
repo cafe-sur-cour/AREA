@@ -12,6 +12,14 @@ jest.mock('next/navigation', () => ({
 }));
 
 describe('ReactionForm', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    // Mock console methods to suppress logs in tests
+    jest.spyOn(console, 'log').mockImplementation(() => {});
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
   it('should be importable', () => {
     // Basic test to ensure the test setup works
     expect(true).toBe(true);

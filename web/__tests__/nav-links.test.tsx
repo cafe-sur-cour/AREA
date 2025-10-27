@@ -8,6 +8,14 @@ jest.mock('next/navigation', () => ({
 }));
 
 describe('NavLinks', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    // Mock console methods to suppress logs in tests
+    jest.spyOn(console, 'log').mockImplementation(() => {});
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
   test('should render all navigation links', () => {
     const { getByText } = render(<NavLinks />);
 

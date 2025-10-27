@@ -24,6 +24,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_startupInfoRetries, _setStartupInfoRetries] = useState(0);
 
+  const logout = async () => {
+    await api.post('/auth/logout').catch(err => {
+      console.error('Logout request failed:', err);
+    });
+    setUser(null);
+  };
+
   useEffect(() => {
     const checkAuth = async () => {
       const token = await getToken();
@@ -82,13 +89,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     checkAuth();
   }, []);
 
-  const logout = async () => {
-    await api.post('/auth/logout').catch(err => {
-      console.error('Logout request failed:', err);
-    });
-    setUser(null);
-  };
-
   const refreshUserInfo = async (): Promise<User | null> => {
     const token = await getToken();
     if (!token) {
@@ -105,7 +105,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       const enrichedUser = response.data;
-
+      localStorage.setItem(
+        USER_STORAGE_KEY,
+        JSON.stringify({
+          user: enrichedUser,
+          timestamp: Date.now(),
+          isFallback: false,
+        })
+      );
       setUser(enrichedUser);
       console.log(
         'refreshUserInfo: User info refreshed successfully',

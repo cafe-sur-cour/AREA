@@ -1,6 +1,14 @@
 import '@testing-library/jest-dom';
 
 describe('Date Utilities', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    // Mock console methods to suppress logs in tests
+    jest.spyOn(console, 'log').mockImplementation(() => {});
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
   it('creates date object', () => {
     const date = new Date('2025-10-22');
     expect(date).toBeInstanceOf(Date);

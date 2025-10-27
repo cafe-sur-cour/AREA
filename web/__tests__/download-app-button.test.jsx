@@ -3,6 +3,14 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import DownloadAPPButton from '../components/download-app-button';
 
 describe('DownloadAPPButton', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    // Mock console methods to suppress logs in tests
+    jest.spyOn(console, 'log').mockImplementation(() => {});
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
   it('renders the download button', () => {
     render(<DownloadAPPButton />);
 

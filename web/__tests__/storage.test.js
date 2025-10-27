@@ -4,6 +4,10 @@ describe('Token Management', () => {
   beforeEach(() => {
     localStorage.clear();
     jest.clearAllMocks();
+    // Mock console methods to suppress logs in tests
+    jest.spyOn(console, 'log').mockImplementation(() => {});
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    jest.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   it('localStorage is available', () => {

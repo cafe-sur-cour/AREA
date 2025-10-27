@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { RegisterForm } from '../components/register-form';
+import RegisterForm from '../components/register-form';
 import api from '../lib/api';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
@@ -31,6 +31,10 @@ describe('RegisterForm', () => {
     useRouter.mockReturnValue({
       push: mockPush,
     });
+    // Mock console methods to suppress logs in tests
+    jest.spyOn(console, 'log').mockImplementation(() => {});
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    jest.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   it('renders the registration form', () => {

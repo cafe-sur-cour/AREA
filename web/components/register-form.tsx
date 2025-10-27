@@ -15,7 +15,7 @@ import InputPassword from './ui/input-password';
 import { getAPIUrl } from '@/lib/config';
 import ButtonWithLoading from './ui/button-with-loading';
 
-export function RegisterForm({
+export default function RegisterForm({
   className,
   ...props
 }: React.ComponentProps<'div'>) {
