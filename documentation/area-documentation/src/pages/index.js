@@ -44,6 +44,14 @@ function HomepageHeader() {
             🗺️ Link to project plan
           </a>
         </div>
+        <div style={{ marginTop: '3rem' }}>
+          <Link className="button button--secondary button--lg" to="/docs/web_user_guide" style={{ margin: '1rem', fontSize: '1.2rem' }}>
+            📰 Web User Guide
+          </Link>
+          <Link className="button button--secondary button--lg" to="/docs/mobile_user_guide" style={{ margin: '1rem', fontSize: '1.2rem' }}>
+            📰 Mobile User Guide
+          </Link>
+        </div>
       </div>
     </header>
   );
