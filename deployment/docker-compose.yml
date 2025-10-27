@@ -77,6 +77,8 @@ services:
         - BACKEND_URL=${BACKEND_URL}
         - MOBILE_CALLBACK_URL=${MOBILE_CALLBACK_URL}
     container_name: area_mobile
+    env_file:
+      - .env
     volumes:
       - mobile_build:/app/build
 

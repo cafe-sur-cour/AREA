@@ -21,14 +21,16 @@ WORKDIR /app
 
 COPY mobile/ ./
 
-RUN flutter precache --android
+RUN flutter doctor -v
+
+RUN flutter precache --android --force
 
 RUN flutter clean
 
 RUN flutter pub get
 
 RUN if [ "$SKIP_APK_BUILD" != "true" ]; then \
-        flutter build apk --release --dart-define=FRONTEND_URL="$FRONTEND_URL" --dart-define=BACKEND_URL="$BACKEND_URL" --dart-define=MOBILE_CALLBACK_URL="$MOBILE_CALLBACK_URL"; \
+        flutter build apk --release --dart-define=FRONTEND_URL="$FRONTEND_URL" --dart-define=BACKEND_URL="$BACKEND_URL" --dart-define=MOBILE_CALLBACK_URL="$MOBILE_CALLBACK_URL" -v; \
     else \
         echo "Skipping APK build for development"; \
         mkdir -p /app/build/app/outputs/flutter-apk/; \
@@ -36,9 +38,9 @@ RUN if [ "$SKIP_APK_BUILD" != "true" ]; then \
     fi
 
 # Create the final stage with just the APK
-FROM alpine:latest AS runner
+FROM ubuntu:latest AS runner
 
-RUN mkdir -p /app/build
+RUN mkdir -p /app/build/
 
 COPY --from=builder /app/build/app/outputs/flutter-apk/app-release.apk /app/build/area.apk
 
