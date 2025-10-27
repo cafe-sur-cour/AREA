@@ -31,6 +31,8 @@ describe('PasswordEmailForm (Forgot Password)', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest.useRealTimers();
+    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
   });
 
   afterEach(() => {

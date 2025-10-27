@@ -2,8 +2,16 @@ import '@testing-library/jest-dom';
 import { render, screen, waitFor } from '@testing-library/react';
 import Home from '../app/page';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { before } from 'node:test';
 
 // Mock Next.js router
+
+beforeAll(() => {
+  jest.spyOn(console, 'error').mockImplementation(() => {});
+  jest.spyOn(console, 'log').mockImplementation(() => {});
+  jest.spyOn(console, 'warn').mockImplementation(() => {});
+});
+
 jest.mock('next/navigation', () => ({
   useRouter() {
     return {

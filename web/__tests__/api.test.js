@@ -1,11 +1,9 @@
 import '@testing-library/jest-dom';
 
-// Mock getToken
 jest.mock('../lib/manageToken', () => ({
   getToken: jest.fn(() => Promise.resolve(null)),
 }));
 
-// Mock config
 jest.mock('../lib/config', () => ({
   getAPIUrl: jest.fn(() => Promise.resolve('http://localhost:3000/api')),
 }));

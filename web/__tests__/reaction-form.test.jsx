@@ -13,7 +13,6 @@ jest.mock('next/navigation', () => ({
 
 describe('ReactionForm', () => {
   it('should be importable', () => {
-    // Basic test to ensure the test setup works
     expect(true).toBe(true);
   });
 });

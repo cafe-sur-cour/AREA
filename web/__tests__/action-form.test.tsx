@@ -6,9 +6,6 @@ import { Action } from '@/types/action';
 
 jest.mock('@/lib/api');
 
-// Radix UI Select uses scrollIntoView; provide a no-op in JSDOM
-// to avoid errors when mounting SelectContent
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 (window.HTMLElement as any).prototype.scrollIntoView = jest.fn();
 
 describe('ActionForm', () => {
@@ -24,8 +21,9 @@ describe('ActionForm', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    // Default: no subscribed services, so component renders fallback UI
     (api.get as jest.Mock).mockResolvedValue({ data: { services: [] } });
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
   });
 
   test('renders fallback when no services are subscribed', async () => {

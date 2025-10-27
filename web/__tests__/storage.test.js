@@ -4,6 +4,8 @@ describe('Token Management', () => {
   beforeEach(() => {
     localStorage.clear();
     jest.clearAllMocks();
+    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
   });
 
   it('localStorage is available', () => {

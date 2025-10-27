@@ -1,6 +1,7 @@
 import React from 'react'
 import { render, screen, waitFor, act } from '@testing-library/react'
 import { AuthProvider, useAuth } from '../contexts/AuthContext'
+import { beforeEach } from 'node:test'
 
 const mockGet = jest.fn()
 const mockPost = jest.fn()
@@ -14,6 +15,11 @@ jest.mock('@/lib/api', () => ({
 jest.mock('@/lib/manageToken', () => ({
   getToken: (...args) => mockGetToken(...args),
 }))
+
+beforeAll(() => {
+  jest.spyOn(console, 'error').mockImplementation(() => {});
+  jest.spyOn(console, 'log').mockImplementation(() => {});
+});
 
 beforeEach(() => {
   const store = {}
