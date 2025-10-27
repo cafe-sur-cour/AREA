@@ -45,7 +45,7 @@ export default function ProfilePage() {
   }, []);
 
   useEffect(() => {
-    if (!user && !isLoading) router.push('/');
+    if (!user && !isLoading) router.push('/login');
   }, [user, isLoading, router]);
 
   const editAndFetchMe = async (dataToSend?: User) => {

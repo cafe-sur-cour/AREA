@@ -9,7 +9,7 @@ export default function RegisterPage() {
   const { isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
 
-  if (isLoading && isAuthenticated) {
+  if (isAuthenticated) {
     router.push('/');
     return null;
   }
