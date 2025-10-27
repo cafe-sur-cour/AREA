@@ -36,6 +36,10 @@ describe('PasswordEmailForm (Forgot Password)', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest.useRealTimers();
+    // Mock console methods to suppress logs in tests
+    jest.spyOn(console, 'log').mockImplementation(() => {});
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    jest.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {
@@ -118,6 +122,10 @@ describe('PasswordForm (Reset Password)', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest.useRealTimers();
+    // Mock console methods to suppress logs in tests
+    jest.spyOn(console, 'log').mockImplementation(() => {});
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    jest.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {

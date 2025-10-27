@@ -11,6 +11,14 @@ jest.mock('next/image', () => ({
 }));
 
 describe('InfiniteHorizontalCards', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    // Mock console methods to suppress logs in tests
+    jest.spyOn(console, 'log').mockImplementation(() => {});
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
   it('renders the component', () => {
     const { container } = render(<InfiniteCarousel />);
     expect(container).toBeInTheDocument();

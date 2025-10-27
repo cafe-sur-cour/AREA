@@ -25,6 +25,10 @@ describe('Config helpers', () => {
       backendUrl: 'http://backend.test:8080',
       frontendUrl: 'http://frontend.test:3000',
     });
+    // Mock console methods to suppress logs in tests
+    jest.spyOn(console, 'log').mockImplementation(() => {});
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    jest.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterAll(() => {

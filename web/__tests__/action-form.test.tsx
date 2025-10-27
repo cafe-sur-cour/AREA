@@ -26,6 +26,10 @@ describe('ActionForm', () => {
     jest.clearAllMocks();
     // Default: no subscribed services, so component renders fallback UI
     (api.get as jest.Mock).mockResolvedValue({ data: { services: [] } });
+    // Mock console methods to suppress logs in tests
+    jest.spyOn(console, 'log').mockImplementation(() => {});
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    jest.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   test('renders fallback when no services are subscribed', async () => {

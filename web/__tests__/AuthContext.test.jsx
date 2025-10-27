@@ -26,6 +26,10 @@ beforeEach(() => {
   mockGet.mockReset();
   mockPost.mockReset();
   mockGetToken.mockReset();
+  // Mock console methods to suppress logs in tests
+  jest.spyOn(console, 'log').mockImplementation(() => {});
+  jest.spyOn(console, 'warn').mockImplementation(() => {});
+  jest.spyOn(console, 'error').mockImplementation(() => {});
 });
 
 function TestComponent() {

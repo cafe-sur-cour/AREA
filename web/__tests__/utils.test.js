@@ -1,6 +1,14 @@
 import { cn } from '../lib/utils';
 
 describe('cn utility', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    // Mock console methods to suppress logs in tests
+    jest.spyOn(console, 'log').mockImplementation(() => {});
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
   it('merges class names correctly', () => {
     expect(cn('class1', 'class2')).toBe('class1 class2');
   });
