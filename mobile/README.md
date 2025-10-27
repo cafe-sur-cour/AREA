@@ -70,6 +70,12 @@ It will automatically create the apk and move it to the `builds/` directory.
 
 ## Useful commands
 
+###
+To upgrade the flutter version, run:
+```bash
+flutter upgrade
+```
+
 ### Run the tests
 
 In the `mobile/` directory, run
