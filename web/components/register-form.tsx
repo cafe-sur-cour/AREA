@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { FaGithub, FaGoogle, FaMicrosoft } from 'react-icons/fa';
+import { FaGithub, FaGoogle, FaMicrosoft, FaFacebook } from 'react-icons/fa';
 import api from '@/lib/api';
 import Image from 'next/image';
 import { toast } from 'sonner';
@@ -67,6 +67,10 @@ export function RegisterForm({
     window.location.href = `${await getAPIUrl()}/auth/microsoft/login`;
   };
 
+  const signInWithMeta = async () => {
+    window.location.href = `${await getAPIUrl()}/auth/facebook/login`;
+  };
+
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
       <Card className='overflow-hidden p-0'>
@@ -123,7 +127,7 @@ export function RegisterForm({
                   {t.auth.register.orContinueWith}
                 </span>
               </div>
-              <div className='grid grid-cols-3 gap-4'>
+              <div className='grid grid-cols-2 gap-4 sm:grid-cols-4'>
                 <ButtonWithLoading
                   className='w-full cursor-pointer'
                   onClick={async () => await signInWithGithub()}
@@ -144,6 +148,13 @@ export function RegisterForm({
                 >
                   <FaMicrosoft />
                   <span className='sr-only'>{t.auth.register.loginWithMicrosoft}</span>
+                </ButtonWithLoading>
+                <ButtonWithLoading
+                  className='w-full'
+                  onClick={async () => await signInWithMeta()}
+                >
+                  <FaFacebook />
+                  <span className='sr-only'>Login with Meta</span>
                 </ButtonWithLoading>
               </div>
             </div>

@@ -16,12 +16,35 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useI18n } from '@/contexts/I18nContext';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function CataloguePage() {
   const { t } = useI18n();
   const [about, setAbout] = useState<About | null>(null);
-  const [isActionSelected, setIsActionSelected] = useState<boolean>(true);
-  const [isReactionSelected, setIsReactionSelected] = useState<boolean>(true);
+  const [selectedFilter, setSelectedFilter] = useState<
+    'all' | 'actions' | 'reactions'
+  >('all');
+  const [selectedFilterService, setSelectedFilterService] =
+    useState<string>('all');
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  useEffect(() => {
+    const filterService = searchParams.get('filterService');
+    const filterType = searchParams.get('filterType');
+    if (filterService) {
+      setSelectedFilterService(filterService);
+    }
+    if (filterType) {
+      if (filterType === 'actions') {
+        setSelectedFilter('actions');
+      } else if (filterType === 'reactions') {
+        setSelectedFilter('reactions');
+      } else {
+        setSelectedFilter('all');
+      }
+    }
+  }, [searchParams]);
 
   const fetchApiAR = async () => {
     const res = await fetch(`${await getBackendUrl()}/about.json`);
@@ -43,18 +66,28 @@ export default function CataloguePage() {
 
   const filterItems = (data: 'all' | 'actions' | 'reactions') => {
     if (data === 'actions') {
-      setIsActionSelected(true);
-      setIsReactionSelected(false);
+      setSelectedFilter('actions');
+      router.push(
+        `/catalogue?filterType=actions&filterService=${selectedFilterService}`
+      );
     } else if (data === 'reactions') {
-      setIsActionSelected(false);
-      setIsReactionSelected(true);
+      setSelectedFilter('reactions');
+      router.push(
+        `/catalogue?filterType=reactions&filterService=${selectedFilterService}`
+      );
     } else if (data === 'all') {
-      setIsActionSelected(true);
-      setIsReactionSelected(true);
-    } else {
-      setIsActionSelected(false);
-      setIsReactionSelected(false);
+      setSelectedFilter('all');
+      router.push(
+        `/catalogue?filterType=all&filterService=${selectedFilterService}`
+      );
     }
+  };
+
+  const filterItemsService = (data: string) => {
+    setSelectedFilterService(data);
+    router.push(
+      `/catalogue?filterType=${selectedFilter}&filterService=${data}`
+    );
   };
 
   return (
@@ -73,28 +106,55 @@ export default function CataloguePage() {
               {t.catalogue.filter.label}
             </h2>
           </div>
-          <Select
-            onValueChange={value => {
-              filterItems(value as 'all' | 'actions' | 'reactions');
-            }}
-            defaultValue='all'
-          >
-            <SelectTrigger className=' md:w-48 bg-app-surface border-app-border-light'>
-              <SelectValue placeholder={t.catalogue.filter.placeholder} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value='all'>{t.catalogue.filter.all}</SelectItem>
-              <SelectItem value='actions'>{t.catalogue.filter.actionsOnly}</SelectItem>
-              <SelectItem value='reactions'>{t.catalogue.filter.reactionsOnly}</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className='flex gap-5'>
+            <Select
+              onValueChange={value => {
+                filterItems(value as 'all' | 'actions' | 'reactions');
+              }}
+              defaultValue={selectedFilter}
+              value={selectedFilter}
+            >
+              <SelectTrigger className=' md:w-48 bg-app-surface border-app-border-light'>
+                <SelectValue placeholder={t.catalogue.filter.placeholder} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value='all'>{t.catalogue.filter.all} Types</SelectItem>
+                <SelectItem value='actions'>{t.catalogue.filter.actionsOnly}</SelectItem>
+                <SelectItem value='reactions'>{t.catalogue.filter.reactionsOnly}</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select
+              onValueChange={value => {
+                filterItemsService(value as string);
+              }}
+              defaultValue={selectedFilterService || 'all'}
+              value={selectedFilterService || 'all'}
+            >
+              <SelectTrigger className=' md:w-48 bg-app-surface border-app-border-light'>
+                <SelectValue placeholder={t.catalogue.filterServices.placeholder} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value='all'>{t.catalogue.filterServices.all}</SelectItem>
+                {about &&
+                  about.server.services.map(
+                    (service: AboutAREA, index: number) => (
+                      <SelectItem key={index} value={service.id}>
+                        {service.name}
+                      </SelectItem>
+                    )
+                  )}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
           {about &&
             about.server.services.map((service: AboutAREA, index: number) => (
               <>
-                {service.actions.length > 0 &&
-                  isActionSelected &&
+                {(selectedFilterService === 'all' ||
+                  selectedFilterService === service.id) &&
+                  service.actions.length > 0 &&
+                  (selectedFilter === 'actions' || selectedFilter === 'all') &&
                   service.actions.map(action => (
                     <>
                       <Card
@@ -136,8 +196,11 @@ export default function CataloguePage() {
                       </Card>
                     </>
                   ))}
-                {service.reactions.length > 0 &&
-                  isReactionSelected &&
+                {(selectedFilterService === 'all' ||
+                  selectedFilterService === service.id) &&
+                  service.reactions.length > 0 &&
+                  (selectedFilter === 'reactions' ||
+                    selectedFilter === 'all') &&
                   service.reactions.map(reaction => (
                     <>
                       <Card

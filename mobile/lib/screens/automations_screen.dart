@@ -177,7 +177,6 @@ class AutomationsScreenState extends State<AutomationsScreen> {
                   color: automation.isActive ? Colors.green : Colors.red,
                 ),
                 const Spacer(),
-
                 IconButton(
                   onPressed: () => _toggleAutomationStatus(automation),
                   icon: Icon(automation.isActive ? Icons.pause : Icons.play_arrow),
@@ -186,7 +185,6 @@ class AutomationsScreenState extends State<AutomationsScreen> {
                       ? AppLocalizations.of(context)!.deactivate_automation
                       : AppLocalizations.of(context)!.activate_automation,
                 ),
-
                 IconButton(
                   onPressed: () => _showDeleteConfirmation(automation),
                   icon: const Icon(Icons.delete_outline),
@@ -236,9 +234,7 @@ class AutomationsScreenState extends State<AutomationsScreen> {
                       Text(automation.action.type, style: AppTextStyles.bodySmall),
                     ],
                   ),
-
                   const Spacer(),
-
                   Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -299,7 +295,9 @@ class AutomationsScreenState extends State<AutomationsScreen> {
                       ),
                       textAlign: TextAlign.center,
                     ),
+
                     const SizedBox(height: 50),
+
                     for (int index = 0; index < _automations.length; index++) ...[
                       _buildAutomationCard(_automations[index]),
                     ],

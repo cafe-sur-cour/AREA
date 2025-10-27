@@ -38,8 +38,8 @@ class MainNavigationState extends State<MainNavigation> {
   int _currentIndex = 2;
 
   @override
-  void initState() {
-    super.initState();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     final automationBuilder = Provider.of<AutomationBuilderNotifier>(context, listen: false);
     if (automationBuilder.hasAction || automationBuilder.hasReactions) {
       _currentIndex = 2;

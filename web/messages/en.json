@@ -223,6 +223,10 @@
       "actionsOnly": "Actions Only",
       "reactionsOnly": "Reactions Only"
     },
+    "filterServices": {
+      "placeholder": "Filter by service",
+      "all": "All"
+    },
     "badges": {
       "action": "Action",
       "reaction": "Reaction"

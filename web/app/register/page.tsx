@@ -11,7 +11,7 @@ export default function RegisterPage() {
   const { t } = useI18n();
   const router = useRouter();
 
-  if (isLoading && isAuthenticated) {
+  if (isAuthenticated) {
     router.push('/');
     return null;
   }
