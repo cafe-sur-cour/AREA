@@ -108,7 +108,9 @@ export function RegisterForm({
                 <InputPassword name='password' />
               </div>
               <div className='grid gap-3'>
-                <Label htmlFor='confirm-password'>{t.auth.register.confirmPassword}</Label>
+                <Label htmlFor='confirm-password'>
+                  {t.auth.register.confirmPassword}
+                </Label>
                 <InputPassword
                   id='confirm-password'
                   name='confirm-password'
@@ -120,7 +122,9 @@ export function RegisterForm({
                 className='w-full cursor-pointer'
                 disabled={isLoading}
               >
-                {isLoading ? t.auth.register.registering : t.auth.register.registerButton}
+                {isLoading
+                  ? t.auth.register.registering
+                  : t.auth.register.registerButton}
               </Button>
               <div className='after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t'>
                 <span className='bg-card text-muted-foreground relative z-10 px-2'>
@@ -133,21 +137,27 @@ export function RegisterForm({
                   onClick={async () => await signInWithGithub()}
                 >
                   <FaGithub />
-                  <span className='sr-only'>{t.auth.register.loginWithGithub}</span>
+                  <span className='sr-only'>
+                    {t.auth.register.loginWithGithub}
+                  </span>
                 </ButtonWithLoading>
                 <ButtonWithLoading
                   className='w-full cursor-pointer'
                   onClick={async () => await signInWithGoogle()}
                 >
                   <FaGoogle />
-                  <span className='sr-only'>{t.auth.register.loginWithGoogle}</span>
+                  <span className='sr-only'>
+                    {t.auth.register.loginWithGoogle}
+                  </span>
                 </ButtonWithLoading>
                 <ButtonWithLoading
                   className='w-full'
                   onClick={async () => await signInWithMicrosoft()}
                 >
                   <FaMicrosoft />
-                  <span className='sr-only'>{t.auth.register.loginWithMicrosoft}</span>
+                  <span className='sr-only'>
+                    {t.auth.register.loginWithMicrosoft}
+                  </span>
                 </ButtonWithLoading>
                 <ButtonWithLoading
                   className='w-full'

@@ -125,9 +125,13 @@ export default function DashboardPage() {
           </Badge>
         );
       case 'inactive':
-        return <Badge variant='secondary'>{t.dashboard.yourAreas.inactive}</Badge>;
+        return (
+          <Badge variant='secondary'>{t.dashboard.yourAreas.inactive}</Badge>
+        );
       case 'error':
-        return <Badge variant='destructive'>{t.dashboard.yourAreas.error}</Badge>;
+        return (
+          <Badge variant='destructive'>{t.dashboard.yourAreas.error}</Badge>
+        );
       default:
         return <Badge variant='outline'>{t.dashboard.yourAreas.unknown}</Badge>;
     }
@@ -170,9 +174,7 @@ export default function DashboardPage() {
             <h1 className='text-3xl font-heading font-bold text-foreground'>
               {t.dashboard.title}
             </h1>
-            <p className='text-muted-foreground mt-1'>
-              {t.dashboard.subtitle}
-            </p>
+            <p className='text-muted-foreground mt-1'>{t.dashboard.subtitle}</p>
           </div>
           <Button
             onClick={() => router.push('/my-areas')}
@@ -189,7 +191,9 @@ export default function DashboardPage() {
             <CardContent className='p-6'>
               <div className='flex items-center justify-between'>
                 <div>
-                  <p className='text-sm text-muted-foreground'>{t.dashboard.stats.totalAreas}</p>
+                  <p className='text-sm text-muted-foreground'>
+                    {t.dashboard.stats.totalAreas}
+                  </p>
                   <p className='text-2xl font-bold'>{stats.totalAutomations}</p>
                 </div>
                 <div className='p-3 rounded-lg'>
@@ -219,7 +223,9 @@ export default function DashboardPage() {
             <CardContent className='p-6'>
               <div className='flex items-center justify-between'>
                 <div>
-                  <p className='text-sm text-muted-foreground'>{t.dashboard.stats.active}</p>
+                  <p className='text-sm text-muted-foreground'>
+                    {t.dashboard.stats.active}
+                  </p>
                   <p className='text-2xl font-bold text-green-600'>
                     {stats.activeAutomations}
                   </p>
@@ -234,7 +240,9 @@ export default function DashboardPage() {
             <CardContent className='p-6'>
               <div className='flex items-center justify-between'>
                 <div>
-                  <p className='text-sm text-muted-foreground'>{t.dashboard.stats.inactive}</p>
+                  <p className='text-sm text-muted-foreground'>
+                    {t.dashboard.stats.inactive}
+                  </p>
                   <p className='text-2xl font-bold text-red-600'>
                     {stats.inactiveAutomations}
                   </p>
@@ -248,7 +256,9 @@ export default function DashboardPage() {
         </div>
 
         <section className='mt-10 mb-8'>
-          <h1 className='text-2xl font-semibold mb-4'>{t.dashboard.quickActions.title}</h1>
+          <h1 className='text-2xl font-semibold mb-4'>
+            {t.dashboard.quickActions.title}
+          </h1>
           <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
             <Button
               variant='outline'
@@ -257,7 +267,9 @@ export default function DashboardPage() {
             >
               <Users className='h-5 w-5 text-blue-600' />
               <div className='text-left'>
-                <div className='font-medium'>{t.dashboard.quickActions.connectServices.title}</div>
+                <div className='font-medium'>
+                  {t.dashboard.quickActions.connectServices.title}
+                </div>
                 <div className='text-xs text-muted-foreground'>
                   {t.dashboard.quickActions.connectServices.description}
                 </div>
@@ -271,7 +283,9 @@ export default function DashboardPage() {
             >
               <Zap className='h-5 w-5 text-purple-600' />
               <div className='text-left'>
-                <div className='font-medium'>{t.dashboard.quickActions.browseTemplates.title}</div>
+                <div className='font-medium'>
+                  {t.dashboard.quickActions.browseTemplates.title}
+                </div>
                 <div className='text-xs text-muted-foreground'>
                   {t.dashboard.quickActions.browseTemplates.description}
                 </div>
@@ -285,7 +299,9 @@ export default function DashboardPage() {
             >
               <Settings className='h-5 w-5 text-green-600' />
               <div className='text-left'>
-                <div className='font-medium'>{t.dashboard.quickActions.accountSettings.title}</div>
+                <div className='font-medium'>
+                  {t.dashboard.quickActions.accountSettings.title}
+                </div>
                 <div className='text-xs text-muted-foreground'>
                   {t.dashboard.quickActions.accountSettings.description}
                 </div>
@@ -296,11 +312,15 @@ export default function DashboardPage() {
 
         {/* Automations List */}
         <section className='mt-12 mb-8'>
-          <h1 className='text-2xl font-semibold mb-6'>{t.dashboard.yourAreas.title}</h1>
+          <h1 className='text-2xl font-semibold mb-6'>
+            {t.dashboard.yourAreas.title}
+          </h1>
           {automations.length === 0 ? (
             <div className='text-center py-12'>
               <Zap className='h-12 w-12 text-muted-foreground mx-auto mb-4' />
-              <h3 className='text-lg font-semibold mb-2'>{t.dashboard.yourAreas.noAreas}</h3>
+              <h3 className='text-lg font-semibold mb-2'>
+                {t.dashboard.yourAreas.noAreas}
+              </h3>
               <p className='text-muted-foreground mb-6'>
                 {t.dashboard.yourAreas.noAreasDescription}
               </p>
@@ -339,7 +359,9 @@ export default function DashboardPage() {
                         {automation.description}
                       </p>
                       <div className='flex items-center gap-4 text-xs text-muted-foreground'>
-                        <span>{t.dashboard.yourAreas.action}: {automation.trigger}</span>
+                        <span>
+                          {t.dashboard.yourAreas.action}: {automation.trigger}
+                        </span>
                         <ChevronRight className='h-3 w-3' />
                         {automation.action.map((action, index) => (
                           <span key={index}>{action}</span>

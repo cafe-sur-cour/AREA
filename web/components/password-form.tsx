@@ -57,7 +57,9 @@ export function PasswordEmailForm({
           <form onSubmit={handleSubmit} className='p-6 md:p-8'>
             <div className='flex flex-col gap-6'>
               <div className='flex flex-col items-center text-center'>
-                <h1 className='text-2xl font-bold'>{t.auth.forgotPassword.title}</h1>
+                <h1 className='text-2xl font-bold'>
+                  {t.auth.forgotPassword.title}
+                </h1>
               </div>
               <div className='grid gap-3'>
                 <Label htmlFor='email'>{t.auth.forgotPassword.email}</Label>
@@ -146,10 +148,14 @@ export default function PasswordForm({
           <form onSubmit={handleSubmit} className='p-6 md:p-8'>
             <div className='flex flex-col gap-6'>
               <div className='flex flex-col items-center text-center'>
-                <h1 className='text-2xl font-bold'>{t.auth.resetPassword.title}</h1>
+                <h1 className='text-2xl font-bold'>
+                  {t.auth.resetPassword.title}
+                </h1>
               </div>
               <div className='grid gap-3'>
-                <Label htmlFor='password'>{t.auth.resetPassword.password}</Label>
+                <Label htmlFor='password'>
+                  {t.auth.resetPassword.password}
+                </Label>
                 <Input
                   id='password'
                   name='password'
@@ -159,7 +165,9 @@ export default function PasswordForm({
                 />
               </div>
               <div className='grid gap-3'>
-                <Label htmlFor='confirm-password'>{t.auth.resetPassword.confirmPassword}</Label>
+                <Label htmlFor='confirm-password'>
+                  {t.auth.resetPassword.confirmPassword}
+                </Label>
                 <Input
                   id='confirm-password'
                   name='confirm-password'
@@ -173,7 +181,9 @@ export default function PasswordForm({
                 className='w-full cursor-pointer'
                 disabled={isLoading}
               >
-                {isLoading ? t.auth.resetPassword.loading : t.auth.resetPassword.resetButton}
+                {isLoading
+                  ? t.auth.resetPassword.loading
+                  : t.auth.resetPassword.resetButton}
               </Button>
             </div>
           </form>

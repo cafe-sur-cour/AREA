@@ -222,10 +222,7 @@ export default function MyAreasPage() {
             </p>
           </div>
 
-          <Dialog
-            open={isDialogOpen}
-            onOpenChange={setIsDialogOpen}
-          >
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
               <Button
                 className='gap-2 cursor-pointer'

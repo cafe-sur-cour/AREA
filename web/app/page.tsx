@@ -74,19 +74,25 @@ export default function Home() {
                 <h2 className='text-4xl font-heading font-bold text-foreground mb-2'>
                   10M+
                 </h2>
-                <div className='text-muted-foreground'>{t.home.stats.automations}</div>
+                <div className='text-muted-foreground'>
+                  {t.home.stats.automations}
+                </div>
               </div>
               <div className='text-center md:text-left'>
                 <h2 className='text-4xl font-heading font-bold text-foreground mb-2'>
                   500+
                 </h2>
-                <div className='text-muted-foreground'>{t.home.stats.services}</div>
+                <div className='text-muted-foreground'>
+                  {t.home.stats.services}
+                </div>
               </div>
               <div className='text-center md:text-left'>
                 <h2 className='text-4xl font-heading font-bold text-foreground mb-2'>
                   2M+
                 </h2>
-                <div className='text-muted-foreground'>{t.home.stats.users}</div>
+                <div className='text-muted-foreground'>
+                  {t.home.stats.users}
+                </div>
               </div>
             </div>
           </div>
@@ -193,17 +199,20 @@ export default function Home() {
               {[
                 {
                   title: t.home.popularAutomations.emailToSlack.title,
-                  description: t.home.popularAutomations.emailToSlack.description,
+                  description:
+                    t.home.popularAutomations.emailToSlack.description,
                   icon: '📧',
                 },
                 {
                   title: t.home.popularAutomations.socialMediaSync.title,
-                  description: t.home.popularAutomations.socialMediaSync.description,
+                  description:
+                    t.home.popularAutomations.socialMediaSync.description,
                   icon: '📱',
                 },
                 {
                   title: t.home.popularAutomations.calendarReminders.title,
-                  description: t.home.popularAutomations.calendarReminders.description,
+                  description:
+                    t.home.popularAutomations.calendarReminders.description,
                   icon: '📅',
                 },
                 {
@@ -213,12 +222,14 @@ export default function Home() {
                 },
                 {
                   title: t.home.popularAutomations.taskManagement.title,
-                  description: t.home.popularAutomations.taskManagement.description,
+                  description:
+                    t.home.popularAutomations.taskManagement.description,
                   icon: '✅',
                 },
                 {
                   title: t.home.popularAutomations.dataCollection.title,
-                  description: t.home.popularAutomations.dataCollection.description,
+                  description:
+                    t.home.popularAutomations.dataCollection.description,
                   icon: '📊',
                 },
               ].map((automation, index) => (

@@ -117,21 +117,27 @@ export function LoginForm({
                   className='w-full cursor-pointer'
                 >
                   <FaGithub />
-                  <span className='sr-only'>{t.auth.login.loginWithGithub}</span>
+                  <span className='sr-only'>
+                    {t.auth.login.loginWithGithub}
+                  </span>
                 </ButtonWithLoading>
                 <ButtonWithLoading
                   onClick={async () => await signInWithGoogle()}
                   className='w-full cursor-pointer'
                 >
                   <FaGoogle />
-                  <span className='sr-only'>{t.auth.login.loginWithGoogle}</span>
+                  <span className='sr-only'>
+                    {t.auth.login.loginWithGoogle}
+                  </span>
                 </ButtonWithLoading>
                 <ButtonWithLoading
                   onClick={async () => await signInWithMicrosoft()}
                   className='w-full'
                 >
                   <FaMicrosoft />
-                  <span className='sr-only'>{t.auth.login.loginWithMicrosoft}</span>
+                  <span className='sr-only'>
+                    {t.auth.login.loginWithMicrosoft}
+                  </span>
                 </ButtonWithLoading>
                 <ButtonWithLoading
                   onClick={async () => await signInWithMeta()}

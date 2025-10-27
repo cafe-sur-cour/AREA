@@ -24,7 +24,7 @@ export default function LanguageSwitcher() {
         onChange={handleLanguageChange}
         className='bg-transparent border border-border rounded-md px-2 py-1 text-sm cursor-pointer hover:bg-accent transition-colors'
       >
-        {languages.map((language) => (
+        {languages.map(language => (
           <option key={language.code} value={language.code}>
             {language.flag} {language.name}
           </option>

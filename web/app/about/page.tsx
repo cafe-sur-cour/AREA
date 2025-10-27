@@ -32,7 +32,10 @@ export default function AboutPage() {
           <div className='max-w-7xl mx-auto'>
             <div className='text-center max-w-4xl mx-auto'>
               <h1 className='text-5xl sm:text-6xl lg:text-7xl font-heading font-bold text-foreground mb-6 text-balance'>
-                {t.about.hero.title} <span className='text-primary'>{t.about.hero.titleHighlight}</span>
+                {t.about.hero.title}{' '}
+                <span className='text-primary'>
+                  {t.about.hero.titleHighlight}
+                </span>
               </h1>
               <p className='text-lg sm:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto text-pretty'>
                 {t.about.hero.description}
@@ -64,7 +67,9 @@ export default function AboutPage() {
                     <div className='text-4xl font-heading font-bold text-primary mb-2'>
                       2M+
                     </div>
-                    <div className='text-muted-foreground'>{t.about.mission.stats.users}</div>
+                    <div className='text-muted-foreground'>
+                      {t.about.mission.stats.users}
+                    </div>
                   </CardContent>
                 </Card>
                 <Card className='bg-card border-border'>
@@ -72,7 +77,9 @@ export default function AboutPage() {
                     <div className='text-4xl font-heading font-bold text-primary mb-2'>
                       10M+
                     </div>
-                    <div className='text-muted-foreground'>{t.about.mission.stats.automations}</div>
+                    <div className='text-muted-foreground'>
+                      {t.about.mission.stats.automations}
+                    </div>
                   </CardContent>
                 </Card>
                 <Card className='bg-card border-border'>
@@ -80,7 +87,9 @@ export default function AboutPage() {
                     <div className='text-4xl font-heading font-bold text-primary mb-2'>
                       500+
                     </div>
-                    <div className='text-muted-foreground'>{t.about.mission.stats.integrations}</div>
+                    <div className='text-muted-foreground'>
+                      {t.about.mission.stats.integrations}
+                    </div>
                   </CardContent>
                 </Card>
                 <Card className='bg-card border-border'>
@@ -88,7 +97,9 @@ export default function AboutPage() {
                     <div className='text-4xl font-heading font-bold text-primary mb-2'>
                       99.9%
                     </div>
-                    <div className='text-muted-foreground'>{t.about.mission.stats.uptime}</div>
+                    <div className='text-muted-foreground'>
+                      {t.about.mission.stats.uptime}
+                    </div>
                   </CardContent>
                 </Card>
               </div>
@@ -206,18 +217,10 @@ export default function AboutPage() {
               </h2>
             </div>
             <div className='prose prose-lg max-w-none text-muted-foreground'>
-              <p className='text-lg mb-4'>
-                {t.about.story.paragraph1}
-              </p>
-              <p className='text-lg mb-4'>
-                {t.about.story.paragraph2}
-              </p>
-              <p className='text-lg mb-4'>
-                {t.about.story.paragraph3}
-              </p>
-              <p className='text-lg'>
-                {t.about.story.paragraph4}
-              </p>
+              <p className='text-lg mb-4'>{t.about.story.paragraph1}</p>
+              <p className='text-lg mb-4'>{t.about.story.paragraph2}</p>
+              <p className='text-lg mb-4'>{t.about.story.paragraph3}</p>
+              <p className='text-lg'>{t.about.story.paragraph4}</p>
             </div>
           </div>
         </section>
@@ -340,7 +343,7 @@ export default function AboutPage() {
         <section className='px-4 sm:px-6 lg:px-8 py-24'>
           <div className='max-w-4xl mx-auto text-center'>
             <h2 className='text-3xl sm:text-4xl lg:text-5xl font-heading font-bold text-foreground mb-6'>
-                {t.about.cta.title}
+              {t.about.cta.title}
             </h2>
             <p className='text-lg text-muted-foreground mb-10 max-w-2xl mx-auto'>
               {t.about.cta.description}

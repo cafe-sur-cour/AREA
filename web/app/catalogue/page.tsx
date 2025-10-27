@@ -118,9 +118,15 @@ export default function CataloguePage() {
                 <SelectValue placeholder={t.catalogue.filter.placeholder} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value='all'>{t.catalogue.filter.all} Types</SelectItem>
-                <SelectItem value='actions'>{t.catalogue.filter.actionsOnly}</SelectItem>
-                <SelectItem value='reactions'>{t.catalogue.filter.reactionsOnly}</SelectItem>
+                <SelectItem value='all'>
+                  {t.catalogue.filter.all} Types
+                </SelectItem>
+                <SelectItem value='actions'>
+                  {t.catalogue.filter.actionsOnly}
+                </SelectItem>
+                <SelectItem value='reactions'>
+                  {t.catalogue.filter.reactionsOnly}
+                </SelectItem>
               </SelectContent>
             </Select>
             <Select
@@ -131,10 +137,14 @@ export default function CataloguePage() {
               value={selectedFilterService || 'all'}
             >
               <SelectTrigger className=' md:w-48 bg-app-surface border-app-border-light'>
-                <SelectValue placeholder={t.catalogue.filterServices.placeholder} />
+                <SelectValue
+                  placeholder={t.catalogue.filterServices.placeholder}
+                />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value='all'>{t.catalogue.filterServices.all}</SelectItem>
+                <SelectItem value='all'>
+                  {t.catalogue.filterServices.all}
+                </SelectItem>
                 {about &&
                   about.server.services.map(
                     (service: AboutAREA, index: number) => (
