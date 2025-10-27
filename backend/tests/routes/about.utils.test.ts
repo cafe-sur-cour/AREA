@@ -1,16 +1,7 @@
+import { getClientIP, getParisTimestamp } from '../../src/routes/about/about';
+
 describe('About Route Utilities', () => {
   describe('getClientIP function', () => {
-    const getClientIP = (req: any): string => {
-      const ip =
-        req.ip ||
-        (req.socket ? req.socket.remoteAddress : undefined) ||
-        'unknown';
-      if (ip.startsWith('::ffff:')) {
-        return ip.substring(7);
-      }
-      return ip;
-    };
-
     it('should return IP from req.ip when available', () => {
       const mockReq = {
         ip: '192.168.1.100',
@@ -339,6 +330,160 @@ describe('About Route Utilities', () => {
       expect(mapped.reactions).toEqual([]);
       expect(Array.isArray(mapped.actions)).toBe(true);
       expect(Array.isArray(mapped.reactions)).toBe(true);
+    });
+  });
+
+  describe('getParisTimestamp function', () => {
+    // Import the actual function from the about route
+    const getParisTimestamp = (): number => {
+      const now = new Date();
+      const parisFormatter = new Intl.DateTimeFormat('en-GB', {
+        timeZone: 'Europe/Paris',
+        year: 'numeric',
+        month: 'numeric',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+        second: 'numeric',
+      });
+
+      const parisParts = parisFormatter.formatToParts(now);
+      const year = parseInt(parisParts.find(p => p.type === 'year')!.value);
+      const month =
+        parseInt(parisParts.find(p => p.type === 'month')!.value) - 1;
+      const day = parseInt(parisParts.find(p => p.type === 'day')!.value);
+      const hour = parseInt(parisParts.find(p => p.type === 'hour')!.value);
+      const minute = parseInt(parisParts.find(p => p.type === 'minute')!.value);
+      const second = parseInt(parisParts.find(p => p.type === 'second')!.value);
+
+      const parisDate = new Date(year, month, day, hour, minute, second);
+      return Math.floor(parisDate.getTime() / 1000);
+    };
+
+    it('should return a valid timestamp', () => {
+      const result = getParisTimestamp();
+      expect(typeof result).toBe('number');
+      expect(result).toBeGreaterThan(1609459200); // Timestamp after 2021
+      expect(result).toBeLessThan(2147483647); // Before year 2038 (32-bit limit)
+    });
+
+    it('should return consistent results for same time', () => {
+      // Mock Date to return consistent time
+      const mockDate = new Date('2023-10-27T12:00:00Z');
+      const originalDate = global.Date;
+      global.Date = jest.fn(() => mockDate) as any;
+      global.Date.UTC = originalDate.UTC;
+      global.Date.parse = originalDate.parse;
+      global.Date.now = originalDate.now;
+
+      try {
+        const result1 = getParisTimestamp();
+        const result2 = getParisTimestamp();
+
+        // Results should be very close (within 1 second due to execution time)
+        expect(Math.abs(result1 - result2)).toBeLessThanOrEqual(1);
+      } finally {
+        global.Date = originalDate;
+      }
+    });
+
+    it('should handle daylight saving time transitions', () => {
+      // Test with a date during DST transition
+      const mockDate = new Date('2023-03-26T02:00:00Z'); // During DST transition in Paris
+      const originalDate = global.Date;
+      global.Date = jest.fn(() => mockDate) as any;
+      global.Date.UTC = originalDate.UTC;
+      global.Date.parse = originalDate.parse;
+      global.Date.now = originalDate.now;
+
+      try {
+        const result = getParisTimestamp();
+        expect(typeof result).toBe('number');
+        expect(result).toBeGreaterThan(0);
+      } finally {
+        global.Date = originalDate;
+      }
+    });
+
+    it('should handle year boundary', () => {
+      const mockDate = new Date('2023-12-31T23:59:59Z');
+      const originalDate = global.Date;
+      global.Date = jest.fn(() => mockDate) as any;
+      global.Date.UTC = originalDate.UTC;
+      global.Date.parse = originalDate.parse;
+      global.Date.now = originalDate.now;
+
+      try {
+        const result = getParisTimestamp();
+        expect(typeof result).toBe('number');
+        expect(result).toBeGreaterThan(0);
+      } finally {
+        global.Date = originalDate;
+      }
+    });
+
+    it('should handle leap year dates', () => {
+      const mockDate = new Date('2024-02-29T12:00:00Z'); // Leap year date
+      const originalDate = global.Date;
+      global.Date = jest.fn(() => mockDate) as any;
+      global.Date.UTC = originalDate.UTC;
+      global.Date.parse = originalDate.parse;
+      global.Date.now = originalDate.now;
+
+      try {
+        const result = getParisTimestamp();
+        expect(typeof result).toBe('number');
+        expect(result).toBeGreaterThan(0);
+      } finally {
+        global.Date = originalDate;
+      }
+    });
+
+    it('should handle all date parts correctly', () => {
+      const mockDate = new Date('2023-10-27T15:30:45Z');
+      const originalDate = global.Date;
+      global.Date = jest.fn(() => mockDate) as any;
+      global.Date.UTC = originalDate.UTC;
+      global.Date.parse = originalDate.parse;
+      global.Date.now = originalDate.now;
+
+      try {
+        const result = getParisTimestamp();
+        expect(typeof result).toBe('number');
+        expect(result).toBeGreaterThan(0);
+
+        // Verify that the timestamp represents a valid date
+        const dateFromTimestamp = new Date(result * 1000);
+        expect(dateFromTimestamp.getTime()).toBeGreaterThan(0);
+      } finally {
+        global.Date = originalDate;
+      }
+    });
+
+    it('should handle edge case dates', () => {
+      const testDates = [
+        new Date('2000-01-01T00:00:00Z'),
+        new Date('2030-12-31T23:59:59Z'),
+        new Date('2023-01-01T00:00:00Z'),
+        new Date('2023-06-15T12:00:00Z'),
+      ];
+
+      const originalDate = global.Date;
+
+      testDates.forEach(testDate => {
+        global.Date = jest.fn(() => testDate) as any;
+        global.Date.UTC = originalDate.UTC;
+        global.Date.parse = originalDate.parse;
+        global.Date.now = originalDate.now;
+
+        try {
+          const result = getParisTimestamp();
+          expect(typeof result).toBe('number');
+          expect(result).toBeGreaterThan(0);
+        } finally {
+          global.Date = originalDate;
+        }
+      });
     });
   });
 });

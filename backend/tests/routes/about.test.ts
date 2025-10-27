@@ -480,5 +480,128 @@ describe('About Route', () => {
       expect(response.status).toBe(200);
       expect(response.body.server.services[0].name).toBe('Service with nulls');
     });
+
+    it('should handle createLog errors in error handler gracefully', async () => {
+      const error = new Error('Logging error in catch block');
+      mockCreateLog.mockRejectedValueOnce(error); // First call (error log) fails
+
+      mockServiceRegistry.getAllServices.mockImplementation(() => {
+        throw new Error('Service error');
+      });
+
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+
+      const response = await request(app).get('/about.json');
+
+      expect(response.status).toBe(500);
+      expect(response.body).toEqual({
+        error: 'Internal Server Error in about route',
+      });
+
+      // Should have called createLog once: for error logging (which fails)
+      expect(mockCreateLog).toHaveBeenCalledTimes(1);
+      expect(mockCreateLog).toHaveBeenCalledWith(500, 'about', 'Service error');
+
+      // Should have logged the error to console when createLog fails in catch block
+      expect(consoleSpy).toHaveBeenCalledWith('Failed to log error:', error);
+
+      consoleSpy.mockRestore();
+    });
+
+    it('should handle both logging errors in main try-catch', async () => {
+      const logError = new Error('Logging failed');
+      mockCreateLog.mockRejectedValue(logError);
+
+      mockServiceRegistry.getAllServices.mockImplementation(() => {
+        throw new Error('Service error');
+      });
+
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+
+      const response = await request(app).get('/about.json');
+
+      expect(response.status).toBe(500);
+      expect(response.body).toEqual({
+        error: 'Internal Server Error in about route',
+      });
+
+      // Should have called createLog once, failing
+      expect(mockCreateLog).toHaveBeenCalledTimes(1);
+
+      // Should have logged errors to console
+      expect(consoleSpy).toHaveBeenCalledTimes(2);
+      expect(consoleSpy).toHaveBeenNthCalledWith(1, expect.any(Error)); // The original service error
+      expect(consoleSpy).toHaveBeenNthCalledWith(
+        2,
+        'Failed to log error:',
+        logError
+      );
+
+      consoleSpy.mockRestore();
+    });
+
+    it('should handle both logging errors in main try-catch', async () => {
+      const logError = new Error('Logging failed');
+      mockCreateLog.mockRejectedValue(logError);
+
+      mockServiceRegistry.getAllServices.mockImplementation(() => {
+        throw new Error('Service error');
+      });
+
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+
+      const response = await request(app).get('/about.json');
+
+      expect(response.status).toBe(500);
+      expect(response.body).toEqual({
+        error: 'Internal Server Error in about route',
+      });
+
+      // Should have called createLog once (only the error logging), failing
+      expect(mockCreateLog).toHaveBeenCalledTimes(1);
+      expect(mockCreateLog).toHaveBeenCalledWith(500, 'about', 'Service error');
+
+      // Should have logged errors to console twice: original error and logging failure
+      expect(consoleSpy).toHaveBeenCalledTimes(2);
+      expect(consoleSpy).toHaveBeenNthCalledWith(1, expect.any(Error)); // The original service error
+      expect(consoleSpy).toHaveBeenNthCalledWith(
+        2,
+        'Failed to log error:',
+        logError
+      );
+
+      consoleSpy.mockRestore();
+    });
+
+    it('should handle non-Error objects in error logging', async () => {
+      const stringError = 'String error';
+      mockServiceRegistry.getAllServices.mockImplementation(() => {
+        throw stringError;
+      });
+
+      const response = await request(app).get('/about.json');
+
+      expect(response.status).toBe(500);
+      expect(response.body).toEqual({
+        error: 'Internal Server Error in about route',
+      });
+
+      expect(mockCreateLog).toHaveBeenCalledWith(500, 'about', 'Unknown error');
+    });
+
+    it('should handle null/undefined errors in logging', async () => {
+      mockServiceRegistry.getAllServices.mockImplementation(() => {
+        throw null;
+      });
+
+      const response = await request(app).get('/about.json');
+
+      expect(response.status).toBe(500);
+      expect(response.body).toEqual({
+        error: 'Internal Server Error in about route',
+      });
+
+      expect(mockCreateLog).toHaveBeenCalledWith(500, 'about', 'Unknown error');
+    });
   });
 });
