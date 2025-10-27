@@ -1,5 +1,5 @@
 # Flutter Mobile Build Dockerfile
-FROM ghcr.io/cirruslabs/flutter:3.35.6 AS builder
+FROM ghcr.io/cirruslabs/flutter:3.35.7 AS builder
 
 ARG SKIP_APK_BUILD=false
 ARG FRONTEND_URL
