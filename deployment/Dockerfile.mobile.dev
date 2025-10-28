@@ -48,5 +48,4 @@ COPY --from=builder /app/build/app/outputs/flutter-apk/app-release.apk /app/buil
 
 WORKDIR /app
 
-# Copy the APK to the volume when container starts
 CMD ["sh", "-c", "cp /app/build/area.apk /app/build/area.apk && sleep infinity"]
