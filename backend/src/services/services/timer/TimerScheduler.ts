@@ -45,12 +45,7 @@ export class TimerScheduler {
 
   private async checkAndTriggerTimers(): Promise<void> {
     try {
-      console.log(
-        '[TimerScheduler] Checking timers at',
-        new Date().toISOString()
-      );
       const timezones = await this.getActiveTimerTimezones();
-      console.log('[TimerScheduler] Active timezones:', timezones);
 
       for (const timezoneOffset of timezones) {
         await this.checkTimersForTimezone(timezoneOffset);
@@ -131,10 +126,6 @@ export class TimerScheduler {
       'saturday',
     ];
     const currentDay = dayNames.indexOf(dayName);
-
-    console.log(
-      `[TimerScheduler] Timezone ${timezoneOffset}: ${currentHour}:${currentMinute} ${dayName} (day index: ${currentDay})`
-    );
 
     await this.checkEveryHourAtIntervalsTimers(currentMinute, timezoneOffset);
     await this.checkEveryDayAtXHourTimers(
