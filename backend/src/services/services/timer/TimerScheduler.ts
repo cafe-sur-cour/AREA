@@ -45,7 +45,12 @@ export class TimerScheduler {
 
   private async checkAndTriggerTimers(): Promise<void> {
     try {
+      console.log(
+        '[TimerScheduler] Checking timers at',
+        new Date().toISOString()
+      );
       const timezones = await this.getActiveTimerTimezones();
+      console.log('[TimerScheduler] Active timezones:', timezones);
 
       for (const timezoneOffset of timezones) {
         await this.checkTimersForTimezone(timezoneOffset);
@@ -127,6 +132,10 @@ export class TimerScheduler {
     ];
     const currentDay = dayNames.indexOf(dayName);
 
+    console.log(
+      `[TimerScheduler] Timezone ${timezoneOffset}: ${currentHour}:${currentMinute} ${dayName} (day index: ${currentDay})`
+    );
+
     await this.checkEveryHourAtIntervalsTimers(currentMinute, timezoneOffset);
     await this.checkEveryDayAtXHourTimers(
       currentHour,
@@ -199,6 +208,10 @@ export class TimerScheduler {
       },
     });
 
+    console.log(
+      `[TimerScheduler] Found ${mappings.length} daily timer mappings for timezone ${timezoneOffset}`
+    );
+
     const dayNames = [
       'sunday',
       'monday',
@@ -219,7 +232,15 @@ export class TimerScheduler {
         };
 
         const configTimezone = config.timezone ?? 2; // Default to UTC+2
-        if (configTimezone !== timezoneOffset) continue;
+        console.log(
+          `[TimerScheduler] Mapping ${mapping.id}: config timezone ${configTimezone}, current timezone ${timezoneOffset}, hour ${config.hour}:${config.minute ?? 0}, days ${config.days}, current ${currentHour}:${currentMinute} ${dayNames[currentDay]}`
+        );
+        if (configTimezone !== timezoneOffset) {
+          console.log(
+            `[TimerScheduler] Skipping mapping ${mapping.id}: timezone mismatch`
+          );
+          continue;
+        }
 
         if (
           config.hour === currentHour &&
@@ -236,6 +257,10 @@ export class TimerScheduler {
             minute: config.minute ?? 0,
             day: dayNames[currentDay]!,
           });
+        } else {
+          console.log(
+            `[TimerScheduler] Mapping ${mapping.id} does not match: hour ${config.hour}==${currentHour}, minute ${config.minute ?? 0}==${currentMinute}, day ${dayNames[currentDay]} in ${config.days}`
+          );
         }
       } catch (error) {
         console.error(`Error processing timer mapping ${mapping.id}:`, error);
