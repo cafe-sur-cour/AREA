@@ -1,6 +1,6 @@
 'use client';
 
-import { RegisterForm } from '@/components/register-form';
+import RegisterForm from '@/components/register-form';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { TbLoader3 } from 'react-icons/tb';

@@ -41,6 +41,14 @@ jest.mock('../contexts/AuthContext', () => ({
 }));
 
 describe('Navigation Header', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    // Mock console methods to suppress logs in tests
+    jest.spyOn(console, 'log').mockImplementation(() => {});
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
   it('renders the navigation component', () => {
     render(<Navigation />);
     expect(document.querySelector('nav')).toBeInTheDocument();

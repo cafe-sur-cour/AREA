@@ -14,6 +14,13 @@ jest.mock('../contexts/AuthContext', () => ({
 }));
 
 describe('UserActions', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    jest.spyOn(console, 'log').mockImplementation(() => {});
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
   const pushMock = jest.fn();
   const logoutMock = jest.fn();
 

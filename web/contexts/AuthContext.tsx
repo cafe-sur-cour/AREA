@@ -89,7 +89,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     checkAuth();
   }, []);
 
-
   const refreshUserInfo = async (): Promise<User | null> => {
     const token = await getToken();
     if (!token) {

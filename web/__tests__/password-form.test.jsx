@@ -1,7 +1,10 @@
 import '@testing-library/jest-dom';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { PasswordEmailForm, default as PasswordForm } from '../components/password-form';
+import {
+  PasswordEmailForm,
+  default as PasswordForm,
+} from '../components/password-form';
 import api from '../lib/api';
 import { toast } from 'sonner';
 
@@ -23,7 +26,9 @@ jest.mock('next/navigation', () => ({
     push: mockPush,
   }),
   useSearchParams: () => ({
-    get: jest.fn().mockImplementation((param) => param === 'token' ? 'test-token' : null),
+    get: jest
+      .fn()
+      .mockImplementation(param => (param === 'token' ? 'test-token' : null)),
   }),
 }));
 
@@ -31,8 +36,9 @@ describe('PasswordEmailForm (Forgot Password)', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest.useRealTimers();
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-    consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+    jest.spyOn(console, 'log').mockImplementation(() => {});
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    jest.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {
@@ -57,7 +63,7 @@ describe('PasswordEmailForm (Forgot Password)', () => {
     render(<PasswordEmailForm />);
     const emailInput = screen.getByTestId('email-input');
     const submitButton = screen.getByText('Request password reset');
-    
+
     // Test with invalid email
     await userEvent.type(emailInput, 'invalid-email');
     await userEvent.click(submitButton);
@@ -71,7 +77,7 @@ describe('PasswordEmailForm (Forgot Password)', () => {
 
   it('handles successful password reset request', async () => {
     api.post.mockResolvedValueOnce({ data: { message: 'Reset link sent' } });
-    
+
     render(<PasswordEmailForm />);
     const emailInput = screen.getByTestId('email-input');
     const submitButton = screen.getByText('Request password reset');
@@ -92,16 +98,20 @@ describe('PasswordEmailForm (Forgot Password)', () => {
   }, 10000);
 
   it('shows loading state during submission', async () => {
-    api.post.mockImplementationOnce(() => new Promise(resolve => setTimeout(resolve, 100)));
-    
+    api.post.mockImplementationOnce(
+      () => new Promise(resolve => setTimeout(resolve, 100))
+    );
+
     render(<PasswordEmailForm />);
     const submitButton = screen.getByText('Request password reset');
-    
+
     await userEvent.type(screen.getByTestId('email-input'), 'test@example.com');
     await userEvent.click(submitButton);
-    
+
     await waitFor(() => {
-      expect(screen.getByText('Requesting password reset link...')).toBeInTheDocument();
+      expect(
+        screen.getByText('Requesting password reset link...')
+      ).toBeInTheDocument();
       expect(submitButton).toBeDisabled();
     });
   }, 10000);
@@ -111,6 +121,10 @@ describe('PasswordForm (Reset Password)', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest.useRealTimers();
+    // Mock console methods to suppress logs in tests
+    jest.spyOn(console, 'log').mockImplementation(() => {});
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    jest.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {
@@ -141,8 +155,10 @@ describe('PasswordForm (Reset Password)', () => {
   }, 10000);
 
   it('handles successful password reset', async () => {
-    api.post.mockResolvedValueOnce({ data: { message: 'Password reset successful' } });
-    
+    api.post.mockResolvedValueOnce({
+      data: { message: 'Password reset successful' },
+    });
+
     render(<PasswordForm />);
     const passwordInput = screen.getByLabelText('Password');
     const confirmInput = screen.getByLabelText('Confirm password');
@@ -168,11 +184,13 @@ describe('PasswordForm (Reset Password)', () => {
 
   it('handles missing token error', async () => {
     const mockSearchParams = {
-      get: jest.fn().mockReturnValue(null)
+      get: jest.fn().mockReturnValue(null),
     };
 
-    jest.spyOn(require('next/navigation'), 'useSearchParams').mockImplementation(() => mockSearchParams);
-    
+    jest
+      .spyOn(require('next/navigation'), 'useSearchParams')
+      .mockImplementation(() => mockSearchParams);
+
     render(<PasswordForm />);
     const passwordInput = screen.getByLabelText('Password');
     const confirmInput = screen.getByLabelText('Confirm password');
@@ -186,5 +204,4 @@ describe('PasswordForm (Reset Password)', () => {
       expect(toast.error).toHaveBeenCalledWith('Invalid or expired token');
     });
   }, 10000);
-
 });

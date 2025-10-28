@@ -111,7 +111,7 @@ const router = express.Router();
  *                   type: string
  *                   example: "Internal Server Error in about route"
  */
-const getClientIP = (req: Request): string => {
+export const getClientIP = (req: Request): string => {
   const ip =
     req.ip || (req.socket ? req.socket.remoteAddress : undefined) || 'unknown';
   if (ip.startsWith('::ffff:')) {
@@ -120,7 +120,7 @@ const getClientIP = (req: Request): string => {
   return ip;
 };
 
-const getParisTimestamp = (): number => {
+export const getParisTimestamp = (): number => {
   const now = new Date();
   const parisFormatter = new Intl.DateTimeFormat('en-GB', {
     timeZone: 'Europe/Paris',
@@ -140,7 +140,7 @@ const getParisTimestamp = (): number => {
   const minute = parseInt(parisParts.find(p => p.type === 'minute')!.value);
   const second = parseInt(parisParts.find(p => p.type === 'second')!.value);
 
-  const parisDate = new Date(year, month, day, hour, minute, second);
+  const parisDate = new Date(Date.UTC(year, month, day, hour, minute, second));
   return Math.floor(parisDate.getTime() / 1000);
 };
 

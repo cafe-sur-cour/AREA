@@ -25,8 +25,12 @@ describe('RegisterForm', () => {
   beforeEach(() => {
     useRouter.mockReturnValue({ push });
     jest.clearAllMocks();
-
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    useRouter.mockReturnValue({
+      push: mockPush,
+    });
+    jest.spyOn(console, 'log').mockImplementation(() => {});
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    jest.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   it('renders form inputs', () => {

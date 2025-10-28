@@ -1,6 +1,14 @@
 import '@testing-library/jest-dom';
 
 describe('Array Utilities', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    // Mock console methods to suppress logs in tests
+    jest.spyOn(console, 'log').mockImplementation(() => {});
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
   it('filters array', () => {
     const numbers = [1, 2, 3, 4, 5];
     const evens = numbers.filter(n => n % 2 === 0);

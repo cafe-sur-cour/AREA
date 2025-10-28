@@ -11,6 +11,10 @@ jest.mock('../lib/config', () => ({
 describe('API utilities', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    // Mock console methods to suppress logs in tests
+    jest.spyOn(console, 'log').mockImplementation(() => {});
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    jest.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   it('should have API utilities available', async () => {

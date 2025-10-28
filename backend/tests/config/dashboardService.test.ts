@@ -68,6 +68,10 @@ describe('DashboardService', () => {
     } as any;
 
     dashboardService = new DashboardService(mockDataSource);
+
+    // Mock console methods
+    jest.spyOn(console, 'error').mockImplementation();
+    jest.spyOn(console, 'warn').mockImplementation();
   });
 
   afterEach(() => {
@@ -292,6 +296,58 @@ describe('DashboardService', () => {
       expect(result.webhooks.totalEvents).toBe(0);
     });
 
+    it('should handle new users this month query errors gracefully', async () => {
+      mockUserRepo.count
+        .mockResolvedValueOnce(100)
+        .mockResolvedValueOnce(80)
+        .mockResolvedValueOnce(5);
+
+      mockSubscriptionRepo.count
+        .mockResolvedValueOnce(150)
+        .mockResolvedValueOnce(120);
+
+      mockWebhookRepo.count.mockResolvedValue(25);
+      mockWebhookStatsRepo.find.mockResolvedValue([]);
+
+      // Mock user query builder to fail on getCount for new users
+      const mockUserQueryBuilder = {
+        where: jest.fn().mockReturnThis(),
+        getCount: jest.fn().mockRejectedValue(new Error('Query failed')),
+      };
+      mockUserRepo.createQueryBuilder.mockReturnValue(
+        mockUserQueryBuilder as any
+      );
+
+      const mockSubscriptionQueryBuilder = {
+        select: jest.fn().mockReturnThis(),
+        addSelect: jest.fn().mockReturnThis(),
+        where: jest.fn().mockReturnThis(),
+        groupBy: jest.fn().mockReturnThis(),
+        orderBy: jest.fn().mockReturnThis(),
+        limit: jest.fn().mockReturnThis(),
+        getRawMany: jest.fn().mockResolvedValue([]),
+      };
+      mockSubscriptionRepo.createQueryBuilder.mockReturnValue(
+        mockSubscriptionQueryBuilder as any
+      );
+
+      const mockActivityQueryBuilder = {
+        select: jest.fn().mockReturnThis(),
+        addSelect: jest.fn().mockReturnThis(),
+        groupBy: jest.fn().mockReturnThis(),
+        orderBy: jest.fn().mockReturnThis(),
+        limit: jest.fn().mockReturnThis(),
+        getRawMany: jest.fn().mockResolvedValue([]),
+      };
+      mockActivityRepo.createQueryBuilder.mockReturnValue(
+        mockActivityQueryBuilder as any
+      );
+
+      const result = await dashboardService.getDashboardData();
+
+      expect(result.users.newThisMonth).toBe(0); // Should default to 0 on error
+    });
+
     it('should handle activity logs errors and provide fallback data', async () => {
       mockUserRepo.count
         .mockResolvedValueOnce(100)
@@ -326,16 +382,25 @@ describe('DashboardService', () => {
         mockSubscriptionQueryBuilder as any
       );
 
-      // Mock activity repo to throw error
+      // Mock activity repo to throw error when creating query builder
       mockActivityRepo.createQueryBuilder.mockImplementation(() => {
         throw new Error('Activity logs table error');
       });
 
+      // Spy on the logActivityError method
+      const logActivityErrorSpy = jest.spyOn(
+        DashboardService.prototype as any,
+        'logActivityError'
+      );
+
       const result = await dashboardService.getDashboardData();
 
-      expect(result.activity.recentUsers).toHaveLength(7); // Fallback data
-      expect(result.activity.recentUsers[0]).toHaveProperty('date');
-      expect(result.activity.recentUsers[0]).toHaveProperty('count');
+      expect(logActivityErrorSpy).toHaveBeenCalledWith(
+        new Error('Activity logs table error')
+      );
+      expect(result.activity.recentUsers).toEqual([]); // Should return empty array as fallback
+
+      logActivityErrorSpy.mockRestore();
     });
 
     it('should calculate success rate correctly', async () => {
@@ -447,6 +512,61 @@ describe('DashboardService', () => {
 
       expect(result.webhooks.successRate).toBe(0);
       expect(result.webhooks.totalEvents).toBe(0);
+    });
+
+    it('should handle empty webhook stats array', async () => {
+      mockUserRepo.count
+        .mockResolvedValueOnce(10)
+        .mockResolvedValueOnce(8)
+        .mockResolvedValueOnce(1);
+
+      mockSubscriptionRepo.count
+        .mockResolvedValueOnce(20)
+        .mockResolvedValueOnce(15);
+
+      mockWebhookRepo.count.mockResolvedValue(5);
+
+      // Mock empty webhook stats array
+      mockWebhookStatsRepo.find.mockResolvedValue([]);
+
+      const mockUserQueryBuilder = {
+        where: jest.fn().mockReturnThis(),
+        getCount: jest.fn().mockResolvedValue(2),
+      };
+      mockUserRepo.createQueryBuilder.mockReturnValue(
+        mockUserQueryBuilder as any
+      );
+
+      const mockSubscriptionQueryBuilder = {
+        select: jest.fn().mockReturnThis(),
+        addSelect: jest.fn().mockReturnThis(),
+        where: jest.fn().mockReturnThis(),
+        groupBy: jest.fn().mockReturnThis(),
+        orderBy: jest.fn().mockReturnThis(),
+        limit: jest.fn().mockReturnThis(),
+        getRawMany: jest.fn().mockResolvedValue([]),
+      };
+      mockSubscriptionRepo.createQueryBuilder.mockReturnValue(
+        mockSubscriptionQueryBuilder as any
+      );
+
+      const mockActivityQueryBuilder = {
+        select: jest.fn().mockReturnThis(),
+        addSelect: jest.fn().mockReturnThis(),
+        groupBy: jest.fn().mockReturnThis(),
+        orderBy: jest.fn().mockReturnThis(),
+        limit: jest.fn().mockReturnThis(),
+        getRawMany: jest.fn().mockResolvedValue([]),
+      };
+      mockActivityRepo.createQueryBuilder.mockReturnValue(
+        mockActivityQueryBuilder as any
+      );
+
+      const result = await dashboardService.getDashboardData();
+
+      expect(result.webhooks.successRate).toBe(0);
+      expect(result.webhooks.totalEvents).toBe(0);
+      expect(result.webhooks.recentActivity).toEqual([]);
     });
 
     it('should sort recent activity by date descending', async () => {
@@ -636,6 +756,167 @@ describe('DashboardService', () => {
         { service: 'github', count: 0 },
         { service: 'discord', count: 0 },
       ]);
+    });
+
+    it('should use service registry fallback when service distribution is empty', async () => {
+      mockUserRepo.count
+        .mockResolvedValueOnce(100)
+        .mockResolvedValueOnce(80)
+        .mockResolvedValueOnce(5);
+
+      mockSubscriptionRepo.count
+        .mockResolvedValueOnce(150)
+        .mockResolvedValueOnce(120);
+
+      mockWebhookRepo.count.mockResolvedValue(25);
+      mockWebhookStatsRepo.find.mockResolvedValue([]);
+
+      const mockUserQueryBuilder = {
+        where: jest.fn().mockReturnThis(),
+        getCount: jest.fn().mockResolvedValue(12),
+      };
+      mockUserRepo.createQueryBuilder.mockReturnValue(
+        mockUserQueryBuilder as any
+      );
+
+      // Mock subscription query builder to return empty array
+      const mockSubscriptionQueryBuilder = {
+        select: jest.fn().mockReturnThis(),
+        addSelect: jest.fn().mockReturnThis(),
+        where: jest.fn().mockReturnThis(),
+        groupBy: jest.fn().mockReturnThis(),
+        orderBy: jest.fn().mockReturnThis(),
+        limit: jest.fn().mockReturnThis(),
+        getRawMany: jest.fn().mockResolvedValue([]), // Empty array
+      };
+      mockSubscriptionRepo.createQueryBuilder.mockReturnValue(
+        mockSubscriptionQueryBuilder as any
+      );
+
+      const mockActivityQueryBuilder = {
+        select: jest.fn().mockReturnThis(),
+        addSelect: jest.fn().mockReturnThis(),
+        groupBy: jest.fn().mockReturnThis(),
+        orderBy: jest.fn().mockReturnThis(),
+        limit: jest.fn().mockReturnThis(),
+        getRawMany: jest.fn().mockResolvedValue([]),
+      };
+      mockActivityRepo.createQueryBuilder.mockReturnValue(
+        mockActivityQueryBuilder as any
+      );
+
+      const result = await dashboardService.getDashboardData();
+
+      expect(result.services.byService).toEqual([
+        { service: 'github', count: 0 },
+        { service: 'discord', count: 0 },
+      ]);
+    });
+
+    it('should aggregate webhook stats with duplicate dates correctly', async () => {
+      mockUserRepo.count
+        .mockResolvedValueOnce(10)
+        .mockResolvedValueOnce(8)
+        .mockResolvedValueOnce(1);
+
+      mockSubscriptionRepo.count
+        .mockResolvedValueOnce(20)
+        .mockResolvedValueOnce(15);
+
+      mockWebhookRepo.count.mockResolvedValue(5);
+
+      // Mock webhook stats with duplicate dates to test aggregation
+      mockWebhookStatsRepo.find.mockResolvedValue([
+        { date: '2024-01-01', success_count: 10, error_count: 2 } as any,
+        { date: '2024-01-01', success_count: 5, error_count: 1 } as any, // Same date, should be aggregated
+        { date: '2024-01-02', success_count: 15, error_count: 3 } as any,
+      ]);
+
+      const mockUserQueryBuilder = {
+        where: jest.fn().mockReturnThis(),
+        getCount: jest.fn().mockResolvedValue(2),
+      };
+      mockUserRepo.createQueryBuilder.mockReturnValue(
+        mockUserQueryBuilder as any
+      );
+
+      const mockSubscriptionQueryBuilder = {
+        select: jest.fn().mockReturnThis(),
+        addSelect: jest.fn().mockReturnThis(),
+        where: jest.fn().mockReturnThis(),
+        groupBy: jest.fn().mockReturnThis(),
+        orderBy: jest.fn().mockReturnThis(),
+        limit: jest.fn().mockReturnThis(),
+        getRawMany: jest.fn().mockResolvedValue([]),
+      };
+      mockSubscriptionRepo.createQueryBuilder.mockReturnValue(
+        mockSubscriptionQueryBuilder as any
+      );
+
+      const mockActivityQueryBuilder = {
+        select: jest.fn().mockReturnThis(),
+        addSelect: jest.fn().mockReturnThis(),
+        groupBy: jest.fn().mockReturnThis(),
+        orderBy: jest.fn().mockReturnThis(),
+        limit: jest.fn().mockReturnThis(),
+        getRawMany: jest.fn().mockResolvedValue([]),
+      };
+      mockActivityRepo.createQueryBuilder.mockReturnValue(
+        mockActivityQueryBuilder as any
+      );
+
+      const result = await dashboardService.getDashboardData();
+
+      expect(result.webhooks.recentActivity).toHaveLength(2);
+      // Check that duplicate dates are aggregated
+      const jan1Activity = result.webhooks.recentActivity.find(
+        activity => activity.date === '2024-01-01'
+      );
+      expect(jan1Activity).toEqual({
+        date: '2024-01-01',
+        success: 15, // 10 + 5
+        errors: 3, // 2 + 1
+      });
+      const jan2Activity = result.webhooks.recentActivity.find(
+        activity => activity.date === '2024-01-02'
+      );
+      expect(jan2Activity).toEqual({
+        date: '2024-01-02',
+        success: 15,
+        errors: 3,
+      });
+    });
+
+    describe('logActivityError', () => {
+      let consoleLogSpy: jest.SpyInstance;
+
+      beforeEach(() => {
+        consoleLogSpy = jest.spyOn(console, 'log').mockImplementation();
+      });
+
+      afterEach(() => {
+        consoleLogSpy.mockRestore();
+      });
+
+      it('should log activity error message with error details', () => {
+        const testError = new Error('Test database error');
+        (dashboardService as any).logActivityError(testError);
+
+        expect(consoleLogSpy).toHaveBeenCalledWith(
+          'UserActivityLogs table may not exist or has issues:',
+          testError
+        );
+      });
+
+      it('should handle non-Error objects', () => {
+        const testError = 'String error';
+        (dashboardService as any).logActivityError(testError);
+
+        expect(consoleLogSpy).toHaveBeenCalledWith(
+          'UserActivityLogs table may not exist or has issues:',
+          testError
+        );
+      });
     });
   });
 });

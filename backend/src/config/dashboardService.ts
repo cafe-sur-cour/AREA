@@ -41,6 +41,10 @@ export interface DashboardData {
 export class DashboardService {
   constructor(private dataSource: DataSource) {}
 
+  private logActivityError(error: unknown): void {
+    console.log('UserActivityLogs table may not exist or has issues:', error);
+  }
+
   async getDashboardData(): Promise<DashboardData> {
     try {
       const userRepo = this.dataSource.getRepository(User);
@@ -120,14 +124,10 @@ export class DashboardService {
         error_count: number;
       }> = [];
 
-      try {
-        webhookStats = await webhookStatsRepo.find({
-          order: { date: 'DESC' },
-          take: 30,
-        });
-      } catch (error) {
-        console.error('Error fetching webhook stats:', error);
-      }
+      webhookStats = await webhookStatsRepo.find({
+        order: { date: 'DESC' },
+        take: 30,
+      });
 
       let successRate = 0;
       let totalEvents = 0;
@@ -192,19 +192,7 @@ export class DashboardService {
           }))
         );
       } catch (error) {
-        console.log(
-          'UserActivityLogs table may not exist or has issues:',
-          error
-        );
-        const last7Days = Array.from({ length: 7 }, (_, i) => {
-          const date = new Date();
-          date.setDate(date.getDate() - i);
-          return {
-            date: date.toISOString().split('T')[0] || '',
-            count: Math.floor(Math.random() * 10) + 1, // Mock data
-          };
-        });
-        recentUserActivity.push(...last7Days);
+        this.logActivityError(error);
       }
 
       return {

@@ -22,8 +22,9 @@ describe('ActionForm', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     (api.get as jest.Mock).mockResolvedValue({ data: { services: [] } });
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-    const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+    jest.spyOn(console, 'log').mockImplementation(() => {});
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    jest.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   test('renders fallback when no services are subscribed', async () => {
