@@ -1,22 +1,22 @@
 services:
-  # client_web:
-  #   build:
-  #     context: ..
-  #     dockerfile: deployment/Dockerfile.frontend
-  #   container_name: area_web
-  #   ports:
-  #     - "${NEXT_PORT}:3000"
-  #   env_file:
-  #     - .env
-  #   environment:
-  #     - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
-  #     - FRONTEND_URL=${FRONTEND_URL}
-  #     - NODE_PORT=${NODE_PORT}
-  #   volumes:
-  #     - mobile_build:/app/mobile
-  #   depends_on:
-  #     - client_mobile
-  #     - server
+  client_web:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile.frontend
+    container_name: area_web
+    ports:
+      - "${NEXT_PORT}:3000"
+    env_file:
+      - .env
+    environment:
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+      - FRONTEND_URL=${FRONTEND_URL}
+      - NODE_PORT=${NODE_PORT}
+    volumes:
+      - mobile_build:/app/mobile
+    depends_on:
+      - client_mobile
+      - server
 
   server:
     build:
