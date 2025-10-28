@@ -61,6 +61,13 @@ The platform targets:
 |   **Timer**    |                                        |                                           |
 |                | Every day at X hour                    |                                           |
 |                | Every day at X minutes                 |                                           |
+|   **Microsoft**|                                        |                                           |
+|                | Profile Picture Changed                |                                           |
+|   **GitLab**   |                                        |                                           |
+|                | GitLab Push                            | Create GitLab Issue                       |
+|                | GitLab Merge Request Opened            | Add GitLab Comment                        |
+|                | GitLab Merge Request Merged            | Create GitLab Merge Request               |
+|                | GitLab Issue Opened                    | Set GitLab Project Visibility             |
 
 
 

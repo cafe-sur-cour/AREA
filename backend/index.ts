@@ -131,7 +131,7 @@ const encryption = new StringEncryption();
 
     app.use(admin.options.rootPath, adminRouter);
     console.log(
-      `✅ Admin panel available at http://localhost:8080${admin.options.rootPath}`
+      `✅ Admin panel available at ${BACKEND_ORIGIN}${admin.options.rootPath}`
     );
 
     app.use('/api/auth', authRoutes);
@@ -145,7 +145,7 @@ const encryption = new StringEncryption();
 
     app.listen(3000, () => {
       console.log('🚀 Server running on port 3000 (mapped to 8080 via Docker)');
-      console.log('📊 Admin panel: http://localhost:8080/admin');
+      console.log(`📊 Admin panel: ${BACKEND_ORIGIN}/admin`);
       console.log('🔑 Login with: albane / admin');
     });
 
