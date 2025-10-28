@@ -333,9 +333,9 @@ jobs:
 
       - name: Build and push Docker image
         env:
-          FRONTEND_URL: "https://frontend.nduboi.fr"
-          BACKEND_URL: "https://backend.nduboi.fr"
-          MOBILE_CALLBACK_URL: "mobileapp://callback"
+          FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
+          BACKEND_URL: ${{ secrets.BACKEND_URL }}
+          MOBILE_CALLBACK_URL: ${{ secrets.MOBILE_CALLBACK_URL }}
         if: steps.check_dockerfile.outputs.dockerfile_exists == 'true'
         uses: docker/build-push-action@v5
         with:
