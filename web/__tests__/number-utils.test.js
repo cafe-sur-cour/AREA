@@ -1,6 +1,14 @@
 import '@testing-library/jest-dom';
 
 describe('Number Utilities', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    // Mock console methods to suppress logs in tests
+    jest.spyOn(console, 'log').mockImplementation(() => {});
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
   it('validates number is integer', () => {
     expect(Number.isInteger(5)).toBe(true);
     expect(Number.isInteger(5.5)).toBe(false);

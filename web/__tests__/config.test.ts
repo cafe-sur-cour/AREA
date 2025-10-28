@@ -13,6 +13,11 @@ jest.mock('@/lib/load-env', () => ({
 
 import { getEnv } from '@/lib/load-env';
 
+beforeAll(() => {
+  jest.spyOn(console, 'error').mockImplementation(() => {});
+  jest.spyOn(console, 'log').mockImplementation(() => {});
+});
+
 describe('Config helpers', () => {
   const OLD_ENV = process.env;
   const mockGetEnv = getEnv as jest.Mock;
@@ -25,6 +30,10 @@ describe('Config helpers', () => {
       backendUrl: 'http://backend.test:8080',
       frontendUrl: 'http://frontend.test:3000',
     });
+    // Mock console methods to suppress logs in tests
+    jest.spyOn(console, 'log').mockImplementation(() => {});
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    jest.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterAll(() => {

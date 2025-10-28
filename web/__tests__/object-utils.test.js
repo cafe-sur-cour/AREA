@@ -1,6 +1,14 @@
 import '@testing-library/jest-dom';
 
 describe('Object Utilities', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    // Mock console methods to suppress logs in tests
+    jest.spyOn(console, 'log').mockImplementation(() => {});
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
   it('merges objects', () => {
     const obj1 = { a: 1, b: 2 };
     const obj2 = { b: 3, c: 4 };

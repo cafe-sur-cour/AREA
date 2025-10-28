@@ -1,8 +1,15 @@
 import '@testing-library/jest-dom';
-import { render, screen } from '@testing-library/react';
+import { render, screen } from './test-utils';
 import Navigation from '../components/header';
 
 // Mock Next.js router
+
+beforeAll(() => {
+  jest.spyOn(console, 'error').mockImplementation(() => {});
+  jest.spyOn(console, 'log').mockImplementation(() => {});
+  jest.spyOn(console, 'warn').mockImplementation(() => {});
+});
+
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn(() => ({
     push: jest.fn(),
@@ -34,6 +41,14 @@ jest.mock('../contexts/AuthContext', () => ({
 }));
 
 describe('Navigation Header', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    // Mock console methods to suppress logs in tests
+    jest.spyOn(console, 'log').mockImplementation(() => {});
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
   it('renders the navigation component', () => {
     render(<Navigation />);
     expect(document.querySelector('nav')).toBeInTheDocument();

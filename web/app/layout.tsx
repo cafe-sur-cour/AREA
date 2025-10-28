@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { I18nProvider } from '@/contexts/I18nContext';
 import { Toaster } from '@/components/ui/sonner';
 import { Montserrat, Open_Sans } from 'next/font/google';
 import DownloadAPPButton from '@/components/download-app-button';
@@ -32,7 +33,9 @@ export default function RootLayout({
       <body
         className={`${montserrat.variable} ${openSans.variable} antialiased font-sans`}
       >
-        <AuthProvider>{children}</AuthProvider>
+        <I18nProvider>
+          <AuthProvider>{children}</AuthProvider>
+        </I18nProvider>
         <Toaster />
         <DownloadAPPButton />
       </body>

@@ -9,11 +9,13 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import api from '@/lib/api';
 import { toast } from 'sonner';
+import { useI18n } from '@/contexts/I18nContext';
 
 export function PasswordEmailForm({
   className,
   ...props
 }: React.ComponentProps<'div'>) {
+  const { t } = useI18n();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -37,12 +39,12 @@ export function PasswordEmailForm({
       } else if (response && response.data?.error) {
         toast.error(response.data.error);
       } else {
-        toast.error('Request failed');
+        toast.error(t.auth.forgotPassword.requestFailed);
       }
       setTimeout(() => router.push('/login'), 4000);
     } catch (error) {
       console.error('Request password reset:', error);
-      toast.error('Request password reset failed');
+      toast.error(t.auth.forgotPassword.requestFailed);
     } finally {
       setIsLoading(false);
     }
@@ -55,15 +57,18 @@ export function PasswordEmailForm({
           <form onSubmit={handleSubmit} className='p-6 md:p-8'>
             <div className='flex flex-col gap-6'>
               <div className='flex flex-col items-center text-center'>
-                <h1 className='text-2xl font-bold'>Forgot Password</h1>
+                <h1 className='text-2xl font-bold'>
+                  {t.auth.forgotPassword.title}
+                </h1>
               </div>
               <div className='grid gap-3'>
-                <Label htmlFor='email'>Email</Label>
+                <Label htmlFor='email'>{t.auth.forgotPassword.email}</Label>
                 <Input
                   id='email'
                   name='email'
                   type='email'
-                  placeholder='m@example.com'
+                  placeholder={t.auth.forgotPassword.emailPlaceholder}
+                  data-testid='email-input'
                   required
                 />
               </div>
@@ -73,8 +78,8 @@ export function PasswordEmailForm({
                 disabled={isLoading}
               >
                 {isLoading
-                  ? 'Requesting password reset link...'
-                  : 'Request password reset'}
+                  ? t.auth.forgotPassword.requesting
+                  : t.auth.forgotPassword.requestButton}
               </Button>
             </div>
           </form>
@@ -88,6 +93,7 @@ export default function PasswordForm({
   className,
   ...props
 }: React.ComponentProps<'div'>) {
+  const { t } = useI18n();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const searchParams = useSearchParams();
@@ -102,12 +108,12 @@ export default function PasswordForm({
     const confirmPassword = formData.get('confirm-password') as string;
 
     if (newPassword !== confirmPassword) {
-      toast.error('Passwords do not match');
+      toast.error(t.auth.resetPassword.passwordsDoNotMatch);
       setIsLoading(false);
       return;
     }
     if (!token) {
-      toast.error('Invalid or expired token');
+      toast.error(t.auth.resetPassword.invalidToken);
       setIsLoading(false);
       return;
     }
@@ -125,12 +131,12 @@ export default function PasswordForm({
       } else if (response && response.data?.error) {
         toast.error(response.data.error);
       } else {
-        toast.error('Request failed');
+        toast.error(t.auth.resetPassword.resetFailed);
       }
       setTimeout(() => router.push('/login'), 4000);
     } catch (error) {
       console.error('Request password reset:', error);
-      toast.error('Request password reset failed');
+      toast.error(t.auth.resetPassword.resetFailed);
     } finally {
       setIsLoading(false);
     }
@@ -143,25 +149,31 @@ export default function PasswordForm({
           <form onSubmit={handleSubmit} className='p-6 md:p-8'>
             <div className='flex flex-col gap-6'>
               <div className='flex flex-col items-center text-center'>
-                <h1 className='text-2xl font-bold'>Reset your password</h1>
+                <h1 className='text-2xl font-bold'>
+                  {t.auth.resetPassword.title}
+                </h1>
               </div>
               <div className='grid gap-3'>
-                <Label htmlFor='password'>Password</Label>
+                <Label htmlFor='password'>
+                  {t.auth.resetPassword.password}
+                </Label>
                 <Input
                   id='password'
                   name='password'
                   type='password'
-                  placeholder='••••••••'
+                  placeholder={t.auth.resetPassword.passwordPlaceholder}
                   required
                 />
               </div>
               <div className='grid gap-3'>
-                <Label htmlFor='confirm-password'>Confirm password</Label>
+                <Label htmlFor='confirm-password'>
+                  {t.auth.resetPassword.confirmPassword}
+                </Label>
                 <Input
                   id='confirm-password'
                   name='confirm-password'
                   type='password'
-                  placeholder='••••••••'
+                  placeholder={t.auth.resetPassword.confirmPasswordPlaceholder}
                   required
                 />
               </div>
@@ -170,7 +182,9 @@ export default function PasswordForm({
                 className='w-full cursor-pointer'
                 disabled={isLoading}
               >
-                {isLoading ? 'Loading...' : 'Reset password'}
+                {isLoading
+                  ? t.auth.resetPassword.loading
+                  : t.auth.resetPassword.resetButton}
               </Button>
             </div>
           </form>

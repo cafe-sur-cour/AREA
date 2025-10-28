@@ -1,9 +1,17 @@
 import '@testing-library/jest-dom';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from './test-utils';
 import Home from '../app/page';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { before } from 'node:test';
 
 // Mock Next.js router
+
+beforeAll(() => {
+  jest.spyOn(console, 'error').mockImplementation(() => {});
+  jest.spyOn(console, 'log').mockImplementation(() => {});
+  jest.spyOn(console, 'warn').mockImplementation(() => {});
+});
+
 jest.mock('next/navigation', () => ({
   useRouter() {
     return {
@@ -25,6 +33,14 @@ jest.mock('next/headers', () => ({
 }));
 
 describe('Home', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    // Mock console methods to suppress logs in tests
+    jest.spyOn(console, 'log').mockImplementation(() => {});
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
   it('renders the main heading', async () => {
     render(
       <AuthProvider>

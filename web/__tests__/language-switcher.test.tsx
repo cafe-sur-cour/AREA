@@ -3,9 +3,15 @@
  */
 
 import React from 'react';
-import { render, act, waitFor, fireEvent } from '@testing-library/react';
+import { render, act, waitFor, fireEvent } from './test-utils';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
 import { api } from '@/lib/api';
+
+beforeAll(() => {
+  jest.spyOn(console, 'error').mockImplementation(() => {});
+  jest.spyOn(console, 'log').mockImplementation(() => {});
+  jest.spyOn(console, 'warn').mockImplementation(() => {});
+});
 
 // Mock Lucide-React languages icon with class name support
 jest.mock('lucide-react', () => ({
@@ -25,16 +31,19 @@ jest.mock('@/lib/api', () => ({
 // Mock console.warn and console.error to reduce noise in tests
 const originalWarn = console.warn;
 const originalError = console.error;
+const originalLog = console.log;
 
 describe('LanguageSwitcher', () => {
   beforeAll(() => {
     console.warn = jest.fn();
     console.error = jest.fn();
+    console.log = jest.fn();
   });
 
   afterAll(() => {
     console.warn = originalWarn;
     console.error = originalError;
+    console.log = originalLog;
   });
 
   beforeEach(() => {

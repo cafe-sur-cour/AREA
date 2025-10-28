@@ -13,11 +13,13 @@ import { FaGithub, FaGoogle, FaMicrosoft, FaFacebook } from 'react-icons/fa';
 import { getAPIUrl } from '@/lib/config';
 import InputPassword from './ui/input-password';
 import { toast } from 'sonner';
+import { useI18n } from '@/contexts/I18nContext';
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<'div'>) {
+  const { t } = useI18n();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -37,16 +39,31 @@ export function LoginForm({
       if (response && response.data) {
         window.location.href = '/';
       } else {
-        toast.error('Login failed');
+        toast.error(t.auth.login.noResponseFromServer);
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Login error:', error);
-      toast.error('Login failed');
+
+      if (error && typeof error === 'object' && 'response' in error) {
+        const err = error as { response?: { status?: number } | null };
+        if (err.response?.status === 401) {
+          toast.error(t.auth.login.invalidCredentials);
+        } else if (err.response === null) {
+          toast.error(t.auth.login.noResponseFromServer);
+        } else if (err.response?.status && err.response.status >= 500) {
+          toast.error(t.auth.login.serverError);
+        } else {
+          toast.error(t.auth.login.loginFailed);
+        }
+      } else {
+        toast.error(t.auth.login.loginFailed);
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
+  // ... rest of the component remains the same
   const signInWithGithub = async () => {
     window.location.href = `${await getAPIUrl()}/auth/github/login`;
   };
@@ -70,29 +87,29 @@ export function LoginForm({
           <form onSubmit={handleSubmit} className='p-6 md:p-8'>
             <div className='flex flex-col gap-6'>
               <div className='flex flex-col items-center text-center'>
-                <h1 className='text-2xl font-bold'>Welcome back</h1>
+                <h1 className='text-2xl font-bold'>{t.auth.login.title}</h1>
                 <p className='text-muted-foreground text-balance'>
-                  Login to your Area account
+                  {t.auth.login.subtitle}
                 </p>
               </div>
               <div className='grid gap-3'>
-                <Label htmlFor='email'>Email</Label>
+                <Label htmlFor='email'>{t.auth.login.email}</Label>
                 <Input
                   id='email'
                   name='email'
                   type='email'
-                  placeholder='m@example.com'
+                  placeholder={t.auth.login.emailPlaceholder}
                   required
                 />
               </div>
               <div className='grid gap-3'>
                 <div className='flex items-center'>
-                  <Label htmlFor='password'>Password</Label>
+                  <Label htmlFor='password'>{t.auth.login.password}</Label>
                   <a
                     href='/forgot-password'
                     className='ml-auto text-sm underline-offset-2 hover:underline'
                   >
-                    Forgot your password?
+                    {t.auth.login.forgotPassword}
                   </a>
                 </div>
                 <InputPassword name='password' />
@@ -102,11 +119,11 @@ export function LoginForm({
                 className='w-full cursor-pointer'
                 disabled={isLoading}
               >
-                {isLoading ? 'Logging in...' : 'Login'}
+                {isLoading ? t.auth.login.loggingIn : t.auth.login.loginButton}
               </Button>
               <div className='after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t'>
                 <span className='bg-card text-muted-foreground relative z-10 px-2'>
-                  Or continue with
+                  {t.auth.login.orContinueWith}
                 </span>
               </div>
               <div className='grid grid-cols-2 gap-4 sm:grid-cols-4'>
@@ -115,34 +132,40 @@ export function LoginForm({
                   className='w-full cursor-pointer'
                 >
                   <FaGithub />
-                  <span className='sr-only'>Login with Github</span>
+                  <span className='sr-only'>
+                    {t.auth.login.loginWithGithub}
+                  </span>
                 </ButtonWithLoading>
                 <ButtonWithLoading
                   onClick={async () => await signInWithGoogle()}
                   className='w-full cursor-pointer'
                 >
                   <FaGoogle />
-                  <span className='sr-only'>Login with Google</span>
+                  <span className='sr-only'>
+                    {t.auth.login.loginWithGoogle}
+                  </span>
                 </ButtonWithLoading>
                 <ButtonWithLoading
                   onClick={async () => await signInWithMicrosoft()}
                   className='w-full'
                 >
                   <FaMicrosoft />
-                  <span className='sr-only'>Login with Microsoft 365</span>
+                  <span className='sr-only'>
+                    {t.auth.login.loginWithMicrosoft}
+                  </span>
                 </ButtonWithLoading>
                 <ButtonWithLoading
                   onClick={async () => await signInWithMeta()}
                   className='w-full cursor-pointer'
                 >
                   <FaFacebook />
-                  <span className='sr-only'>Login with Meta</span>
+                  <span className='sr-only'>{t.auth.login.loginWithMeta}</span>
                 </ButtonWithLoading>
               </div>
               <div className='text-center text-sm'>
-                Don&apos;t have an account?{' '}
+                {t.auth.login.noAccount}{' '}
                 <a href='/register' className='underline underline-offset-4'>
-                  Sign up
+                  {t.auth.login.signUp}
                 </a>
               </div>
             </div>
@@ -159,8 +182,8 @@ export function LoginForm({
         </CardContent>
       </Card>
       <div className='text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4'>
-        By clicking continue, you agree to our <a href='#'>Terms of Service</a>{' '}
-        and <a href='#'>Privacy Policy</a>.
+        {t.auth.login.termsPrefix} <a href='#'>{t.auth.login.terms}</a>{' '}
+        {t.auth.login.and} <a href='#'>{t.auth.login.privacy}</a>.
       </div>
     </div>
   );

@@ -1,11 +1,9 @@
 import '@testing-library/jest-dom';
 
-// Mock getToken
 jest.mock('../lib/manageToken', () => ({
   getToken: jest.fn(() => Promise.resolve(null)),
 }));
 
-// Mock config
 jest.mock('../lib/config', () => ({
   getAPIUrl: jest.fn(() => Promise.resolve('http://localhost:3000/api')),
 }));
@@ -13,6 +11,10 @@ jest.mock('../lib/config', () => ({
 describe('API utilities', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    // Mock console methods to suppress logs in tests
+    jest.spyOn(console, 'log').mockImplementation(() => {});
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    jest.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   it('should have API utilities available', async () => {

@@ -1,0 +1,414 @@
+{
+  "auth": {
+    "login": {
+      "loading": "Chargement...",
+      "title": "De retour !",
+      "subtitle": "Connectez-vous à votre compte Area",
+      "email": "Email",
+      "emailPlaceholder": "m@exemple.com",
+      "password": "Mot de passe",
+      "forgotPassword": "Mot de passe oublié ?",
+      "loginButton": "Se connecter",
+      "loggingIn": "Connexion en cours...",
+      "orContinueWith": "Ou continuer avec",
+      "loginWithGithub": "Se connecter avec Github",
+      "loginWithGoogle": "Se connecter avec Google",
+      "loginWithMicrosoft": "Se connecter avec Microsoft 365",
+      "loginWithMeta": "Se connecter avec Meta",
+      "noAccount": "Pas de compte ?",
+      "signUp": "S'inscrire",
+      "termsPrefix": "En cliquant sur continuer, vous acceptez nos",
+      "terms": "Conditions d'utilisation",
+      "and": "et",
+      "privacy": "Politique de confidentialité",
+      "loginFailed": "Échec de la connexion",
+      "invalidCredentials": "Identifiants invalides",
+      "noResponseFromServer": "Aucune réponse du serveur",
+      "serverError": "Erreur serveur"
+    },
+    "register": {
+      "loading": "Chargement...",
+      "title": "Bienvenue",
+      "subtitle": "Créer un compte Area",
+      "username": "Nom d'utilisateur",
+      "usernamePlaceholder": "Votre nom d'utilisateur",
+      "email": "Email",
+      "emailPlaceholder": "m@exemple.com",
+      "password": "Mot de passe",
+      "confirmPassword": "Confirmer le mot de passe",
+      "confirmPasswordPlaceholder": "Confirmer le mot de passe",
+      "registerButton": "S'inscrire",
+      "registering": "Inscription en cours...",
+      "orContinueWith": "Ou continuer avec",
+      "loginWithGithub": "Se connecter avec Github",
+      "loginWithGoogle": "Se connecter avec Google",
+      "loginWithMicrosoft": "Se connecter avec Microsoft 365",
+      "termsPrefix": "En cliquant sur continuer, vous acceptez nos",
+      "terms": "Conditions d'utilisation",
+      "and": "et",
+      "privacy": "Politique de confidentialité",
+      "passwordsDoNotMatch": "Les mots de passe ne correspondent pas",
+      "registrationSuccess": "Inscription réussie ! Veuillez vérifier votre email pour activer votre compte.",
+      "registrationFailed": "Échec de l'inscription : "
+    },
+    "forgotPassword": {
+      "title": "Mot de passe oublié",
+      "email": "Email",
+      "emailPlaceholder": "m@exemple.com",
+      "requestButton": "Demander la réinitialisation",
+      "requesting": "Envoi du lien de réinitialisation...",
+      "requestFailed": "Échec de la demande de réinitialisation"
+    },
+    "resetPassword": {
+      "title": "Réinitialisez votre mot de passe",
+      "password": "Mot de passe",
+      "passwordPlaceholder": "••••••••",
+      "confirmPassword": "Confirmer le mot de passe",
+      "confirmPasswordPlaceholder": "••••••••",
+      "resetButton": "Réinitialiser le mot de passe",
+      "loading": "Chargement...",
+      "passwordsDoNotMatch": "Les mots de passe ne correspondent pas",
+      "invalidToken": "Jeton invalide ou expiré",
+      "resetFailed": "Échec de la réinitialisation du mot de passe"
+    }
+  },
+  "profile": {
+    "loading": "Chargement...",
+    "welcome": "Bienvenue",
+    "avatarHint": "Cliquez pour changer l'avatar",
+    "name": "Nom",
+    "namePlaceholder": "Entrez votre nom",
+    "password": "Mot de passe",
+    "passwordPlaceholder": "Entrez votre nouveau mot de passe",
+    "email": "Email",
+    "nameEmpty": "Le nom ne peut pas être vide",
+    "passwordEmpty": "Le mot de passe ne peut pas être vide"
+  },
+  "services": {
+    "loading": "Chargement...",
+    "subscribed": "Connecté",
+    "notSubscribed": "Non connecté",
+    "moreDetails": "Plus de détails",
+    "unsubscribe": "Se déconnecter",
+    "subscribe": "Se connecter"
+  },
+  "dashboard": {
+    "loading": "Chargement du tableau de bord...",
+    "title": "Tableau de Bord",
+    "subtitle": "Gérez vos Area et surveillez leurs performances",
+    "newAreaButton": "Nouvelle Area",
+    "stats": {
+      "totalAreas": "Total des Areas",
+      "connectedServices": "Services Connectés",
+      "active": "Actives",
+      "inactive": "Inactives"
+    },
+    "quickActions": {
+      "title": "Actions rapides",
+      "connectServices": {
+        "title": "Connecter des Services",
+        "description": "Lier de nouvelles plateformes"
+      },
+      "browseTemplates": {
+        "title": "Parcourir les Modèles",
+        "description": "Area pré-faites"
+      },
+      "accountSettings": {
+        "title": "Paramètres du Compte",
+        "description": "Gérer votre profil"
+      }
+    },
+    "yourAreas": {
+      "title": "Vos Areas",
+      "noAreas": "Aucune Area pour le moment",
+      "noAreasDescription": "Créez votre première Area pour commencer",
+      "createArea": "Créer une Area",
+      "action": "Action",
+      "active": "Active",
+      "inactive": "Inactive",
+      "error": "Erreur",
+      "unknown": "Inconnu"
+    }
+  },
+  "myAreas": {
+    "loading": "Chargement...",
+    "title": "Mes AREAs",
+    "subtitle": "Gérez vos flux de travail (actions & réactions)",
+    "newAreaButton": "Nouvelle Area",
+    "drawer": {
+      "title": "Créer une Nouvelle Area",
+      "subtitle": "Configurez un nouveau flux de travail",
+      "nameLabel": "Nom *",
+      "namePlaceholder": "Mon Area",
+      "descriptionLabel": "Description *",
+      "descriptionPlaceholder": "Décrivez ce que fait cette area...",
+      "actionTitle": "Action",
+      "actionSubtitle": "Déclenchez votre automation",
+      "reactionTitle": "Réaction",
+      "reactionSubtitle": "Que doit-il se passer ?",
+      "activeLabel": "Active",
+      "createButton": "Créer l'Area",
+      "cancelButton": "Annuler"
+    },
+    "loadingAreas": "Chargement des areas...",
+    "emptyState": {
+      "noAreas": "Aucune area pour le moment",
+      "description": "Créez votre première area pour commencer"
+    },
+    "card": {
+      "actionLabel": "Action",
+      "reactionsLabel": "Réactions",
+      "created": "Créé le",
+      "deleteConfirm": "Êtes-vous sûr de vouloir supprimer cette correspondance ?",
+      "noDescription": "Aucune description",
+      "activate": "Activer",
+      "deactivate": "Désactiver"
+    },
+    "errors": {
+      "createFailed": "Échec de la création de la correspondance. Veuillez vérifier votre saisie.",
+      "deleteFailed": "Échec de la suppression de la correspondance.",
+      "switchFailed": "Échec du changement de mode actif."
+    },
+    "feedback": {
+      "actionSelected": "Action sélectionnée",
+      "actionSelectError": "Erreur lors de la sélection de l'action",
+      "reactionSelected": "Réaction sélectionnée",
+      "reactionSelectError": "Erreur lors de la sélection de la réaction",
+      "loadError": "Erreur lors du chargement",
+      "nameRequired": "Le nom est requis",
+      "actionRequired": "Veuillez sélectionner une action",
+      "reactionRequired": "Veuillez sélectionner au moins une réaction",
+      "createSuccess": "🎉 Automation créée avec succès !",
+      "createSuccessDescription": "est maintenant",
+      "active": "active",
+      "inactive": "inactive",
+      "deleteSuccess": "Automation supprimée avec succès",
+      "activateSuccess": "activée",
+      "deactivateInfo": "désactivée",
+      "confirmDelete": "Êtes-vous sûr ?",
+      "confirmDeleteDescription": "Cette action est irréversible. L'automation sera définitivement supprimée.",
+      "cancel": "Annuler",
+      "delete": "Supprimer",
+      "automationWillBe": "L'automation sera",
+      "afterCreation": "après création",
+      "creating": "Création en cours...",
+      "createFirstAutomation": "Créer votre première automation"
+    }
+  },
+  "verify": {
+    "invalidLink": {
+      "title": "Lien Invalide",
+      "description": "Ce lien de vérification est invalide ou a expiré.",
+      "button": "Aller à la page de connexion"
+    },
+    "verifying": {
+      "title": "Vérification de l'Email",
+      "description": "Veuillez patienter pendant que nous vérifions votre adresse email..."
+    },
+    "success": {
+      "title": "Email Vérifié !",
+      "description": "Votre email a été vérifié avec succès ! Redirection vers la page de connexion...",
+      "redirecting": "Redirection"
+    },
+    "failed": {
+      "title": "Échec de la Vérification",
+      "description": "La vérification a échoué ou le jeton est invalide. Redirection vers la page de connexion...",
+      "redirecting": "Redirection",
+      "button": "Aller à la Page de Connexion Maintenant"
+    }
+  },
+  "catalogue": {
+    "title": "Catalogue d'Actions et de Réactions",
+    "filter": {
+      "label": "Filtrer",
+      "placeholder": "Filtrer par type",
+      "all": "Tout",
+      "actionsOnly": "Actions uniquement",
+      "reactionsOnly": "Réactions uniquement"
+    },
+    "filterServices": {
+      "placeholder": "Filtrer par service",
+      "all": "Tous"
+    },
+    "badges": {
+      "action": "Action",
+      "reaction": "Réaction"
+    },
+    "buttons": {
+      "addAction": "Ajouter cette action",
+      "addReaction": "Ajouter cette réaction"
+    }
+  },
+  "home": {
+    "hero": {
+      "title": "Automatisez votre vie avec des connexions puissantes",
+      "description": "Connectez vos applications et services préférés pour créer des automatisations puissantes. Gagnez du temps et concentrez-vous sur l'essentiel.",
+      "getStarted": "Commencer gratuitement",
+      "signIn": "Se connecter",
+      "goToDashboard": "Aller au Tableau de Bord"
+    },
+    "stats": {
+      "automations": "Automatisations actives",
+      "services": "Services connectés",
+      "users": "Utilisateurs satisfaits"
+    },
+    "services": {
+      "title": "Services disponibles",
+      "description": "Découvrez les applications et plateformes que vous pouvez connecter pour créer des automatisations puissantes."
+    },
+    "howItWorks": {
+      "title": "Comment ça marche",
+      "subtitle": "Créez des automatisations puissantes en trois étapes simples",
+      "step1": {
+        "title": "Choisissez un déclencheur",
+        "description": "Sélectionnez une application et un événement qui lance votre automatisation"
+      },
+      "step2": {
+        "title": "Ajoutez une action",
+        "description": "Choisissez ce qui se passe lorsque votre déclencheur s'active"
+      },
+      "step3": {
+        "title": "Activez et détendez-vous",
+        "description": "Votre automatisation s'exécute automatiquement en arrière-plan"
+      }
+    },
+    "popularAutomations": {
+      "title": "Automatisations populaires",
+      "subtitle": "Inspirez-vous de ce que les autres créent",
+      "emailToSlack": {
+        "title": "Email vers Slack",
+        "description": "Soyez notifié dans Slack lorsque vous recevez des emails importants"
+      },
+      "socialMediaSync": {
+        "title": "Synchronisation Réseaux Sociaux",
+        "description": "Publiez sur plusieurs réseaux sociaux en une seule fois"
+      },
+      "calendarReminders": {
+        "title": "Rappels de Calendrier",
+        "description": "Envoyez des rappels SMS avant les événements du calendrier"
+      },
+      "fileBackup": {
+        "title": "Sauvegarde de Fichiers",
+        "description": "Sauvegardez automatiquement vos fichiers dans le cloud"
+      },
+      "taskManagement": {
+        "title": "Gestion des Tâches",
+        "description": "Créez des tâches à partir d'emails ou de messages"
+      },
+      "dataCollection": {
+        "title": "Collecte de Données",
+        "description": "Enregistrez les réponses de formulaires dans des feuilles de calcul"
+      }
+    },
+    "features": {
+      "lightningFast": {
+        "title": "Ultra rapide",
+        "description": "Vos automatisations s'exécutent instantanément lorsqu'elles sont déclenchées, sans délai ni attente."
+      },
+      "saveTime": {
+        "title": "Gagnez du temps",
+        "description": "Automatisez les tâches répétitives et concentrez-vous sur ce qui compte vraiment pour vous."
+      },
+      "secureReliable": {
+        "title": "Sécurisé et fiable",
+        "description": "Sécurité de niveau entreprise avec une garantie de disponibilité de 99,9% pour votre tranquillité d'esprit."
+      }
+    },
+    "cta": {
+      "title": "Prêt à automatiser votre flux de travail ?",
+      "description": "Rejoignez des millions d'utilisateurs qui économisent déjà du temps avec des automatisations puissantes.",
+      "goToMyAreas": "Aller à Mes AREAs",
+      "startFree": "Commencer gratuitement"
+    },
+    "footer": {
+      "copyright": "© 2025 Area. Tous droits réservés."
+    }
+  },
+  "about": {
+    "hero": {
+      "title": "À propos de",
+      "titleHighlight": "AREA",
+      "description": "Nous construisons l'avenir de l'automatisation en connectant les applications et services que vous aimez, rendant votre vie numérique fluide et efficace."
+    },
+    "mission": {
+      "title": "Notre Mission",
+      "description1": "Chez AREA, nous croyons que la technologie doit travailler pour vous, et non l'inverse. Notre mission est de permettre aux individus et aux équipes d'automatiser les tâches répétitives et de créer des connexions puissantes entre leurs applications préférées.",
+      "description2": "Nous démocratisons l'automatisation en la rendant accessible à tous, quelle que soit l'expertise technique. Que vous soyez développeur, professionnel ou simplement quelqu'un qui cherche à gagner du temps, AREA est là pour vous aider à travailler plus intelligemment.",
+      "stats": {
+        "users": "Utilisateurs Actifs",
+        "automations": "Automatisations",
+        "integrations": "Intégrations",
+        "uptime": "Disponibilité"
+      }
+    },
+    "values": {
+      "title": "Nos Valeurs",
+      "subtitle": "Ces principes fondamentaux guident tout ce que nous faisons",
+      "userCentric": {
+        "title": "Centré sur l'Utilisateur",
+        "description": "Nous mettons nos utilisateurs au premier plan dans chaque décision que nous prenons. Vos retours guident l'évolution de notre produit et nous aident à créer des fonctionnalités qui comptent vraiment."
+      },
+      "innovation": {
+        "title": "Innovation",
+        "description": "Nous repoussons constamment les limites pour vous apporter les dernières capacités d'automatisation. Notre équipe reste à la pointe des tendances technologiques pour proposer des solutions de pointe."
+      },
+      "security": {
+        "title": "Sécurité d'Abord",
+        "description": "La sécurité de vos données est notre priorité absolue. Nous mettons en œuvre les meilleures pratiques de sécurité du secteur et maintenons les normes les plus élevées de protection des données."
+      },
+      "global": {
+        "title": "Portée Mondiale",
+        "description": "Nous servons des utilisateurs du monde entier avec la prise en charge de plusieurs langues et des intégrations avec des services mondiaux. L'automatisation ne connaît pas de frontières."
+      },
+      "openSource": {
+        "title": "Open Source",
+        "description": "Nous croyons au pouvoir de la communauté. Notre plateforme embrasse les principes de l'open source, encourageant les développeurs à contribuer et à étendre notre écosystème."
+      },
+      "passion": {
+        "title": "Guidé par la Passion",
+        "description": "Nous sommes passionnés par l'automatisation et par l'aide aux personnes pour accomplir plus avec moins d'effort. Cette passion alimente notre engagement envers l'excellence."
+      }
+    },
+    "story": {
+      "title": "Notre Histoire",
+      "paragraph1": "AREA est né d'une simple observation : les gens passaient d'innombrables heures sur des tâches répétitives qui pouvaient être automatisées. Nous avons vu des développeurs écrire des scripts personnalisés, des entreprises lutter avec des outils déconnectés, et des individus perdre un temps précieux sur la saisie manuelle de données.",
+      "paragraph2": "En 2024, notre équipe de développeurs passionnés et d'enthousiastes de l'automatisation s'est réunie avec une vision : créer une plateforme qui rende l'automatisation accessible à tous. Nous avons commencé avec une poignée d'intégrations et un engagement envers une conception conviviale.",
+      "paragraph3": "Aujourd'hui, AREA est devenu une plateforme d'automatisation robuste en qui des millions de personnes ont confiance. Nous avons élargi notre bibliothèque d'intégrations, amélioré notre infrastructure et construit une communauté florissante d'utilisateurs qui partagent leurs flux d'automatisation avec d'autres.",
+      "paragraph4": "Mais nous ne faisons que commencer. Chaque jour, nous travaillons sur de nouvelles fonctionnalités, ajoutons plus d'intégrations et affinons notre plateforme en fonction de vos retours. L'avenir de l'automatisation est brillant, et nous sommes ravis de le construire avec vous."
+    },
+    "technology": {
+      "title": "Construit avec des Technologies Modernes",
+      "subtitle": "Nous utilisons des technologies de pointe pour offrir une plateforme d'automatisation rapide, fiable et évolutive"
+    },
+    "whyChoose": {
+      "title": "Pourquoi Choisir AREA ?",
+      "subtitle": "Voici ce qui nous distingue des autres plateformes d'automatisation",
+      "easyToUse": {
+        "title": "Facile à Utiliser",
+        "description": "Aucun codage requis. Notre interface intuitive facilite la création d'automatisations complexes en quelques clics. Que vous soyez débutant ou expert, vous vous sentirez comme chez vous."
+      },
+      "lightningFast": {
+        "title": "Ultra Rapide",
+        "description": "Notre infrastructure est optimisée pour la vitesse. Vos automatisations s'exécutent instantanément lorsqu'elles sont déclenchées, garantissant que vous ne manquez jamais rien dans votre flux de travail."
+      },
+      "enterpriseSecurity": {
+        "title": "Sécurité Entreprise",
+        "description": "Chiffrement de niveau bancaire, conformité SOC 2 et audits de sécurité réguliers garantissent que vos données sont toujours protégées. Nous prenons la sécurité au sérieux pour que vous n'ayez pas à vous inquiéter."
+      },
+      "amazingSupport": {
+        "title": "Support Exceptionnel",
+        "description": "Notre équipe de support dévouée est là pour vous aider à réussir. De l'intégration au dépannage, nous sommes avec vous à chaque étape."
+      }
+    },
+    "cta": {
+      "title": "Prêt à commencer ?",
+      "description": "Rejoignez des millions d'utilisateurs qui ont déjà automatisé leurs flux de travail avec AREA. Commencez à construire votre première automatisation aujourd'hui.",
+      "buttonDashboard": "Aller au Tableau de Bord",
+      "buttonStart": "Commencer gratuitement",
+      "buttonExplore": "Explorer les Services"
+    },
+    "footer": {
+      "copyright": "© 2025 AREA. Tous droits réservés."
+    }
+  }
+}

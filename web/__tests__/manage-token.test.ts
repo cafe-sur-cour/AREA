@@ -8,6 +8,9 @@ jest.mock('next/headers', () => ({
 describe('manageToken', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    jest.spyOn(console, 'log').mockImplementation(() => {});
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    jest.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   test('should get token from cookies', async () => {
