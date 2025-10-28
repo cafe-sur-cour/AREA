@@ -26,8 +26,8 @@ export const everyDayAtXHourSchema: ActionReactionSchema = {
       type: 'number',
       label: 'Timezone offset (hours from UTC)',
       required: true,
-      placeholder: '2',
-      default: 2,
+      placeholder: '1',
+      default: 1,
     },
     {
       name: 'days',
@@ -64,8 +64,8 @@ export const everyHourAtIntervalsSchema: ActionReactionSchema = {
       type: 'number',
       label: 'Timezone offset (hours from UTC)',
       required: true,
-      placeholder: '2',
-      default: 2,
+      placeholder: '1',
+      default: 1,
     },
   ],
 };

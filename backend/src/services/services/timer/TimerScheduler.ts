@@ -89,7 +89,7 @@ export class TimerScheduler {
         if (config.timezone !== undefined) {
           timezones.add(config.timezone);
         } else {
-          timezones.add(2);
+          timezones.add(0);
         }
       } catch (error) {
         console.error(`Error parsing config for mapping ${mapping.id}:`, error);
@@ -175,7 +175,7 @@ export class TimerScheduler {
           timezone?: number;
         };
 
-        const configTimezone = config.timezone ?? 2; // Default to UTC+2
+        const configTimezone = config.timezone ?? 0;
         if (configTimezone !== timezoneOffset) continue;
 
         if (config.minute !== undefined && currentMinute === config.minute) {
@@ -231,7 +231,7 @@ export class TimerScheduler {
           timezone?: number;
         };
 
-        const configTimezone = config.timezone ?? 2; // Default to UTC+2
+        const configTimezone = config.timezone ?? 0;
         console.log(
           `[TimerScheduler] Mapping ${mapping.id}: config timezone ${configTimezone}, current timezone ${timezoneOffset}, hour ${config.hour}:${config.minute ?? 0}, days ${config.days}, current ${currentHour}:${currentMinute} ${dayNames[currentDay]}`
         );
