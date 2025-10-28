@@ -45,49 +45,108 @@ export class TimerScheduler {
 
   private async checkAndTriggerTimers(): Promise<void> {
     try {
-      const now = new Date();
-      const parisFormatter = new Intl.DateTimeFormat('en-GB', {
-        timeZone: 'Europe/Paris',
-        hour: 'numeric',
-        minute: 'numeric',
-        weekday: 'long',
-      });
+      const timezones = await this.getActiveTimerTimezones();
 
-      const parisTime = parisFormatter.formatToParts(now);
-      const currentHour = parseInt(
-        parisTime.find(p => p.type === 'hour')!.value
-      );
-      const currentMinute = parseInt(
-        parisTime.find(p => p.type === 'minute')!.value
-      );
-      const dayName = parisTime
-        .find(p => p.type === 'weekday')!
-        .value.toLowerCase();
-
-      const dayNames = [
-        'sunday',
-        'monday',
-        'tuesday',
-        'wednesday',
-        'thursday',
-        'friday',
-        'saturday',
-      ];
-      const currentDay = dayNames.indexOf(dayName);
-
-      await this.checkEveryHourAtIntervalsTimers(currentMinute);
-      await this.checkEveryDayAtXHourTimers(
-        currentHour,
-        currentMinute,
-        currentDay
-      );
+      for (const timezoneOffset of timezones) {
+        await this.checkTimersForTimezone(timezoneOffset);
+      }
     } catch (error) {
       console.error('Error checking timer events:', error);
     }
   }
 
+  private async getActiveTimerTimezones(): Promise<number[]> {
+    const mappingRepository = AppDataSource.getRepository(WebhookConfigs);
+
+    const dailyMappings = await mappingRepository.find({
+      where: {
+        is_active: true,
+        action: Raw(alias => `${alias} ->> 'type' = :type`, {
+          type: 'timer.every_day_at_x_hour',
+        }),
+      },
+    });
+
+    const intervalMappings = await mappingRepository.find({
+      where: {
+        is_active: true,
+        action: Raw(alias => `${alias} ->> 'type' = :type`, {
+          type: 'timer.every_hour_at_intervals',
+        }),
+      },
+    });
+
+    const timezones = new Set<number>();
+
+    for (const mapping of [...dailyMappings, ...intervalMappings]) {
+      try {
+        const config = mapping.action.config as { timezone?: number };
+        if (config.timezone !== undefined) {
+          timezones.add(config.timezone);
+        } else {
+          timezones.add(0);
+        }
+      } catch (error) {
+        console.error(`Error parsing config for mapping ${mapping.id}:`, error);
+      }
+    }
+
+    return Array.from(timezones);
+  }
+
+  private async checkTimersForTimezone(timezoneOffset: number): Promise<void> {
+    const now = new Date();
+    const adjustedTime = new Date(
+      now.getTime() + timezoneOffset * 60 * 60 * 1000
+    );
+
+    const formatter = new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'UTC',
+      hour: 'numeric',
+      minute: 'numeric',
+      weekday: 'long',
+    });
+
+    const timeParts = formatter.formatToParts(adjustedTime);
+    const currentHour = parseInt(timeParts.find(p => p.type === 'hour')!.value);
+    const currentMinute = parseInt(
+      timeParts.find(p => p.type === 'minute')!.value
+    );
+    const dayName = timeParts
+      .find(p => p.type === 'weekday')!
+      .value.toLowerCase();
+
+    const dayNames = [
+      'sunday',
+      'monday',
+      'tuesday',
+      'wednesday',
+      'thursday',
+      'friday',
+      'saturday',
+    ];
+    const currentDay = dayNames.indexOf(dayName);
+
+    await this.checkEveryHourAtIntervalsTimers(currentMinute, timezoneOffset);
+    await this.checkEveryDayAtXHourTimers(
+      currentHour,
+      currentMinute,
+      currentDay,
+      timezoneOffset
+    );
+  }
+
+  private getTimezoneOffset(timezone: string): number {
+    const match = timezone.match(/UTC([+-])(\d+)/);
+    if (!match || !match[2]) return 0;
+    const sign = match[1] === '+' ? 1 : -1;
+    const hours = parseInt(match[2]);
+    return sign * hours;
+  }
+
   private async checkEveryHourAtIntervalsTimers(
-    currentMinute: number
+    currentMinute: number,
+    timezoneOffset: number
   ): Promise<void> {
     const mappingRepository = AppDataSource.getRepository(WebhookConfigs);
 
@@ -102,10 +161,15 @@ export class TimerScheduler {
 
     for (const mapping of mappings) {
       try {
-        const config = mapping.action.config as { minute: number };
+        const config = mapping.action.config as {
+          minute: number;
+          timezone?: number;
+        };
+
+        const configTimezone = config.timezone ?? 0;
+        if (configTimezone !== timezoneOffset) continue;
 
         if (config.minute !== undefined && currentMinute === config.minute) {
-          console.log(`Triggering timer for mapping ${mapping.id}`);
           await this.triggerTimerEvent(mapping, {
             timestamp: new Date().toISOString(),
             minute: currentMinute,
@@ -120,7 +184,8 @@ export class TimerScheduler {
   private async checkEveryDayAtXHourTimers(
     currentHour: number,
     currentMinute: number,
-    currentDay: number
+    currentDay: number,
+    timezoneOffset: number
   ): Promise<void> {
     const mappingRepository = AppDataSource.getRepository(WebhookConfigs);
 
@@ -149,7 +214,13 @@ export class TimerScheduler {
           hour: number;
           minute?: number;
           days: string[];
+          timezone?: number;
         };
+
+        const configTimezone = config.timezone ?? 0;
+        if (configTimezone !== timezoneOffset) {
+          continue;
+        }
 
         if (
           config.hour === currentHour &&
@@ -157,9 +228,6 @@ export class TimerScheduler {
           config.days &&
           config.days.includes(dayNames[currentDay]!)
         ) {
-          console.log(
-            `✅ [TimerScheduler] Triggering timer for mapping ${mapping.id}`
-          );
           await this.triggerTimerEvent(mapping, {
             timestamp: new Date().toISOString(),
             hour: config.hour,
@@ -189,9 +257,5 @@ export class TimerScheduler {
     });
 
     await eventRepository.save(event);
-
-    console.log(
-      `Timer event triggered for mapping ${mapping.id}: ${mapping.action.type}`
-    );
   }
 }
