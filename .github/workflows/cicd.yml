@@ -405,4 +405,4 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           password: ${{ secrets.SSH_PASSWORD }}
           port: ${{ secrets.SSH_PORT }}
-          script: bash -i -c "systemctl --user restart deploy.service "
+          script: bash -i -c "sudo systemctl restart deploy.service"
