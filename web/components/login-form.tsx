@@ -39,16 +39,20 @@ export function LoginForm({
       } else {
         toast.error('No response from server');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Login error:', error);
-      
-      // Handle different error scenarios
-      if (error.response?.status === 401) {
-        toast.error('Invalid credentials');
-      } else if (error.response === null) {
-        toast.error('No response from server');
-      } else if (error.response?.status >= 500) {
-        toast.error('Server error');
+
+      if (error && typeof error === 'object' && 'response' in error) {
+        const err = error as { response?: { status?: number } | null };
+        if (err.response?.status === 401) {
+          toast.error('Invalid credentials');
+        } else if (err.response === null) {
+          toast.error('No response from server');
+        } else if (err.response?.status && err.response.status >= 500) {
+          toast.error('Server error');
+        } else {
+          toast.error('Login failed');
+        }
       } else {
         toast.error('Login failed');
       }

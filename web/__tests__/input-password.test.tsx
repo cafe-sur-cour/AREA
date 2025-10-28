@@ -3,8 +3,8 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import InputPassword from '../components/ui/input-password';
 
 jest.mock('react-icons/lu', () => ({
-  LuEye: () => <svg data-testid="eye-open" />,
-  LuEyeClosed: () => <svg data-testid="eye-closed" />,
+  LuEye: () => <svg data-testid='eye-open' />,
+  LuEyeClosed: () => <svg data-testid='eye-closed' />,
 }));
 
 describe('InputPassword', () => {
@@ -21,7 +21,9 @@ describe('InputPassword', () => {
 
   it('toggles password visibility on click', () => {
     render(<InputPassword />);
-    const toggle = screen.getByRole('button', { name: /toggle password visibility/i });
+    const toggle = screen.getByRole('button', {
+      name: /toggle password visibility/i,
+    });
     const input = screen.getByPlaceholderText('Password');
 
     // Initial state
@@ -40,13 +42,13 @@ describe('InputPassword', () => {
   });
 
   it('applies custom className', () => {
-    const { container } = render(<InputPassword className="extra-class" />);
+    const { container } = render(<InputPassword className='extra-class' />);
     const input = container.querySelector('input');
     expect(input?.className).toContain('extra-class');
   });
 
   it('spreads additional props to input element', () => {
-    render(<InputPassword data-testid="pwd-input" aria-label="mypassword" />);
+    render(<InputPassword data-testid='pwd-input' aria-label='mypassword' />);
     const input = screen.getByTestId('pwd-input');
     expect(input).toHaveAttribute('aria-label', 'mypassword');
   });

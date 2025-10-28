@@ -31,7 +31,7 @@ describe('LoginForm', () => {
     originalLocation = window.location;
 
     delete window.location;
-    window.location = { 
+    window.location = {
       href: 'http://localhost/',
       assign: jest.fn(),
       replace: jest.fn(),
@@ -46,15 +46,17 @@ describe('LoginForm', () => {
     mockApi.post.mockRejectedValue({
       response: {
         status: 401,
-        data: { message: 'Invalid credentials' }
-      }
+        data: { message: 'Invalid credentials' },
+      },
     });
 
     render(<LoginForm />);
     await userEvent.type(screen.getByLabelText(/email/i), 'alice@example.com');
     await userEvent.type(screen.getByPlaceholderText(/password/i), 'wrongpass');
 
-    await userEvent.click(screen.getByRole('button', { name: 'Login', exact: true }));
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Login', exact: true })
+    );
 
     await waitFor(() => {
       expect(toast.error).toHaveBeenCalledWith('Invalid credentials');
@@ -69,7 +71,9 @@ describe('LoginForm', () => {
     await userEvent.type(screen.getByLabelText(/email/i), 'alice@example.com');
     await userEvent.type(screen.getByPlaceholderText(/password/i), '123456');
 
-    await userEvent.click(screen.getByRole('button', { name: 'Login', exact: true }));
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Login', exact: true })
+    );
 
     await waitFor(() => {
       expect(toast.error).toHaveBeenCalledWith('No response from server');
@@ -84,7 +88,9 @@ describe('LoginForm', () => {
     await userEvent.type(screen.getByLabelText(/email/i), 'alice@example.com');
     await userEvent.type(screen.getByPlaceholderText(/password/i), '123456');
 
-    await userEvent.click(screen.getByRole('button', { name: 'Login', exact: true }));
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Login', exact: true })
+    );
 
     await waitFor(() => {
       expect(toast.error).toHaveBeenCalledWith('No response from server');
@@ -93,14 +99,19 @@ describe('LoginForm', () => {
 
   test('successful login redirects user', async () => {
     mockApi.post.mockResolvedValue({
-      data: { token: 'fake-jwt-token' }
+      data: { token: 'fake-jwt-token' },
     });
 
     render(<LoginForm />);
 
     await userEvent.type(screen.getByLabelText(/email/i), 'alice@example.com');
-    await userEvent.type(screen.getByPlaceholderText(/password/i), 'correctpassword');
-    await userEvent.click(screen.getByRole('button', { name: 'Login', exact: true }));
+    await userEvent.type(
+      screen.getByPlaceholderText(/password/i),
+      'correctpassword'
+    );
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Login', exact: true })
+    );
 
     await waitFor(() => {
       expect(window.location.href.endsWith('/')).toBe(true);
@@ -108,11 +119,17 @@ describe('LoginForm', () => {
   });
 
   test('shows loading state during form submission', async () => {
-    mockApi.post.mockImplementation(() => new Promise(resolve => setTimeout(resolve, 100)));
+    mockApi.post.mockImplementation(
+      () => new Promise(resolve => setTimeout(resolve, 100))
+    );
     render(<LoginForm />);
     await userEvent.type(screen.getByLabelText(/email/i), 'alice@example.com');
     await userEvent.type(screen.getByPlaceholderText(/password/i), 'password');
-    await userEvent.click(screen.getByRole('button', { name: 'Login', exact: true }));
-    expect(screen.getByRole('button', { name: 'Logging in...' })).toBeInTheDocument();
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Login', exact: true })
+    );
+    expect(
+      screen.getByRole('button', { name: 'Logging in...' })
+    ).toBeInTheDocument();
   });
 });

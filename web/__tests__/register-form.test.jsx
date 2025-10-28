@@ -23,10 +23,9 @@ describe('RegisterForm', () => {
   const push = jest.fn();
 
   beforeEach(() => {
-    useRouter.mockReturnValue({ push });
     jest.clearAllMocks();
     useRouter.mockReturnValue({
-      push: mockPush,
+      push,
     });
     jest.spyOn(console, 'log').mockImplementation(() => {});
     jest.spyOn(console, 'warn').mockImplementation(() => {});
@@ -43,10 +42,18 @@ describe('RegisterForm', () => {
 
   it('shows error if passwords do not match', async () => {
     render(<RegisterForm />);
-    fireEvent.change(screen.getByLabelText(/username/i), { target: { value: 'testuser' } });
-    fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'test@example.com' } });
-    fireEvent.change(screen.getByLabelText(/^password$/i), { target: { value: '123456' } });
-    fireEvent.change(screen.getByLabelText(/confirm password/i), { target: { value: '654321' } });
+    fireEvent.change(screen.getByLabelText(/username/i), {
+      target: { value: 'testuser' },
+    });
+    fireEvent.change(screen.getByLabelText(/email/i), {
+      target: { value: 'test@example.com' },
+    });
+    fireEvent.change(screen.getByLabelText(/^password$/i), {
+      target: { value: '123456' },
+    });
+    fireEvent.change(screen.getByLabelText(/confirm password/i), {
+      target: { value: '654321' },
+    });
 
     fireEvent.submit(screen.getByRole('button', { name: /register/i }));
 
@@ -59,10 +66,18 @@ describe('RegisterForm', () => {
     api.post.mockResolvedValue({ message: 'success' });
 
     render(<RegisterForm />);
-    fireEvent.change(screen.getByLabelText(/username/i), { target: { value: 'testuser' } });
-    fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'test@example.com' } });
-    fireEvent.change(screen.getByLabelText(/^password$/i), { target: { value: '123456' } });
-    fireEvent.change(screen.getByLabelText(/confirm password/i), { target: { value: '123456' } });
+    fireEvent.change(screen.getByLabelText(/username/i), {
+      target: { value: 'testuser' },
+    });
+    fireEvent.change(screen.getByLabelText(/email/i), {
+      target: { value: 'test@example.com' },
+    });
+    fireEvent.change(screen.getByLabelText(/^password$/i), {
+      target: { value: '123456' },
+    });
+    fireEvent.change(screen.getByLabelText(/confirm password/i), {
+      target: { value: '123456' },
+    });
 
     fireEvent.submit(screen.getByRole('button', { name: /register/i }));
 
@@ -82,15 +97,25 @@ describe('RegisterForm', () => {
     api.post.mockRejectedValue(new Error('API error'));
 
     render(<RegisterForm />);
-    fireEvent.change(screen.getByLabelText(/username/i), { target: { value: 'testuser' } });
-    fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'test@example.com' } });
-    fireEvent.change(screen.getByLabelText(/^password$/i), { target: { value: '123456' } });
-    fireEvent.change(screen.getByLabelText(/confirm password/i), { target: { value: '123456' } });
+    fireEvent.change(screen.getByLabelText(/username/i), {
+      target: { value: 'testuser' },
+    });
+    fireEvent.change(screen.getByLabelText(/email/i), {
+      target: { value: 'test@example.com' },
+    });
+    fireEvent.change(screen.getByLabelText(/^password$/i), {
+      target: { value: '123456' },
+    });
+    fireEvent.change(screen.getByLabelText(/confirm password/i), {
+      target: { value: '123456' },
+    });
 
     fireEvent.submit(screen.getByRole('button', { name: /register/i }));
 
     await waitFor(() => {
-      expect(toast.error).toHaveBeenCalledWith(expect.stringContaining('Registration failed'));
+      expect(toast.error).toHaveBeenCalledWith(
+        expect.stringContaining('Registration failed')
+      );
     });
   });
 });

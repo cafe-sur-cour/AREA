@@ -63,7 +63,9 @@ describe('UserActions', () => {
     render(<UserActions />);
     expect(screen.getByLabelText('Profile')).toBeInTheDocument();
     expect(screen.getByLabelText('Logout')).toBeInTheDocument();
-    expect(screen.queryByLabelText('Admin Area button')).not.toBeInTheDocument();
+    expect(
+      screen.queryByLabelText('Admin Area button')
+    ).not.toBeInTheDocument();
   });
 
   it('renders admin button when user is admin', () => {
@@ -121,7 +123,7 @@ describe('UserActions', () => {
   });
 
   it('renders correctly with custom className', () => {
-    const { container } = render(<UserActions className="extra-class" />);
+    const { container } = render(<UserActions className='extra-class' />);
     expect(container.querySelector('.extra-class')).toBeInTheDocument();
   });
 
@@ -188,6 +190,8 @@ describe('UserActions', () => {
     const { container } = render(<UserActions isMobile />);
     const link = screen.getByText('Login');
     expect(link).toBeInTheDocument();
-    expect(container.querySelector('span.bg-gradient-to-r')).toBeInTheDocument();
+    expect(
+      container.querySelector('span.bg-gradient-to-r')
+    ).toBeInTheDocument();
   });
 });

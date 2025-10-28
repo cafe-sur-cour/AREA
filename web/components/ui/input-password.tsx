@@ -26,9 +26,12 @@ export default function InputPassword({
         onClick={() => setShowPassword(!showPassword)}
       >
         {showPassword ? (
-          <LuEyeClosed data-testid="eye-closed" className='h-5 w-5 text-gray-500' />
+          <LuEyeClosed
+            data-testid='eye-closed'
+            className='h-5 w-5 text-gray-500'
+          />
         ) : (
-          <LuEye data-testid="eye-open" className='h-5 w-5 text-gray-500' />
+          <LuEye data-testid='eye-open' className='h-5 w-5 text-gray-500' />
         )}
       </button>
     </div>

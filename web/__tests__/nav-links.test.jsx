@@ -8,7 +8,6 @@ beforeAll(() => {
   jest.spyOn(console, 'warn').mockImplementation(() => {});
 });
 
-
 jest.mock('next/navigation', () => ({
   useRouter: () => ({
     push: jest.fn(),

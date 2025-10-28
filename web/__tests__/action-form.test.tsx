@@ -6,6 +6,7 @@ import { Action } from '@/types/action';
 
 jest.mock('@/lib/api');
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 (window.HTMLElement as any).prototype.scrollIntoView = jest.fn();
 
 describe('ActionForm', () => {
