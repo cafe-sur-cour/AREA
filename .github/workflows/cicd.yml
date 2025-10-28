@@ -292,6 +292,7 @@ jobs:
     name: Build and Push Docker Images
     if: ${{ (github.event_name == 'pull_request' && github.event.pull_request.merged == true) || (github.event_name == 'push' && contains(github.event.head_commit.message, 'Merge pull request')) }}
     runs-on: ubuntu-latest
+    environment: AREA
     strategy:
       matrix:
         component: [frontend, backend, mobile]
@@ -334,9 +335,9 @@ jobs:
 
       - name: Build and push Docker image
         env:
-          FRONTEND_URL: "https://frontend.nduboi.fr"
-          BACKEND_URL: "https://backend.nduboi.fr"
-          MOBILE_CALLBACK_URL: "mobileapp://callback"
+          FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
+          BACKEND_URL: ${{ secrets.BACKEND_URL }}
+          MOBILE_CALLBACK_URL: ${{ secrets.MOBILE_CALLBACK_URL }}
         if: steps.check_dockerfile.outputs.dockerfile_exists == 'true'
         uses: docker/build-push-action@v5
         with:
