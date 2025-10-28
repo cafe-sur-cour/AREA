@@ -170,7 +170,6 @@ export class TimerScheduler {
         if (configTimezone !== timezoneOffset) continue;
 
         if (config.minute !== undefined && currentMinute === config.minute) {
-          console.log(`Triggering timer for mapping ${mapping.id}`);
           await this.triggerTimerEvent(mapping, {
             timestamp: new Date().toISOString(),
             minute: currentMinute,
@@ -199,10 +198,6 @@ export class TimerScheduler {
       },
     });
 
-    console.log(
-      `[TimerScheduler] Found ${mappings.length} daily timer mappings for timezone ${timezoneOffset}`
-    );
-
     const dayNames = [
       'sunday',
       'monday',
@@ -223,13 +218,7 @@ export class TimerScheduler {
         };
 
         const configTimezone = config.timezone ?? 0;
-        console.log(
-          `[TimerScheduler] Mapping ${mapping.id}: config timezone ${configTimezone}, current timezone ${timezoneOffset}, hour ${config.hour}:${config.minute ?? 0}, days ${config.days}, current ${currentHour}:${currentMinute} ${dayNames[currentDay]}`
-        );
         if (configTimezone !== timezoneOffset) {
-          console.log(
-            `[TimerScheduler] Skipping mapping ${mapping.id}: timezone mismatch`
-          );
           continue;
         }
 
@@ -239,19 +228,12 @@ export class TimerScheduler {
           config.days &&
           config.days.includes(dayNames[currentDay]!)
         ) {
-          console.log(
-            `✅ [TimerScheduler] Triggering timer for mapping ${mapping.id}`
-          );
           await this.triggerTimerEvent(mapping, {
             timestamp: new Date().toISOString(),
             hour: config.hour,
             minute: config.minute ?? 0,
             day: dayNames[currentDay]!,
           });
-        } else {
-          console.log(
-            `[TimerScheduler] Mapping ${mapping.id} does not match: hour ${config.hour}==${currentHour}, minute ${config.minute ?? 0}==${currentMinute}, day ${dayNames[currentDay]} in ${config.days}`
-          );
         }
       } catch (error) {
         console.error(`Error processing timer mapping ${mapping.id}:`, error);
@@ -275,9 +257,5 @@ export class TimerScheduler {
     });
 
     await eventRepository.save(event);
-
-    console.log(
-      `Timer event triggered for mapping ${mapping.id}: ${mapping.action.type}`
-    );
   }
 }
