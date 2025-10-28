@@ -69,9 +69,8 @@ services:
   client_mobile:
     build:
       context: ..
-      dockerfile: deployment/Dockerfile.mobile
+      dockerfile: ${DOCKERFILE_MOBILE:-deployment/Dockerfile.mobile}
       args:
-        - FLUTTER_IMAGE=${FLUTTER_IMAGE}
         - SKIP_APK_BUILD=${SKIP_APK_BUILD:-false}
         - FRONTEND_URL=${FRONTEND_URL}
         - BACKEND_URL=${BACKEND_URL}

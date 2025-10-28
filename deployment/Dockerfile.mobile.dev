@@ -1,6 +1,5 @@
 # Flutter Mobile Build Dockerfile
-ARG FLUTTER_IMAGE=ghcr.io/cirruslabs/flutter:3.35.7@sha256:875ae803a5286c72a29ab95d789bf7ad24022b686f29f6d31674fdbd55ba8210
-FROM ${FLUTTER_IMAGE} AS builder
+FROM ghcr.io/cirruslabs/flutter:3.35.7 AS builder
 
 ARG SKIP_APK_BUILD=false
 ARG FRONTEND_URL
@@ -30,7 +29,10 @@ RUN flutter clean
 RUN flutter pub get
 
 RUN if [ "$SKIP_APK_BUILD" != "true" ]; then \
-        flutter build apk --release --dart-define=FRONTEND_URL="$FRONTEND_URL" --dart-define=BACKEND_URL="$BACKEND_URL" --dart-define=MOBILE_CALLBACK_URL="$MOBILE_CALLBACK_URL" -v; \
+        flutter build apk --release \
+        --dart-define=FRONTEND_URL="$FRONTEND_URL" \
+        --dart-define=BACKEND_URL="$BACKEND_URL" \
+        --dart-define=MOBILE_CALLBACK_URL="$MOBILE_CALLBACK_URL"; \
     else \
         echo "Skipping APK build for development"; \
         mkdir -p /app/build/app/outputs/flutter-apk/; \
@@ -38,7 +40,7 @@ RUN if [ "$SKIP_APK_BUILD" != "true" ]; then \
     fi
 
 # Create the final stage with just the APK
-FROM ubuntu:latest AS runner
+FROM alpine:latest AS runner
 
 RUN mkdir -p /app/build/
 
