@@ -24,7 +24,6 @@ export async function initialize(): Promise<void> {
   const { initializeMicrosoftPassport } = await import('./passport');
   initializeMicrosoftPassport();
 
-  // Start profile picture scheduler
   const { MicrosoftProfilePictureScheduler } = await import(
     './MicrosoftProfilePictureScheduler'
   );

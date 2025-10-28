@@ -140,10 +140,6 @@ export class MicrosoftProfilePictureScheduler {
       const currentEtag = photoMetadata['@odata.mediaEtag'];
       const storedEtag = stateData.profilePictureEtag;
 
-      console.log(
-        `🔍 [User ${userId}] Current ETag: ${currentEtag}, Stored ETag: ${storedEtag}`
-      );
-
       if (!storedEtag) {
         subscription.state_data = {
           ...stateData,
