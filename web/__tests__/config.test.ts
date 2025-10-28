@@ -13,6 +13,11 @@ jest.mock('@/lib/load-env', () => ({
 
 import { getEnv } from '@/lib/load-env';
 
+beforeAll(() => {
+  jest.spyOn(console, 'error').mockImplementation(() => {});
+  jest.spyOn(console, 'log').mockImplementation(() => {});
+});
+
 describe('Config helpers', () => {
   const OLD_ENV = process.env;
   const mockGetEnv = getEnv as jest.Mock;

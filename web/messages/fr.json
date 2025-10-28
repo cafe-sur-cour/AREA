@@ -21,7 +21,10 @@
       "terms": "Conditions d'utilisation",
       "and": "et",
       "privacy": "Politique de confidentialité",
-      "loginFailed": "Échec de la connexion"
+      "loginFailed": "Échec de la connexion",
+      "invalidCredentials": "Identifiants invalides",
+      "noResponseFromServer": "Aucune réponse du serveur",
+      "serverError": "Erreur serveur"
     },
     "register": {
       "loading": "Chargement...",

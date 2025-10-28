@@ -1,5 +1,7 @@
 import '@testing-library/jest-dom';
 import 'jest-environment-jsdom';
+import { render } from '@testing-library/react';
+import { I18nProvider } from '@/contexts/I18nContext';
 
 global.fetch = jest.fn();
 
@@ -26,3 +28,13 @@ const localStorageMock = {
   key: jest.fn(),
 } as Storage;
 global.localStorage = localStorageMock;
+
+// Custom render function that includes providers
+const customRender = (ui: React.ReactElement, options = {}) =>
+  render(ui, { wrapper: I18nProvider, ...options });
+
+// re-export everything
+export * from '@testing-library/react';
+
+// override render method
+export { customRender as render };

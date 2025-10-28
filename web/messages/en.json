@@ -21,7 +21,10 @@
       "terms": "Terms of Service",
       "and": "and",
       "privacy": "Privacy Policy",
-      "loginFailed": "Login failed"
+      "loginFailed": "Login failed",
+      "invalidCredentials": "Invalid credentials",
+      "noResponseFromServer": "No response from server",
+      "serverError": "Server error"
     },
     "register": {
       "loading": "Loading...",
