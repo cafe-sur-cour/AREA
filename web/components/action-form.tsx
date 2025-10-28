@@ -114,7 +114,16 @@ export default function ActionForm({
                   const newAction =
                     listAction.find(action => action.id === value) || null;
                   onActionChange(newAction);
-                  onConfigChange({});
+
+                  const defaultConfig: Record<string, unknown> = {};
+                  if (newAction?.configSchema?.fields) {
+                    for (const field of newAction.configSchema.fields) {
+                      if (field.default !== undefined) {
+                        defaultConfig[field.name] = field.default;
+                      }
+                    }
+                  }
+                  onConfigChange(defaultConfig);
                 }}
               >
                 <SelectTrigger className='w-[180px]'>
@@ -136,15 +145,15 @@ export default function ActionForm({
                 selectedAction.configSchema &&
                 selectedAction.configSchema.fields.map(field => {
                   const currentValue = actionConfig[field.name];
-                  const defaultValue = field.default;
 
-                  const getFieldValue = () => {
-                    if (currentValue !== undefined) return currentValue;
-                    if (defaultValue !== undefined) return defaultValue;
-                    return field.type === 'checkbox' ? [] : '';
-                  };
-
-                  const fieldValue = getFieldValue();
+                  const fieldValue =
+                    currentValue !== undefined
+                      ? currentValue
+                      : field.default !== undefined
+                        ? field.default
+                        : field.type === 'checkbox'
+                          ? []
+                          : '';
 
                   const handleValueChange = (value: unknown) => {
                     onConfigChange({

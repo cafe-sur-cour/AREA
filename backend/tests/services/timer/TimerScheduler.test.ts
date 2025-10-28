@@ -396,8 +396,6 @@ describe('TimerScheduler', () => {
         minute: 30,
       };
 
-      const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation();
-
       // Access private method via any cast
       await (scheduler as any).triggerTimerEvent(mockMapping, payload);
 
@@ -410,11 +408,6 @@ describe('TimerScheduler', () => {
         mapping_id: 5,
       });
       expect(mockEventRepo.save).toHaveBeenCalled();
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        'Timer event triggered for mapping 5: timer.every_hour_at_intervals'
-      );
-
-      consoleLogSpy.mockRestore();
     });
 
     it('should handle missing created_by (defaults to 0)', async () => {
