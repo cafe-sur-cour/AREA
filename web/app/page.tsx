@@ -5,10 +5,12 @@ import Navigation from '@/components/header';
 import InfiniteHorizontalCards from '@/components/infinite-horizontal-cards';
 import { ArrowRight, Zap, Clock, Shield } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useI18n } from '@/contexts/I18nContext';
 import Link from 'next/link';
 
 export default function Home() {
   const { isAuthenticated } = useAuth();
+  const { t } = useI18n();
 
   return (
     <div className='min-h-screen bg-background'>
@@ -20,11 +22,10 @@ export default function Home() {
           <div className='max-w-7xl mx-auto'>
             <div className='text-center max-w-4xl mx-auto'>
               <h1 className='text-5xl sm:text-6xl lg:text-7xl font-heading font-bold text-foreground mb-6 text-balance'>
-                Automate your life with powerful connections
+                {t.home.hero.title}
               </h1>
               <p className='text-lg sm:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto text-pretty'>
-                Connect your favorite apps and services to create powerful
-                automations. Save time and focus on what matters most.
+                {t.home.hero.description}
               </p>
               <div className='flex flex-col sm:flex-row gap-4 justify-center items-center'>
                 {!isAuthenticated ? (
@@ -35,7 +36,7 @@ export default function Home() {
                       className='text-base px-8 cursor-pointer'
                     >
                       <Link href='/register'>
-                        Get started free
+                        {t.home.hero.getStarted}
                         <ArrowRight className='ml-2 h-5 w-5' />
                       </Link>
                     </Button>
@@ -45,7 +46,7 @@ export default function Home() {
                       size='lg'
                       className='text-base px-8 bg-transparent cursor-pointer'
                     >
-                      <Link href='/login'>Sign in</Link>
+                      <Link href='/login'>{t.home.hero.signIn}</Link>
                     </Button>
                   </>
                 ) : (
@@ -55,7 +56,7 @@ export default function Home() {
                     className='text-base px-8 cursor-pointer'
                   >
                     <Link href='/dashboard'>
-                      Go to Dashboard
+                      {t.home.hero.goToDashboard}
                       <ArrowRight className='ml-2 h-5 w-5' />
                     </Link>
                   </Button>
@@ -73,19 +74,25 @@ export default function Home() {
                 <h2 className='text-4xl font-heading font-bold text-foreground mb-2'>
                   10M+
                 </h2>
-                <div className='text-muted-foreground'>Active automations</div>
+                <div className='text-muted-foreground'>
+                  {t.home.stats.automations}
+                </div>
               </div>
               <div className='text-center md:text-left'>
                 <h2 className='text-4xl font-heading font-bold text-foreground mb-2'>
                   500+
                 </h2>
-                <div className='text-muted-foreground'>Connected services</div>
+                <div className='text-muted-foreground'>
+                  {t.home.stats.services}
+                </div>
               </div>
               <div className='text-center md:text-left'>
                 <h2 className='text-4xl font-heading font-bold text-foreground mb-2'>
                   2M+
                 </h2>
-                <div className='text-muted-foreground'>Happy users</div>
+                <div className='text-muted-foreground'>
+                  {t.home.stats.users}
+                </div>
               </div>
             </div>
           </div>
@@ -95,11 +102,10 @@ export default function Home() {
           <div className='max-w-7xl mx-auto'>
             <div className='text-center mb-16'>
               <h2 className='text-3xl sm:text-4xl lg:text-5xl font-heading font-bold text-foreground mb-4'>
-                Availables services
+                {t.home.services.title}
               </h2>
               <p className='text-lg text-muted-foreground max-w-2xl mx-auto'>
-                Discover the apps and platforms you can connect to create
-                powerful automations.
+                {t.home.services.description}
               </p>
             </div>
             <div className='m-5x w-4xl max-w-full mx-auto'>
@@ -116,14 +122,14 @@ export default function Home() {
                 id='how-it-works-heading'
                 className='text-3xl sm:text-4xl lg:text-5xl font-heading font-bold text-foreground mb-4'
               >
-                How it works
+                {t.home.howItWorks.title}
               </h2>
               <h2
                 className='text-lg text-muted-foreground max-w-2xl mx-auto'
                 aria-labelledby='how-it-works-heading'
                 aria-hidden='false'
               >
-                Create powerful automations in three simple steps
+                {t.home.howItWorks.subtitle}
               </h2>
             </div>
 
@@ -134,10 +140,10 @@ export default function Home() {
                   1
                 </h3>
                 <h4 className='text-xl font-heading font-semibold text-foreground mb-3'>
-                  Choose a trigger
+                  {t.home.howItWorks.step1.title}
                 </h4>
                 <p className='text-muted-foreground'>
-                  Select an app and event that starts your automation
+                  {t.home.howItWorks.step1.description}
                 </p>
               </div>
 
@@ -147,10 +153,10 @@ export default function Home() {
                   2
                 </h3>
                 <h4 className='text-xl font-heading font-semibold text-foreground mb-3'>
-                  Add an action
+                  {t.home.howItWorks.step2.title}
                 </h4>
                 <p className='text-muted-foreground'>
-                  Choose what happens when your trigger fires
+                  {t.home.howItWorks.step2.description}
                 </p>
               </div>
 
@@ -160,10 +166,10 @@ export default function Home() {
                   3
                 </h3>
                 <h4 className='text-xl font-heading font-semibold text-foreground mb-3'>
-                  Activate & relax
+                  {t.home.howItWorks.step3.title}
                 </h4>
                 <p className='text-muted-foreground'>
-                  Your automation runs automatically in the background
+                  {t.home.howItWorks.step3.description}
                 </p>
               </div>
             </div>
@@ -178,48 +184,52 @@ export default function Home() {
                 id='popular-automations-heading'
                 className='text-3xl sm:text-4xl lg:text-5xl font-heading font-bold text-foreground mb-4'
               >
-                Popular automations
+                {t.home.popularAutomations.title}
               </h2>
               <h2
                 className='text-lg text-muted-foreground max-w-2xl mx-auto'
                 aria-labelledby='popular-automations-heading'
                 aria-hidden='false'
               >
-                Get inspired by what others are building
+                {t.home.popularAutomations.subtitle}
               </h2>
             </div>
 
             <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
               {[
                 {
-                  title: 'Email to Slack',
+                  title: t.home.popularAutomations.emailToSlack.title,
                   description:
-                    'Get notified in Slack when you receive important emails',
+                    t.home.popularAutomations.emailToSlack.description,
                   icon: '📧',
                 },
                 {
-                  title: 'Social Media Sync',
-                  description: 'Post to multiple social networks at once',
+                  title: t.home.popularAutomations.socialMediaSync.title,
+                  description:
+                    t.home.popularAutomations.socialMediaSync.description,
                   icon: '📱',
                 },
                 {
-                  title: 'Calendar Reminders',
-                  description: 'Send SMS reminders before calendar events',
+                  title: t.home.popularAutomations.calendarReminders.title,
+                  description:
+                    t.home.popularAutomations.calendarReminders.description,
                   icon: '📅',
                 },
                 {
-                  title: 'File Backup',
-                  description: 'Automatically backup files to cloud storage',
+                  title: t.home.popularAutomations.fileBackup.title,
+                  description: t.home.popularAutomations.fileBackup.description,
                   icon: '💾',
                 },
                 {
-                  title: 'Task Management',
-                  description: 'Create tasks from emails or messages',
+                  title: t.home.popularAutomations.taskManagement.title,
+                  description:
+                    t.home.popularAutomations.taskManagement.description,
                   icon: '✅',
                 },
                 {
-                  title: 'Data Collection',
-                  description: 'Save form responses to spreadsheets',
+                  title: t.home.popularAutomations.dataCollection.title,
+                  description:
+                    t.home.popularAutomations.dataCollection.description,
                   icon: '📊',
                 },
               ].map((automation, index) => (
@@ -255,11 +265,10 @@ export default function Home() {
                   <Zap className='h-6 w-6' />
                 </div>
                 <h3 className='text-xl font-heading font-semibold text-foreground mb-3'>
-                  Lightning fast
+                  {t.home.features.lightningFast.title}
                 </h3>
                 <p className='text-muted-foreground'>
-                  Your automations run instantly when triggered, with no delays
-                  or waiting.
+                  {t.home.features.lightningFast.description}
                 </p>
               </div>
 
@@ -268,11 +277,10 @@ export default function Home() {
                   <Clock className='h-6 w-6' />
                 </div>
                 <h3 className='text-xl font-heading font-semibold text-foreground mb-3'>
-                  Save time
+                  {t.home.features.saveTime.title}
                 </h3>
                 <p className='text-muted-foreground'>
-                  Automate repetitive tasks and focus on what really matters to
-                  you.
+                  {t.home.features.saveTime.description}
                 </p>
               </div>
 
@@ -281,11 +289,10 @@ export default function Home() {
                   <Shield className='h-6 w-6' />
                 </div>
                 <h3 className='text-xl font-heading font-semibold text-foreground mb-3'>
-                  Secure & reliable
+                  {t.home.features.secureReliable.title}
                 </h3>
                 <p className='text-muted-foreground'>
-                  Enterprise-grade security with 99.9% uptime guarantee for your
-                  peace of mind.
+                  {t.home.features.secureReliable.description}
                 </p>
               </div>
             </div>
@@ -296,11 +303,10 @@ export default function Home() {
         <section className='px-4 sm:px-6 lg:px-8 py-24'>
           <div className='max-w-4xl mx-auto text-center'>
             <h2 className='text-3xl sm:text-4xl lg:text-5xl font-heading font-bold text-foreground mb-6'>
-              Ready to automate your workflow?
+              {t.home.cta.title}
             </h2>
             <p className='text-lg text-muted-foreground mb-10 max-w-2xl mx-auto'>
-              Join millions of users who are already saving time with powerful
-              automations.
+              {t.home.cta.description}
             </p>
             {isAuthenticated ? (
               <Button
@@ -309,7 +315,7 @@ export default function Home() {
                 className='text-base px-8 cursor-pointer'
               >
                 <Link href='/my-areas'>
-                  Go to My AREAs
+                  {t.home.cta.goToMyAreas}
                   <ArrowRight className='ml-2 h-5 w-5' />
                 </Link>
               </Button>
@@ -320,7 +326,7 @@ export default function Home() {
                 className='text-base px-8 cursor-pointer'
               >
                 <Link href='/register'>
-                  Start for free
+                  {t.home.cta.startFree}
                   <ArrowRight className='ml-2 h-5 w-5' />
                 </Link>
               </Button>
@@ -332,7 +338,7 @@ export default function Home() {
       {/* Footer */}
       <footer className='border-t border-border px-4 sm:px-6 lg:px-8 py-12'>
         <div className='max-w-7xl mx-auto text-center text-muted-foreground text-sm'>
-          <p>&copy; 2025 Area. All rights reserved.</p>
+          <p>{t.home.footer.copyright}</p>
         </div>
       </footer>
     </div>

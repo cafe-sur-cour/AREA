@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '../jest.setup';
 import RegisterForm from '@/components/register-form';
 import { useRouter } from 'next/navigation';
 import api from '@/lib/api';
@@ -17,6 +17,39 @@ jest.mock('sonner', () => ({
     success: jest.fn(),
     error: jest.fn(),
   },
+}));
+
+jest.mock('@/contexts/I18nContext', () => ({
+  useI18n: () => ({
+    t: {
+      auth: {
+        register: {
+          passwordsDoNotMatch: 'Passwords do not match',
+          registrationSuccess:
+            'Registration successful! Please check your email to verify your account.',
+          registrationFailed: 'Registration failed: ',
+          username: 'Username',
+          email: 'Email',
+          password: 'Password',
+          confirmPassword: 'Confirm password',
+          registerButton: 'Register',
+          title: 'Welcome',
+          subtitle: 'Register an Area account',
+          usernamePlaceholder: 'Your username',
+          emailPlaceholder: 'm@example.com',
+          confirmPasswordPlaceholder: 'Confirm password',
+          orContinueWith: 'Or continue with',
+          loginWithGithub: 'Login with Github',
+          loginWithGoogle: 'Login with Google',
+          loginWithMicrosoft: 'Login with Microsoft 365',
+          termsPrefix: 'By clicking continue, you agree to our',
+          terms: 'Terms of Service',
+          and: 'and',
+          privacy: 'Privacy Policy',
+        },
+      },
+    },
+  }),
 }));
 
 describe('RegisterForm', () => {

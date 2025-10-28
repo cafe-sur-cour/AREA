@@ -12,9 +12,11 @@ import { Mail, UserRound, Key, Pencil, Check, X } from 'lucide-react';
 import api from '@/lib/api';
 import { User } from '@/types/user';
 import { useAuth } from '@/contexts/AuthContext';
+import { useI18n } from '@/contexts/I18nContext';
 import { toast } from 'sonner';
 
 export default function ProfilePage() {
+  const { t } = useI18n();
   const router = useRouter();
   const { user, isLoading } = useAuth();
   const [userData, setUserData] = useState<User | undefined>();
@@ -92,7 +94,7 @@ export default function ProfilePage() {
   const saveName = () => {
     console.log('Saving name:', editedName);
     if (editedName.trim() === '') {
-      toast.error('Name cannot be empty');
+      toast.error(t.profile.nameEmpty);
       return;
     }
     if (userData) {
@@ -111,7 +113,7 @@ export default function ProfilePage() {
   const savePassword = () => {
     console.log('Saving password:', editedPassword);
     if (editedPassword.trim() === '') {
-      toast.error('Password cannot be empty');
+      toast.error(t.profile.passwordEmpty);
       return;
     }
     if (userData) {
@@ -142,7 +144,7 @@ export default function ProfilePage() {
       <div className='min-h-screen flex items-center justify-center'>
         <div className='text-center'>
           <TbLoader3 className='size-12 animate-spin text-jeb-primary mb-4' />
-          <p className='mt-4 text-gray-600'>Loading...</p>
+          <p className='mt-4 text-gray-600'>{t.profile.loading}</p>
         </div>
       </div>
     );
@@ -159,7 +161,7 @@ export default function ProfilePage() {
               <Card className='md:col-span-1 place-self-center'>
                 <CardContent className='p-6 flex flex-col items-center gap-6'>
                   <h1 className='font-heading text-4xl font-bold text-app-text-primary text-center'>
-                    Welcome {userData?.name ?? 'NONE'}
+                    {t.profile.welcome} {userData?.name ?? 'NONE'}
                   </h1>
                   <InputAvatar
                     url={userData?.picture}
@@ -168,9 +170,9 @@ export default function ProfilePage() {
                     // variente='modifiable'
                     onChange={handleAvatarChange}
                   />
-                  {/* <p className='text-sm text-app-text-secondary text-center'>
-                    Click to change avatar
-                  </p> */}
+                  <p className='text-sm text-app-text-secondary text-center'>
+                    {t.profile.avatarHint}
+                  </p>
                 </CardContent>
               </Card>
 
@@ -185,7 +187,7 @@ export default function ProfilePage() {
                       </div>
                       <div className='flex-1'>
                         <p className='text-sm font-medium text-app-text-secondary'>
-                          Name
+                          {t.profile.name}
                         </p>
                         {editingName ? (
                           <div className='flex items-center gap-2 mt-1'>
@@ -193,7 +195,7 @@ export default function ProfilePage() {
                               value={editedName}
                               onChange={e => setEditedName(e.target.value)}
                               className='flex-1'
-                              placeholder='Enter your name'
+                              placeholder={t.profile.namePlaceholder}
                             />
                             <Button
                               size='sm'
@@ -241,7 +243,7 @@ export default function ProfilePage() {
                       </div>
                       <div className='flex-1'>
                         <p className='text-sm font-medium text-app-text-secondary'>
-                          Password
+                          {t.profile.password}
                         </p>
                         {editingPassword ? (
                           <div className='flex items-center gap-2 mt-1'>
@@ -249,7 +251,7 @@ export default function ProfilePage() {
                               value={editedPassword}
                               onChange={e => setEditedPassword(e.target.value)}
                               className='flex-1'
-                              placeholder='Enter your new password'
+                              placeholder={t.profile.passwordPlaceholder}
                             />
                             <Button
                               size='sm'
@@ -297,7 +299,7 @@ export default function ProfilePage() {
                       </div>
                       <div className='flex-1'>
                         <p className='text-sm font-medium text-app-text-secondary'>
-                          Email
+                          {t.profile.email}
                         </p>
                       </div>
                     </div>

@@ -5,9 +5,11 @@ import Image from 'next/image';
 const services = [
   { id: 1, name: 'Google', logo: '/logos/google.webp' },
   { id: 2, name: 'Twitch', logo: '/logos/twitch.png' },
-  { id: 3, name: 'Deezer', logo: '/logos/deezer.svg' },
-  { id: 4, name: 'Spotify', logo: '/logos/spotify.webp' },
-  { id: 5, name: 'Microsoft', logo: '/logos/microsoft.png' },
+  { id: 3, name: 'Spotify', logo: '/logos/spotify.webp' },
+  { id: 4, name: 'Microsoft', logo: '/logos/microsoft.png' },
+  { id: 5, name: 'Reddit', logo: '/logos/reddit.png' },
+  { id: 6, name: 'GitHub', logo: '/logos/github.png' },
+  { id: 7, name: 'GitLab', logo: '/logos/gitlab.png' },
 ];
 
 export default function InfiniteCarousel() {

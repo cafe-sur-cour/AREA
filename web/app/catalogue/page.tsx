@@ -15,9 +15,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { useI18n } from '@/contexts/I18nContext';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function CataloguePage() {
+  const { t } = useI18n();
   const [about, setAbout] = useState<About | null>(null);
   const [selectedFilter, setSelectedFilter] = useState<
     'all' | 'actions' | 'reactions'
@@ -95,13 +97,13 @@ export default function CataloguePage() {
       <main className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
         {/* Services Grid */}
         <h1 className='font-heading text-3xl font-bold text-app-text-primary mb-6'>
-          Catalogue of Actions and Reactions
+          {t.catalogue.title}
         </h1>
         <div className='flex flex-col gap-4 mb-8'>
           <div className='flex items-center justify-between'>
             <h2 className='text-lg font-semibold text-app-text-primary flex items-center gap-2'>
               <ListFilter className='w-5 h-5' />
-              Filter
+              {t.catalogue.filter.label}
             </h2>
           </div>
           <div className='flex gap-5'>
@@ -113,12 +115,18 @@ export default function CataloguePage() {
               value={selectedFilter}
             >
               <SelectTrigger className=' md:w-48 bg-app-surface border-app-border-light'>
-                <SelectValue placeholder='Filter by type' />
+                <SelectValue placeholder={t.catalogue.filter.placeholder} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value='all'>All Types</SelectItem>
-                <SelectItem value='actions'>Actions Only</SelectItem>
-                <SelectItem value='reactions'>Reactions Only</SelectItem>
+                <SelectItem value='all'>
+                  {t.catalogue.filter.all} Types
+                </SelectItem>
+                <SelectItem value='actions'>
+                  {t.catalogue.filter.actionsOnly}
+                </SelectItem>
+                <SelectItem value='reactions'>
+                  {t.catalogue.filter.reactionsOnly}
+                </SelectItem>
               </SelectContent>
             </Select>
             <Select
@@ -129,10 +137,14 @@ export default function CataloguePage() {
               value={selectedFilterService || 'all'}
             >
               <SelectTrigger className=' md:w-48 bg-app-surface border-app-border-light'>
-                <SelectValue placeholder='Filter by Service' />
+                <SelectValue
+                  placeholder={t.catalogue.filterServices.placeholder}
+                />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value='all'>All Services</SelectItem>
+                <SelectItem value='all'>
+                  {t.catalogue.filterServices.all}
+                </SelectItem>
                 {about &&
                   about.server.services.map(
                     (service: AboutAREA, index: number) => (
@@ -166,7 +178,7 @@ export default function CataloguePage() {
                                 {service.name}
                               </h3>
                               <Badge className='bg-transparent outline outline-app-border-light text-primary w-fit'>
-                                Action
+                                {t.catalogue.badges.action}
                               </Badge>
                             </div>
                             <div
@@ -188,7 +200,7 @@ export default function CataloguePage() {
                             variant='outline'
                             className='w-full border-app-red-primary text-app-red-primary hover:bg-app-red-primary hover:text-blue-400 transition-all duration-300 cursor-pointer'
                           >
-                            Add this action
+                            {t.catalogue.buttons.addAction}
                           </Button>
                         </CardContent>
                       </Card>
@@ -212,7 +224,7 @@ export default function CataloguePage() {
                                 {service.name}
                               </h3>
                               <Badge className='bg-transparent outline outline-app-border-light text-primary w-fit'>
-                                Reaction
+                                {t.catalogue.badges.reaction}
                               </Badge>
                             </div>
                             <div
@@ -234,7 +246,7 @@ export default function CataloguePage() {
                             variant='outline'
                             className='w-full border-app-red-primary text-app-red-primary hover:bg-app-red-primary hover:text-blue-400 transition-all duration-300 cursor-pointer'
                           >
-                            Add this reaction
+                            {t.catalogue.buttons.addReaction}
                           </Button>
                         </CardContent>
                       </Card>

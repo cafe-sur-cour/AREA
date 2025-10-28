@@ -14,11 +14,13 @@ import { toast } from 'sonner';
 import InputPassword from './ui/input-password';
 import { getAPIUrl } from '@/lib/config';
 import ButtonWithLoading from './ui/button-with-loading';
+import { useI18n } from '@/contexts/I18nContext';
 
 export default function RegisterForm({
   className,
   ...props
 }: React.ComponentProps<'div'>) {
+  const { t } = useI18n();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -32,7 +34,7 @@ export default function RegisterForm({
     const password = formData.get('password') as string;
     const confirmPassword = formData.get('confirm-password') as string;
     if (password !== confirmPassword) {
-      toast.error('Passwords do not match');
+      toast.error(t.auth.register.passwordsDoNotMatch);
       setIsLoading(false);
       return;
     }
@@ -43,13 +45,11 @@ export default function RegisterForm({
         name,
         password,
       });
-      toast.success(
-        'Registration successful! Please check your email to verify your account.'
-      );
+      toast.success(t.auth.register.registrationSuccess);
       setTimeout(() => router.push('/login'), 2000);
     } catch (error) {
       console.error('Registration error:', error);
-      toast.error('Registration failed: ' + error);
+      toast.error(t.auth.register.registrationFailed + error);
     } finally {
       setIsLoading(false);
     }
@@ -78,41 +78,43 @@ export default function RegisterForm({
           <form onSubmit={handleSubmit} className='p-6 md:p-8'>
             <div className='flex flex-col gap-6'>
               <div className='flex flex-col items-center text-center'>
-                <h1 className='text-2xl font-bold'>Welcome</h1>
+                <h1 className='text-2xl font-bold'>{t.auth.register.title}</h1>
                 <p className='text-muted-foreground text-balance'>
-                  Register an Area account
+                  {t.auth.register.subtitle}
                 </p>
               </div>
               <div className='grid gap-3'>
-                <Label htmlFor='username'>Username</Label>
+                <Label htmlFor='username'>{t.auth.register.username}</Label>
                 <Input
                   id='username'
                   name='username'
                   type='text'
-                  placeholder='Your username'
+                  placeholder={t.auth.register.usernamePlaceholder}
                   required
                 />
               </div>
               <div className='grid gap-3'>
-                <Label htmlFor='email'>Email</Label>
+                <Label htmlFor='email'>{t.auth.register.email}</Label>
                 <Input
                   id='email'
                   name='email'
                   type='email'
-                  placeholder='m@example.com'
+                  placeholder={t.auth.register.emailPlaceholder}
                   required
                 />
               </div>
               <div className='grid gap-3'>
-                <Label htmlFor='password'>Password</Label>
+                <Label htmlFor='password'>{t.auth.register.password}</Label>
                 <InputPassword name='password' />
               </div>
               <div className='grid gap-3'>
-                <Label htmlFor='confirm-password'>Confirm password</Label>
+                <Label htmlFor='confirm-password'>
+                  {t.auth.register.confirmPassword}
+                </Label>
                 <InputPassword
                   id='confirm-password'
                   name='confirm-password'
-                  placeholder='Confirm password'
+                  placeholder={t.auth.register.confirmPasswordPlaceholder}
                 />
               </div>
               <Button
@@ -120,11 +122,13 @@ export default function RegisterForm({
                 className='w-full cursor-pointer'
                 disabled={isLoading}
               >
-                {isLoading ? 'Registering...' : 'Register'}
+                {isLoading
+                  ? t.auth.register.registering
+                  : t.auth.register.registerButton}
               </Button>
               <div className='after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t'>
                 <span className='bg-card text-muted-foreground relative z-10 px-2'>
-                  Or continue with
+                  {t.auth.register.orContinueWith}
                 </span>
               </div>
               <div className='grid grid-cols-2 gap-4 sm:grid-cols-4'>
@@ -133,21 +137,27 @@ export default function RegisterForm({
                   onClick={async () => await signInWithGithub()}
                 >
                   <FaGithub />
-                  <span className='sr-only'>Login with Github</span>
+                  <span className='sr-only'>
+                    {t.auth.register.loginWithGithub}
+                  </span>
                 </ButtonWithLoading>
                 <ButtonWithLoading
                   className='w-full cursor-pointer'
                   onClick={async () => await signInWithGoogle()}
                 >
                   <FaGoogle />
-                  <span className='sr-only'>Login with Google</span>
+                  <span className='sr-only'>
+                    {t.auth.register.loginWithGoogle}
+                  </span>
                 </ButtonWithLoading>
                 <ButtonWithLoading
                   className='w-full'
                   onClick={async () => await signInWithMicrosoft()}
                 >
                   <FaMicrosoft />
-                  <span className='sr-only'>Login with Microsoft 365</span>
+                  <span className='sr-only'>
+                    {t.auth.register.loginWithMicrosoft}
+                  </span>
                 </ButtonWithLoading>
                 <ButtonWithLoading
                   className='w-full'
@@ -171,8 +181,8 @@ export default function RegisterForm({
         </CardContent>
       </Card>
       <div className='text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4'>
-        By clicking continue, you agree to our <a href='#'>Terms of Service</a>{' '}
-        and <a href='#'>Privacy Policy</a>.
+        {t.auth.register.termsPrefix} <a href='#'>{t.auth.register.terms}</a>{' '}
+        {t.auth.register.and} <a href='#'>{t.auth.register.privacy}</a>.
       </div>
     </div>
   );

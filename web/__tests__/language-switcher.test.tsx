@@ -3,7 +3,7 @@
  */
 
 import React from 'react';
-import { render, act, waitFor, fireEvent } from '@testing-library/react';
+import { render, act, waitFor, fireEvent } from './test-utils';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
 import { api } from '@/lib/api';
 

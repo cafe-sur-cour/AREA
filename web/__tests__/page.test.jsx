@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from './test-utils';
 import Home from '../app/page';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { before } from 'node:test';

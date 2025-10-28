@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '../jest.setup';
 import userEvent from '@testing-library/user-event';
 import { LoginForm } from '../components/login-form';
 import api from '@/lib/api';
@@ -10,6 +10,40 @@ jest.mock('sonner', () => ({
     error: jest.fn(),
     success: jest.fn(),
   },
+}));
+
+jest.mock('@/contexts/I18nContext', () => ({
+  useI18n: () => ({
+    t: {
+      auth: {
+        login: {
+          invalidCredentials: 'Invalid credentials',
+          noResponseFromServer: 'No response from server',
+          serverError: 'Server error',
+          loginFailed: 'Login failed',
+          loggingIn: 'Logging in...',
+          loginButton: 'Login',
+          email: 'Email',
+          password: 'Password',
+          forgotPassword: 'Forgot your password?',
+          title: 'Welcome back',
+          subtitle: 'Login to your Area account',
+          emailPlaceholder: 'm@example.com',
+          orContinueWith: 'Or continue with',
+          loginWithGithub: 'Login with Github',
+          loginWithGoogle: 'Login with Google',
+          loginWithMicrosoft: 'Login with Microsoft 365',
+          loginWithMeta: 'Login with Meta',
+          noAccount: "Don't have an account?",
+          signUp: 'Sign up',
+          termsPrefix: 'By clicking continue, you agree to our',
+          terms: 'Terms of Service',
+          and: 'and',
+          privacy: 'Privacy Policy',
+        },
+      },
+    },
+  }),
 }));
 
 beforeAll(() => {
