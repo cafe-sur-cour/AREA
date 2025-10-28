@@ -7,6 +7,12 @@ import { render, act, waitFor, fireEvent } from '@testing-library/react';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
 import { api } from '@/lib/api';
 
+beforeAll(() => {
+  jest.spyOn(console, 'error').mockImplementation(() => {});
+  jest.spyOn(console, 'log').mockImplementation(() => {});
+  jest.spyOn(console, 'warn').mockImplementation(() => {});
+});
+
 // Mock Lucide-React languages icon with class name support
 jest.mock('lucide-react', () => ({
   Languages: ({ className }: { className?: string }) => (

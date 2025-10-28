@@ -37,16 +37,31 @@ export function LoginForm({
       if (response && response.data) {
         window.location.href = '/';
       } else {
+        toast.error('No response from server');
+      }
+    } catch (error: unknown) {
+      console.error('Login error:', error);
+
+      if (error && typeof error === 'object' && 'response' in error) {
+        const err = error as { response?: { status?: number } | null };
+        if (err.response?.status === 401) {
+          toast.error('Invalid credentials');
+        } else if (err.response === null) {
+          toast.error('No response from server');
+        } else if (err.response?.status && err.response.status >= 500) {
+          toast.error('Server error');
+        } else {
+          toast.error('Login failed');
+        }
+      } else {
         toast.error('Login failed');
       }
-    } catch (error) {
-      console.error('Login error:', error);
-      toast.error('Login failed');
     } finally {
       setIsLoading(false);
     }
   };
 
+  // ... rest of the component remains the same
   const signInWithGithub = async () => {
     window.location.href = `${await getAPIUrl()}/auth/github/login`;
   };
