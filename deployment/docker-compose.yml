@@ -81,6 +81,22 @@ services:
     volumes:
       - mobile_build:/app/build
 
+  documentation:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile.documentation
+    container_name: area_docs
+    ports:
+      - "${DOC_PORT}:3000"
+    env_file:
+      - .env
+    environment:
+      - DOC_PORT=${DOC_PORT}
+    depends_on:
+      - client_mobile
+      - client_web
+      - server
+
   db:
     image: postgres:16
     container_name: postgres_db

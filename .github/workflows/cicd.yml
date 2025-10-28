@@ -247,6 +247,7 @@ jobs:
           DB_PORT: ${{ secrets.DB_PORT }}
           NODE_PORT: ${{ secrets.NODE_PORT }}
           NEXT_PORT: ${{ secrets.NEXT_PORT }}
+          DOC_PORT: ${{ secrets.NEXT_PORT }}
           FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
           BACKEND_URL: ${{ secrets.BACKEND_URL }}
           MOBILE_CALLBACK_URL: ${{ secrets.MOBILE_CALLBACK_URL }}

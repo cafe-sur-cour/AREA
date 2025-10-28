@@ -82,6 +82,9 @@ NEXT_PORT=3000
 FRONTEND_URL=http://localhost:3000
 NEXT_PUBLIC_API_URL=http://localhost:3001
 
+# Documentation Configuration
+DOC_PORT=5555
+
 # Email Configuration (SMTP)
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
