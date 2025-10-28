@@ -69,7 +69,7 @@ services:
   client_mobile:
     build:
       context: ..
-      dockerfile: ${DOCKERFILE_MOBILE:-deployment/Dockerfile.mobile}
+      dockerfile: ${DOCKERFILE_MOBILE:-deployment/Dockerfile.mobile.prod}
       args:
         - SKIP_APK_BUILD=${SKIP_APK_BUILD:-false}
         - FRONTEND_URL=${FRONTEND_URL}
