@@ -5,6 +5,16 @@ jest.mock('../../../src/services/services/microsoft/passport', () => ({
   initializeMicrosoftPassport: jest.fn(),
 }));
 
+// Mock the scheduler to avoid node-fetch import issues
+jest.mock(
+  '../../../src/services/services/microsoft/MicrosoftProfilePictureScheduler',
+  () => ({
+    MicrosoftProfilePictureScheduler: jest.fn().mockImplementation(() => ({
+      start: jest.fn(),
+    })),
+  })
+);
+
 describe('Microsoft Service', () => {
   const originalEnv = process.env;
 
@@ -30,13 +40,18 @@ describe('Microsoft Service', () => {
           'Microsoft 365 OAuth service for authentication and Microsoft Graph API integration',
         version: '1.0.0',
         icon: expect.stringContaining('<svg'),
-        actions: [],
+        actions: expect.arrayContaining([
+          expect.objectContaining({
+            id: 'microsoft.profile_picture_changed',
+            name: 'Profile Picture Changed',
+          }),
+        ]),
         reactions: [],
         oauth: {
           enabled: true,
           supportsLogin: true,
         },
-        authOnly: true,
+        authOnly: false,
       });
     });
 
@@ -48,8 +63,11 @@ describe('Microsoft Service', () => {
       expect(microsoftService.id).toBe('microsoft');
       expect(microsoftService.name).toBe('Microsoft 365');
       expect(microsoftService.version).toBe('1.0.0');
-      expect(microsoftService.authOnly).toBe(true);
-      expect(microsoftService.actions).toEqual([]);
+      expect(microsoftService.authOnly).toBe(false);
+      expect(microsoftService.actions).toHaveLength(1);
+      expect(microsoftService.actions[0].id).toBe(
+        'microsoft.profile_picture_changed'
+      );
       expect(microsoftService.reactions).toEqual([]);
       expect(microsoftService.oauth?.enabled).toBe(true);
       expect(microsoftService.oauth?.supportsLogin).toBe(true);
