@@ -48,7 +48,7 @@ export class FacebookOAuth {
     const params = new URLSearchParams({
       client_id: this.clientId,
       redirect_uri: this.redirectUri,
-      scope: 'email,public_profile',
+      scope: 'email,public_profile,user_likes',
       state: state,
       response_type: 'code',
     });
@@ -129,7 +129,7 @@ export class FacebookOAuth {
     if (existingToken) {
       existingToken.token_value = tokenData.access_token;
       existingToken.expires_at = expiresAt;
-      existingToken.scopes = ['email', 'public_profile'];
+      existingToken.scopes = ['email', 'public_profile', 'user_likes'];
       await tokenRepository.save(existingToken);
     } else {
       const newToken = tokenRepository.create({
@@ -137,7 +137,7 @@ export class FacebookOAuth {
         token_type: 'facebook_access_token',
         token_value: tokenData.access_token,
         expires_at: expiresAt,
-        scopes: ['email', 'public_profile'],
+        scopes: ['email', 'public_profile', 'user_likes'],
       });
       await tokenRepository.save(newToken);
     }
