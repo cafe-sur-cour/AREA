@@ -144,7 +144,17 @@ export class MicrosoftProfilePictureScheduler {
         `🔍 [User ${userId}] Current ETag: ${currentEtag}, Stored ETag: ${storedEtag}`
       );
 
-      if (storedEtag && storedEtag === currentEtag) {
+      if (!storedEtag) {
+        subscription.state_data = {
+          ...stateData,
+          profilePictureEtag: currentEtag,
+          lastCheck: new Date().toISOString(),
+        };
+        await subscriptionRepository.save(subscription);
+        return;
+      }
+
+      if (storedEtag === currentEtag) {
         return;
       }
 
