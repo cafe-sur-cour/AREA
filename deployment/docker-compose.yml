@@ -72,6 +72,9 @@ services:
       dockerfile: ${DOCKERFILE_MOBILE:-deployment/Dockerfile.mobile}
       args:
         - SKIP_APK_BUILD=${SKIP_APK_BUILD:-false}
+        - FRONTEND_URL=${FRONTEND_URL}
+        - BACKEND_URL=${BACKEND_URL}
+        - MOBILE_CALLBACK_URL=${MOBILE_CALLBACK_URL}
     container_name: area_mobile
     env_file:
       - .env

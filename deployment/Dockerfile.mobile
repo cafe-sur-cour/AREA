@@ -2,6 +2,19 @@
 FROM ghcr.io/cirruslabs/flutter:3.35.7 AS builder
 
 ARG SKIP_APK_BUILD=false
+ARG FRONTEND_URL
+ARG BACKEND_URL
+ARG MOBILE_CALLBACK_URL
+
+RUN if [ -z "$FRONTEND_URL" ]; \
+        then echo "FRONTEND_URL is required" && exit 1; \
+    fi && \
+    if [ -z "$BACKEND_URL" ]; \
+        then echo "BACKEND_URL is required" && exit 1; \
+    fi && \
+    if [ -z "$MOBILE_CALLBACK_URL" ]; \
+        then echo "MOBILE_CALLBACK_URL is required" && exit 1; \
+    fi
 
 WORKDIR /app
 
@@ -16,7 +29,10 @@ RUN flutter clean
 RUN flutter pub get
 
 RUN if [ "$SKIP_APK_BUILD" != "true" ]; then \
-        flutter build apk --release; \
+        flutter build apk --release \
+        --dart-define=FRONTEND_URL="$FRONTEND_URL" \
+        --dart-define=BACKEND_URL="$BACKEND_URL" \
+        --dart-define=MOBILE_CALLBACK_URL="$MOBILE_CALLBACK_URL"; \
     else \
         echo "Skipping APK build for development"; \
         mkdir -p /app/build/app/outputs/flutter-apk/; \
