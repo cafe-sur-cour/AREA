@@ -334,17 +334,13 @@ jobs:
             type=ref,event=tag
 
       - name: Build and push Docker image
-        env:
-          FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
-          BACKEND_URL: ${{ secrets.BACKEND_URL }}
-          MOBILE_CALLBACK_URL: ${{ secrets.MOBILE_CALLBACK_URL }}
         if: steps.check_dockerfile.outputs.dockerfile_exists == 'true'
         uses: docker/build-push-action@v5
         with:
           build-args: |
-            FRONTEND_URL=${FRONTEND_URL}
-            BACKEND_URL=${BACKEND_URL}
-            MOBILE_CALLBACK_URL=${MOBILE_CALLBACK_URL}
+            FRONTEND_URL=${{ secrets.FRONTEND_URL }}
+            BACKEND_URL=${{ secrets.BACKEND_URL }}
+            MOBILE_CALLBACK_URL=${{ secrets.MOBILE_CALLBACK_URL }}
           file: ./deployment/Dockerfile.${{ matrix.component }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
