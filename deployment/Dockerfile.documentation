@@ -3,8 +3,12 @@ WORKDIR /docs
 RUN apt-get update && apt-get install -y \
     build-essential \
     python3 \
+    autoconf \
+    libtool \
+    automake \
+    pkg-config \
     && rm -rf /var/lib/apt/lists/*
 COPY documentation/area-documentation ./
 RUN npm install --unsafe-perm=true
 EXPOSE 3000
-CMD ["npm", "run", "start"]
+CMD ["npx", "docusaurus", "start", "--port", "3000", "--host", "0.0.0.0"]
