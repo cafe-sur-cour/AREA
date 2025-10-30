@@ -1,3 +1,4 @@
+import 'package:area/core/notifiers/navigation_index_notifier.dart';
 import 'package:area/widgets/common/app_bar/custom_app_bar.dart';
 import 'package:area/widgets/common/buttons/primary_button.dart';
 import 'package:flutter/material.dart';
@@ -24,6 +25,9 @@ class ActionDetailsScreen extends StatelessWidget {
 
     automationBuilder.setAction(action, service);
 
+    final navIndex = Provider.of<NavigationIndexNotifier>(context, listen: false);
+
+    navIndex.setNavIndex(2);
     Navigator.of(context).pushNamedAndRemoveUntil('/', (Route<dynamic> route) => false);
   }
 

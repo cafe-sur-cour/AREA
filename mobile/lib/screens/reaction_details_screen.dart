@@ -1,4 +1,5 @@
 import 'package:area/core/constants/app_constants.dart';
+import 'package:area/core/notifiers/navigation_index_notifier.dart';
 import 'package:area/l10n/app_localizations.dart';
 import 'package:area/models/reaction_models.dart';
 import 'package:area/models/service_models.dart';
@@ -40,6 +41,9 @@ class ReactionDetailsScreenState extends State<ReactionDetailsScreen> {
       ),
     );
 
+    final navIndex = Provider.of<NavigationIndexNotifier>(context, listen: false);
+
+    navIndex.setNavIndex(2);
     Navigator.of(context).pushNamedAndRemoveUntil('/', (Route<dynamic> route) => false);
   }
 
