@@ -285,7 +285,7 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 Column(
                   children: [
                     HomeAutomationCard(
-                      icon: '📧',
+                      icon: '🐙',
                       title: l10n.email_to_slack,
                       description: l10n.slack_email_notifications,
                     ),
@@ -293,7 +293,7 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     const SizedBox(height: 12),
 
                     HomeAutomationCard(
-                      icon: '📱',
+                      icon: '👤',
                       title: l10n.social_media_sync,
                       description: l10n.post_multiple_networks,
                     ),
@@ -301,7 +301,7 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     const SizedBox(height: 12),
 
                     HomeAutomationCard(
-                      icon: '📅',
+                      icon: '💬',
                       title: l10n.calendar_reminders,
                       description: l10n.sms_calendar_reminders,
                     ),
@@ -309,7 +309,7 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     const SizedBox(height: 12),
 
                     HomeAutomationCard(
-                      icon: '💾',
+                      icon: '🔀',
                       title: l10n.file_backup,
                       description: l10n.automatic_cloud_backup,
                     ),
@@ -317,7 +317,7 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     const SizedBox(height: 12),
 
                     HomeAutomationCard(
-                      icon: '✅',
+                      icon: '👍',
                       title: l10n.task_management,
                       description: l10n.create_tasks_from_emails,
                     ),
@@ -325,7 +325,7 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     const SizedBox(height: 12),
 
                     HomeAutomationCard(
-                      icon: '📊',
+                      icon: '⏰',
                       title: l10n.data_collection,
                       description: l10n.save_forms_to_spreadsheets,
                     ),
