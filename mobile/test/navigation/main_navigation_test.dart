@@ -13,6 +13,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:area/core/notifiers/backend_address_notifier.dart';
 import 'package:area/core/notifiers/locale_notifier.dart';
+import 'package:area/core/notifiers/navigation_index_notifier.dart';
 
 void main() {
   Widget addProvidersToTestableApp(Widget child) {
@@ -24,6 +25,7 @@ void main() {
               BackendAddressNotifier()..setBackendAddress(AppConfig.backendUrl),
         ),
         ChangeNotifierProvider(create: (context) => AutomationBuilderNotifier()),
+        ChangeNotifierProvider(create: (context) => NavigationIndexNotifier()),
       ],
       child: child,
     );
@@ -113,7 +115,7 @@ void main() {
     });
 
     testWidgets(
-      'should start with Add Automation screen (index 2) as default when no automation state',
+      'should start with Home screen (index 0) as default when no automation state',
       (WidgetTester tester) async {
         await tester.pumpWidget(createTestableWidget(const MainNavigation()));
         await tester.pump();

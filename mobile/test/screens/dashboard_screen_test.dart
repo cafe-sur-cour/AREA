@@ -12,6 +12,7 @@ import 'package:http/testing.dart';
 import 'package:area/services/secure_http_client.dart';
 import 'package:area/services/secure_storage.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:area/screens/services_screen.dart';
 
 class MockBackendAddressNotifier extends mocktail.Mock implements BackendAddressNotifier {}
 
@@ -52,8 +53,6 @@ void main() {
           initialRoute: '/dashboard',
           routes: {
             '/dashboard': (context) => const DashboardScreen(),
-            '/action-services': (context) =>
-                const Scaffold(body: Text('Action Services Screen')),
             '/': (context) => const Scaffold(body: Text('Home Screen')),
           },
         ),
@@ -262,30 +261,8 @@ void main() {
       await tester.tap(find.text('Connect Services'));
       await tester.pumpAndSettle();
 
-      // Verify navigation to action services screen
-      expect(find.text('Action Services Screen'), findsOneWidget);
-    });
-
-    testWidgets('navigates to home when Account Settings is tapped', (
-      WidgetTester tester,
-    ) async {
-      mocktail.when(() => mockBackendNotifier.backendAddress).thenReturn('http://test.com/');
-
-      SecureHttpClient.setClient(
-        MockClient((request) async {
-          return http.Response(jsonEncode({'mappings': []}), 200);
-        }),
-      );
-
-      await tester.pumpWidget(createTestWidget());
-      await tester.pumpAndSettle();
-
-      // Tap the "Account Settings" button
-      await tester.tap(find.text('Account Settings'));
-      await tester.pumpAndSettle();
-
-      // Verify navigation to home screen
-      expect(find.text('Home Screen'), findsOneWidget);
+      // Verify navigation to services screen
+      expect(find.byType(ServicesScreen), findsOneWidget);
     });
 
     testWidgets('handles API error gracefully', (WidgetTester tester) async {
