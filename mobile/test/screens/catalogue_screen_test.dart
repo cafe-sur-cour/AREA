@@ -184,7 +184,7 @@ void main() {
       expect(find.text(localizations.no_items_available), findsOneWidget);
     });
 
-    testWidgets('filter chips work correctly', (WidgetTester tester) async {
+    testWidgets('filter dropdowns work correctly', (WidgetTester tester) async {
       mocktail.when(() => mockBackendNotifier.backendAddress).thenReturn('http://test.com/');
 
       SecureHttpClient.setClient(
@@ -229,18 +229,27 @@ void main() {
       expect(find.text('Test Action'), findsOneWidget);
       expect(find.text('Test Reaction'), findsOneWidget);
 
+      // Filter to actions
+      await tester.tap(find.byType(DropdownButton<String>).first);
+      await tester.pumpAndSettle();
       await tester.tap(find.text(localizations.actions));
       await tester.pumpAndSettle();
 
       expect(find.text('Test Action'), findsOneWidget);
       expect(find.text('Test Reaction'), findsNothing);
 
+      // Filter to reactions
+      await tester.tap(find.byType(DropdownButton<String>).first);
+      await tester.pumpAndSettle();
       await tester.tap(find.text(localizations.reactions_filter));
       await tester.pumpAndSettle();
 
       expect(find.text('Test Action'), findsNothing);
       expect(find.text('Test Reaction'), findsOneWidget);
 
+      // Filter to all
+      await tester.tap(find.byType(DropdownButton<String>).first);
+      await tester.pumpAndSettle();
       await tester.tap(find.text(localizations.all));
       await tester.pumpAndSettle();
 
@@ -575,6 +584,8 @@ void main() {
       final context = tester.element(find.byType(CatalogueScreen));
       final localizations = AppLocalizations.of(context)!;
 
+      await tester.tap(find.byType(DropdownButton<String>).first);
+      await tester.pumpAndSettle();
       await tester.tap(find.text(localizations.actions));
       await tester.pumpAndSettle();
 
@@ -615,13 +626,15 @@ void main() {
       final context = tester.element(find.byType(CatalogueScreen));
       final localizations = AppLocalizations.of(context)!;
 
+      await tester.tap(find.byType(DropdownButton<String>).first);
+      await tester.pumpAndSettle();
       await tester.tap(find.text(localizations.reactions_filter));
       await tester.pumpAndSettle();
 
       expect(find.text(localizations.no_filter_available('reactions')), findsOneWidget);
     });
 
-    testWidgets('displays filter chips', (WidgetTester tester) async {
+    testWidgets('displays filter dropdowns', (WidgetTester tester) async {
       mocktail.when(() => mockBackendNotifier.backendAddress).thenReturn('http://test.com/');
 
       SecureHttpClient.setClient(
@@ -638,13 +651,7 @@ void main() {
       await tester.pumpWidget(createTestWidget());
       await tester.pumpAndSettle();
 
-      final context = tester.element(find.byType(CatalogueScreen));
-      final localizations = AppLocalizations.of(context)!;
-
-      expect(find.byType(FilterChip), findsNWidgets(3));
-      expect(find.text(localizations.all), findsOneWidget);
-      expect(find.text(localizations.actions), findsOneWidget);
-      expect(find.text(localizations.reactions_filter), findsOneWidget);
+      expect(find.byType(DropdownButton<String>), findsNWidgets(2));
     });
 
     testWidgets('handles multiple services with actions and reactions', (
