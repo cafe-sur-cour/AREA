@@ -11,6 +11,89 @@ const options = {
       version: '1.0.0',
       description: 'API documentation',
     },
+    components: {
+      schemas: {
+        User: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'integer',
+              description: 'Unique identifier for the user',
+              example: 1,
+            },
+            name: {
+              type: 'string',
+              description: "User's full name",
+              example: 'John Doe',
+            },
+            email: {
+              type: 'string',
+              format: 'email',
+              description: "User's email address",
+              example: 'john.doe@example.com',
+            },
+            is_admin: {
+              type: 'boolean',
+              description: 'Whether the user has admin privileges',
+              example: false,
+            },
+            picture: {
+              type: 'string',
+              description: "URL to user's profile picture",
+              example: 'https://example.com/picture.jpg',
+            },
+            bio: {
+              type: 'string',
+              description: "User's biography",
+              example: 'Software developer passionate about technology',
+            },
+            email_verified: {
+              type: 'boolean',
+              description: "Whether the user's email has been verified",
+              example: true,
+            },
+            timezone: {
+              type: 'string',
+              description: "User's timezone",
+              example: 'UTC',
+            },
+            language: {
+              type: 'string',
+              description: "User's preferred language",
+              example: 'en',
+            },
+            theme: {
+              type: 'string',
+              description: "User's preferred theme",
+              example: 'light',
+            },
+            is_active: {
+              type: 'boolean',
+              description: 'Whether the user account is active',
+              example: true,
+            },
+            created_at: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Account creation timestamp',
+              example: '2023-01-01T00:00:00.000Z',
+            },
+            updated_at: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Last account update timestamp',
+              example: '2023-01-01T00:00:00.000Z',
+            },
+            last_login_at: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Last login timestamp',
+              example: '2023-01-01T00:00:00.000Z',
+            },
+          },
+        },
+      },
+    },
   },
   apis: ['./src/routes/**/*.ts', './src/webhooks/**/*.ts'],
 };
