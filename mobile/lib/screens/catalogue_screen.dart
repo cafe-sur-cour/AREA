@@ -50,6 +50,7 @@ class CatalogueScreenState extends State<CatalogueScreen> {
   bool _isLoading = true;
   String? _error;
   String _filter = 'all';
+  String? _selectedService;
 
   @override
   void initState() {
@@ -154,13 +155,20 @@ class CatalogueScreenState extends State<CatalogueScreen> {
   }
 
   List<CatalogueItem> get _filteredItems {
+    var items = _items;
     if (_filter == 'actions') {
-      return _items.where((item) => item.isAction).toList();
+      items = items.where((item) => item.isAction).toList();
     } else if (_filter == 'reactions') {
-      return _items.where((item) => !item.isAction).toList();
+      items = items.where((item) => !item.isAction).toList();
     }
-    return _items;
+    if (_selectedService != null) {
+      items = items.where((item) => item.serviceName == _selectedService).toList();
+    }
+    return items;
   }
+
+  List<String> get _uniqueServices =>
+      _items.map((item) => item.serviceName).toSet().toList()..sort();
 
   void _showItemDialog(CatalogueItem item) {
     showDialog(
@@ -340,35 +348,67 @@ class CatalogueScreenState extends State<CatalogueScreen> {
       padding: const EdgeInsets.all(AppDimensions.paddingMD),
       child: Row(
         children: [
-          FilterChip(
-            label: Text(AppLocalizations.of(context)!.all),
-            selected: _filter == 'all',
-            onSelected: (selected) {
-              if (selected) setState(() => _filter = 'all');
-            },
-            selectedColor: AppColors.areaBlue1,
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(
+              color: AppColors.areaBlue3,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppColors.areaBlue2),
+            ),
+            child: DropdownButton<String>(
+              value: _filter,
+              hint: const Text('Filter by Type'),
+              underline: const SizedBox(),
+              style: const TextStyle(
+                color: AppColors.areaDarkGray,
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+              items: [
+                DropdownMenuItem(value: 'all', child: Text(AppLocalizations.of(context)!.all)),
+                DropdownMenuItem(
+                  value: 'actions',
+                  child: Text(AppLocalizations.of(context)!.actions),
+                ),
+                DropdownMenuItem(
+                  value: 'reactions',
+                  child: Text(AppLocalizations.of(context)!.reactions_filter),
+                ),
+              ],
+              onChanged: (value) {
+                if (value != null) setState(() => _filter = value);
+              },
+            ),
           ),
 
           const SizedBox(width: 8),
 
-          FilterChip(
-            label: Text(AppLocalizations.of(context)!.actions),
-            selected: _filter == 'actions',
-            onSelected: (selected) {
-              if (selected) setState(() => _filter = 'actions');
-            },
-            selectedColor: AppColors.areaBlue1,
-          ),
-
-          const SizedBox(width: 8),
-
-          FilterChip(
-            label: Text(AppLocalizations.of(context)!.reactions_filter),
-            selected: _filter == 'reactions',
-            onSelected: (selected) {
-              if (selected) setState(() => _filter = 'reactions');
-            },
-            selectedColor: AppColors.areaBlue1,
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(
+              color: AppColors.areaBlue3,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppColors.areaBlue2),
+            ),
+            child: DropdownButton<String>(
+              value: _selectedService,
+              hint: const Text('Select Service'),
+              underline: const SizedBox(),
+              style: const TextStyle(
+                color: AppColors.areaDarkGray,
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+              items: [
+                const DropdownMenuItem<String>(value: null, child: Text('All Services')),
+                ..._uniqueServices.map(
+                  (service) => DropdownMenuItem<String>(value: service, child: Text(service)),
+                ),
+              ],
+              onChanged: (value) {
+                setState(() => _selectedService = value);
+              },
+            ),
           ),
         ],
       ),
