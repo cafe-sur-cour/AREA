@@ -758,4 +758,163 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get not_authenticated => 'Non authentifié';
+
+  @override
+  String get about => 'À propos';
+
+  @override
+  String get about_hero_title => 'Optimisez votre workflow avec';
+
+  @override
+  String get about_hero_title_highlight => 'l\'automation intelligente';
+
+  @override
+  String get about_hero_description =>
+      'Nous croyons que la technologie doit travailler pour vous. Notre plateforme connecte vos applications et services préférés, créant des workflows fluides qui vous font gagner du temps et augmentent votre productivité.';
+
+  @override
+  String get about_mission_title => 'Notre Mission';
+
+  @override
+  String get about_mission_description1 =>
+      'Chez Area, notre mission est de rendre l\'automatisation accessible à tous. Que vous soyez professionnel, développeur ou simplement quelqu\'un qui cherche à gagner du temps, nous vous fournissons les outils nécessaires pour connecter votre vie numérique.';
+
+  @override
+  String get about_mission_description2 =>
+      'Nous croyons que la technologie doit s\'adapter à vos besoins, et non l\'inverse. C\'est pourquoi nous innovons constamment et ajoutons de nouvelles intégrations pour vous aider à travailler plus intelligemment, pas plus dur.';
+
+  @override
+  String get about_mission_stats_users => 'Utilisateurs Actifs';
+
+  @override
+  String get about_mission_stats_automations => 'Automatisations Actives';
+
+  @override
+  String get about_mission_stats_integrations => 'Intégrations';
+
+  @override
+  String get about_mission_stats_uptime => 'Disponibilité';
+
+  @override
+  String get about_values_title => 'Nos Valeurs';
+
+  @override
+  String get about_values_subtitle => 'Les principes qui guident tout ce que nous faisons';
+
+  @override
+  String get about_values_user_centric_title => 'Centré sur l\'utilisateur';
+
+  @override
+  String get about_values_user_centric_description =>
+      'Vos besoins guident notre développement. Nous écoutons vos retours et créons des fonctionnalités importantes.';
+
+  @override
+  String get about_values_innovation_title => 'Innovation';
+
+  @override
+  String get about_values_innovation_description =>
+      'Nous repoussons constamment les limites pour vous apporter le meilleur de la technologie d\'automatisation.';
+
+  @override
+  String get about_values_security_title => 'Sécurité Prioritaire';
+
+  @override
+  String get about_values_security_description =>
+      'La sécurité de vos données est notre priorité absolue. Nous utilisons le chiffrement et les pratiques de sécurité de pointe.';
+
+  @override
+  String get about_values_global_title => 'Portée Mondiale';
+
+  @override
+  String get about_values_global_description =>
+      'Disponible en plusieurs langues et régions, au service d\'utilisateurs dans le monde entier.';
+
+  @override
+  String get about_values_open_source_title => 'Open Source';
+
+  @override
+  String get about_values_open_source_description =>
+      'Nous croyons en la transparence et contribuons à la communauté open source.';
+
+  @override
+  String get about_values_passion_title => 'Passion';
+
+  @override
+  String get about_values_passion_description =>
+      'Nous aimons ce que nous faisons, et cela se voit dans chaque fonctionnalité que nous créons.';
+
+  @override
+  String get about_story_title => 'Notre Histoire';
+
+  @override
+  String get about_story_paragraph1 =>
+      'Area est né d\'une idée simple : et si nous pouvions faciliter l\'automatisation de la vie numérique de chacun ? Nous avons vu des gens passer d\'innombrables heures sur des tâches répétitives, basculer entre les applications et transférer manuellement des données.';
+
+  @override
+  String get about_story_paragraph2 =>
+      'Nous savions qu\'il devait y avoir un meilleur moyen. Nous nous sommes donc lancés dans la construction d\'une plateforme qui connecterait tous les outils et services que les gens utilisent quotidiennement, facilitant la création d\'automatisations puissantes sans écrire une seule ligne de code.';
+
+  @override
+  String get about_story_paragraph3 =>
+      'Depuis notre lancement, nous avons aidé des millions d\'utilisateurs à gagner du temps et à augmenter leur productivité. Nous sommes passés d\'une petite équipe avec une grande vision à une plateforme mondiale au service d\'utilisateurs dans le monde entier.';
+
+  @override
+  String get about_story_paragraph4 =>
+      'Mais nous ne faisons que commencer. Chaque jour, nous travaillons sur de nouvelles intégrations, fonctionnalités et améliorations pour rendre Area encore meilleur. Merci de faire partie de notre aventure.';
+
+  @override
+  String get about_technology_title => 'Construit avec des Technologies Modernes';
+
+  @override
+  String get about_technology_subtitle => 'Propulsé par des outils et frameworks de pointe';
+
+  @override
+  String get about_why_choose_title => 'Pourquoi Choisir Area ?';
+
+  @override
+  String get about_why_choose_subtitle => 'Voici ce qui nous rend différents';
+
+  @override
+  String get about_why_choose_easy_to_use_title => 'Facile à Utiliser';
+
+  @override
+  String get about_why_choose_easy_to_use_description =>
+      'Aucun code requis. Notre interface intuitive rend la création d\'automatisations simple et amusante.';
+
+  @override
+  String get about_why_choose_lightning_fast_title => 'Ultra Rapide';
+
+  @override
+  String get about_why_choose_lightning_fast_description =>
+      'Vos automatisations s\'exécutent instantanément avec une latence minimale pour des résultats en temps réel.';
+
+  @override
+  String get about_why_choose_enterprise_security_title => 'Sécurité d\'Entreprise';
+
+  @override
+  String get about_why_choose_enterprise_security_description =>
+      'Sécurité de niveau bancaire avec chiffrement, conformité et audits de sécurité réguliers.';
+
+  @override
+  String get about_why_choose_amazing_support_title => 'Support Exceptionnel';
+
+  @override
+  String get about_why_choose_amazing_support_description =>
+      'Notre équipe de support dédiée est là pour vous aider à réussir à chaque étape.';
+
+  @override
+  String get about_cta_title => 'Prêt à Transformer Votre Workflow ?';
+
+  @override
+  String get about_cta_description =>
+      'Rejoignez des milliers d\'utilisateurs qui économisent déjà du temps avec Area. Commencez à automatiser dès aujourd\'hui.';
+
+  @override
+  String get about_cta_button_dashboard => 'Aller au Tableau de bord';
+
+  @override
+  String get about_cta_button_start => 'Commencer Gratuitement';
+
+  @override
+  String get about_cta_button_explore => 'Explorer les Services';
 }

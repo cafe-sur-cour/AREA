@@ -1413,6 +1413,288 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not authenticated'**
   String get not_authenticated;
+
+  /// No description provided for @about.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get about;
+
+  /// No description provided for @about_hero_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Empowering your workflow with'**
+  String get about_hero_title;
+
+  /// No description provided for @about_hero_title_highlight.
+  ///
+  /// In en, this message translates to:
+  /// **'intelligent automation'**
+  String get about_hero_title_highlight;
+
+  /// No description provided for @about_hero_description.
+  ///
+  /// In en, this message translates to:
+  /// **'We believe in making technology work for you. Our platform connects your favorite apps and services, creating seamless workflows that save time and boost productivity.'**
+  String get about_hero_description;
+
+  /// No description provided for @about_mission_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Our Mission'**
+  String get about_mission_title;
+
+  /// No description provided for @about_mission_description1.
+  ///
+  /// In en, this message translates to:
+  /// **'At Area, we\'re on a mission to make automation accessible to everyone. Whether you\'re a business professional, developer, or just someone looking to save time, we provide the tools you need to connect your digital life.'**
+  String get about_mission_description1;
+
+  /// No description provided for @about_mission_description2.
+  ///
+  /// In en, this message translates to:
+  /// **'We believe that technology should adapt to your needs, not the other way around. That\'s why we\'re constantly innovating and adding new integrations to help you work smarter, not harder.'**
+  String get about_mission_description2;
+
+  /// No description provided for @about_mission_stats_users.
+  ///
+  /// In en, this message translates to:
+  /// **'Active Users'**
+  String get about_mission_stats_users;
+
+  /// No description provided for @about_mission_stats_automations.
+  ///
+  /// In en, this message translates to:
+  /// **'Automations Running'**
+  String get about_mission_stats_automations;
+
+  /// No description provided for @about_mission_stats_integrations.
+  ///
+  /// In en, this message translates to:
+  /// **'Integrations'**
+  String get about_mission_stats_integrations;
+
+  /// No description provided for @about_mission_stats_uptime.
+  ///
+  /// In en, this message translates to:
+  /// **'Uptime'**
+  String get about_mission_stats_uptime;
+
+  /// No description provided for @about_values_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Our Values'**
+  String get about_values_title;
+
+  /// No description provided for @about_values_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The principles that guide everything we do'**
+  String get about_values_subtitle;
+
+  /// No description provided for @about_values_user_centric_title.
+  ///
+  /// In en, this message translates to:
+  /// **'User-Centric'**
+  String get about_values_user_centric_title;
+
+  /// No description provided for @about_values_user_centric_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Your needs drive our development. We listen to feedback and build features that matter.'**
+  String get about_values_user_centric_description;
+
+  /// No description provided for @about_values_innovation_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Innovation'**
+  String get about_values_innovation_title;
+
+  /// No description provided for @about_values_innovation_description.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'re always pushing boundaries to bring you the latest in automation technology.'**
+  String get about_values_innovation_description;
+
+  /// No description provided for @about_values_security_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Security First'**
+  String get about_values_security_title;
+
+  /// No description provided for @about_values_security_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Your data security is our top priority. We use industry-leading encryption and security practices.'**
+  String get about_values_security_description;
+
+  /// No description provided for @about_values_global_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Global Reach'**
+  String get about_values_global_title;
+
+  /// No description provided for @about_values_global_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Available in multiple languages and regions, serving users worldwide.'**
+  String get about_values_global_description;
+
+  /// No description provided for @about_values_open_source_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Source'**
+  String get about_values_open_source_title;
+
+  /// No description provided for @about_values_open_source_description.
+  ///
+  /// In en, this message translates to:
+  /// **'We believe in transparency and contributing to the open-source community.'**
+  String get about_values_open_source_description;
+
+  /// No description provided for @about_values_passion_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Passion'**
+  String get about_values_passion_title;
+
+  /// No description provided for @about_values_passion_description.
+  ///
+  /// In en, this message translates to:
+  /// **'We love what we do, and it shows in every feature we build.'**
+  String get about_values_passion_description;
+
+  /// No description provided for @about_story_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Our Story'**
+  String get about_story_title;
+
+  /// No description provided for @about_story_paragraph1.
+  ///
+  /// In en, this message translates to:
+  /// **'Area was born from a simple idea: what if we could make it easy for anyone to automate their digital life? We saw people spending countless hours on repetitive tasks, switching between apps, and manually transferring data.'**
+  String get about_story_paragraph1;
+
+  /// No description provided for @about_story_paragraph2.
+  ///
+  /// In en, this message translates to:
+  /// **'We knew there had to be a better way. So we set out to build a platform that would connect all the tools and services people use every day, making it easy to create powerful automations without writing a single line of code.'**
+  String get about_story_paragraph2;
+
+  /// No description provided for @about_story_paragraph3.
+  ///
+  /// In en, this message translates to:
+  /// **'Since our launch, we\'ve helped millions of users save time and increase productivity. We\'ve grown from a small team with a big vision to a global platform serving users across the world.'**
+  String get about_story_paragraph3;
+
+  /// No description provided for @about_story_paragraph4.
+  ///
+  /// In en, this message translates to:
+  /// **'But we\'re just getting started. Every day, we\'re working on new integrations, features, and improvements to make Area even better. Thank you for being part of our journey.'**
+  String get about_story_paragraph4;
+
+  /// No description provided for @about_technology_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Built with Modern Technology'**
+  String get about_technology_title;
+
+  /// No description provided for @about_technology_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Powered by cutting-edge tools and frameworks'**
+  String get about_technology_subtitle;
+
+  /// No description provided for @about_why_choose_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Why Choose Area?'**
+  String get about_why_choose_title;
+
+  /// No description provided for @about_why_choose_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Here\'s what makes us different'**
+  String get about_why_choose_subtitle;
+
+  /// No description provided for @about_why_choose_easy_to_use_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Easy to Use'**
+  String get about_why_choose_easy_to_use_title;
+
+  /// No description provided for @about_why_choose_easy_to_use_description.
+  ///
+  /// In en, this message translates to:
+  /// **'No coding required. Our intuitive interface makes creating automations simple and fun.'**
+  String get about_why_choose_easy_to_use_description;
+
+  /// No description provided for @about_why_choose_lightning_fast_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Lightning Fast'**
+  String get about_why_choose_lightning_fast_title;
+
+  /// No description provided for @about_why_choose_lightning_fast_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Your automations execute instantly with minimal latency for real-time results.'**
+  String get about_why_choose_lightning_fast_description;
+
+  /// No description provided for @about_why_choose_enterprise_security_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Enterprise Security'**
+  String get about_why_choose_enterprise_security_title;
+
+  /// No description provided for @about_why_choose_enterprise_security_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank-level security with encryption, compliance, and regular security audits.'**
+  String get about_why_choose_enterprise_security_description;
+
+  /// No description provided for @about_why_choose_amazing_support_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Amazing Support'**
+  String get about_why_choose_amazing_support_title;
+
+  /// No description provided for @about_why_choose_amazing_support_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Our dedicated support team is here to help you succeed every step of the way.'**
+  String get about_why_choose_amazing_support_description;
+
+  /// No description provided for @about_cta_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready to Transform Your Workflow?'**
+  String get about_cta_title;
+
+  /// No description provided for @about_cta_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Join thousands of users who are already saving time with Area. Start automating today.'**
+  String get about_cta_description;
+
+  /// No description provided for @about_cta_button_dashboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to Dashboard'**
+  String get about_cta_button_dashboard;
+
+  /// No description provided for @about_cta_button_start.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Free'**
+  String get about_cta_button_start;
+
+  /// No description provided for @about_cta_button_explore.
+  ///
+  /// In en, this message translates to:
+  /// **'Explore Services'**
+  String get about_cta_button_explore;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

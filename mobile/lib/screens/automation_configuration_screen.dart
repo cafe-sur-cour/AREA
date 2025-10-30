@@ -1,3 +1,4 @@
+import 'package:area/core/notifiers/navigation_index_notifier.dart';
 import 'package:area/widgets/common/app_bar/custom_app_bar.dart';
 import 'package:area/widgets/common/snackbars/app_snackbar.dart';
 import 'package:flutter/material.dart';
@@ -554,6 +555,9 @@ class _AutomationConfigurationScreenState extends State<AutomationConfigurationS
       if (mounted) {
         showInfoSnackbar(context, 'Automation created successfully!');
 
+        final navIndex = Provider.of<NavigationIndexNotifier>(context, listen: false);
+
+        navIndex.setNavIndex(0);
         Navigator.of(context).popUntil((route) => route.isFirst);
       }
     } catch (e) {

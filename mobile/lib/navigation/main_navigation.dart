@@ -1,8 +1,7 @@
 import 'package:area/core/constants/app_colors.dart';
 import 'package:area/core/constants/app_constants.dart';
+import 'package:area/core/notifiers/navigation_index_notifier.dart';
 import 'package:area/l10n/app_localizations.dart';
-
-import 'package:area/core/notifiers/automation_builder_notifier.dart';
 import 'package:area/screens/home_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:area/screens/catalogue_screen.dart';
@@ -35,17 +34,13 @@ class MainNavigation extends StatefulWidget {
 }
 
 class MainNavigationState extends State<MainNavigation> {
-  int _currentIndex = 2;
+  int _currentIndex = 0;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final automationBuilder = Provider.of<AutomationBuilderNotifier>(context, listen: false);
-    if (automationBuilder.hasAction || automationBuilder.hasReactions) {
-      _currentIndex = 2;
-    } else {
-      _currentIndex = 0;
-    }
+    final navIndex = Provider.of<NavigationIndexNotifier>(context, listen: false);
+    _currentIndex = navIndex.navIndex;
   }
 
   @override

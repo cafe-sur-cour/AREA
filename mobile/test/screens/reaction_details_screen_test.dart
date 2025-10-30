@@ -10,14 +10,18 @@ import 'package:area/core/notifiers/automation_builder_notifier.dart';
 import 'package:area/l10n/app_localizations.dart';
 import 'package:area/models/reaction_with_delay_model.dart';
 import 'package:area/widgets/common/app_bar/custom_app_bar.dart';
+import 'package:area/core/notifiers/navigation_index_notifier.dart';
 
 class MockAutomationBuilderNotifier extends Mock implements AutomationBuilderNotifier {}
+
+class MockNavigationIndexNotifier extends Mock implements NavigationIndexNotifier {}
 
 void main() {
   group('ReactionDetailsScreen', () {
     late ReactionModel testReaction;
     late ServiceModel testService;
     late MockAutomationBuilderNotifier mockAutomationBuilder;
+    late MockNavigationIndexNotifier mockNavigationIndex;
 
     setUp(() {
       registerFallbackValue(
@@ -68,6 +72,7 @@ void main() {
       );
 
       mockAutomationBuilder = MockAutomationBuilderNotifier();
+      mockNavigationIndex = MockNavigationIndexNotifier();
     });
 
     Widget createTestWidget() {
@@ -76,6 +81,7 @@ void main() {
           ChangeNotifierProvider<AutomationBuilderNotifier>.value(
             value: mockAutomationBuilder,
           ),
+          ChangeNotifierProvider<NavigationIndexNotifier>.value(value: mockNavigationIndex),
         ],
         child: MaterialApp(
           localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -140,6 +146,7 @@ void main() {
 
     testWidgets('taps choose reaction button', (WidgetTester tester) async {
       when(() => mockAutomationBuilder.addReaction(any())).thenAnswer((_) {});
+      when(() => mockNavigationIndex.setNavIndex(any())).thenAnswer((_) {});
       await tester.pumpWidget(createTestWidget());
       await tester.pumpAndSettle();
 
@@ -154,6 +161,7 @@ void main() {
       await tester.tap(chooseButton);
       await tester.pumpAndSettle();
       verify(() => mockAutomationBuilder.addReaction(any())).called(1);
+      verify(() => mockNavigationIndex.setNavIndex(2)).called(1);
     });
 
     testWidgets('opens delay picker when set button is pressed', (WidgetTester tester) async {

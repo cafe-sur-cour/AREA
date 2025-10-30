@@ -6,17 +6,21 @@ import 'package:area/screens/action_details_screen.dart';
 import 'package:area/models/action_models.dart';
 import 'package:area/models/service_models.dart';
 import 'package:area/core/notifiers/automation_builder_notifier.dart';
+import 'package:area/core/notifiers/navigation_index_notifier.dart';
 import 'package:area/l10n/app_localizations.dart';
 import 'package:area/widgets/common/buttons/primary_button.dart';
 import 'package:area/widgets/common/app_bar/custom_app_bar.dart';
 
 class MockAutomationBuilderNotifier extends Mock implements AutomationBuilderNotifier {}
 
+class MockNavigationIndexNotifier extends Mock implements NavigationIndexNotifier {}
+
 void main() {
   group('ActionDetailsScreen', () {
     late ActionModel testAction;
     late ServiceModel testService;
     late MockAutomationBuilderNotifier mockAutomationBuilder;
+    late MockNavigationIndexNotifier mockNavigationIndex;
 
     setUp(() {
       registerFallbackValue(
@@ -65,6 +69,7 @@ void main() {
       );
 
       mockAutomationBuilder = MockAutomationBuilderNotifier();
+      mockNavigationIndex = MockNavigationIndexNotifier();
     });
 
     Widget createTestWidget() {
@@ -73,6 +78,7 @@ void main() {
           ChangeNotifierProvider<AutomationBuilderNotifier>.value(
             value: mockAutomationBuilder,
           ),
+          ChangeNotifierProvider<NavigationIndexNotifier>.value(value: mockNavigationIndex),
         ],
         child: MaterialApp(
           localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -132,6 +138,7 @@ void main() {
       WidgetTester tester,
     ) async {
       when(() => mockAutomationBuilder.setAction(any(), any())).thenAnswer((_) async {});
+      when(() => mockNavigationIndex.setNavIndex(any())).thenReturn(null);
       await tester.pumpWidget(createTestWidget());
       await tester.pumpAndSettle();
 
@@ -139,6 +146,7 @@ void main() {
       await tester.pumpAndSettle();
 
       verify(() => mockAutomationBuilder.setAction(testAction, testService)).called(1);
+      verify(() => mockNavigationIndex.setNavIndex(2)).called(1);
     });
 
     testWidgets('does not render description section when description is empty', (
@@ -161,6 +169,7 @@ void main() {
             ChangeNotifierProvider<AutomationBuilderNotifier>.value(
               value: mockAutomationBuilder,
             ),
+            ChangeNotifierProvider<NavigationIndexNotifier>.value(value: mockNavigationIndex),
           ],
           child: MaterialApp(
             localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -196,6 +205,7 @@ void main() {
             ChangeNotifierProvider<AutomationBuilderNotifier>.value(
               value: mockAutomationBuilder,
             ),
+            ChangeNotifierProvider<NavigationIndexNotifier>.value(value: mockNavigationIndex),
           ],
           child: MaterialApp(
             localizationsDelegates: AppLocalizations.localizationsDelegates,

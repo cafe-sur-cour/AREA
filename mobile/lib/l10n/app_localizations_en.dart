@@ -750,4 +750,163 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get not_authenticated => 'Not authenticated';
+
+  @override
+  String get about => 'About';
+
+  @override
+  String get about_hero_title => 'Empowering your workflow with';
+
+  @override
+  String get about_hero_title_highlight => 'intelligent automation';
+
+  @override
+  String get about_hero_description =>
+      'We believe in making technology work for you. Our platform connects your favorite apps and services, creating seamless workflows that save time and boost productivity.';
+
+  @override
+  String get about_mission_title => 'Our Mission';
+
+  @override
+  String get about_mission_description1 =>
+      'At Area, we\'re on a mission to make automation accessible to everyone. Whether you\'re a business professional, developer, or just someone looking to save time, we provide the tools you need to connect your digital life.';
+
+  @override
+  String get about_mission_description2 =>
+      'We believe that technology should adapt to your needs, not the other way around. That\'s why we\'re constantly innovating and adding new integrations to help you work smarter, not harder.';
+
+  @override
+  String get about_mission_stats_users => 'Active Users';
+
+  @override
+  String get about_mission_stats_automations => 'Automations Running';
+
+  @override
+  String get about_mission_stats_integrations => 'Integrations';
+
+  @override
+  String get about_mission_stats_uptime => 'Uptime';
+
+  @override
+  String get about_values_title => 'Our Values';
+
+  @override
+  String get about_values_subtitle => 'The principles that guide everything we do';
+
+  @override
+  String get about_values_user_centric_title => 'User-Centric';
+
+  @override
+  String get about_values_user_centric_description =>
+      'Your needs drive our development. We listen to feedback and build features that matter.';
+
+  @override
+  String get about_values_innovation_title => 'Innovation';
+
+  @override
+  String get about_values_innovation_description =>
+      'We\'re always pushing boundaries to bring you the latest in automation technology.';
+
+  @override
+  String get about_values_security_title => 'Security First';
+
+  @override
+  String get about_values_security_description =>
+      'Your data security is our top priority. We use industry-leading encryption and security practices.';
+
+  @override
+  String get about_values_global_title => 'Global Reach';
+
+  @override
+  String get about_values_global_description =>
+      'Available in multiple languages and regions, serving users worldwide.';
+
+  @override
+  String get about_values_open_source_title => 'Open Source';
+
+  @override
+  String get about_values_open_source_description =>
+      'We believe in transparency and contributing to the open-source community.';
+
+  @override
+  String get about_values_passion_title => 'Passion';
+
+  @override
+  String get about_values_passion_description =>
+      'We love what we do, and it shows in every feature we build.';
+
+  @override
+  String get about_story_title => 'Our Story';
+
+  @override
+  String get about_story_paragraph1 =>
+      'Area was born from a simple idea: what if we could make it easy for anyone to automate their digital life? We saw people spending countless hours on repetitive tasks, switching between apps, and manually transferring data.';
+
+  @override
+  String get about_story_paragraph2 =>
+      'We knew there had to be a better way. So we set out to build a platform that would connect all the tools and services people use every day, making it easy to create powerful automations without writing a single line of code.';
+
+  @override
+  String get about_story_paragraph3 =>
+      'Since our launch, we\'ve helped millions of users save time and increase productivity. We\'ve grown from a small team with a big vision to a global platform serving users across the world.';
+
+  @override
+  String get about_story_paragraph4 =>
+      'But we\'re just getting started. Every day, we\'re working on new integrations, features, and improvements to make Area even better. Thank you for being part of our journey.';
+
+  @override
+  String get about_technology_title => 'Built with Modern Technology';
+
+  @override
+  String get about_technology_subtitle => 'Powered by cutting-edge tools and frameworks';
+
+  @override
+  String get about_why_choose_title => 'Why Choose Area?';
+
+  @override
+  String get about_why_choose_subtitle => 'Here\'s what makes us different';
+
+  @override
+  String get about_why_choose_easy_to_use_title => 'Easy to Use';
+
+  @override
+  String get about_why_choose_easy_to_use_description =>
+      'No coding required. Our intuitive interface makes creating automations simple and fun.';
+
+  @override
+  String get about_why_choose_lightning_fast_title => 'Lightning Fast';
+
+  @override
+  String get about_why_choose_lightning_fast_description =>
+      'Your automations execute instantly with minimal latency for real-time results.';
+
+  @override
+  String get about_why_choose_enterprise_security_title => 'Enterprise Security';
+
+  @override
+  String get about_why_choose_enterprise_security_description =>
+      'Bank-level security with encryption, compliance, and regular security audits.';
+
+  @override
+  String get about_why_choose_amazing_support_title => 'Amazing Support';
+
+  @override
+  String get about_why_choose_amazing_support_description =>
+      'Our dedicated support team is here to help you succeed every step of the way.';
+
+  @override
+  String get about_cta_title => 'Ready to Transform Your Workflow?';
+
+  @override
+  String get about_cta_description =>
+      'Join thousands of users who are already saving time with Area. Start automating today.';
+
+  @override
+  String get about_cta_button_dashboard => 'Go to Dashboard';
+
+  @override
+  String get about_cta_button_start => 'Start Free';
+
+  @override
+  String get about_cta_button_explore => 'Explore Services';
 }

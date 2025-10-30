@@ -248,7 +248,7 @@ class ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     final localeNotifier = Provider.of<LocaleNotifier>(context);
 
-    return Center(
+    return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: _isLoading
@@ -429,6 +429,19 @@ class ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ),
                   ],
+                  const SizedBox(height: 20),
+
+                  SizedBox(
+                    width: double.infinity,
+                    child: PrimaryButton(
+                      text: AppLocalizations.of(context)?.about ?? 'About',
+                      icon: Icons.info,
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/about');
+                      },
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
+                  ),
                 ],
               ),
       ),

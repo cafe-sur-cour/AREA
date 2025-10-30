@@ -167,6 +167,7 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                             text: l10n.go_to_dashboard,
                             icon: Icons.arrow_forward,
                             iconSize: 20,
+                            onPressed: _navigateToDashboard,
                           ),
                         ],
                       ],
