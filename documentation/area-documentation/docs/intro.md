@@ -62,49 +62,37 @@ cd AREA
 
 ### 2. Environment Configuration
 
-Create a `.env` file in the `deployment/` directory with the following variables:
+The project requires various environment variables for proper configuration. A comprehensive `.env.example` file is provided with all necessary variables and detailed explanations.
 
-```env
-# Database Configuration
-DB_HOST=localhost
-DB_PORT=5432
-DB_USER=area_user
-DB_PASSWORD=area_password
-DB_NAME=area_db
+**To set up your environment:**
 
-# Backend Configuration
-NODE_PORT=3001
-BACKEND_URL=http://localhost:3001
-SESSION_SECRET=your-super-secret-session-key
+```bash
+# Navigate to the documentation directory
+cd documentation/area-documentation/
 
-# Frontend Configuration
-NEXT_PORT=3000
-FRONTEND_URL=http://localhost:3000
-NEXT_PUBLIC_API_URL=http://localhost:3001
+# Copy the example file
+cp .env.example .env
 
-# Documentation Configuration
-DOC_PORT=5555
-
-# Email Configuration (SMTP)
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_SECURE=false
-SMTP_USER=your-email@gmail.com
-SMTP_PASSWORD=your-app-password
-
-# GitHub OAuth (required for GitHub integration)
-SERVICE_GITHUB_CLIENT_ID=your-github-client-id
-SERVICE_GITHUB_CLIENT_SECRET=your-github-client-secret
-SERVICE_GITHUB_REDIRECT_URI=http://localhost:3001/auth/github/callback
-SERVICE_GITHUB_API_BASE_URL=https://api.github.com
-SERVICE_GITHUB_AUTH_BASE_URL=https://github.com
-
-# Webhook Configuration
-WEBHOOK_BASE_URL=http://localhost:3001
-
-# Docker Environment
-DOCKER_ENV=false
+# Edit the .env file with your actual values
+nano .env  # or your preferred editor
 ```
+
+📄 **[View the complete .env.example file](.env.example)** with all environment variables and their explanations.
+
+The `.env.example` file includes:
+- **General Configuration**: Application ports, environment settings
+- **Database Configuration**: PostgreSQL connection details
+- **OAuth Configurations**: API keys for third-party services (GitHub, Google, Spotify, etc.)
+- **SMTP Configuration**: Email server settings
+- **Webhook Configuration**: Webhook endpoints and secrets
+- **Deployment Settings**: Docker and build configurations
+
+**Important Security Notes:**
+- Never commit your `.env` file to version control
+- All sensitive information (API keys, passwords, secrets) should be stored as environment variables
+- The `.env.example` file contains placeholder values that must be replaced with real credentials
+
+For detailed explanations of each environment variable, refer to the comments in the `.env.example` file.
 
 ### 3. Installation Methods
 
