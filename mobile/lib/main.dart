@@ -1,5 +1,6 @@
 import 'package:area/core/config/app_config.dart';
 import 'package:area/core/constants/app_constants.dart';
+import 'package:area/core/notifiers/navigation_index_notifier.dart';
 import 'package:area/l10n/app_localizations.dart';
 import 'package:area/screens/action_services_screen.dart';
 import 'package:area/screens/reaction_services_screen.dart';
@@ -31,6 +32,7 @@ void main() {
             ),
         ),
         ChangeNotifierProvider(create: (context) => AutomationBuilderNotifier()),
+        ChangeNotifierProvider(create: (context) => NavigationIndexNotifier()),
       ],
       child: const MyApp(),
     ),
