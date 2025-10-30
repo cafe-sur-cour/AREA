@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'package:area/core/constants/app_constants.dart';
 import 'package:area/core/notifiers/backend_address_notifier.dart';
+import 'package:area/core/notifiers/navigation_index_notifier.dart';
 import 'package:area/l10n/app_localizations.dart';
 import 'package:area/models/automation_models.dart';
 import 'package:area/models/dashboard_stats_model.dart';
+import 'package:area/screens/services_screen.dart';
 import 'package:area/services/secure_http_client.dart';
 import 'package:area/services/secure_storage.dart';
 import 'package:area/widgets/common/app_bar/custom_app_bar.dart';
@@ -180,7 +182,9 @@ class DashboardScreenState extends State<DashboardScreen> {
                     title: l10n.connect_services,
                     subtitle: l10n.link_new_platforms,
                     onPressed: () {
-                      Navigator.pushNamed(context, '/action-services');
+                      Navigator.of(
+                        context,
+                      ).push(MaterialPageRoute(builder: (context) => const ServicesScreen()));
                     },
                   ),
 
@@ -190,7 +194,16 @@ class DashboardScreenState extends State<DashboardScreen> {
                     icon: Icons.bolt,
                     title: l10n.browse_templates,
                     subtitle: l10n.pre_made_areas,
-                    onPressed: () {},
+                    onPressed: () {
+                      final navIndex = Provider.of<NavigationIndexNotifier>(
+                        context,
+                        listen: false,
+                      );
+                      navIndex.setNavIndex(1);
+                      Navigator.of(
+                        context,
+                      ).pushNamedAndRemoveUntil('/', (Route<dynamic> route) => false);
+                    },
                   ),
 
                   const SizedBox(height: 8),
@@ -199,9 +212,7 @@ class DashboardScreenState extends State<DashboardScreen> {
                     icon: Icons.settings,
                     title: l10n.account_settings,
                     subtitle: l10n.manage_your_profile,
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/');
-                    },
+                    onPressed: () {},
                   ),
                 ],
               ),
