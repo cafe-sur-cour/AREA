@@ -25,7 +25,7 @@ class AutomationModel {
     return AutomationModel(
       id: json['id'] as int,
       name: json['name'] as String,
-      description: json['description'] as String,
+      description: json['description'] as String? ?? '',
       action: AutomationAction.fromJson(json['action'] as Map<String, dynamic>),
       reactions: (json['reactions'] as List)
           .map((reaction) => AutomationReaction.fromJson(reaction as Map<String, dynamic>))
