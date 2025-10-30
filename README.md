@@ -5,7 +5,7 @@
 The AREA (Action - REAction) is a platform designed to create automations between different services.
 Users can create an automation by selecting an Action from a service (e.g. the music changed in Spotify) and a Reaction to that (e.g. send a message on Discord).
 
-If you want more information about the project dependencies to start the project or architectural questions, please refer to the `README.md` in the Documentation folder.
+If you want more information about the project dependencies to start the project or architectural questions, please refer to the [documentation](documentation/area-documentation/docs/intro.md).
 If you want to learn how to contribute to the project, please refer to the `HOWTOCONTRIBUTE.md` in the Documentation folder.
 
 ### Context and Objectives
