@@ -276,28 +276,28 @@
       "title": "Automatisations populaires",
       "subtitle": "Inspirez-vous de ce que les autres créent",
       "emailToSlack": {
-        "title": "Email vers Slack",
-        "description": "Soyez notifié dans Slack lorsque vous recevez des emails importants"
+        "title": "Push GitHub vers Slack",
+        "description": "Soyez notifié dans Slack quand du code est poussé sur votre dépôt GitHub"
       },
       "socialMediaSync": {
-        "title": "Synchronisation Réseaux Sociaux",
-        "description": "Publiez sur plusieurs réseaux sociaux en une seule fois"
+        "title": "Rappel quotidien Teams",
+        "description": "Envoyez des rappels de stand-up quotidiens sur votre canal Microsoft Teams"
       },
       "calendarReminders": {
-        "title": "Rappels de Calendrier",
-        "description": "Envoyez des rappels SMS avant les événements du calendrier"
+        "title": "Notification PR fusionnée",
+        "description": "Soyez notifié dans Slack quand une pull request est fusionnée sur GitHub"
       },
       "fileBackup": {
-        "title": "Sauvegarde de Fichiers",
-        "description": "Sauvegardez automatiquement vos fichiers dans le cloud"
+        "title": "Alerte changement profil",
+        "description": "Recevez une notification email quand votre photo de profil Microsoft change"
       },
       "taskManagement": {
-        "title": "Gestion des Tâches",
-        "description": "Créez des tâches à partir d'emails ou de messages"
+        "title": "Événement calendrier programmé",
+        "description": "Créez automatiquement des événements calendrier aux heures programmées"
       },
       "dataCollection": {
-        "title": "Collecte de Données",
-        "description": "Enregistrez les réponses de formulaires dans des feuilles de calcul"
+        "title": "Réaction Slack vers Issue",
+        "description": "Créez une issue GitHub quand quelqu'un réagit à un message Slack"
       }
     },
     "features": {

@@ -201,36 +201,36 @@ export default function Home() {
                   title: t.home.popularAutomations.emailToSlack.title,
                   description:
                     t.home.popularAutomations.emailToSlack.description,
-                  icon: '📧',
+                  icon: '🐙',
                 },
                 {
                   title: t.home.popularAutomations.socialMediaSync.title,
                   description:
                     t.home.popularAutomations.socialMediaSync.description,
-                  icon: '📱',
+                  icon: '👤',
                 },
                 {
                   title: t.home.popularAutomations.calendarReminders.title,
                   description:
                     t.home.popularAutomations.calendarReminders.description,
-                  icon: '📅',
+                  icon: '💬',
                 },
                 {
                   title: t.home.popularAutomations.fileBackup.title,
                   description: t.home.popularAutomations.fileBackup.description,
-                  icon: '💾',
+                  icon: '🔀',
                 },
                 {
                   title: t.home.popularAutomations.taskManagement.title,
                   description:
                     t.home.popularAutomations.taskManagement.description,
-                  icon: '✅',
+                  icon: '👍',
                 },
                 {
                   title: t.home.popularAutomations.dataCollection.title,
                   description:
                     t.home.popularAutomations.dataCollection.description,
-                  icon: '📊',
+                  icon: '⏰',
                 },
               ].map((automation, index) => (
                 <div

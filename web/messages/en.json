@@ -276,28 +276,28 @@
       "title": "Popular automations",
       "subtitle": "Get inspired by what others are building",
       "emailToSlack": {
-        "title": "Email to Slack",
-        "description": "Get notified in Slack when you receive important emails"
+        "title": "GitHub Push to Slack",
+        "description": "Get notified in Slack when code is pushed to your GitHub repository"
       },
       "socialMediaSync": {
-        "title": "Social Media Sync",
-        "description": "Post to multiple social networks at once"
+        "title": "Daily Teams Reminder",
+        "description": "Send daily standup reminders to your Microsoft Teams channel"
       },
       "calendarReminders": {
-        "title": "Calendar Reminders",
-        "description": "Send SMS reminders before calendar events"
+        "title": "PR Merged Notification",
+        "description": "Get notified in Slack when a pull request is merged on GitHub"
       },
       "fileBackup": {
-        "title": "File Backup",
-        "description": "Automatically backup files to cloud storage"
+        "title": "Profile Change Alert",
+        "description": "Receive an email notification when your Microsoft profile picture changes"
       },
       "taskManagement": {
-        "title": "Task Management",
-        "description": "Create tasks from emails or messages"
+        "title": "Scheduled Calendar Event",
+        "description": "Automatically create calendar events at scheduled times"
       },
       "dataCollection": {
-        "title": "Data Collection",
-        "description": "Save form responses to spreadsheets"
+        "title": "Slack Reaction to Issue",
+        "description": "Create a GitHub issue when someone reacts to a Slack message"
       }
     },
     "features": {
