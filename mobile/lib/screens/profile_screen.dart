@@ -5,7 +5,6 @@ import 'package:area/core/constants/app_constants.dart';
 import 'package:area/core/notifiers/backend_address_notifier.dart';
 import 'package:area/core/notifiers/locale_notifier.dart';
 import 'package:area/l10n/app_localizations.dart';
-import 'package:area/screens/services_screen.dart';
 import 'package:area/services/secure_storage.dart';
 import 'package:area/services/secure_http_client.dart';
 import 'package:area/widgets/common/buttons/primary_button.dart';
@@ -404,6 +403,24 @@ class ProfileScreenState extends State<ProfileScreen> {
                     SizedBox(
                       width: double.infinity,
                       child: PrimaryButton(
+                        text: AppLocalizations.of(context)!.edit_profile,
+                        icon: Icons.edit,
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/edit-profile').then((result) {
+                            if (result == true) {
+                              _updateProfile();
+                            }
+                          });
+                        },
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    SizedBox(
+                      width: double.infinity,
+                      child: PrimaryButton(
                         text: 'Dashboard',
                         icon: Icons.dashboard,
                         onPressed: () {
@@ -421,14 +438,13 @@ class ProfileScreenState extends State<ProfileScreen> {
                         text: AppLocalizations.of(context)?.services ?? 'Services',
                         icon: Icons.api,
                         onPressed: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(builder: (context) => const ServicesScreen()),
-                          );
+                          Navigator.pushNamed(context, '/services');
                         },
                         padding: const EdgeInsets.symmetric(vertical: 16),
                       ),
                     ),
                   ],
+
                   const SizedBox(height: 20),
 
                   SizedBox(

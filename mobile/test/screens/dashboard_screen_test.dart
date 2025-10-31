@@ -53,6 +53,7 @@ void main() {
           initialRoute: '/dashboard',
           routes: {
             '/dashboard': (context) => const DashboardScreen(),
+            '/services': (context) => const ServicesScreen(),
             '/': (context) => const Scaffold(body: Text('Home Screen')),
           },
         ),
@@ -255,7 +256,7 @@ void main() {
       );
 
       await tester.pumpWidget(createTestWidget());
-      await tester.pumpAndSettle();
+      await tester.pump();
 
       // Tap the "Connect Services" button
       await tester.tap(find.text('Connect Services'));

@@ -171,8 +171,8 @@ void main() {
 
       expect(
         find.byType(PrimaryButton),
-        findsNWidgets(3),
-      ); // Dashboard, About and Services buttons
+        findsNWidgets(4),
+      ); // Profile edit, Dashboard, About and Services buttons
       expect(find.byIcon(Icons.dashboard), findsOneWidget); // Dashboard button icon
       expect(find.byIcon(Icons.info), findsOneWidget); // About button icon
       expect(find.byIcon(Icons.api), findsOneWidget); // Services button icon
