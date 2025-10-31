@@ -5,7 +5,6 @@ import 'package:area/core/notifiers/navigation_index_notifier.dart';
 import 'package:area/l10n/app_localizations.dart';
 import 'package:area/models/automation_models.dart';
 import 'package:area/models/dashboard_stats_model.dart';
-import 'package:area/screens/services_screen.dart';
 import 'package:area/services/secure_http_client.dart';
 import 'package:area/services/secure_storage.dart';
 import 'package:area/widgets/common/app_bar/custom_app_bar.dart';
@@ -182,9 +181,7 @@ class DashboardScreenState extends State<DashboardScreen> {
                     title: l10n.connect_services,
                     subtitle: l10n.link_new_platforms,
                     onPressed: () {
-                      Navigator.of(
-                        context,
-                      ).push(MaterialPageRoute(builder: (context) => const ServicesScreen()));
+                      Navigator.pushNamed(context, '/services');
                     },
                   ),
 
@@ -212,7 +209,9 @@ class DashboardScreenState extends State<DashboardScreen> {
                     icon: Icons.settings,
                     title: l10n.account_settings,
                     subtitle: l10n.manage_your_profile,
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/edit-profile');
+                    },
                   ),
                 ],
               ),

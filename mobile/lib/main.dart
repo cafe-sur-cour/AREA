@@ -10,11 +10,13 @@ import 'package:area/screens/login_screen.dart';
 import 'package:area/screens/automation_configuration_screen.dart';
 import 'package:area/screens/dashboard_screen.dart';
 import 'package:area/screens/about_screen.dart';
+import 'package:area/screens/edit_profile_screen.dart';
 import 'package:area/navigation/main_navigation.dart';
 import 'package:area/core/themes/app_theme.dart';
 import 'package:area/core/notifiers/backend_address_notifier.dart';
 import 'package:area/core/notifiers/locale_notifier.dart';
 import 'package:area/core/notifiers/automation_builder_notifier.dart';
+import 'package:area/screens/services_screen.dart';
 import 'package:area/services/secure_http_client.dart';
 import 'package:area/services/secure_storage.dart';
 import 'package:flutter/material.dart';
@@ -94,8 +96,10 @@ class MyApp extends StatelessWidget {
         '/action-services': (context) => const ActionServicesScreen(),
         '/reaction-services': (context) => const ReactionServicesScreen(),
         '/automation-configuration': (context) => const AutomationConfigurationScreen(),
+        '/services': (context) => const ServicesScreen(),
         '/dashboard': (context) => const DashboardScreen(),
         '/about': (context) => const AboutScreen(),
+        '/edit-profile': (context) => const EditProfileScreen(),
       },
     );
   }

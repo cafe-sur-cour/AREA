@@ -1273,73 +1273,73 @@ abstract class AppLocalizations {
   /// No description provided for @email_to_slack.
   ///
   /// In en, this message translates to:
-  /// **'Email to Slack'**
+  /// **'GitHub Push to Slack'**
   String get email_to_slack;
 
   /// No description provided for @slack_email_notifications.
   ///
   /// In en, this message translates to:
-  /// **'Get notified in Slack when you receive important emails'**
+  /// **'Get notified in Slack when code is pushed to your GitHub repository'**
   String get slack_email_notifications;
 
   /// No description provided for @social_media_sync.
   ///
   /// In en, this message translates to:
-  /// **'Social Media Sync'**
+  /// **'Daily Teams Reminder'**
   String get social_media_sync;
 
   /// No description provided for @post_multiple_networks.
   ///
   /// In en, this message translates to:
-  /// **'Post to multiple social networks at once'**
+  /// **'Send daily standup reminders to your Microsoft Teams channel'**
   String get post_multiple_networks;
 
   /// No description provided for @calendar_reminders.
   ///
   /// In en, this message translates to:
-  /// **'Calendar Reminders'**
+  /// **'PR Merged Notification'**
   String get calendar_reminders;
 
   /// No description provided for @sms_calendar_reminders.
   ///
   /// In en, this message translates to:
-  /// **'Send SMS reminders before calendar events'**
+  /// **'Get notified in Slack when a pull request is merged on GitHub'**
   String get sms_calendar_reminders;
 
   /// No description provided for @file_backup.
   ///
   /// In en, this message translates to:
-  /// **'File Backup'**
+  /// **'Profile Change Alert'**
   String get file_backup;
 
   /// No description provided for @automatic_cloud_backup.
   ///
   /// In en, this message translates to:
-  /// **'Automatically backup files to cloud storage'**
+  /// **'Receive an email notification when your Microsoft profile picture changes'**
   String get automatic_cloud_backup;
 
   /// No description provided for @task_management.
   ///
   /// In en, this message translates to:
-  /// **'Task Management'**
+  /// **'Scheduled Calendar Event'**
   String get task_management;
 
   /// No description provided for @create_tasks_from_emails.
   ///
   /// In en, this message translates to:
-  /// **'Create tasks from emails or messages'**
+  /// **'Automatically create calendar events at scheduled times'**
   String get create_tasks_from_emails;
 
   /// No description provided for @data_collection.
   ///
   /// In en, this message translates to:
-  /// **'Data Collection'**
+  /// **'Slack Reaction to Issue'**
   String get data_collection;
 
   /// No description provided for @save_forms_to_spreadsheets.
   ///
   /// In en, this message translates to:
-  /// **'Save form responses to spreadsheets'**
+  /// **'Create a GitHub issue when someone reacts to a Slack message'**
   String get save_forms_to_spreadsheets;
 
   /// No description provided for @lightning_fast.
@@ -1695,6 +1695,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Explore Services'**
   String get about_cta_button_explore;
+
+  /// No description provided for @edit_profile.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Profile'**
+  String get edit_profile;
+
+  /// No description provided for @current_password.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Password'**
+  String get current_password;
+
+  /// No description provided for @new_password.
+  ///
+  /// In en, this message translates to:
+  /// **'New Password'**
+  String get new_password;
+
+  /// No description provided for @empty_current_password.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your current password'**
+  String get empty_current_password;
+
+  /// No description provided for @empty_new_password.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a new password'**
+  String get empty_new_password;
+
+  /// No description provided for @profile_picture_url.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile Picture URL'**
+  String get profile_picture_url;
+
+  /// No description provided for @optional.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional'**
+  String get optional;
+
+  /// No description provided for @save_changes.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Changes'**
+  String get save_changes;
+
+  /// No description provided for @profile_updated.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile updated successfully'**
+  String get profile_updated;
+
+  /// No description provided for @failed_update_profile.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to update profile: {error}'**
+  String failed_update_profile(String error);
+
+  /// No description provided for @updating_profile.
+  ///
+  /// In en, this message translates to:
+  /// **'Updating profile...'**
+  String get updating_profile;
+
+  /// No description provided for @fill_at_least_one_field.
+  ///
+  /// In en, this message translates to:
+  /// **'Please fill at least one field to update'**
+  String get fill_at_least_one_field;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

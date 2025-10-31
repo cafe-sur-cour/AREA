@@ -675,41 +675,46 @@ class AppLocalizationsEn extends AppLocalizations {
   String get get_inspired => 'Get inspired by what others are building';
 
   @override
-  String get email_to_slack => 'Email to Slack';
+  String get email_to_slack => 'GitHub Push to Slack';
 
   @override
   String get slack_email_notifications =>
-      'Get notified in Slack when you receive important emails';
+      'Get notified in Slack when code is pushed to your GitHub repository';
 
   @override
-  String get social_media_sync => 'Social Media Sync';
+  String get social_media_sync => 'Daily Teams Reminder';
 
   @override
-  String get post_multiple_networks => 'Post to multiple social networks at once';
+  String get post_multiple_networks =>
+      'Send daily standup reminders to your Microsoft Teams channel';
 
   @override
-  String get calendar_reminders => 'Calendar Reminders';
+  String get calendar_reminders => 'PR Merged Notification';
 
   @override
-  String get sms_calendar_reminders => 'Send SMS reminders before calendar events';
+  String get sms_calendar_reminders =>
+      'Get notified in Slack when a pull request is merged on GitHub';
 
   @override
-  String get file_backup => 'File Backup';
+  String get file_backup => 'Profile Change Alert';
 
   @override
-  String get automatic_cloud_backup => 'Automatically backup files to cloud storage';
+  String get automatic_cloud_backup =>
+      'Receive an email notification when your Microsoft profile picture changes';
 
   @override
-  String get task_management => 'Task Management';
+  String get task_management => 'Scheduled Calendar Event';
 
   @override
-  String get create_tasks_from_emails => 'Create tasks from emails or messages';
+  String get create_tasks_from_emails =>
+      'Automatically create calendar events at scheduled times';
 
   @override
-  String get data_collection => 'Data Collection';
+  String get data_collection => 'Slack Reaction to Issue';
 
   @override
-  String get save_forms_to_spreadsheets => 'Save form responses to spreadsheets';
+  String get save_forms_to_spreadsheets =>
+      'Create a GitHub issue when someone reacts to a Slack message';
 
   @override
   String get lightning_fast => 'Lightning fast';
@@ -909,4 +914,42 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get about_cta_button_explore => 'Explore Services';
+
+  @override
+  String get edit_profile => 'Edit Profile';
+
+  @override
+  String get current_password => 'Current Password';
+
+  @override
+  String get new_password => 'New Password';
+
+  @override
+  String get empty_current_password => 'Please enter your current password';
+
+  @override
+  String get empty_new_password => 'Please enter a new password';
+
+  @override
+  String get profile_picture_url => 'Profile Picture URL';
+
+  @override
+  String get optional => 'Optional';
+
+  @override
+  String get save_changes => 'Save Changes';
+
+  @override
+  String get profile_updated => 'Profile updated successfully';
+
+  @override
+  String failed_update_profile(String error) {
+    return 'Failed to update profile: $error';
+  }
+
+  @override
+  String get updating_profile => 'Updating profile...';
+
+  @override
+  String get fill_at_least_one_field => 'Please fill at least one field to update';
 }

@@ -680,44 +680,46 @@ class AppLocalizationsFr extends AppLocalizations {
   String get get_inspired => 'Inspirez-vous de ce que les autres construisent';
 
   @override
-  String get email_to_slack => 'Email vers Slack';
+  String get email_to_slack => 'Push GitHub vers Slack';
 
   @override
   String get slack_email_notifications =>
-      'Soyez notifié dans Slack quand vous recevez des emails importants';
+      'Soyez notifié dans Slack quand du code est poussé sur votre dépôt GitHub';
 
   @override
-  String get social_media_sync => 'Synchronisation réseaux sociaux';
+  String get social_media_sync => 'Rappel quotidien Teams';
 
   @override
-  String get post_multiple_networks => 'Publiez sur plusieurs réseaux sociaux à la fois';
+  String get post_multiple_networks =>
+      'Envoyez des rappels de stand-up quotidiens sur votre canal Microsoft Teams';
 
   @override
-  String get calendar_reminders => 'Rappels de calendrier';
+  String get calendar_reminders => 'Notification PR fusionnée';
 
   @override
   String get sms_calendar_reminders =>
-      'Envoyez des rappels SMS avant les événements du calendrier';
+      'Soyez notifié dans Slack quand une pull request est fusionnée sur GitHub';
 
   @override
-  String get file_backup => 'Sauvegarde de fichiers';
+  String get file_backup => 'Alerte changement profil';
 
   @override
   String get automatic_cloud_backup =>
-      'Sauvegardez automatiquement les fichiers vers le stockage cloud';
+      'Recevez une notification email quand votre photo de profil Microsoft change';
 
   @override
-  String get task_management => 'Gestion des tâches';
+  String get task_management => 'Événement calendrier programmé';
 
   @override
-  String get create_tasks_from_emails => 'Créez des tâches à partir d\'emails ou de messages';
+  String get create_tasks_from_emails =>
+      'Créez automatiquement des événements calendrier aux heures programmées';
 
   @override
-  String get data_collection => 'Collection de données';
+  String get data_collection => 'Réaction Slack vers Issue';
 
   @override
   String get save_forms_to_spreadsheets =>
-      'Sauvegardez les réponses de formulaires dans des feuilles de calcul';
+      'Créez une issue GitHub quand quelqu\'un réagit à un message Slack';
 
   @override
   String get lightning_fast => 'Ultra rapide';
@@ -917,4 +919,43 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get about_cta_button_explore => 'Explorer les Services';
+
+  @override
+  String get edit_profile => 'Modifier le profil';
+
+  @override
+  String get current_password => 'Mot de passe actuel';
+
+  @override
+  String get new_password => 'Nouveau mot de passe';
+
+  @override
+  String get empty_current_password => 'Entrez votre mot de passe actuel';
+
+  @override
+  String get empty_new_password => 'Entrez un nouveau mot de passe';
+
+  @override
+  String get profile_picture_url => 'URL de la photo de profil';
+
+  @override
+  String get optional => 'Optionnel';
+
+  @override
+  String get save_changes => 'Enregistrer les modifications';
+
+  @override
+  String get profile_updated => 'Profil mis à jour avec succès';
+
+  @override
+  String failed_update_profile(String error) {
+    return 'Échec de la mise à jour du profil : $error';
+  }
+
+  @override
+  String get updating_profile => 'Mise à jour du profil...';
+
+  @override
+  String get fill_at_least_one_field =>
+      'Veuillez remplir au moins un champ pour mettre à jour';
 }
