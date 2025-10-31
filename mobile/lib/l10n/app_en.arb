@@ -526,5 +526,24 @@
   "about_cta_description": "Join thousands of users who are already saving time with Area. Start automating today.",
   "about_cta_button_dashboard": "Go to Dashboard",
   "about_cta_button_start": "Start Free",
-  "about_cta_button_explore": "Explore Services"
+  "about_cta_button_explore": "Explore Services",
+  "edit_profile": "Edit Profile",
+  "current_password": "Current Password",
+  "new_password": "New Password",
+  "empty_current_password": "Please enter your current password",
+  "empty_new_password": "Please enter a new password",
+  "profile_picture_url": "Profile Picture URL",
+  "optional": "Optional",
+  "save_changes": "Save Changes",
+  "profile_updated": "Profile updated successfully",
+  "failed_update_profile": "Failed to update profile: {error}",
+  "@failed_update_profile": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "updating_profile": "Updating profile...",
+  "fill_at_least_one_field": "Please fill at least one field to update"
 }
